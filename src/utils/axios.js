@@ -30,11 +30,15 @@ export const endpoints = {
   kanban: '/api/kanban',
   calendar: '/api/calendar',
   auth: {
-    me: '/api/auth/me',
-    login: '/api/auth/login',
+    me: '/api/v1/auth/me',
+    login: '/api/v1/auth',
+    logout: '/api/v1/auth/logout',
     register: '/api/auth/register',
+    reset_password: '/api/v1/password_reset/reset',
+    confirm_password: '/api/v1/password_reset/confirm',
+    validate_token: '/api/v1/password_reset/validate_token',
   },
-  mail: {
+  /*mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
     labels: '/api/mail/labels',
@@ -49,5 +53,5 @@ export const endpoints = {
     list: '/api/product/list',
     details: '/api/product/details',
     search: '/api/product/search',
-  },
+  },*/
 };

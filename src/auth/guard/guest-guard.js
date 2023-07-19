@@ -16,7 +16,6 @@ export default function GuestGuard({ children }) {
   const returnTo = searchParams.get('returnTo') || paths.dashboard.root;
 
   const { authenticated } = useAuthContext();
-
   const check = useCallback(() => {
     if (authenticated) {
       router.replace(returnTo);

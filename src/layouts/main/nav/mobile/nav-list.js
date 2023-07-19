@@ -46,7 +46,7 @@ export default function NavList({ item }) {
                     backgroundPosition: 'center',
                     bgcolor: 'background.neutral',
                     backgroundRepeat: 'no-repeat',
-                    backgroundImage: 'url(/assets/illustrations/illustration_dashboard.png)',
+                    backgroundImage: 'url(/assets/illustrations/fundo_login.png)',
                     [`& .${listItemTextClasses.root}`]: {
                       display: 'none',
                     },

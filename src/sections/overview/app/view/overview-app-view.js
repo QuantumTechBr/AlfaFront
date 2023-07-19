@@ -38,7 +38,7 @@ export default function OverviewAppView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        {/* <Grid xs={12} md={8}>
           <AppWelcome
             title={`Welcome back 👋 \n ${user?.displayName}`}
             description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
@@ -48,16 +48,16 @@ export default function OverviewAppView() {
                 Go Now
               </Button>
             }
-          />
-        </Grid>
+          /> 
+        </Grid> 
 
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
-        </Grid>
+        </Grid> */}
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Active Users"
+            title="Total de Usuários Ativos"
             percent={2.6}
             total={18765}
             chart={{
@@ -68,7 +68,7 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Installed"
+            title="Total de Alunos Cadastrados"
             percent={0.2}
             total={4876}
             chart={{
@@ -80,7 +80,7 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
-            title="Total Downloads"
+            title="Número de Turmas Ativas"
             percent={-0.1}
             total={678}
             chart={{
@@ -92,13 +92,13 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
-            title="Current Download"
+            title="Índice de Presença"
             chart={{
               series: [
-                { label: 'Mac', value: 12244 },
-                { label: 'Window', value: 53345 },
-                { label: 'iOS', value: 44313 },
-                { label: 'Android', value: 78343 },
+                { label: '', value: 12244 },
+                { label: '', value: 53345 },
+                { label: '', value: 44313 },
+                { label: '', value: 78343 },
               ],
             }}
           />
@@ -106,8 +106,8 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
-            title="Area Installed"
-            subheader="(+43%) than last year"
+            title="Desempenho dos Alunos"
+            subheader="(+43%) que o ano passado"
             chart={{
               categories: [
                 'Jan',
@@ -128,11 +128,11 @@ export default function OverviewAppView() {
                   year: '2019',
                   data: [
                     {
-                      name: 'Asia',
+                      name: '',
                       data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
                     },
                     {
-                      name: 'America',
+                      name: '',
                       data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
                     },
                   ],
@@ -154,7 +154,7 @@ export default function OverviewAppView() {
             }}
           />
         </Grid>
-
+        { /*      
         <Grid xs={12} lg={8}>
           <AppNewInvoice
             title="New Invoice"
@@ -202,7 +202,7 @@ export default function OverviewAppView() {
               }}
             />
           </Stack>
-        </Grid>
+            </Grid> */ }
       </Grid>
     </Container>
   );

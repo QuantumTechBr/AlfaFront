@@ -43,6 +43,13 @@ const ICONS = {
   ecommerce: icon('ic_ecommerce'),
   analytics: icon('ic_analytics'),
   dashboard: icon('ic_dashboard'),
+  alfaBookAccount: icon('ic_alfa_book_account'),
+  alfaBuilding: icon('ic_alfa_building'),
+  alfaCalendar: icon('ic_alfa_calendar'),
+  alfaClipboardAccount: icon('ic_alfa_clipboard_account'),
+  alfaHome: icon('ic_alfa_home'),
+  alfaUserProfile: icon('ic_alfa_user_profile'),
+  alfaStudent: icon('ic_alfa_student'),
 };
 
 // ----------------------------------------------------------------------
@@ -52,9 +59,84 @@ export function useNavData() {
 
   const data = useMemo(
     () => [
-      // OVERVIEW
+      // MENU
       // ----------------------------------------------------------------------
       {
+        subheader: t('menu'),
+        items: [
+          // USER
+          {
+            title: t('home (dashboard)'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaHome,
+          },
+
+          // PRODUCT
+          {
+            title: t('gerenciamento de usuários'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaUserProfile,
+            children: [
+              { title: t('perfis e permissões'), path: paths.dashboard.root },
+              { title: t('usuários'), path: paths.dashboard.root },
+            ],
+          },
+
+          // ORDER
+          {
+            title: t('profissionais da educação'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaClipboardAccount,
+          },
+
+          // INVOICE
+          {
+            title: t('lista de alunos'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaStudent,
+          },
+
+          // BLOG
+          {
+            title: t('lista de alunos letivos'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaCalendar,
+            children: [
+              { title: t('calendário'), path: paths.dashboard.root },
+              { title: t('gerar relatório'), path: paths.dashboard.root },
+              { title: t('documentos administrativos'), path: paths.dashboard.root },
+            ],
+          },
+
+          // JOB
+          {
+            title: t('lista de turmas'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaBookAccount,
+            children: [
+              { title: t('frequência'), path: paths.dashboard.root },
+              { title: t('atividades pedagógicas'), path: paths.dashboard.root },
+              { title: t('planos de aulas'), path: paths.dashboard.root },
+              { title: t('avaliações'), path: paths.dashboard.root },
+            ],
+          },
+
+          // TOUR
+          {
+            title: t('redes de ensino'),
+            path: paths.dashboard.root,
+            icon: ICONS.alfaBuilding,
+            children: [
+              { title: t('lista de ddz'), path: paths.dashboard.root },
+              { title: t('lista de escolas'), path: paths.dashboard.root },
+            ],
+          },
+        ],
+      },
+
+      // OVERVIEW
+      // ----------------------------------------------------------------------
+     /* {
         subheader: t('overview'),
         items: [
           { title: t('app'), path: paths.dashboard.root, icon: ICONS.dashboard },
@@ -285,7 +367,7 @@ export function useNavData() {
             icon: ICONS.blank,
           },
         ],
-      },
+      }, */
     ],
     [t]
   );

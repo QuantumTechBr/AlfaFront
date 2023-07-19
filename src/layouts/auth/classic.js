@@ -28,6 +28,12 @@ const METHODS = [
     icon: '/assets/icons/auth/ic_jwt.svg',
   },
   {
+    id: 'alfa',
+    label: 'Alfa',
+    path: paths.auth.alfa.login,
+    icon: '/assets/icons/auth/ic_jwt.svg',
+  },
+  {
     id: 'firebase',
     label: 'Firebase',
     path: paths.auth.firebase.login,
@@ -54,7 +60,7 @@ export default function AuthClassicLayout({ children, image, title }) {
 
   const upMd = useResponsive('up', 'md');
 
-  const renderLogo = (
+  /*const renderLogo = (
     <Logo
       sx={{
         zIndex: 9,
@@ -62,7 +68,7 @@ export default function AuthClassicLayout({ children, image, title }) {
         m: { xs: 2, md: 5 },
       }}
     />
-  );
+  );*/
 
   const renderContent = (
     <Stack
@@ -94,18 +100,18 @@ export default function AuthClassicLayout({ children, image, title }) {
         }),
       }}
     >
-      <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
+    { /* <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
         {title || 'Hi, Welcome back'}
-      </Typography>
+      </Typography> */ }
 
       <Box
         component="img"
         alt="auth"
-        src={image || '/assets/illustrations/illustration_dashboard.png'}
-        sx={{ maxWidth: 720 }}
+        src={image || '/assets/illustrations/fundo_login.png'}
+        sx={{ maxWidth: 1, height: 1 }}
       />
 
-      <Stack direction="row" spacing={2}>
+     { /* <Stack direction="row" spacing={2}>
         {METHODS.map((option) => (
           <Tooltip key={option.label} title={option.label}>
             <Link component={RouterLink} href={option.path}>
@@ -124,7 +130,7 @@ export default function AuthClassicLayout({ children, image, title }) {
             </Link>
           </Tooltip>
         ))}
-      </Stack>
+      </Stack> */ } 
     </Stack>
   );
 
@@ -136,7 +142,7 @@ export default function AuthClassicLayout({ children, image, title }) {
         minHeight: '100vh',
       }}
     >
-      {renderLogo}
+      { /*{renderLogo}*/ }
 
       {upMd && renderSection}
 
