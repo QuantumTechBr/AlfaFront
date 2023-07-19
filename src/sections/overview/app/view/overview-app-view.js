@@ -4,6 +4,7 @@
 import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 // hooks
@@ -25,6 +26,7 @@ import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
 import AppTopInstalledCountries from '../app-top-installed-countries';
+import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +56,18 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
         </Grid> */}
+
+        <Grid xs={12} md={10}>
+          <Typography variant="h3" paragraph>
+            {document.title}
+          </Typography>
+        </Grid>
+
+        <Grid xs={12} md={2}>
+          <Button variant="contained" color="primary">
+            Registro de Aprendizagem
+          </Button>
+        </Grid>
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
@@ -92,13 +106,12 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
-            title="Índice de Presença"
+            title="Índice de Fases"
             chart={{
               series: [
                 { label: '', value: 12244 },
                 { label: '', value: 53345 },
                 { label: '', value: 44313 },
-                { label: '', value: 78343 },
               ],
             }}
           />

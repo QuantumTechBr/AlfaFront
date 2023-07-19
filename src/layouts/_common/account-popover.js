@@ -54,7 +54,7 @@ export default function AccountPopover() {
     try {
       await logout();
       popover.onClose();
-      router.replace('/');
+      router.replace('/dashboard');
     } catch (error) {
       console.error(error);
       enqueueSnackbar('Unable to logout!', { variant: 'error' });
@@ -63,7 +63,7 @@ export default function AccountPopover() {
 
   const handleClickItem = (path) => {
     popover.onClose();
-    router.push(path);
+    //router.push(path);
   };
 
   return (

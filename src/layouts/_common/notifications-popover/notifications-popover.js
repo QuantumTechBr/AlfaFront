@@ -144,7 +144,6 @@ export default function NotificationsPopover() {
         whileHover="hover"
         variants={varHover(1.05)}
         color={drawer.value ? 'primary' : 'default'}
-        onClick={drawer.onTrue}
       >
         <Badge badgeContent={totalUnRead} color="error">
           <Iconify icon="solar:bell-bing-bold-duotone" width={24} />

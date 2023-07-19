@@ -1,6 +1,8 @@
+'use client';
+
 // sections
 import { HomeView } from 'src/sections/home/view';
-
+import { useRouter } from 'src/routes/hook';
 // ----------------------------------------------------------------------
 
 export const metadata = {
@@ -8,5 +10,6 @@ export const metadata = {
 };
 
 export default function HomePage() {
-  return <HomeView />;
+  const router = useRouter();
+  router.replace('/dashboard');
 }

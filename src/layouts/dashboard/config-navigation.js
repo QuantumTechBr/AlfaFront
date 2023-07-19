@@ -73,32 +73,32 @@ export function useNavData() {
 
           // PRODUCT
           {
-            title: t('gerenciamento de usuários'),
+            title: 'Gerenciamento de Usuários',
             path: paths.dashboard.root,
             icon: ICONS.alfaUserProfile,
             children: [
-              { title: t('perfis e permissões'), path: paths.dashboard.root },
+              { title: 'Perfis e Permissões', path: paths.dashboard.root },
               { title: t('usuários'), path: paths.dashboard.root },
             ],
           },
 
           // ORDER
           {
-            title: t('profissionais da educação'),
+            title: 'Profissionais da Educação',
             path: paths.dashboard.root,
             icon: ICONS.alfaClipboardAccount,
           },
 
           // INVOICE
           {
-            title: t('lista de alunos'),
+            title: 'Lista de Alunos',
             path: paths.dashboard.root,
             icon: ICONS.alfaStudent,
           },
 
           // BLOG
           {
-            title: t('lista de alunos letivos'),
+            title: 'Lista de Alunos Letivos',
             path: paths.dashboard.root,
             icon: ICONS.alfaCalendar,
             children: [
@@ -110,25 +110,25 @@ export function useNavData() {
 
           // JOB
           {
-            title: t('lista de turmas'),
+            title: 'Lista de Turmas',
             path: paths.dashboard.root,
             icon: ICONS.alfaBookAccount,
             children: [
               { title: t('frequência'), path: paths.dashboard.root },
               { title: t('atividades pedagógicas'), path: paths.dashboard.root },
-              { title: t('planos de aulas'), path: paths.dashboard.root },
+              { title: 'Planos de Aulas', path: paths.dashboard.root },
               { title: t('avaliações'), path: paths.dashboard.root },
             ],
           },
 
           // TOUR
           {
-            title: t('redes de ensino'),
+            title: 'Redes de Ensino',
             path: paths.dashboard.root,
             icon: ICONS.alfaBuilding,
             children: [
-              { title: t('lista de ddz'), path: paths.dashboard.root },
-              { title: t('lista de escolas'), path: paths.dashboard.root },
+              { title: 'Lista de DDZ', path: paths.dashboard.root },
+              { title: 'Lista de Escolas', path: paths.dashboard.root },
             ],
           },
         ],

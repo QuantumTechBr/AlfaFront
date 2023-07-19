@@ -44,7 +44,6 @@ export default function SettingsButton({ sx }) {
           whileHover="hover"
           variants={varHover(1.05)}
           aria-label="settings"
-          onClick={settings.onToggle}
           sx={{
             width: 40,
             height: 40,
