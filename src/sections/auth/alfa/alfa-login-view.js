@@ -27,6 +27,7 @@ import { useAuthContext } from 'src/auth/hooks';
 import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { maxWidth } from '@mui/system';
+import { da } from 'date-fns/locale';
 
 // ----------------------------------------------------------------------
 
@@ -44,8 +45,8 @@ export default function AlfaLoginView() {
   const password = useBoolean();
 
   const LoginSchema = Yup.object().shape({
-    login: Yup.string().required('Email is required'),
-    senha: Yup.string().required('Password is required'),
+    login: Yup.string().required('Esse campo não pode ser vazio'),
+    senha: Yup.string().required('Esse campo não pode ser vazio'),
   });
 
   const defaultValues = {
@@ -70,8 +71,15 @@ export default function AlfaLoginView() {
 
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
-      console.error(error);
-      reset();
+      //console.error(error);
+      //reset();
+      if (data.login != 'admin') {
+        window.alert('Login ou Senha incorretos')
+        reset()
+      }else if (data.senha != 'admin') {
+        window.alert('Login ou Senha incorretos')
+        reset()
+      }
       setErrorMsg(typeof error === 'string' ? error : error.message);
     }
   });
@@ -97,7 +105,7 @@ export default function AlfaLoginView() {
   );
 
   const renderForm = (
-    <Stack spacing={2.5} >
+    <Stack spacing={2.5}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
       <RHFTextField name="login" label="Login" />

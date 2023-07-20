@@ -96,7 +96,7 @@ export default function AlfaForgotPasswordView() {
         <Typography variant="h3">Esqueceu sua senha?</Typography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Porfavor coloque o email associado com a sua conta que enviaremos um link 
+          Por favor coloque o email associado com a sua conta que enviaremos um link 
           para re-definição de senha.
         </Typography>
       </Stack>
