@@ -19,6 +19,7 @@ import HomeColorPresets from '../home-color-presets';
 import HomeAdvertisement from '../home-advertisement';
 import HomeCleanInterfaces from '../home-clean-interfaces';
 import HomeHugePackElements from '../home-hugepack-elements';
+import { useRouter } from 'src/routes/hook';
 
 // ----------------------------------------------------------------------
 
@@ -45,43 +46,48 @@ const StyledPolygon = styled('div')(({ anchor = 'top', theme }) => ({
 // ----------------------------------------------------------------------
 
 export default function HomeView() {
+  
+  const router = useRouter();
+  router.replace('/dashboard');
+
   const { scrollYProgress } = useScroll();
 
   return (
-    <MainLayout>
-      <ScrollProgress scrollYProgress={scrollYProgress} />
+    <></>
+    // <MainLayout>
+    //   <ScrollProgress scrollYProgress={scrollYProgress} />
 
-      <HomeHero />
+    //   <HomeHero />
 
-      <Box
-        sx={{
-          overflow: 'hidden',
-          position: 'relative',
-          bgcolor: 'background.default',
-        }}
-      >
-        <HomeMinimal />
+    //   <Box
+    //     sx={{
+    //       overflow: 'hidden',
+    //       position: 'relative',
+    //       bgcolor: 'background.default',
+    //     }}
+    //   >
+    //     <HomeMinimal />
 
-        <HomeHugePackElements />
+    //     <HomeHugePackElements />
 
-        <Box sx={{ position: 'relative' }}>
-          <StyledPolygon />
-          <HomeForDesigner />
-          <StyledPolygon anchor="bottom" />
-        </Box>
+    //     <Box sx={{ position: 'relative' }}>
+    //       <StyledPolygon />
+    //       <HomeForDesigner />
+    //       <StyledPolygon anchor="bottom" />
+    //     </Box>
 
-        <HomeDarkMode />
+    //     <HomeDarkMode />
 
-        <HomeColorPresets />
+    //     <HomeColorPresets />
 
-        <HomeCleanInterfaces />
+    //     <HomeCleanInterfaces />
 
-        <HomePricing />
+    //     <HomePricing />
 
-        <HomeLookingFor />
+    //     <HomeLookingFor />
 
-        <HomeAdvertisement />
-      </Box>
-    </MainLayout>
+    //     <HomeAdvertisement />
+    //   </Box>
+    // </MainLayout>
   );
 }
