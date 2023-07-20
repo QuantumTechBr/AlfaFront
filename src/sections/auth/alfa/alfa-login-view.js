@@ -97,7 +97,7 @@ export default function AlfaLoginView() {
   );
 
   const renderForm = (
-    <Stack spacing={2.5}>
+    <Stack spacing={2.5} >
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
       <RHFTextField name="login" label="Login" />

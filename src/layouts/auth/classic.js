@@ -90,28 +90,30 @@ export default function AuthClassicLayout({ children, image, title }) {
       alignItems="center"
       justifyContent="center"
       spacing={10}
+      maxWidth={0.5}
       sx={{
         ...bgGradient({
           color: alpha(
             theme.palette.background.default,
-            theme.palette.mode === 'light' ? 0.88 : 0.94
+            theme.palette.mode === 'light' ? 0 : 0
           ),
-          imgUrl: '/assets/background/overlay_2.jpg',
+          imgUrl: '/assets/illustrations/fundo_login.png',
+
         }),
       }}
     >
     { /* <Typography variant="h3" sx={{ maxWidth: 480, textAlign: 'center' }}>
         {title || 'Hi, Welcome back'}
-      </Typography> */ }
+      </Typography> 
 
       <Box
         component="img"
         alt="auth"
         src={image || '/assets/illustrations/fundo_login.png'}
-        sx={{ maxWidth: 1, height: 1 }}
+        sx={{ maxWidth: 1 }}
       />
 
-     { /* <Stack direction="row" spacing={2}>
+      <Stack direction="row" spacing={2}>
         {METHODS.map((option) => (
           <Tooltip key={option.label} title={option.label}>
             <Link component={RouterLink} href={option.path}>
