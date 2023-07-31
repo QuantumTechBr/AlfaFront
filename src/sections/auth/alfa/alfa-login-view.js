@@ -71,15 +71,8 @@ export default function AlfaLoginView() {
 
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
-      //console.error(error);
-      //reset();
-      if (data.login != 'admin') {
-        window.alert('Login ou Senha incorretos')
-        reset()
-      }else if (data.senha != 'admin') {
-        window.alert('Login ou Senha incorretos')
-        reset()
-      }
+      console.error(error);
+      reset();
       setErrorMsg(typeof error === 'string' ? error : error.message);
     }
   });
