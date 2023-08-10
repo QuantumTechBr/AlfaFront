@@ -78,7 +78,7 @@ export function useNavData() {
             icon: ICONS.alfaUserProfile,
             children: [
               { title: 'Perfis e Permissões', path: paths.dashboard.root },
-              { title: t('usuários'), path: paths.dashboard.root },
+              { title: t('usuários'), path: paths.dashboard.user.list },
             ],
           },
 

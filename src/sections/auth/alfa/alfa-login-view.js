@@ -28,15 +28,24 @@ import Iconify from 'src/components/iconify';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
 import { maxWidth } from '@mui/system';
 import { da } from 'date-fns/locale';
+import { templateSettings } from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function AlfaLoginView() {
-  const { login } = useAuthContext();
+  const { login: loginContext } = useAuthContext();
 
   const router = useRouter();
 
   const [errorMsg, setErrorMsg] = useState('');
+
+  const [login, setLogin] = useState('');
+
+  const [bgSenhaColor, setBgSenhaColor] = useState('lightgrey');
+
+  const [senhaDisabled, setSenhaDisabled] = useState(true);
+
+  const [botaoDisabled, setBotaoDisabled] = useState(true);
 
   const searchParams = useSearchParams();
 
@@ -45,37 +54,53 @@ export default function AlfaLoginView() {
   const password = useBoolean();
 
   const LoginSchema = Yup.object().shape({
-    login: Yup.string().required('Esse campo não pode ser vazio'),
     senha: Yup.string().required('Esse campo não pode ser vazio'),
   });
 
   const defaultValues = {
     login: '',
     senha: '',
+    tentativas: 0,
   };
 
   const methods = useForm({
     resolver: yupResolver(LoginSchema),
-    defaultValues,
+    defaultValues: {login: login, senha:defaultValues.senha, tentativas:defaultValues.tentativas},
   });
 
   const {
-    reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
+    console.log(login);
+    console.log(data)
     try {
-      await login?.(data.login, data.senha);
+      await loginContext?.(login, data.senha);
+      if (login == ''){
+        setErrorMsg(typeof error === 'string' ? error : 'O campo Login não pode ser vazio.');
+      }
 
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
-      console.error(error);
-      reset();
-      setErrorMsg(typeof error === 'string' ? error : error.message);
+      data.tentativas++;
+
+      if (data.tentativas > 2){
+        setErrorMsg(typeof error === 'string' ? error : 'Login ou Senha incorretos. "Clique em Esqueceu a senha?" para recuperar.');
+      } else {
+        setErrorMsg(typeof error === 'string' ? error : error.non_field_errors);  
+      } 
+    
     }
   });
+
+  const onChangeLogin = (e) => {
+    e.target.value? setSenhaDisabled(false) : setSenhaDisabled(true)
+    e.target.value? setBgSenhaColor('white') : setBgSenhaColor('lightgrey')
+    e.target.value? setBotaoDisabled(false) : setBotaoDisabled(true)
+    setLogin(e.target.value)
+  }
 
   const renderHead = (
     <Stack spacing={2} sx={{ mb: 5 }}>
@@ -101,12 +126,19 @@ export default function AlfaLoginView() {
     <Stack spacing={2.5}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
-      <RHFTextField name="login" label="Login" />
+      <RHFTextField 
+        name="login" 
+        label="Login" 
+        value={login}
+        onChange={onChangeLogin}
+      />
 
       <RHFTextField
         name="senha"
         label="Senha"
         type={password.value ? 'text' : 'password'}
+        disabled={senhaDisabled}
+        sx={{ bgcolor: bgSenhaColor }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -127,6 +159,7 @@ export default function AlfaLoginView() {
         color="inherit"
         size="large"
         type="submit"
+        disabled={botaoDisabled}
         variant="contained"
         loading={isSubmitting}
       >

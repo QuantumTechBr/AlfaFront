@@ -38,6 +38,9 @@ export const endpoints = {
     confirm_password: '/api/v1/password_reset/confirm',
     validate_token: '/api/v1/password_reset/validate_token',
   },
+  user: {
+    list: '/api/v1/usuarios',
+  },
   /*mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
