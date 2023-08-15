@@ -66,7 +66,7 @@ export const setSession = (accessToken, expirationDate) => {
     sessionStorage.setItem('accessToken', accessToken);
     sessionStorage.setItem('expirationDate', expirationDate);
     
-    axios.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    axios.defaults.headers.common.Authorization = `Token ${accessToken}`;
 
     // This function below will handle when token is expired
     //const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
@@ -74,7 +74,6 @@ export const setSession = (accessToken, expirationDate) => {
     //tokenExpired(expirationDate);
   } else {
     sessionStorage.removeItem('accessToken');
-
     delete axios.defaults.headers.common.Authorization;
   }
 };

@@ -65,8 +65,8 @@ export function AuthProvider({ children }) {
         setSession(accessToken, expirationDate);
 
         const response = await axios.get(endpoints.auth.me);
-
-        const { user } = response.data;
+        
+        const user = response.data;
 
         dispatch({
           type: 'INITIAL',

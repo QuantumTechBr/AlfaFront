@@ -74,8 +74,6 @@ export default function AlfaLoginView() {
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(login);
-    console.log(data)
     try {
       await loginContext?.(login, data.senha);
       if (login == ''){

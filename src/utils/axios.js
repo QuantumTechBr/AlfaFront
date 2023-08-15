@@ -1,6 +1,8 @@
 import axios from 'axios';
 // config
 import { HOST_API } from 'src/config-global';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+
 
 // ----------------------------------------------------------------------
 
@@ -8,7 +10,7 @@ const axiosInstance = axios.create({ baseURL: HOST_API });
 
 axiosInstance.interceptors.response.use(
   (res) => res,
-  (error) => Promise.reject((error.response && error.response.data) || 'Something went wrong')
+  (error) => Promise.reject((error.response && error.response.data) || 'Algo deu errado')
 );
 
 export default axiosInstance;
@@ -40,6 +42,10 @@ export const endpoints = {
   },
   user: {
     list: '/api/v1/usuarios',
+    post: '/api/v1/usuarios',
+    get_by_id: '/api/v1/usuarios/',
+    update: '/api/v1/usuarios/',
+    delete: '/api/v1/usuarios/',
   },
   /*mail: {
     list: '/api/mail/list',

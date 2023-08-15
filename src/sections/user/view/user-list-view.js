@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -43,14 +43,17 @@ import {
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
-
+//
+import userMethods from '../user-provider';
 // ----------------------------------------------------------------------
+
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'name', label: 'Nome' },
-  { id: 'phoneNumber', label: 'E-Mail', width: 180 },
+  { id: 'nome', label: 'Nome' },
+  { id: 'login', label: 'Login' },
+  { id: 'email', label: 'E-Mail', width: 180 },
   { id: 'company', label: 'Função', width: 220 },
   { id: 'status', label: 'Status', width: 100 },
   { id: '', width: 88 },
@@ -65,6 +68,16 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function UserListView() {
+
+  const [_userList, setUserList] = useState([]);
+
+  useEffect(() => {
+    userMethods.getAllUsers().then(usuarios => {
+      setUserList(usuarios.data);
+      setTableData(usuarios.data);
+    })
+  }, []);
+  
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -73,7 +86,7 @@ export default function UserListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState(_userList);
+  const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -161,7 +174,7 @@ export default function UserListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
             >
-              New User
+              Novo Usuário
             </Button>
           }
           sx={{
