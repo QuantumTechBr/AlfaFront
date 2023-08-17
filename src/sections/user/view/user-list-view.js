@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, _roles, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _userList, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -51,17 +51,19 @@ import userMethods from '../user-provider';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome' },
-  { id: 'login', label: 'Login' },
-  { id: 'email', label: 'E-Mail', width: 180 },
-  { id: 'company', label: 'Função', width: 220 },
-  { id: 'status', label: 'Status', width: 100 },
+  { id: 'nome', label: 'Nome', width: 200 },
+  { id: 'email', label: 'E-Mail', width: 300 },
+  { id: 'funcao_usuario', label: 'Função', width: 200 },
+  { id: 'status', label: 'Status', width: 200 },
+  { id: '', width: 88 },
   { id: '', width: 88 },
 ];
 
 const defaultFilters = {
-  name: '',
+  nome: '',
   role: [],
+  ddz: [],
+  escola: [],
   status: 'all',
 };
 
@@ -73,6 +75,9 @@ export default function UserListView() {
 
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
+      for (var i = 0; i < usuarios.data.length; i++) {
+        usuarios.data[i].status = 'ativo';
+      }
       setUserList(usuarios.data);
       setTableData(usuarios.data);
     })
@@ -108,11 +113,11 @@ export default function UserListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (name, value) => {
+    (nome, value) => {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [name]: value,
+        [nome]: value,
       }));
     },
     [table]
@@ -161,11 +166,11 @@ export default function UserListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="List"
+          heading="Listar"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'User', href: paths.dashboard.user.root },
-            { name: 'List' },
+            { name: 'Usuário', href: paths.dashboard.user.root },
+            { name: 'Listar' },
           ]}
           action={
             <Button
@@ -173,8 +178,11 @@ export default function UserListView() {
               href={paths.dashboard.user.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: "#00A5AD",
+              }}
             >
-              Novo Usuário
+              Adicionar
             </Button>
           }
           sx={{
@@ -203,20 +211,20 @@ export default function UserListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === 'active' && 'success') ||
+                      (tab.value === 'ativo' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'banned' && 'error') ||
+                      (tab.value === 'inativo' && 'error') ||
                       'default'
                     }
                   >
                     {tab.value === 'all' && _userList.length}
-                    {tab.value === 'active' &&
-                      _userList.filter((user) => user.status === 'active').length}
+                    {tab.value === 'ativo' &&
+                      _userList.filter((user) => user.status === 'ativo').length}
 
                     {tab.value === 'pending' &&
                       _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'banned' &&
-                      _userList.filter((user) => user.status === 'banned').length}
+                    {tab.value === 'inativo' &&
+                      _userList.filter((user) => user.status === 'inativo').length}
                     {tab.value === 'rejected' &&
                       _userList.filter((user) => user.status === 'rejected').length}
                   </Label>
@@ -230,6 +238,8 @@ export default function UserListView() {
             onFilters={handleFilters}
             //
             roleOptions={_roles}
+            ddzOptions={_ddzs}
+            escolaOptions={_escolas}
           />
 
           {canReset && (
@@ -328,7 +338,7 @@ export default function UserListView() {
         title="Delete"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> usuários?
           </>
         }
         action={
@@ -351,7 +361,7 @@ export default function UserListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { name, status, role } = filters;
+  const { nome, status, role, ddz, escola } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -363,9 +373,9 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (name) {
+  if (nome) {
     inputData = inputData.filter(
-      (user) => user.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (user) => user.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
@@ -375,6 +385,14 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (role.length) {
     inputData = inputData.filter((user) => role.includes(user.role));
+  }
+
+  if (ddz.length) {
+    inputData = inputData.filter((user) => ddz.includes(user.ddz));
+  }
+
+  if (escola.length) {
+    inputData = inputData.filter((user) => escola.includes(user.escola));
   }
 
   return inputData;

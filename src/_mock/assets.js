@@ -244,6 +244,24 @@ export const _roles = [
   'Professor',
 ];
 
+export const _ddzs = [
+  'DDZ I (Sul) ZONA SUL',
+  'DDZ I (Sul) ZONA CENTRO-SUL',
+];
+
+export const _escolas = [
+  'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
+  'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
+  'E.M. GRAZIELA RIBEIRO',
+  'E.M. PADRE JOSE DE ANCHIETA',
+  'CMEI PHELIPPE DAOU',
+  'CMEI HUMBERTO DE ALENCAR CASTELO BRANCO',
+  'CMEI FRANCISCO PEREIRA DA SILVA',
+  'CMEI PROF. ESCRITOR PAULINHO DE BRITO',
+  'E.M. THOMAS MEIRELES',
+  'E.M. PADRE PUGA',
+];
+
 // ----------------------------------------------------------------------
 
 export const _postTitles = [

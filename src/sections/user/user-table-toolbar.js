@@ -22,12 +22,14 @@ export default function UserTableToolbar({
   onFilters,
   //
   roleOptions,
+  ddzOptions,
+  escolaOptions,
 }) {
   const popover = usePopover();
 
-  const handleFilterName = useCallback(
+  const handleFilterNome = useCallback(
     (event) => {
-      onFilters('name', event.target.value);
+      onFilters('nome', event.target.value);
     },
     [onFilters]
   );
@@ -36,6 +38,26 @@ export default function UserTableToolbar({
     (event) => {
       onFilters(
         'role',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterDdz = useCallback(
+    (event) => {
+      onFilters(
+        'ddz',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterEscola = useCallback(
+    (event) => {
+      onFilters(
+        'escola',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -59,7 +81,7 @@ export default function UserTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 200 },
+            width: { xs: 1, md: 140 },
           }}
         >
           <InputLabel>Função</InputLabel>
@@ -85,11 +107,69 @@ export default function UserTableToolbar({
           </Select>
         </FormControl>
 
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 100 },
+          }}
+        >
+          <InputLabel>DDZ</InputLabel>
+
+          <Select
+            multiple
+            value={filters.ddz}
+            onChange={handleFilterDdz}
+            input={<OutlinedInput label="DDZ" />}
+            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {ddzOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 300 },
+          }}
+        >
+          <InputLabel>Escola</InputLabel>
+
+          <Select
+            multiple
+            value={filters.escola}
+            onChange={handleFilterEscola}
+            input={<OutlinedInput label="Escola" />}
+            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {escolaOptions.map((option) => (
+              <MenuItem key={option} value={option}>
+                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                {option}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
-            value={filters.name}
-            onChange={handleFilterName}
+            value={filters.nome}
+            onChange={handleFilterNome}
             placeholder="Pesquisar..."
             InputProps={{
               startAdornment: (
@@ -147,4 +227,6 @@ UserTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   roleOptions: PropTypes.array,
+  ddzOptions: PropTypes.array,
+  escolaOptions: PropTypes.array,
 };

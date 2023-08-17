@@ -5,6 +5,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
+import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -25,11 +26,13 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
+  RHFSelect,
   RHFSwitch,
   RHFTextField,
   RHFUploadAvatar,
   RHFAutocomplete,
 } from 'src/components/hook-form';
+import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -39,37 +42,26 @@ export default function UserNewEditForm({ currentUser }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewUserSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
-    phoneNumber: Yup.string().required('Phone number is required'),
-    address: Yup.string().required('Address is required'),
-    country: Yup.string().required('Country is required'),
-    company: Yup.string().required('Company is required'),
-    state: Yup.string().required('State is required'),
-    city: Yup.string().required('City is required'),
-    role: Yup.string().required('Role is required'),
-    zipCode: Yup.string().required('Zip code is required'),
-    avatarUrl: Yup.mixed().nullable().required('Avatar is required'),
-    // not required
+    nome: Yup.string().required('Nome é obrigatório'),
+    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
+    senha: Yup.string().required('Senha é obrigatório'),
+    funcao_usuario: Yup.string(),
     status: Yup.string(),
-    isVerified: Yup.boolean(),
+    ddz: Yup.string(),
+    escola: Yup.string(),
+    isVerified: Yup.boolean(), 
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentUser?.name || '',
-      city: currentUser?.city || '',
-      role: currentUser?.role || '',
+      nome: currentUser?.nome || '',
       email: currentUser?.email || '',
-      state: currentUser?.state || '',
+      senha: currentUser?.senha || '',
+      funcao_usuario: currentUser?.funcao_usuario || '',
       status: currentUser?.status || '',
-      address: currentUser?.address || '',
-      country: currentUser?.country || '',
-      zipCode: currentUser?.zipCode || '',
-      company: currentUser?.company || '',
-      avatarUrl: currentUser?.avatarUrl || null,
-      phoneNumber: currentUser?.phoneNumber || '',
-      isVerified: currentUser?.isVerified || true,
+      ddz: currentUser?.ddz || '',
+      escola: currentUser?.escola || '',
+      isVerified: currentUser?.is_verified || false,
     }),
     [currentUser]
   );
@@ -94,7 +86,7 @@ export default function UserNewEditForm({ currentUser }) {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
-      enqueueSnackbar(currentUser ? 'Update success!' : 'Create success!');
+      enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
@@ -120,20 +112,20 @@ export default function UserNewEditForm({ currentUser }) {
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        <Grid xs={12} md={4}>
+        {/*<Grid xs={12} md={4}>
           <Card sx={{ pt: 10, pb: 5, px: 3 }}>
             {currentUser && (
               <Label
                 color={
-                  (values.status === 'active' && 'success') ||
-                  (values.status === 'banned' && 'error') ||
+                  (values.status === 'ativo' && 'success') ||
+                  (values.status === 'inativo' && 'error') ||
                   'warning'
                 }
                 sx={{ position: 'absolute', top: 24, right: 24 }}
               >
                 {values.status}
               </Label>
-            )}
+              )}
 
             <Box sx={{ mb: 5 }}>
               <RHFUploadAvatar
@@ -156,7 +148,7 @@ export default function UserNewEditForm({ currentUser }) {
                   </Typography>
                 }
               />
-            </Box>
+              </Box>
 
             {currentUser && (
               <FormControlLabel
@@ -168,9 +160,9 @@ export default function UserNewEditForm({ currentUser }) {
                     render={({ field }) => (
                       <Switch
                         {...field}
-                        checked={field.value !== 'active'}
+                        checked={field.value !== 'ativo'}
                         onChange={(event) =>
-                          field.onChange(event.target.checked ? 'banned' : 'active')
+                          field.onChange(event.target.checked ? 'inativo' : 'ativo')
                         }
                       />
                     )}
@@ -179,7 +171,7 @@ export default function UserNewEditForm({ currentUser }) {
                 label={
                   <>
                     <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Banned
+                      Inativo
                     </Typography>
                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                       Apply disable account
@@ -214,7 +206,7 @@ export default function UserNewEditForm({ currentUser }) {
               </Stack>
             )}
           </Card>
-        </Grid>
+            </Grid>*/}
 
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
@@ -227,50 +219,50 @@ export default function UserNewEditForm({ currentUser }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="name" label="Full Name" />
-              <RHFTextField name="email" label="Email Address" />
-              <RHFTextField name="phoneNumber" label="Phone Number" />
+              <RHFTextField name="nome" label="Nome Completo" />
 
-              <RHFAutocomplete
-                name="country"
-                label="Country"
-                options={countries.map((country) => country.label)}
-                getOptionLabel={(option) => option}
-                isOptionEqualToValue={(option, value) => option === value}
-                renderOption={(props, option) => {
-                  const { code, label, phone } = countries.filter(
-                    (country) => country.label === option
-                  )[0];
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
-                  if (!label) {
-                    return null;
-                  }
+              <RHFTextField name="email" label="Email" />
+              <RHFTextField name="senha" label="Senha" />
 
-                  return (
-                    <li {...props} key={label}>
-                      <Iconify
-                        key={label}
-                        icon={`circle-flags:${code.toLowerCase()}`}
-                        width={28}
-                        sx={{ mr: 1 }}
-                      />
-                      {label} ({code}) +{phone}
-                    </li>
-                  );
-                }}
-              />
+              <RHFSelect name="funcao_usuario" label="Função">
+                {_roles.map((funcao) => (
+                  <MenuItem key={funcao} value={funcao}>
+                    {funcao}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
-              <RHFTextField name="state" label="State/Region" />
-              <RHFTextField name="city" label="City" />
-              <RHFTextField name="address" label="Address" />
-              <RHFTextField name="zipCode" label="Zip/Code" />
-              <RHFTextField name="company" label="Company" />
-              <RHFTextField name="role" label="Role" />
+              <RHFSelect name="status" label="Status">
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+              <RHFSelect name="ddz" label="DDZ">
+                {_ddzs.map((ddz) => (
+                  <MenuItem key={ddz} value={ddz}>
+                    {ddz}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+              <RHFSelect name="escola" label="Escola">
+                {_escolas.map((escola) => (
+                  <MenuItem key={escola} value={escola}>
+                    {escola}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Create User' : 'Save Changes'}
+                {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
               </LoadingButton>
             </Stack>
           </Card>

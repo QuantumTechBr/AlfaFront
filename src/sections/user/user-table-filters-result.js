@@ -24,9 +24,23 @@ export default function UserTableFiltersResult({
     onFilters('status', 'all');
   };
 
+  const handleRemoveNome = (inputValue) => {
+    onFilters('nome', '');
+  };
+
   const handleRemoveRole = (inputValue) => {
     const newValue = filters.role.filter((item) => item !== inputValue);
     onFilters('role', newValue);
+  };
+
+  const handleRemoveDdz = (inputValue) => {
+    const newValue = filters.ddz.filter((item) => item !== inputValue);
+    onFilters('ddz', newValue);
+  };
+  
+  const handleRemoveEscola = (inputValue) => {
+    const newValue = filters.escola.filter((item) => item !== inputValue);
+    onFilters('escola', newValue);
   };
 
   return (
@@ -34,7 +48,7 @@ export default function UserTableFiltersResult({
       <Box sx={{ typography: 'body2' }}>
         <strong>{results}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          results found
+          resultados escontrados
         </Box>
       </Box>
 
@@ -45,10 +59,32 @@ export default function UserTableFiltersResult({
           </Block>
         )}
 
+        {filters.nome !== '' && (
+          <Block label="Nome:">
+            <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
+          </Block>
+        )}
+
         {!!filters.role.length && (
-          <Block label="Role:">
+          <Block label="Função:">
             {filters.role.map((item) => (
               <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
+            ))}
+          </Block>
+        )}
+
+        {!!filters.ddz.length && (
+          <Block label="DDZ:">
+            {filters.ddz.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
+            ))}
+          </Block>
+        )}
+
+        {!!filters.escola.length && (
+          <Block label="Escola:">
+            {filters.escola.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
             ))}
           </Block>
         )}
@@ -58,7 +94,7 @@ export default function UserTableFiltersResult({
           onClick={onResetFilters}
           startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
         >
-          Clear
+          Limpar
         </Button>
       </Stack>
     </Stack>

@@ -23,7 +23,7 @@ export default function UserEditView({ id }) {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Edit"
+        heading="Editar"
         links={[
           {
             name: 'Dashboard',
@@ -33,7 +33,7 @@ export default function UserEditView({ id }) {
             name: 'User',
             href: paths.dashboard.user.root,
           },
-          { name: currentUser?.name },
+          { name: currentUser?.nome },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

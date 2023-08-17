@@ -6,8 +6,8 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const USER_STATUS_OPTIONS = [
-  { value: 'active', label: 'Ativos' },
-  { value: 'banned', label: 'Inativos' },
+  { value: 'ativo', label: 'Ativo' },
+  { value: 'inativo', label: 'Inativo' },
 ];
 
 export const _userAbout = {

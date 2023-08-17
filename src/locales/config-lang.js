@@ -1,5 +1,5 @@
 // @mui
-import { enUS, frFR, zhCN, viVN, arSA } from '@mui/material/locale';
+import { ptBR, enUS, frFR, zhCN, viVN, arSA } from '@mui/material/locale';
 
 // PLEASE REMOVE `LOCAL STORAGE` WHEN YOU CHANGE SETTINGS.
 // ----------------------------------------------------------------------
@@ -37,7 +37,16 @@ export const allLangs = [
   },
 ];
 
-export const defaultLang = allLangs[0]; // English
+export const brLang = [
+  {
+    label: 'Português (BR)',
+    value: 'br',
+    systemValue: ptBR,
+    icon: 'flagpack:br', 
+  }
+]
+
+export const defaultLang = brLang[0]; // PT-BR
 
 // GET MORE COUNTRY FLAGS
 // https://icon-sets.iconify.design/flagpack/

@@ -22,7 +22,7 @@ import UserQuickEditForm from './user-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, login, email, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, nome, login, email, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at, status } = row;
 
 
   const confirm = useBoolean();
@@ -48,8 +48,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{login}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao_usuario}</TableCell>
@@ -60,9 +58,9 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Label
             variant="soft"
             color={
-              (status === 'active' && 'success') ||
+              (status === 'ativo' && 'success') ||
               (status === 'pending' && 'warning') ||
-              (status === 'banned' && 'error') ||
+              (status === 'inativo' && 'error') ||
               'default'
             }
           >
@@ -109,15 +107,15 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           }}
         >
           <Iconify icon="solar:pen-bold" />
-          Edit
+          Editar
         </MenuItem>
       </CustomPopover>
 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
-        content="Deseja excluir?"
+        title="Excluir Usuário"
+        content="Tem certeza que deseja excluir o usuário?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar
