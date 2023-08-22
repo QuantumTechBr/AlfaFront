@@ -12,13 +12,20 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import UserNewEditForm from '../user-new-edit-form';
+import userMethods from '../user-provider';
+import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
 export default function UserEditView({ id }) {
   const settings = useSettingsContext();
 
-  const currentUser = _userList.find((user) => user.id === id);
+  const [currentUser, setCurrentUser] = useState({});
+  useEffect(()  => {
+    userMethods.getUserById(id).then(usuario => {
+      setCurrentUser(usuario.data);
+    })
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -30,7 +37,7 @@ export default function UserEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'User',
+            name: 'Usuário',
             href: paths.dashboard.user.root,
           },
           { name: currentUser?.nome },
