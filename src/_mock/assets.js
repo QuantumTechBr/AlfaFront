@@ -244,6 +244,48 @@ export const _roles = [
   'Professor',
 ];
 
+export const _anos = [
+  2022,
+  2023,
+  2024,
+];
+
+export const _turmas = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: '1º Ano A',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32
+  },
+  {
+    id: '2',
+    ano_escolar: 2023,
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: '1º Ano B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 75,
+    alunos: 23
+  },
+  {
+    id: '3',
+    ano_escolar: 2023,
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: '1º Ano C',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 92,
+    alunos: 43
+  },
+]
+
 export const _ddzs = [
   'DDZ I (Sul) ZONA SUL',
   'DDZ I (Sul) ZONA CENTRO-SUL',
