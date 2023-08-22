@@ -91,6 +91,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             A conta está aguardando confirmação
           </Alert>
 
+          <RHFTextField name="nome" label="Nome Completo" sx={{ mb: 3 }} />
+
           <Box
             rowGap={3}
             columnGap={2}
@@ -100,9 +102,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               sm: 'repeat(2, 1fr)',
             }}
           >
-            <RHFTextField name="nome" label="Nome Completo" />
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
             <RHFTextField name="email" label="Email" />
             <RHFTextField name="senha" label="Senha" />

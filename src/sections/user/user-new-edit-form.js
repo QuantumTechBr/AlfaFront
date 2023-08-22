@@ -33,6 +33,8 @@ import FormProvider, {
   RHFAutocomplete,
 } from 'src/components/hook-form';
 import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import userMethods from './user-provider';
+import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -40,7 +42,6 @@ export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
 
   const { enqueueSnackbar } = useSnackbar();
-
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
@@ -52,6 +53,7 @@ export default function UserNewEditForm({ currentUser }) {
     isVerified: Yup.boolean(), 
   });
 
+  
   const defaultValues = useMemo(
     () => ({
       nome: currentUser?.nome || '',
@@ -71,7 +73,9 @@ export default function UserNewEditForm({ currentUser }) {
     defaultValues,
   });
 
+
   const {
+    register,
     reset,
     watch,
     control,
@@ -108,6 +112,11 @@ export default function UserNewEditForm({ currentUser }) {
     },
     [setValue]
   );
+
+  console.log(defaultValues);
+  useEffect(()  => {
+    reset(defaultValues)
+  }, [currentUser]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -207,9 +216,10 @@ export default function UserNewEditForm({ currentUser }) {
             )}
           </Card>
             </Grid>*/}
-
+        
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+            <RHFTextField name="nome" label="Nome Completo" sx={{ mb:3 }}/>
             <Box
               rowGap={3}
               columnGap={2}
@@ -219,9 +229,6 @@ export default function UserNewEditForm({ currentUser }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="nome" label="Nome Completo" />
-
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="senha" label="Senha" />
