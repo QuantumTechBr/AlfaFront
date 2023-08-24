@@ -244,6 +244,61 @@ export const _roles = [
   'Professor',*/
 ];
 
+export const _anos = [
+  2022,
+  2023,
+  2024,
+];
+
+export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+export const _turnos = ['matutino', 'vespertino', 'noturno'];
+
+export const _turmas = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: 'A',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+    status: 'Ativo'
+  },
+  {
+    id: '2',
+    ano_escolar: 2023,
+    ano_serie: 2,
+    turno: 'vespertino',
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 75,
+    alunos: 23,
+    status: 'Inativo'
+  },
+  {
+    id: '3',
+    ano_escolar: 2023,
+    ano_serie: 3,
+    turno: 'noturno',
+    escola: 'CMEI PHELIPPE DAOU',
+    nome: 'C',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 92,
+    alunos: 43,
+    status: 'Ativo'
+  },
+]
+
 export const _ddzs = [
   'DDZ I (Sul) ZONA SUL',
   'DDZ I (Sul) ZONA CENTRO-SUL',

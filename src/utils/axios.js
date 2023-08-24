@@ -47,6 +47,13 @@ export const endpoints = {
     update: '/api/v1/usuarios/',
     delete: '/api/v1/usuarios/',
   },
+  turma :{
+    list: '/api/v1/turmas',
+    post: '/api/v1/turmas',
+    get_by_id: '/api/v1/turmas/',
+    update: '/api/v1/turmas/',
+    delete: '/api/v1/turmas/',
+  }
   /*mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
