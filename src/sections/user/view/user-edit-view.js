@@ -23,6 +23,8 @@ export default function UserEditView({ id }) {
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
+      usuario.data.funcao = 'Diretor';
+      usuario.data.escola = 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES';
       setCurrentUser(usuario.data);
     })
   }, []);

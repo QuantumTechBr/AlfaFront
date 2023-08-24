@@ -240,8 +240,8 @@ export const _phoneNumbers = [
 
 export const _roles = [
   'Diretor',
-  'Acessor DDZ',
-  'Professor',
+  /*'Acessor DDZ',
+  'Professor',*/
 ];
 
 export const _ddzs = [
@@ -251,7 +251,7 @@ export const _ddzs = [
 
 export const _escolas = [
   'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-  'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
+  /*'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
   'E.M. GRAZIELA RIBEIRO',
   'E.M. PADRE JOSE DE ANCHIETA',
   'CMEI PHELIPPE DAOU',
@@ -259,7 +259,7 @@ export const _escolas = [
   'CMEI FRANCISCO PEREIRA DA SILVA',
   'CMEI PROF. ESCRITOR PAULINHO DE BRITO',
   'E.M. THOMAS MEIRELES',
-  'E.M. PADRE PUGA',
+  'E.M. PADRE PUGA',*/
 ];
 
 // ----------------------------------------------------------------------

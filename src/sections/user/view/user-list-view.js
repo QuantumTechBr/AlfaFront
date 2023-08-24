@@ -53,9 +53,8 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 200 },
   { id: 'email', label: 'E-Mail', width: 300 },
-  { id: 'funcao_usuario', label: 'Função', width: 200 },
+  { id: 'funcao', label: 'Função', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: ' ', width: 88 },
   { id: '', width: 88 },
 ];
 
@@ -75,14 +74,16 @@ export default function UserListView() {
 
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
-      for (var i = 0; i < usuarios.data.length; i++) {
-        usuarios.data[i].status = 'ativo';
+      const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
+      for (var i = 0; i < usuariosNaoDeletados.length; i++) {
+        usuariosNaoDeletados[i].funcao = 'Diretor';
+        usuariosNaoDeletados[i].escola = 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES';
       }
-      setUserList(usuarios.data);
-      setTableData(usuarios.data);
+      setUserList(usuariosNaoDeletados);
+      setTableData(usuariosNaoDeletados);
     })
   }, []);
-  
+
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -126,7 +127,9 @@ export default function UserListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
+      userMethods.deleteUserById(id);
       setTableData(deleteRow);
+      //userMethods.deleteUserById(id);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -211,20 +214,19 @@ export default function UserListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === 'ativo' && 'success') ||
+                      (tab.value === true && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'inativo' && 'error') ||
+                      (tab.value === false && 'error') ||
                       'default'
                     }
                   >
                     {tab.value === 'all' && _userList.length}
-                    {tab.value === 'ativo' &&
-                      _userList.filter((user) => user.status === 'ativo').length}
-
+                    {tab.value === true &&
+                      _userList.filter((user) => user.status === true).length}
                     {tab.value === 'pending' &&
                       _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'inativo' &&
-                      _userList.filter((user) => user.status === 'inativo').length}
+                    {tab.value === false &&
+                      _userList.filter((user) => user.status === false).length}
                     {tab.value === 'rejected' &&
                       _userList.filter((user) => user.status === 'rejected').length}
                   </Label>
@@ -387,9 +389,9 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((user) => role.includes(user.role));
   }
 
-  if (ddz.length) {
+ /* if (ddz.length) {
     inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }
+  }*/
 
   if (escola.length) {
     inputData = inputData.filter((user) => escola.includes(user.escola));

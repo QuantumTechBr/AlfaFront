@@ -36,6 +36,7 @@ import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
 import userMethods from './user-provider';
 import { useEffect, useState } from 'react';
 
+
 // ----------------------------------------------------------------------
 
 export default function UserNewEditForm({ currentUser }) {
@@ -45,31 +46,25 @@ export default function UserNewEditForm({ currentUser }) {
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
-    senha: Yup.string().required('Senha é obrigatório'),
+    senha: Yup.string(),
     funcao_usuario: Yup.string(),
-    status: Yup.string(),
-    ddz: Yup.string(),
-    escola: Yup.string(),
-    isVerified: Yup.boolean(), 
   });
-
   
   const defaultValues = useMemo(
     () => ({
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
+      funcao: currentUser?.funcao || '',
       funcao_usuario: currentUser?.funcao_usuario || '',
       status: currentUser?.status || '',
-      ddz: currentUser?.ddz || '',
       escola: currentUser?.escola || '',
-      isVerified: currentUser?.is_verified || false,
     }),
     [currentUser]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -88,7 +83,27 @@ export default function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      var novoUsuario = {}
+      if (data.senha) {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          senha: data.senha, 
+          login: data.nome,
+        }
+      } else {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          login: data.nome,
+        }
+      }
+      if (currentUser) {
+        await userMethods.updateUserById(currentUser.id, novoUsuario);
+        
+      } else {
+        await userMethods.insertUser(novoUsuario);
+      }
       reset();
       enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.user.list);
@@ -98,7 +113,7 @@ export default function UserNewEditForm({ currentUser }) {
     }
   });
 
-  const handleDrop = useCallback(
+ /* const handleDrop = useCallback(
     (acceptedFiles) => {
       const file = acceptedFiles[0];
 
@@ -111,9 +126,8 @@ export default function UserNewEditForm({ currentUser }) {
       }
     },
     [setValue]
-  );
+  );*/
 
-  console.log(defaultValues);
   useEffect(()  => {
     reset(defaultValues)
   }, [currentUser]);
@@ -219,7 +233,6 @@ export default function UserNewEditForm({ currentUser }) {
         
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-            <RHFTextField name="nome" label="Nome Completo" sx={{ mb:3 }}/>
             <Box
               rowGap={3}
               columnGap={2}
@@ -229,11 +242,11 @@ export default function UserNewEditForm({ currentUser }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-
+              <RHFTextField name="nome" label="Nome Completo" />
               <RHFTextField name="email" label="Email" />
-              <RHFTextField name="senha" label="Senha" />
+              <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-              <RHFSelect name="funcao_usuario" label="Função">
+              <RHFSelect name="funcao" label="Função">
                 {_roles.map((funcao) => (
                   <MenuItem key={funcao} value={funcao}>
                     {funcao}
@@ -249,13 +262,13 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <RHFSelect name="ddz" label="DDZ">
+              {/*<RHFSelect name="ddz" label="DDZ">
                 {_ddzs.map((ddz) => (
                   <MenuItem key={ddz} value={ddz}>
                     {ddz}
                   </MenuItem>
                 ))}
-              </RHFSelect>
+              </RHFSelect>*/}
 
               <RHFSelect name="escola" label="Escola">
                 {_escolas.map((escola) => (
