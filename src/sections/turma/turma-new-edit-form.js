@@ -32,7 +32,8 @@ import FormProvider, {
   RHFUploadAvatar,
   RHFAutocomplete,
 } from 'src/components/hook-form';
-import { _anos, _escolas } from 'src/_mock';
+// _mock
+import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -113,25 +114,41 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="nome" label="Nome da Turma" />
+              <RHFSelect name="ano_serie" label="Ano">
+              {_anosSerie.map((ano) => (
+                <MenuItem key={ano} value={ano}>
+                  {ano}°
+                </MenuItem>
+              ))}
+            </RHFSelect>
 
-              <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
+            <RHFTextField name="nome" label="Nome da Turma" />
 
-              <RHFSelect name="ano" label="Ano">
-                {_anos.map((ano) => (
-                  <MenuItem key={ano} value={ano}>
-                    {ano}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
-              <RHFSelect name="escola" label="Escola">
-                {_escolas.map((escola) => (
-                  <MenuItem key={escola} value={escola}>
-                    {escola}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+            <RHFSelect name="turno" label="Turno">
+              {_turnos.map((escola) => (
+                <MenuItem key={escola} value={escola}>
+                  {escola}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFSelect name="ano_escolar" label="Ano Escolar">
+              {_anos.map((ano) => (
+                <MenuItem key={ano} value={ano}>
+                  {ano}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFSelect name="escola" label="Escola">
+              {_escolas.map((escola) => (
+                <MenuItem key={escola} value={escola}>
+                  {escola}
+                </MenuItem>
+              ))}
+            </RHFSelect>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

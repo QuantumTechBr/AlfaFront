@@ -22,7 +22,7 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, ano_escolar, alunos, media, created_at, updated_at, deleted_at } = row;
+  const { id, nome, ano_escolar, ano_serie, turno, alunos, media, status, created_at, updated_at, deleted_at } = row;
 
 
   const confirm = useBoolean();
@@ -38,13 +38,17 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_serie}°</TableCell>
+
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{media}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{status}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

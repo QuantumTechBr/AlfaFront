@@ -14,7 +14,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _anos, _escolas } from 'src/_mock';
+import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
 // components
@@ -65,6 +65,7 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
     }
   });
 
+
   return (
     <Dialog
       fullWidth
@@ -89,11 +90,28 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
               sm: 'repeat(2, 1fr)',
             }}
           >
+
+            <RHFSelect name="ano_serie" label="Ano">
+              {_anosSerie.map((ano) => (
+                <MenuItem key={ano} value={ano}>
+                  {ano}°
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
             <RHFTextField name="nome" label="Nome da Turma" />
 
             <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
 
-            <RHFSelect name="ano" label="Ano">
+            <RHFSelect name="turno" label="Turno">
+              {_turnos.map((escola) => (
+                <MenuItem key={escola} value={escola}>
+                  {escola}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFSelect name="ano_escolar" label="Ano Escolar">
               {_anos.map((ano) => (
                 <MenuItem key={ano} value={ano}>
                   {ano}

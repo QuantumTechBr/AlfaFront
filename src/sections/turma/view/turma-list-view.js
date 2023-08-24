@@ -49,10 +49,12 @@ import turmaMethods from '../turma-provider';
 
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 200 },
-  { id: 'ano', label: 'Ano', width: 300 },
+  { id: 'ano_serie', label: 'Ano', width: 300 },
+  { id: 'nome', label: 'Turma', width: 200 },
+  { id: 'turno', label: 'Turno', width: 200 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 300 },
   { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'media', label: 'Média', width: 200 },
+  { id: 'status', label: 'Status', width: 200 },
   { id: '', width: 88 },
   { id: '', width: 88 },
 ];
@@ -189,47 +191,6 @@ export default function TurmaListView() {
         />
 
         <Card>
-          {/* <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'ativo' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'inativo' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && _turmaList.length}
-                    {tab.value === 'ativo' &&
-                      _turmaList.filter((user) => user.status === 'ativo').length}
-
-                    {tab.value === 'pending' &&
-                      _turmaList.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'inativo' &&
-                      _turmaList.filter((user) => user.status === 'inativo').length}
-                    {tab.value === 'rejected' &&
-                      _turmaList.filter((user) => user.status === 'rejected').length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs> */}
 
           <TurmaTableToolbar
             filters={filters}
