@@ -112,8 +112,6 @@ function Searchbar() {
       <IconButton onClick={search.onTrue}>
         <Iconify icon="eva:search-fill" />
       </IconButton>
-
-      {/* {mdUp && <Label sx={{ px: 0.75, fontSize: 12, color: 'text.secondary' }}>⌘K</Label>} */}
     </Stack>
   );
 

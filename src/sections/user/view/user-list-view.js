@@ -55,7 +55,7 @@ const TABLE_HEAD = [
   { id: 'email', label: 'E-Mail', width: 300 },
   { id: 'funcao_usuario', label: 'Função', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
+  { id: ' ', width: 88 },
   { id: '', width: 88 },
 ];
 
