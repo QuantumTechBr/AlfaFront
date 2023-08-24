@@ -64,14 +64,12 @@ export function useNavData() {
       {
         subheader: t('menu'),
         items: [
-          // USER
           {
             title: t('home (dashboard)'),
             path: paths.dashboard.root,
             icon: ICONS.alfaHome,
           },
-
-          // PRODUCT
+          // USER
           {
             title: 'Gerenciamento de Usuários',
             path: paths.dashboard.root,
@@ -81,24 +79,25 @@ export function useNavData() {
               { title: t('usuários'), path: paths.dashboard.user.list },
             ],
           },
+          
 
-          // ORDER
+          // PROFISSIONAIS
           {
             title: 'Profissionais da Educação',
             path: paths.dashboard.root,
             icon: ICONS.alfaClipboardAccount,
           },
 
-          // INVOICE
+          // ALUNOS
           {
             title: 'Lista de Alunos',
             path: paths.dashboard.root,
             icon: ICONS.alfaStudent,
           },
 
-          // BLOG
+          // ANOS
           {
-            title: 'Lista de Alunos Letivos',
+            title: 'Lista de Anos Letivos',
             path: paths.dashboard.root,
             icon: ICONS.alfaCalendar,
             children: [
@@ -108,12 +107,13 @@ export function useNavData() {
             ],
           },
 
-          // JOB
+          // TURMAS
           {
-            title: 'Lista de Turmas',
+            title: 'Turmas',
             path: paths.dashboard.root,
             icon: ICONS.alfaBookAccount,
             children: [
+              { title: t('lista de turmas'), path: paths.dashboard.turma.list },
               { title: t('frequência'), path: paths.dashboard.root },
               { title: t('atividades pedagógicas'), path: paths.dashboard.root },
               { title: 'Planos de Aulas', path: paths.dashboard.root },
