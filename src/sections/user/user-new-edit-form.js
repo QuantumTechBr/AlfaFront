@@ -89,19 +89,27 @@ export default function UserNewEditForm({ currentUser }) {
           nome:  data.nome,
           email: data.email,
           senha: data.senha, 
-          login: data.nome,
+          login: data.email,
         }
       } else {
         novoUsuario = {
           nome:  data.nome,
           email: data.email,
-          login: data.nome,
+          login: data.email,
         }
       }
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario);
         
       } else {
+        novoUsuario.permissao_usuario = [{
+          id: '91bbd3c9-61fa-4987-b31e-2a41f623e002',
+          created_at: '2023-08-23 15:06:10',
+          updated_at: null,
+          deleted_at: null,
+          nome: 'SUPERADMIN',
+          permissao_modulo: [],
+        }];
         await userMethods.insertUser(novoUsuario);
       }
       reset();

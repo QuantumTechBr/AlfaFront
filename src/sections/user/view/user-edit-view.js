@@ -40,7 +40,7 @@ export default function UserEditView({ id }) {
           },
           {
             name: 'Usuário',
-            href: paths.dashboard.user.root,
+            href: paths.dashboard.user.list,
           },
           { name: currentUser?.nome },
         ]}
