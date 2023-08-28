@@ -260,42 +260,42 @@ export const _turmas = [
     ano_escolar: 2023,
     ano_serie: 1,
     turno: 'matutino',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'A',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 80,
     alunos: 32,
-    status: 'Ativo'
+    status: true
   },
   {
     id: '2',
     ano_escolar: 2023,
     ano_serie: 2,
     turno: 'vespertino',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'B',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 75,
     alunos: 23,
-    status: 'Inativo'
+    status: false
   },
   {
     id: '3',
     ano_escolar: 2023,
     ano_serie: 3,
     turno: 'noturno',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'C',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 92,
     alunos: 43,
-    status: 'Ativo'
+    status: true
   },
 ]
 
