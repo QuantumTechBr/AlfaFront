@@ -169,7 +169,7 @@ export default function UserListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Usuários"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Usuário', href: paths.dashboard.user.list },

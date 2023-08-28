@@ -59,7 +59,7 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={10}>
           <Typography variant="h3" paragraph>
-            {document.title}
+            Dashboard
           </Typography>
         </Grid>
 
