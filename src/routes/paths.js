@@ -124,6 +124,18 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/user/${MOCK_ID}/edit`,
       },
     },
+    turma: {
+      root: `${ROOTS.DASHBOARD}/turma/list`,
+      new: `${ROOTS.DASHBOARD}/turma/new`,
+      list: `${ROOTS.DASHBOARD}/turma/list`,
+      cards: `${ROOTS.DASHBOARD}/turma/cards`,
+      // profile: `${ROOTS.DASHBOARD}/turma/profile`,
+      account: `${ROOTS.DASHBOARD}/turma/account`,
+      edit: (id) => `${ROOTS.DASHBOARD}/turma/${id}/edit`,
+      demo: {
+        edit: `${ROOTS.DASHBOARD}/turma/${MOCK_ID}/edit`,
+      },
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
