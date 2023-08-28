@@ -25,10 +25,10 @@ export default function TurmaCreateView() {
             href: paths.dashboard.root,
           },
           {
-            name: 'Turma',
+            name: 'Turmas',
             href: paths.dashboard.turma.root,
           },
-          { name: 'Novo turma' },
+          { name: 'Nova turma' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

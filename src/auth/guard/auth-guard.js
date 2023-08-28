@@ -19,19 +19,27 @@ const loginPaths = {
 // ----------------------------------------------------------------------
 
 export default function AuthGuard({ children }) {
+  console.log("auth guard");
   const router = useRouter();
+
 
   const { authenticated, method } = useAuthContext();
 
   const [checked, setChecked] = useState(false);
 
   const check = useCallback(() => {
+
+    console.log("check");
+    console.log(authenticated);
     if (!authenticated) {
       const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
 
       const loginPath = loginPaths[method];
 
       const href = `${loginPath}?${searchParams}`;
+      console.log("!authenticated");
+      sessionStorage.removeItem('accessToken');
+      sessionStorage.removeItem('expirationDate');
 
       router.replace(href);
     } else {
