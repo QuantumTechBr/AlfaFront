@@ -81,8 +81,8 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Edição Rápida</DialogTitle>
-
         <DialogContent>
+          <br></br>
           <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
           <Box
             rowGap={3}
