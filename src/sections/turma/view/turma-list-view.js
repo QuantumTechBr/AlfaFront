@@ -166,7 +166,7 @@ export default function TurmaListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Turmas"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Turmas', href: paths.dashboard.turma.root },

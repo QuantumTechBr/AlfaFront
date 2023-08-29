@@ -44,7 +44,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       funcao_usuario: currentUser?.funcao_usuario || '',
-      status: currentUser?.status || '',
+      status: (currentUser?.status ? "true" : "false") || '',
       ddz: currentUser?.ddz || '',
       escola: currentUser?.escola || '',
     }),
@@ -71,18 +71,21 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           email: data.email,
           senha: data.senha, 
           login: data.nome,
+          status: data.status,
         }
       } else {
         novoUsuario = {
           nome:  data.nome,
           email: data.email,
           login: data.nome,
+          status: data.status,
         }
       }
       await userMethods.updateUserById(currentUser.id, novoUsuario);   
       reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
 
       console.info('DATA', data);
     } catch (error) {
@@ -104,9 +107,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
+          {/* <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
             A conta está aguardando confirmação
-          </Alert>
+          </Alert> */}
+          <br></br>
 
           <Box
             rowGap={3}

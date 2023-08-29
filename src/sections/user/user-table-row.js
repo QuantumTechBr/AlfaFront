@@ -36,7 +36,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
   const closeQuickEdit = (retorno=null) => {
     quickEdit.onFalse();
-    window.location.reload();
   }
 
   return (
@@ -46,15 +45,17 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-         {/* <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> */}
+        {/* <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> 
 
           <ListItemText
             primary={nome}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
           />
-        </TableCell>
+        </TableCell> */}
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 

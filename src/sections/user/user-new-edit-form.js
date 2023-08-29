@@ -57,7 +57,7 @@ export default function UserNewEditForm({ currentUser }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       funcao_usuario: currentUser?.funcao_usuario || '',
-      status: currentUser?.status || '',
+      status: (currentUser?.status ? "true" : "false") || '',
       escola: currentUser?.escola || '',
     }),
     [currentUser]
@@ -90,12 +90,14 @@ export default function UserNewEditForm({ currentUser }) {
           email: data.email,
           senha: data.senha, 
           login: data.email,
+          status: data.status,
         }
       } else {
         novoUsuario = {
           nome:  data.nome,
           email: data.email,
           login: data.email,
+          status: data.status,
         }
       }
       if (currentUser) {
