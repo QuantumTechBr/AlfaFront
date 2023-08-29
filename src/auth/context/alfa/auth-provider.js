@@ -104,7 +104,11 @@ export function AuthProvider({ children }) {
       senha,
     };
 
-    const response = await axios.post(endpoints.auth.login, data);
+    const response = await axios.post(endpoints.auth.login, data).catch(erro => {
+      console.log("login erro");
+      logout();
+      throw erro;
+    });
     const accessToken = response.data.token;
     const user = response.data.usuario;
     const expiresIn = response.data.expires_in
