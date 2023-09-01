@@ -238,6 +238,12 @@ export const _phoneNumbers = [
 
 // ----------------------------------------------------------------------
 
+export const _tiposAvaliacao = [
+  'Avaliação de Fase',
+  'Avaliação de Componente Curricular',
+  'Avaliação de Diagnóstico',
+];
+
 export const _roles = [
   'Diretor',
   /*'Acessor DDZ',
