@@ -41,7 +41,7 @@ export const endpoints = {
     validate_token: '/api/v1/password_reset/validate_token',
   },
   user: {
-    list: '/api/v1/usuarios',
+    list: '/api/v1/usuarios/',
     post: '/api/v1/usuarios',
     get_by_id: '/api/v1/usuarios/',
     update: '/api/v1/usuarios/',
@@ -53,6 +53,13 @@ export const endpoints = {
     get_by_id: '/api/v1/turmas/',
     update: '/api/v1/turmas/',
     delete: '/api/v1/turmas/',
+  },
+  registro_aprendizagem :{
+    list: '/api/v1/registros_aprendizagens/',
+    post: '/api/v1/registros_aprendizagens',
+    get_by_id: '/api/v1/registros_aprendizagens/',
+    update: '/api/v1/registros_aprendizagens/',
+    delete: '/api/v1/registros_aprendizagens/',
   }
   /*mail: {
     list: '/api/mail/list',

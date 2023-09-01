@@ -136,6 +136,18 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/turma/${MOCK_ID}/edit`,
       },
     },
+    registro_aprendizagem: {
+      root: `${ROOTS.DASHBOARD}/registro_aprendizagem/list`,
+      new: `${ROOTS.DASHBOARD}/registro_aprendizagem/new`,
+      list: `${ROOTS.DASHBOARD}/registro_aprendizagem/list`,
+      cards: `${ROOTS.DASHBOARD}/registro_aprendizagem/cards`,
+      // profile: `${ROOTS.DASHBOARD}/registro_aprendizagem/profile`,
+      account: `${ROOTS.DASHBOARD}/registro_aprendizagem/account`,
+      edit: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/${id}/edit`,
+      demo: {
+        edit: `${ROOTS.DASHBOARD}/registro_aprendizagem/${MOCK_ID}/edit`,
+      },
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
