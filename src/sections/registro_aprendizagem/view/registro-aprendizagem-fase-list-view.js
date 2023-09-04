@@ -6,11 +6,13 @@ import { useEffect, useState, useCallback } from 'react';
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
+import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,7 +21,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _registrosAprendizagem } from 'src/_mock';
+import { _ddzs, _escolas, _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -70,7 +72,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemListView() {
+export default function RegistroAprendizagemFaseListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
 
   useEffect(() => {
@@ -78,8 +80,8 @@ export default function RegistroAprendizagemListView() {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
-    setRegistroAprendizagemList(_registrosAprendizagem);
-    setTableData(_registrosAprendizagem);
+    setRegistroAprendizagemList(_registrosAprendizagemFase);
+    setTableData(_registrosAprendizagemFase);
   }, []);
 
   const table = useTable();
@@ -145,7 +147,7 @@ export default function RegistroAprendizagemListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit(id));
+      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
     },
     [router]
   );
@@ -164,29 +166,28 @@ export default function RegistroAprendizagemListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <CustomBreadcrumbs
-          heading="Avaliações"
-          links={[
-            { name: 'Avaliações', href: paths.dashboard.registro_aprendizagem.root },
-            { name: 'Listar' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.registro_aprendizagem.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: '#00A5AD',
-              }}
-            >
-              Adicionar
-            </Button>
-          }
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
-        />
+        >
+          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.registro_aprendizagem.new_fase}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#00A5AD',
+            }}
+
+          >
+            Adicionar
+          </Button>
+        </Stack>
 
         <Card>
           <RegistroAprendizagemTableToolbar

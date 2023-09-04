@@ -137,16 +137,13 @@ export const paths = {
       },
     },
     registro_aprendizagem: {
-      root: `${ROOTS.DASHBOARD}/registro_aprendizagem/list`,
-      new: `${ROOTS.DASHBOARD}/registro_aprendizagem/new`,
-      list: `${ROOTS.DASHBOARD}/registro_aprendizagem/list`,
-      cards: `${ROOTS.DASHBOARD}/registro_aprendizagem/cards`,
-      // profile: `${ROOTS.DASHBOARD}/registro_aprendizagem/profile`,
-      account: `${ROOTS.DASHBOARD}/registro_aprendizagem/account`,
-      edit: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/${id}/edit`,
-      demo: {
-        edit: `${ROOTS.DASHBOARD}/registro_aprendizagem/${MOCK_ID}/edit`,
-      },
+      root_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/list`,
+      root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/list`,
+      new_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/new`,
+      new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
+      edit_diagnostico: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/${id}/edit`,
+      edit_fase: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${id}/edit`,
+      
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,

@@ -117,7 +117,19 @@ export function useNavData() {
               { title: t('frequência'), path: paths.dashboard.root },
               { title: t('atividades pedagógicas'), path: paths.dashboard.root },
               { title: 'Planos de Aulas', path: paths.dashboard.root },
-              { title: t('avaliações'), path: paths.dashboard.registro_aprendizagem.root },
+              { 
+                title: t('avaliações'), 
+                children: [
+                  {
+                    title: t('Dianóstico'), 
+                    path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
+                  },
+                  {
+                    title: t('Fase'), 
+                    path: paths.dashboard.registro_aprendizagem.root_fase, 
+                  }
+                ]
+              },
             ],
           },
 

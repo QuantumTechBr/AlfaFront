@@ -300,10 +300,14 @@ export const _turmas = [
 ]
 
 const RegistroAprendizagemTipos = {
-	Inicial: "Inicial",
+	diagnostico: "Diagnóstico",
+	fases: "Fases",
+}
+const RegistroAprendizagemDiagnosticoTipos = {
+	inicial: "Inicial",
 }
 
-export const _registrosAprendizagem = [
+export const _registrosAprendizagemDiagnostico = [
   {
     id: '1',
     ano_escolar: 2023,
@@ -316,7 +320,7 @@ export const _registrosAprendizagem = [
     deleted_at: Date(),
     media: 80,
     alunos: 32,
-    tipo: RegistroAprendizagemTipos.Inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
   },
   {
     id: '2',
@@ -330,7 +334,7 @@ export const _registrosAprendizagem = [
     deleted_at: Date(),
     media: 75,
     alunos: 23,
-    tipo: RegistroAprendizagemTipos.Inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
   },
   {
     id: '3',
@@ -344,7 +348,48 @@ export const _registrosAprendizagem = [
     deleted_at: Date(),
     media: 92,
     alunos: 43,
-    tipo: RegistroAprendizagemTipos.Inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+  },
+]
+export const _registrosAprendizagemFase = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+  },
+  {
+    id: '2',
+    ano_escolar: 2023,
+    ano_serie: 2,
+    turno: 'vespertino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 75,
+    alunos: 23,
+  },
+  {
+    id: '3',
+    ano_escolar: 2023,
+    ano_serie: 3,
+    turno: 'noturno',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'C',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 92,
+    alunos: 43,
   },
 ]
 
