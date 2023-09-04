@@ -21,7 +21,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function RegistroAprendizagemFaseTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, ano_escolar, ano_serie, turma, turno, alunos, tipo, escola, created_at, updated_at, deleted_at } = row;
 
 
@@ -48,7 +48,6 @@ export default function RegistroAprendizagemTableRow({ row, selected, onEditRow,
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{tipo}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
 
@@ -110,7 +109,7 @@ export default function RegistroAprendizagemTableRow({ row, selected, onEditRow,
   );
 }
 
-RegistroAprendizagemTableRow.propTypes = {
+RegistroAprendizagemFaseTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,

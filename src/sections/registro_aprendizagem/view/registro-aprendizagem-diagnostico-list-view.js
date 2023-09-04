@@ -42,7 +42,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemTableRow from '../registro-aprendizagem-table-row';
+import RegistroAprendizagemDiagnosticoTableRow from '../registro-aprendizagem-diagnostico-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
@@ -174,7 +174,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação de Fases do Desenvolvimento da Leitura e da Escrita</Typography>
+          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
           <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_diagnostico}
@@ -254,7 +254,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemTableRow
+                      <RegistroAprendizagemDiagnosticoTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}

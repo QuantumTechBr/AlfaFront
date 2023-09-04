@@ -137,6 +137,7 @@ export const paths = {
       },
     },
     registro_aprendizagem: {
+      root: `#`,
       root_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/list`,
       root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/list`,
       new_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/new`,

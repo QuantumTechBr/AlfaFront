@@ -119,6 +119,7 @@ export function useNavData() {
               { title: 'Planos de Aulas', path: paths.dashboard.root },
               { 
                 title: t('avaliações'), 
+                path: paths.dashboard.registro_aprendizagem.root,
                 children: [
                   {
                     title: t('Dianóstico'), 

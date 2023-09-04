@@ -42,7 +42,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemTableRow from '../registro-aprendizagem-table-row';
+import RegistroAprendizagemFaseTableRow from '../registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
@@ -55,7 +55,6 @@ const TABLE_HEAD = [
   { id: 'turma', label: 'Turma', width: 200 },
   { id: 'turno', label: 'Turno', width: 200 },
   { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'tipo', label: 'Tipo', width: 150 },
   { id: 'escola', label: 'Escola', width: 300 },
   { id: '', width: 88 },
   { id: '', width: 88 },
@@ -174,7 +173,7 @@ export default function RegistroAprendizagemFaseListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
+          <Typography variant="h4">Avaliação de Fases do Desenvolvimento da Leitura e da Escrita</Typography>
           <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_fase}
@@ -254,7 +253,7 @@ export default function RegistroAprendizagemFaseListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemTableRow
+                      <RegistroAprendizagemFaseTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
