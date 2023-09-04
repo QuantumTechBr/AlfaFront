@@ -20,8 +20,8 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function RegistroAprendizagemTableToolbar({
   filters,
   onFilters,
-  //roleOptions,
-  ddzOptions,
+  anoEscolarOptions,
+  turmaOptions,
   escolaOptions,
 }) {
   const popover = usePopover();
@@ -33,20 +33,20 @@ export default function RegistroAprendizagemTableToolbar({
     [onFilters]
   );
 
-  // const handleFilterRole = useCallback(
-  //   (event) => {
-  //     onFilters(
-  //       'role',
-  //       typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //     );
-  //   },
-  //   [onFilters]
-  // );
-
-  const handleFilterDdz = useCallback(
+  const handleFilterAnoEscolar = useCallback(
     (event) => {
       onFilters(
-        'ddz',
+        'anoEscolar',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterTurma = useCallback(
+    (event) => {
+      onFilters(
+        'turma',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -77,63 +77,69 @@ export default function RegistroAprendizagemTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {/* <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 140 },
-          }}
-        >
-          <InputLabel>Função</InputLabel>
-
-          <Select
-            multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Função" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {roleOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
-
+        {anoEscolarOptions && !!anoEscolarOptions.length && (
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 120 },
           }}
         >
-          <InputLabel>DDZ</InputLabel>
-
+          <InputLabel>Ano Letivo</InputLabel>
+          
           <Select
             multiple
-            value={filters.ddz}
-            onChange={handleFilterDdz}
-            input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            value={filters.anoEscolar}
+            onChange={handleFilterAnoEscolar}
+            input={<OutlinedInput label="Ano Letivo" />}
+            renderValue={(selected) => selected.join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {ddzOptions.map((option) => (
+            {anoEscolarOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
+                <Checkbox disableRipple size="small" checked={filters.anoEscolar.includes(option)} />
                 {option}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
+        )}
+
+        {turmaOptions && !!turmaOptions.length && (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 120 },
+          }}
+        >
+          <InputLabel>Turma</InputLabel>
+          
+          <Select
+            multiple
+            value={filters.turma}
+            onChange={handleFilterTurma}
+            input={<OutlinedInput label="Turma" />}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {turmaOptions.map((option) => {
+              return (
+                <MenuItem key={option.id} value={option.ano_serie + 'º ' + option.nome}>
+                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option.ano_serie + 'º ' + option.nome)} />
+                  {option.ano_serie + 'º ' + option.nome}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+        )}
 
         <FormControl
           sx={{
@@ -148,7 +154,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.escola}
             onChange={handleFilterEscola}
             input={<OutlinedInput label="Escola" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={(selected) => selected.join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -225,7 +231,7 @@ export default function RegistroAprendizagemTableToolbar({
 RegistroAprendizagemTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  // roleOptions: PropTypes.array,
-  ddzOptions: PropTypes.array,
+  anoEscolarOptions: PropTypes.array,
+  turmaOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
 };

@@ -14,28 +14,18 @@ import Iconify from 'src/components/iconify';
 export default function RegistroAprendizagemTableFiltersResult({
   filters,
   onFilters,
-  //
   onResetFilters,
-  //
   results,
   ...other
 }) {
-  // const handleRemoveStatus = () => {
-  //   onFilters('status', 'all');
-  // };
 
-  const handleRemoveNome = (inputValue) => {
-    onFilters('nome', '');
+  const handleRemoveAnoEscolar = (inputValue) => {
+    const newValue = filters.anoEscolar.filter((item) => item !== inputValue);
+    onFilters('anoEscolar', newValue);
   };
-
-  // const handleRemoveRole = (inputValue) => {
-  //   const newValue = filters.role.filter((item) => item !== inputValue);
-  //   onFilters('role', newValue);
-  // };
-
-  const handleRemoveDdz = (inputValue) => {
-    const newValue = filters.ddz.filter((item) => item !== inputValue);
-    onFilters('ddz', newValue);
+  const handleRemoveTurma = (inputValue) => {
+    const newValue = filters.turma.filter((item) => item !== inputValue);
+    onFilters('turma', newValue);
   };
   
   const handleRemoveEscola = (inputValue) => {
@@ -43,6 +33,9 @@ export default function RegistroAprendizagemTableFiltersResult({
     onFilters('escola', newValue);
   };
 
+  const handleRemoveNome = (inputValue) => {
+    onFilters('nome', '');
+  };
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -53,30 +46,24 @@ export default function RegistroAprendizagemTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {/* {filters.status !== 'all' && (
-          <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
-          </Block>
-        )} */}
-
-        {filters.nome !== '' && (
+        {filters.nome && filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
         )}
 
-        {/* {!!filters.role.length && (
-          <Block label="Função:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
+        {!!filters.anoEscolar.length && (
+          <Block label="Ano letivo:">
+            {filters.anoEscolar.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveAnoEscolar(item)} />
             ))}
           </Block>
-        )} */}
+        )}
 
-        {!!filters.ddz.length && (
-          <Block label="DDZ:">
-            {filters.ddz.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
+        {!!filters.turma.length && (
+          <Block label="Turma:">
+            {filters.turma.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveTurma(item)} />
             ))}
           </Block>
         )}

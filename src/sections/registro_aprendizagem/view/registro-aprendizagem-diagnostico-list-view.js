@@ -3,9 +3,6 @@
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
 // @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -21,16 +18,14 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _registrosAprendizagemDiagnostico } from 'src/_mock';
+import { _anos, _turmas, _escolas, _registrosAprendizagemDiagnostico } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -51,7 +46,7 @@ import registroAprendizagemMethods from '../registro-aprendizagem-provider';
 
 const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
+  { id: 'ano_serie', label: 'Ano', width: 75 },
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
@@ -62,10 +57,8 @@ const TABLE_HEAD = [
 
 const anoAtual = new Date().getFullYear();
 const defaultFilters = {
-  anoEscolar: anoAtual,
-  anoSerie: '',
+  anoEscolar: [],
   turma: '',
-  ddz: [],
   escola: [],
 };
 
@@ -151,13 +144,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
-  );
-
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
@@ -182,7 +168,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             sx={{
               bgcolor: '#00A5AD',
             }}
-
           >
             Adicionar
           </Button>
@@ -192,8 +177,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //roleOptions={_roles}
-            ddzOptions={_ddzs}
+            anoEscolarOptions={_anos}
+            turmaOptions={_turmas}
             escolaOptions={_escolas}
           />
 
@@ -315,7 +300,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
+  const { nome, anoEscolar, turma, escola } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -327,18 +312,22 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
+  if (anoEscolar.length) {
+    inputData = inputData.filter((item) => anoEscolar.includes(item.ano_escolar));
+  }
+  
+  if (turma.length) {
+    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+  }
+
+  if (escola.length) {
+    inputData = inputData.filter((item) => escola.includes(item.escola));
+  }
+  
   if (nome) {
     inputData = inputData.filter(
       (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
-  }
-
-  if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
   }
 
   return inputData;
