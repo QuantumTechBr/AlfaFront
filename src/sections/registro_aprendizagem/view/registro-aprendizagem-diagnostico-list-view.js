@@ -50,14 +50,13 @@ import registroAprendizagemMethods from '../registro-aprendizagem-provider';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 300 },
-  { id: 'turma', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'tipo', label: 'Tipo', width: 150 },
-  { id: 'escola', label: 'Escola', width: 300 },
-  { id: '', width: 88 },
+  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
+  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
+  { id: 'turma', label: 'Turma', width: 75 },
+  { id: 'turno', label: 'Turno', width: 105 },
+  { id: 'alunos', label: 'Alunos', width: 80 },
+  { id: 'tipo', label: 'Tipo', width: 105 },
+  { id: 'escola', label: 'Escola' },
   { id: '', width: 88 },
 ];
 
