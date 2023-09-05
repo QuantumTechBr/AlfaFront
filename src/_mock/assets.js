@@ -244,6 +244,18 @@ export const _tiposAvaliacao = [
   'Avaliação de Diagnóstico',
 ];
 
+export const _bimestres = [
+  '1º Bimestre',
+  '2º Bimestre',
+  '3º Bimestre',
+  '4º Bimestre'
+];
+
+export const _periodos = [
+  'Inicial',
+  'Final',
+];
+
 export const _roles = [
   'Diretor',
   /*'Acessor DDZ',

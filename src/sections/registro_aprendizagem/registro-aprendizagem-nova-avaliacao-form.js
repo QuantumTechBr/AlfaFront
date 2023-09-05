@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo, useState } from 'react';
+import { useEffect, useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -14,14 +14,19 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas, _tiposAvaliacao } from 'src/_mock';
+import { _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas, _tiposAvaliacao } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, { RHFMultiSelect, RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { IconButton } from '@mui/material';
+import { CloseIcon } from 'yet-another-react-lightbox';
+import turmaMethods from '../turma/turma-provider';
+import disciplinaMethods from '../disciplina/disciplina-provider';
+import habilidadeMethods from '../habilidade/habilidade-provider';
 
 
 // ----------------------------------------------------------------------
@@ -29,6 +34,31 @@ import { useBoolean } from 'src/hooks/use-boolean';
 export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
+  const [turmaList, setTurmaList] = useState([]);
+  const [disciplinaList, setDisciplinaList] = useState([]);
+  const [habilidadeList, setHabilidadeList] = useState([]);
+  useEffect(() => {
+    turmaMethods.getAllTurmas().then(turmas => {
+      setTurmaList(turmas.data);
+    });
+    disciplinaMethods.getAllDisciplinas().then(disciplinas => {
+      setDisciplinaList(disciplinas.data);
+      console.log(disciplinas);
+    });
+    // habilidadeMethods.getAllHabilidades().then(habilidades => {
+    //   setHabilidadeList(habilidades.data);
+    //   console.log(habilidades);
+    //   let opcoesHabilidade = [];
+    //   for (var i = 0; i < habilidades.data.length; i++) {
+    //     opcoesHabilidade[i] = {
+    //       id: habilidades.data[i].id,
+    //       nome: habilidades.data[i].nome,
+    //     };
+    //   };
+    //})
+  }, []);
+
+  //console.log(disciplinaList);
   const [tipoAvaliacao, setTipoAvaliacao] = useState('');
   const [turma, setTurma] = useState('');
   const [bimestre, setBimestre] = useState('');
@@ -49,7 +79,6 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   const periodoDefinido = useBoolean(false);
 
   const handleTipoAvaliacao = useCallback ((event) => {
-    console.log(event);
     if (event.target.value == 'Avaliação de Fase') {
         tipoComponente.onFalse();
         tipoDiagnostico.onFalse();
@@ -187,9 +216,9 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma" onChange={handleTurma} value={turma} > 
-        {USER_STATUS_OPTIONS.map((turma) => (
-          <MenuItem key={turma.value} value={turma.value}>
-           {turma.label}
+        {turmaList.map((turma) => (
+          <MenuItem key={turma.id} value={turma.id}>
+           {turma.nome}
           </MenuItem>
         ))}  
       </RHFSelect>
@@ -208,29 +237,19 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
+    if (tipoFase.value) {
+      console.log(data);
+    } else if (tipoComponente.value) {
+      console.log(data);
+    } else {
+      console.log(data);
+    }
     try {
-      var novoUsuario = {}
-      if (data.senha) {
-        novoUsuario = {
-          nome:  data.nome,
-          email: data.email,
-          senha: data.senha, 
-          login: data.nome,
-          status: data.status,
-        }
-      } else {
-        novoUsuario = {
-          nome:  data.nome,
-          email: data.email,
-          login: data.nome,
-          status: data.status,
-        }
-      }
-      await userMethods.updateUserById(currentUser.id, novoUsuario);   
-      reset() 
-      onClose();
-      enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
+      //await userMethods.updateUserById(currentUser.id, novoUsuario);   
+      //reset() 
+      //onClose();
+      //enqueueSnackbar('Atualizado com sucesso!');
+      //window.location.reload();
 
       console.info('DATA', data);
     } catch (error) {
@@ -243,13 +262,25 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
       fullWidth
       maxWidth={false}
       open={open}
-      onClose={onClose}
+      onClose={false}
       PaperProps={{
         sx: { maxWidth: 720 },
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Registro de Avaliação</DialogTitle>
+
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
 
         <DialogContent>
           <br></br>
@@ -265,15 +296,16 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
                 </MenuItem>
               ))}
             </RHFSelect>
+            {/* <RHFMultiSelect name="habilidade" label="Habilidades" onChange={handleHabilidade} value={habilidades} options={_bimestres}></RHFMultiSelect> */}
 
             { tipoFase.value && ( selectTurma() ) }
 
             { tipoComponente.value && ( selectTurma() ) }
 
             { tipoDiagnostico.value && (<RHFSelect name="periodo" label="Período" onChange={handlePeriodo} value={periodo}> 
-              {USER_STATUS_OPTIONS.map((periodo) => (
-                <MenuItem key={periodo.value} value={periodo.value}>
-                  {periodo.label}
+              {_periodos.map((periodo) => (
+                <MenuItem key={periodo} value={periodo}>
+                  {periodo}
                 </MenuItem>
               ))}
               </RHFSelect>
@@ -281,9 +313,9 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
 
             { (tipoFase.value && turmaDefinida.value) && (
               <RHFSelect name="bimestre" label="Bimestre" onChange={handleBimestre} value={bimestre}> 
-              {USER_STATUS_OPTIONS.map((bimestre) => (
-                <MenuItem key={bimestre.value} value={bimestre.value}>
-                  {bimestre.label}
+              {_bimestres.map((bimestre) => (
+                <MenuItem key={bimestre} value={bimestre}>
+                  {bimestre}
                 </MenuItem>
               ))}
               </RHFSelect>
@@ -291,32 +323,22 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
 
             { (tipoComponente.value && turmaDefinida.value) && (
               <RHFSelect name="disciplina" label="Disciplina" onChange={handleDisciplina} value={disciplina}> 
-              {USER_STATUS_OPTIONS.map((disciplina) => (
-                <MenuItem key={disciplina.value} value={disciplina.value}>
-                  {disciplina.label}
+              {disciplinaList.map((disciplina) => (
+                <MenuItem key={disciplina} value={disciplina}>
+                  {disciplina}
                 </MenuItem>
               ))}
               </RHFSelect>
             )}
 
             { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value) && (
-              <RHFSelect name="habilidade" label="Habilidades" onChange={handleHabilidade} value={habilidades}> 
-              {USER_STATUS_OPTIONS.map((habilidade) => (
-                <MenuItem key={habilidade.value} value={habilidade.value}>
-                  {habilidade.label}
-                </MenuItem>
-              ))}
-              </RHFSelect>
+              <RHFMultiSelect name="habilidade" label="Habilidades" onChange={handleHabilidade} value={habilidades} options={habilidadeList}>
+
+              </RHFMultiSelect>
             ) }
 
             { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value && habilidadeDefinida.value) && (
-              <RHFSelect name="nomeAvaliacao" label="Digite o nome da avaliação" onChange={handleNomeAvaliacao} value={nomeAvaliacao}> 
-              {USER_STATUS_OPTIONS.map((nomeAvaliacao) => (
-                <MenuItem key={nomeAvaliacao.value} value={nomeAvaliacao.value}>
-                  {nomeAvaliacao.label}
-                </MenuItem>
-              ))}
-              </RHFSelect>
+               <RHFTextField name="nomeAvaliacao" label="Digite o nome da avaliação" onChange={handleNomeAvaliacao} value={nomeAvaliacao}/>
             ) }
 
 

@@ -1,7 +1,7 @@
 import axios from 'axios';
 // config
 import { HOST_API } from 'src/config-global';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+
 
 
 // ----------------------------------------------------------------------
@@ -47,13 +47,118 @@ export const endpoints = {
     update: '/api/v1/usuarios/',
     delete: '/api/v1/usuarios/',
   },
-  turma :{
-    list: '/api/v1/turmas',
+  cidade: {
+    list: '/api/v1/cidades',
+    post: '/api/v1/cidades',
+    get_by_id: '/api/v1/cidades/',
+    update: '/api/v1/cidades/',
+    delete: '/api/v1/cidades/',
+  },
+  disciplina: {
+    list: '/api/v1/disciplinas/',
+    post: '/api/v1/disciplinas',
+    get_by_id: '/api/v1/disciplinas/',
+    update: '/api/v1/disciplinas/',
+    delete: '/api/v1/disciplinas/',
+  },
+  documento: {
+    list: '/api/v1/documentos',
+    post: '/api/v1/documentos',
+    get_by_id: '/api/v1/documentos/',
+    update: '/api/v1/documentos/',
+    delete: '/api/v1/documentos/',
+  },
+  escola: {
+    list: '/api/v1/escolas',
+    post: '/api/v1/escolas',
+    get_by_id: '/api/v1/escolas/',
+    update: '/api/v1/escolas/',
+    delete: '/api/v1/escolas/',
+  },
+  estado: {
+    list: '/api/v1/estados',
+    post: '/api/v1/estados',
+    get_by_id: '/api/v1/estados/',
+    update: '/api/v1/estados/',
+    delete: '/api/v1/estados/',
+  },
+  falta: {
+    list: '/api/v1/faltas',
+    post: '/api/v1/faltas',
+    get_by_id: '/api/v1/faltas/',
+    update: '/api/v1/faltas/',
+    delete: '/api/v1/faltas/',
+  },
+  funcao: {
+    list: '/api/v1/funcoes',
+    post: '/api/v1/funcoes',
+    get_by_id: '/api/v1/funcoes/',
+    update: '/api/v1/funcoes/',
+    delete: '/api/v1/funcoes/',
+  },
+  habilidade: {
+    list: '/api/v1/habilidades/',
+    post: '/api/v1/habilidades',
+    get_by_id: '/api/v1/habilidades/',
+    update: '/api/v1/habilidades/',
+    delete: '/api/v1/habilidades/',
+  },
+  log_acesso: {
+    list: '/api/v1/logs-acesso',
+    post: '/api/v1/logs-acesso',
+    get_by_id: '/api/v1/logs-acesso/',
+    update: '/api/v1/logs-acesso/',
+    delete: '/api/v1/logs-acesso/',
+  },
+  notificacao: {
+    list: '/api/v1/notificacoes',
+    post: '/api/v1/notificacoes',
+    get_by_id: '/api/v1/notificacoes/',
+    update: '/api/v1/notificacoes/',
+    delete: '/api/v1/notificacoes/',
+  },
+  permissao: {
+    list: '/api/v1/permissoes',
+    post: '/api/v1/permissoes',
+    get_by_id: '/api/v1/permissoes/',
+    update: '/api/v1/permissoes/',
+    delete: '/api/v1/permissoes/',
+  },
+  plano_aula: {
+    list: '/api/v1/planos-aulas',
+    post: '/api/v1/planos-aulas',
+    get_by_id: '/api/v1/planos-aulas/',
+    update: '/api/v1/planos-aulas/',
+    delete: '/api/v1/planos-aulas/',
+  },
+  registro_aprendizagem: {
+    list: '/api/v1/registros-aprendizagem',
+    post: '/api/v1/registros-aprendizagem',
+    get_by_id: '/api/v1/registros-aprendizagem/',
+    update: '/api/v1/registros-aprendizagem/',
+    delete: '/api/v1/registros-aprendizagem/',
+  },
+  turma: {
+    list: '/api/v1/turmas/',
     post: '/api/v1/turmas',
     get_by_id: '/api/v1/turmas/',
     update: '/api/v1/turmas/',
     delete: '/api/v1/turmas/',
-  }
+  },
+  user: {
+    list: '/api/v1/usuarios/',
+    post: '/api/v1/usuarios',
+    get_by_id: '/api/v1/usuarios/',
+    update: '/api/v1/usuarios/',
+    delete: '/api/v1/usuarios/',
+  },
+  zona: {
+    list: '/api/v1/zonas',
+    post: '/api/v1/zonas',
+    get_by_id: '/api/v1/zonas/',
+    update: '/api/v1/zonas/',
+    delete: '/api/v1/zonas/',
+  },
   /*mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
