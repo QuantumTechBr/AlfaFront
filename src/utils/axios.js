@@ -31,6 +31,34 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
+  aluno: {
+    list: '/api/v1/alunos',
+    post: '/api/v1/alunos',
+    get_by_id: '/api/v1/alunos/',
+    update: '/api/v1/alunos/',
+    delete: '/api/v1/alunos/',
+  },
+  ano_letivo: {
+    list: '/api/v1/anos-letivos',
+    post: '/api/v1/anos-letivos',
+    get_by_id: '/api/v1/anos-letivos/',
+    update: '/api/v1/anos-letivos/',
+    delete: '/api/v1/anos-letivos/',
+  },
+  arquivo_atividade: {
+    list: '/api/v1/arquivos-atividades',
+    post: '/api/v1/arquivos-atividades',
+    get_by_id: '/api/v1/arquivos-atividades/',
+    update: '/api/v1/arquivos-atividades/',
+    delete: '/api/v1/arquivos-atividades/',
+  },
+  atividade: {
+    list: '/api/v1/atividades',
+    post: '/api/v1/atividades',
+    get_by_id: '/api/v1/atividades/', 
+    update: '/api/v1/atividades/', 
+    delete: '/api/v1/atividades/',
+  },
   auth: {
     me: '/api/v1/auth/me',
     login: '/api/v1/auth',
@@ -40,12 +68,12 @@ export const endpoints = {
     confirm_password: '/api/v1/password_reset/confirm',
     validate_token: '/api/v1/password_reset/validate_token',
   },
-  user: {
-    list: '/api/v1/usuarios/',
-    post: '/api/v1/usuarios/',
-    get_by_id: '/api/v1/usuarios/',
-    update: '/api/v1/usuarios/',
-    delete: '/api/v1/usuarios/',
+  calendario: {
+    list: '/api/v1/calendarios',
+    post: '/api/v1/calendarios',
+    get_by_id: '/api/v1/calendarios/',
+    update: '/api/v1/calendarios/',
+    delete: '/api/v1/calendarios/',
   },
   cidade: {
     list: '/api/v1/cidades',
