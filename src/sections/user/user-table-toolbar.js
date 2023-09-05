@@ -107,7 +107,7 @@ export default function UserTableToolbar({
           </Select>
         </FormControl>
 
-        <FormControl
+       {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 100 },
@@ -134,7 +134,7 @@ export default function UserTableToolbar({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+            </FormControl>*/}
 
         <FormControl
           sx={{

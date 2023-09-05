@@ -51,8 +51,10 @@ export default function TurmaNewEditForm({ currentTurma }) {
   const defaultValues = useMemo(
     () => ({
       nome: currentTurma?.nome || '',
-      ano: currentTurma?.ano || '',
+      ano_serie: currentTurma?.ano_serie || '',
+      ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
+      turno: currentTurma?.turno || '',
     }),
     [currentTurma]
   );
@@ -105,6 +107,8 @@ export default function TurmaNewEditForm({ currentTurma }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }}/>
+
             <Box
               rowGap={3}
               columnGap={2}
@@ -113,8 +117,10 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 xs: 'repeat(1, 1fr)',
                 sm: 'repeat(2, 1fr)',
               }}
+
             >
-              <RHFSelect name="ano_serie" label="Ano">
+
+            <RHFSelect name="ano_serie" label="Ano">
               {_anosSerie.map((ano) => (
                 <MenuItem key={ano} value={ano}>
                   {ano}°
@@ -122,14 +128,10 @@ export default function TurmaNewEditForm({ currentTurma }) {
               ))}
             </RHFSelect>
 
-            <RHFTextField name="nome" label="Nome da Turma" />
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
-
             <RHFSelect name="turno" label="Turno">
-              {_turnos.map((escola) => (
-                <MenuItem key={escola} value={escola}>
-                  {escola}
+              {_turnos.map((turno) => (
+                <MenuItem key={turno} value={turno}>
+                  <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
                 </MenuItem>
               ))}
             </RHFSelect>

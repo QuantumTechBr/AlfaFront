@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _turmas } from 'src/_mock';
+import { _ddzs, _escolas, _turmas, USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -47,6 +47,7 @@ import TurmaTableFiltersResult from '../turma-table-filters-result';
 import turmaMethods from '../turma-provider';
 // ----------------------------------------------------------------------
 
+const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'ano_serie', label: 'Ano', width: 300 },
@@ -55,7 +56,6 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 300 },
   { id: 'alunos', label: 'Alunos', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
   { id: '', width: 88 },
 ];
 
@@ -166,7 +166,7 @@ export default function TurmaListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Turmas"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Turmas', href: paths.dashboard.turma.root },
@@ -191,6 +191,46 @@ export default function TurmaListView() {
         />
 
         <Card>
+        <Tabs
+            value={filters.status}
+            onChange={handleFilterStatus}
+            sx={{
+              px: 2.5,
+              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab
+                key={tab.value}
+                iconPosition="end"
+                value={tab.value}
+                label={tab.label}
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                    }
+                    color={
+                      (tab.value === true && 'success') ||
+                      (tab.value === 'pending' && 'warning') ||
+                      (tab.value === false && 'error') ||
+                      'default'
+                    }
+                  >
+                    {tab.value === 'all' && _turmas.length}
+                    {tab.value === true &&
+                      _turmas.filter((user) => user.status === true).length}
+                    {tab.value === 'pending' &&
+                      _turmas.filter((user) => user.status === 'pending').length}
+                    {tab.value === false &&
+                      _turmas.filter((user) => user.status === false).length}
+                    {tab.value === 'rejected' &&
+                      _turmas.filter((user) => user.status === 'rejected').length}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
 
           <TurmaTableToolbar
             filters={filters}

@@ -238,10 +238,16 @@ export const _phoneNumbers = [
 
 // ----------------------------------------------------------------------
 
+export const _tiposAvaliacao = [
+  'Avaliação de Fase',
+  'Avaliação de Componente Curricular',
+  'Avaliação de Diagnóstico',
+];
+
 export const _roles = [
   'Diretor',
-  'Acessor DDZ',
-  'Professor',
+  /*'Acessor DDZ',
+  'Professor',*/
 ];
 
 export const _anos = [
@@ -260,42 +266,42 @@ export const _turmas = [
     ano_escolar: 2023,
     ano_serie: 1,
     turno: 'matutino',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'A',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 80,
     alunos: 32,
-    status: 'Ativo'
+    status: true
   },
   {
     id: '2',
     ano_escolar: 2023,
     ano_serie: 2,
     turno: 'vespertino',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'B',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 75,
     alunos: 23,
-    status: 'Inativo'
+    status: false
   },
   {
     id: '3',
     ano_escolar: 2023,
     ano_serie: 3,
     turno: 'noturno',
-    escola: 'CMEI PHELIPPE DAOU',
+    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
     nome: 'C',
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
     media: 92,
     alunos: 43,
-    status: 'Ativo'
+    status: true
   },
 ]
 
@@ -306,7 +312,7 @@ export const _ddzs = [
 
 export const _escolas = [
   'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-  'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
+  /*'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
   'E.M. GRAZIELA RIBEIRO',
   'E.M. PADRE JOSE DE ANCHIETA',
   'CMEI PHELIPPE DAOU',
@@ -314,7 +320,7 @@ export const _escolas = [
   'CMEI FRANCISCO PEREIRA DA SILVA',
   'CMEI PROF. ESCRITOR PAULINHO DE BRITO',
   'E.M. THOMAS MEIRELES',
-  'E.M. PADRE PUGA',
+  'E.M. PADRE PUGA',*/
 ];
 
 // ----------------------------------------------------------------------

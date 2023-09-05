@@ -41,8 +41,8 @@ export const endpoints = {
     validate_token: '/api/v1/password_reset/validate_token',
   },
   user: {
-    list: '/api/v1/usuarios',
-    post: '/api/v1/usuarios',
+    list: '/api/v1/usuarios/',
+    post: '/api/v1/usuarios/',
     get_by_id: '/api/v1/usuarios/',
     update: '/api/v1/usuarios/',
     delete: '/api/v1/usuarios/',
