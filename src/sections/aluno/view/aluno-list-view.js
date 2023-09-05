@@ -45,7 +45,6 @@ import AlunoTableToolbar from '../aluno-table-toolbar';
 import AlunoTableFiltersResult from '../aluno-table-filters-result';
 //
 import alunoMethods from '../aluno-provider';
-import { getAllAlunos } from '../aluno-provider';
 // ----------------------------------------------------------------------
 
 
@@ -74,7 +73,7 @@ export default function AlunoListView() {
   const [_alunoList, setAlunoList] = useState([]);
 
   useEffect(() => {
-    getAllAlunos().then(aluno => {
+    alunoMethods.getAllAlunos.then(aluno => {
       for (var i = 0; i < aluno.data.length; i++) {
         aluno.data[i].status = 'ativo';
       }
@@ -146,7 +145,7 @@ export default function AlunoListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.turma.edit(id));
+      router.push(paths.dashboard.aluno.edit(id));
     },
     [router]
   );
@@ -195,7 +194,6 @@ export default function AlunoListView() {
           <AlunoTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //roleOptions={_roles}
             ddzOptions={_ddzs}
             escolaOptions={_escolas}
           />
@@ -295,7 +293,7 @@ export default function AlunoListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> turmas?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> alunos?
           </>
         }
         action={
@@ -332,7 +330,7 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (turma) => turma.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (aluno) => aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
