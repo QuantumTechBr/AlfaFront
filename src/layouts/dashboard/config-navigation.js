@@ -91,7 +91,7 @@ export function useNavData() {
           // ALUNOS
           {
             title: 'Lista de Alunos',
-            path: paths.dashboard.root,
+            path: paths.dashboard.aluno.list,
             icon: ICONS.alfaStudent,
           },
 
