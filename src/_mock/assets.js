@@ -248,8 +248,23 @@ export const _bimestres = [
   '1º Bimestre',
   '2º Bimestre',
   '3º Bimestre',
-  '4º Bimestre'
+  '4º Bimestre',
 ];
+
+export const _disciplinas = [
+  'Português',
+  'Matemática',
+  'Ciências',
+  'História',
+  'Geografia',
+];
+
+export const _habilidades = [
+  { value: 'H1', label: 'H1' },
+  { value: 'H2', label: 'H2' },
+  { value: 'H3', label: 'H3' },
+  { value: 'H4', label: 'H4' },
+]
 
 export const _periodos = [
   'Inicial',

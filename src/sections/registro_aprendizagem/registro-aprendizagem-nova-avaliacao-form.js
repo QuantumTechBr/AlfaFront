@@ -14,7 +14,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas, _tiposAvaliacao } from 'src/_mock';
+import { _habilidades, _disciplinas, _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas, _tiposAvaliacao } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
 // components
@@ -27,27 +27,24 @@ import { CloseIcon } from 'yet-another-react-lightbox';
 import turmaMethods from '../turma/turma-provider';
 import disciplinaMethods from '../disciplina/disciplina-provider';
 import habilidadeMethods from '../habilidade/habilidade-provider';
+import ReactHookForm from '../_examples/extra/form-validation-view/react-hook-form';
 
 
 // ----------------------------------------------------------------------
 
-export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
+export default function NovaAvaliacaoForm({ open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
+
   const [turmaList, setTurmaList] = useState([]);
-  const [disciplinaList, setDisciplinaList] = useState([]);
   const [habilidadeList, setHabilidadeList] = useState([]);
   useEffect(() => {
     turmaMethods.getAllTurmas().then(turmas => {
       setTurmaList(turmas.data);
     });
-    disciplinaMethods.getAllDisciplinas().then(disciplinas => {
-      setDisciplinaList(disciplinas.data);
-      console.log(disciplinas);
-    });
-    // habilidadeMethods.getAllHabilidades().then(habilidades => {
-    //   setHabilidadeList(habilidades.data);
-    //   console.log(habilidades);
+    //  habilidadeMethods.getAllHabilidades().then(habilidades => {
+    //    setHabilidadeList(habilidades.data);
+    //    console.log(habilidades);
     //   let opcoesHabilidade = [];
     //   for (var i = 0; i < habilidades.data.length; i++) {
     //     opcoesHabilidade[i] = {
@@ -78,6 +75,31 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   const nomeAvaliacaoDefinida = useBoolean(false);
   const periodoDefinido = useBoolean(false);
 
+  const defaultValues = useMemo(
+    () => ({
+      turma: '',
+      bimestre: '',
+      habilidades: [],
+      disciplina: '',
+      periodo: '',
+      nomeAvaliacao: '',
+      teste: [],
+    }),
+    []
+  );
+
+  const methods = useForm({
+    //resolver: yupResolver(NewUserSchema),
+    defaultValues,
+  });
+
+  const {
+    reset,
+    handleSubmit,
+    setValue,
+    formState: { isSubmitting },
+  } = methods;
+
   const handleTipoAvaliacao = useCallback ((event) => {
     if (event.target.value == 'Avaliação de Fase') {
         tipoComponente.onFalse();
@@ -88,6 +110,7 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
         bimestreDefinido.onFalse();
         setDisciplina('');
         disciplinaDefinida.onFalse();
+        setValue('habilidades', []);
         setHabilidades([]);
         habilidadeDefinida.onFalse;
         setNomeAvaliacao('');
@@ -106,6 +129,7 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
         bimestreDefinido.onFalse();
         setDisciplina('');
         disciplinaDefinida.onFalse();
+        setValue('habilidades', []);
         setHabilidades([]);
         habilidadeDefinida.onFalse;
         setNomeAvaliacao('');
@@ -124,6 +148,7 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
         bimestreDefinido.onFalse();
         setDisciplina('');
         disciplinaDefinida.onFalse();
+        setValue('habilidades', []);
         setHabilidades([]);
         habilidadeDefinida.onFalse;
         setNomeAvaliacao('');
@@ -160,6 +185,7 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   const handleDisciplina = useCallback ((event) => {
     setDisciplina(event.target.value);
     disciplinaDefinida.onTrue();
+    setValue('habilidades', event.target.value);
     setHabilidades([]);
     habilidadeDefinida.onFalse();
     setNomeAvaliacao('');
@@ -168,12 +194,13 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
   }, [disciplinaDefinida, habilidadeDefinida, botaoAvancar, nomeAvaliacaoDefinida]);
 
   const handleHabilidade = useCallback((event) => {
+    setValue('habilidades', event.target.value);
     setHabilidades(event.target.value);
     habilidadeDefinida.onTrue();
     setNomeAvaliacao('');
     nomeAvaliacaoDefinida.onFalse();
     botaoAvancar.onFalse();
-  }, [habilidadeDefinida, botaoAvancar, disciplinaDefinida, nomeAvaliacaoDefinida]);
+  }, [setValue, habilidadeDefinida, botaoAvancar, disciplinaDefinida, nomeAvaliacaoDefinida]);
 
   const handleNomeAvaliacao = useCallback((event) => {
     setNomeAvaliacao(event.target.value);
@@ -199,19 +226,9 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
     escola: Yup.string(),
   });
 
-  const defaultValues = useMemo(
-    () => ({
-      nome: currentUser?.nome || '',
-      email: currentUser?.email || '',
-      senha: currentUser?.senha || '',
-      funcao: currentUser?.funcao || '',
-      funcao_usuario: currentUser?.funcao_usuario || '',
-      status: (currentUser?.status ? "true" : "false") || '',
-      ddz: currentUser?.ddz || '',
-      escola: currentUser?.escola || '',
-    }),
-    [currentUser]
-  );
+  const currentUser = [];
+  // console.log(habilidades);
+  
 
   const selectTurma = () => {
     return (
@@ -224,17 +241,6 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
       </RHFSelect>
     )
   }
-
-  const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
-    defaultValues,
-  });
-
-  const {
-    reset,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     if (tipoFase.value) {
@@ -289,14 +295,13 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
             display="grid"
           >
 
-            <RHFSelect name="tipo" label="Tipo" onChange={handleTipoAvaliacao} value={tipoAvaliacao}>
+            <RHFSelect name="tipo" label="Tipo" onChange={handleTipoAvaliacao} value={tipoAvaliacao} multiple>
               {_tiposAvaliacao.map((tipo_avaliacao) => (
                 <MenuItem key={tipo_avaliacao} value={tipo_avaliacao} >
                   {tipo_avaliacao}
                 </MenuItem>
               ))}
             </RHFSelect>
-            {/* <RHFMultiSelect name="habilidade" label="Habilidades" onChange={handleHabilidade} value={habilidades} options={_bimestres}></RHFMultiSelect> */}
 
             { tipoFase.value && ( selectTurma() ) }
 
@@ -323,7 +328,7 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
 
             { (tipoComponente.value && turmaDefinida.value) && (
               <RHFSelect name="disciplina" label="Disciplina" onChange={handleDisciplina} value={disciplina}> 
-              {disciplinaList.map((disciplina) => (
+              {_disciplinas.map((disciplina) => (
                 <MenuItem key={disciplina} value={disciplina}>
                   {disciplina}
                 </MenuItem>
@@ -332,26 +337,22 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
             )}
 
             { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value) && (
-              <RHFMultiSelect name="habilidade" label="Habilidades" onChange={handleHabilidade} value={habilidades} options={habilidadeList}>
-
-              </RHFMultiSelect>
+            <RHFMultiSelect
+              chip
+              checkbox
+              name="habilidades"
+              label="Habilidades"
+              options={_habilidades}
+              value={habilidades}
+              onChange={handleHabilidade}
+            /> 
             ) }
 
             { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value && habilidadeDefinida.value) && (
                <RHFTextField name="nomeAvaliacao" label="Digite o nome da avaliação" onChange={handleNomeAvaliacao} value={nomeAvaliacao}/>
             ) }
 
-
           { (tipoDiagnostico.value && periodoDefinido.value) && (selectTurma()) }
-
-           {/* <RHFSelect name="ddz" label="DDZ">
-              {_ddzs.map((ddz) => (
-                <MenuItem key={ddz} value={ddz}>
-                  {ddz}
-                </MenuItem>
-              ))}
-              </RHFSelect> */}
-
 
           </Box>
         </DialogContent>
@@ -369,7 +370,6 @@ export default function NovaAvaliacaoForm({ currentUser, open, onClose }) {
 }
 
 NovaAvaliacaoForm.propTypes = {
-  currentUser: PropTypes.object,
-  onClose: PropTypes.func,
   open: PropTypes.bool,
+  onClose: PropTypes.func,
 };
