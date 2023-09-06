@@ -8,9 +8,9 @@ import { TurmaEditView } from 'src/sections/turma/view';
 
 // ----------------------------------------------------------------------
 
-export const metadata = {
-  title: 'Dashboard: Turma Edit',
-};
+// export const metadata = {
+//   title: 'Dashboard: Edição de Turma',
+// };
 
 export default function TurmaEditPage({ params }) {
   const { id } = params;

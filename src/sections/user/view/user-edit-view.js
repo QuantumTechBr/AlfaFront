@@ -23,6 +23,8 @@ export default function UserEditView({ id }) {
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
+      usuario.data.funcao = 'Diretor';
+      usuario.data.escola = 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES';
       setCurrentUser(usuario.data);
     })
   }, []);
@@ -38,7 +40,7 @@ export default function UserEditView({ id }) {
           },
           {
             name: 'Usuário',
-            href: paths.dashboard.user.root,
+            href: paths.dashboard.user.list,
           },
           { name: currentUser?.nome },
         ]}

@@ -29,13 +29,21 @@ import AppTopInstalledCountries from '../app-top-installed-countries';
 import { useState } from 'react';
 
 // ----------------------------------------------------------------------
+import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 export default function OverviewAppView() {
-  const { user } = useMockedUser();
+ // const { user } = useMockedUser();
 
   const theme = useTheme();
 
   const settings = useSettingsContext();
+
+  const novaAvaliacao = useBoolean();
+
+  const closeNovaAvaliacao = (retorno=null) => {
+    novaAvaliacao.onFalse();
+  }
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -59,15 +67,17 @@ export default function OverviewAppView() {
 
         <Grid xs={12} md={10}>
           <Typography variant="h3" paragraph>
-            {document.title}
+            Dashboard
           </Typography>
         </Grid>
 
         <Grid xs={12} md={2}>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
             Registro de Aprendizagem
           </Button>
         </Grid>
+
+        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary

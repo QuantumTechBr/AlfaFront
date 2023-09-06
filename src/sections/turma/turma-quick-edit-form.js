@@ -13,10 +13,9 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-// _mock
-import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
+import { _anos, _escolas, _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
@@ -24,8 +23,10 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentUser: currentTurma, open, onClose }) {
+export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+
+  console.log();
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -36,8 +37,10 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
   const defaultValues = useMemo(
     () => ({
       nome: currentTurma?.nome || '',
-      ano: currentTurma?.ano || '',
+      ano_serie: currentTurma?.ano_serie || '',
+      ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
+      turno: currentTurma?.turno || '',
     }),
     [currentTurma]
   );
@@ -78,9 +81,9 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Edição Rápida</DialogTitle>
-
         <DialogContent>
-
+          <br></br>
+          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
           <Box
             rowGap={3}
             columnGap={2}
@@ -99,14 +102,10 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
               ))}
             </RHFSelect>
 
-            <RHFTextField name="nome" label="Nome da Turma" />
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
-
             <RHFSelect name="turno" label="Turno">
-              {_turnos.map((escola) => (
-                <MenuItem key={escola} value={escola}>
-                  {escola}
+              {_turnos.map((turno) => (
+                <MenuItem key={turno} value={turno}>
+                   <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -121,7 +120,7 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
 
             <RHFSelect name="escola" label="Escola">
               {_escolas.map((escola) => (
-                <MenuItem key={escola} value={escola}>
+                <MenuItem key={escola} value={escola} >
                   {escola}
                 </MenuItem>
               ))}
@@ -145,7 +144,7 @@ export default function TurmaQuickEditForm({ currentUser: currentTurma, open, on
 }
 
 TurmaQuickEditForm.propTypes = {
-  currentUser: PropTypes.object,
+  currentTurma: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };

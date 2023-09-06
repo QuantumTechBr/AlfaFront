@@ -20,6 +20,8 @@ export default function TurmaEditView({ id }) {
 
   const currentTurma = _turmas.find((turma) => turma.id === id);
 
+  const nomeBreadcrumbs = currentTurma?.ano_serie + '° ' + currentTurma?.nome;
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
@@ -33,7 +35,7 @@ export default function TurmaEditView({ id }) {
             name: 'Turmas',
             href: paths.dashboard.turma.root,
           },
-          { name: currentTurma?.nome },
+          { name: nomeBreadcrumbs },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

@@ -21,6 +21,8 @@ import { countries } from 'src/assets/data';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import userMethods from './user-provider';
+
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +32,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
-    senha: Yup.string().required('Senha é obrigatório'),
+    senha: Yup.string(),
     funcao_usuario: Yup.string(),
-    status: Yup.string(),
-    ddz: Yup.string(),
     escola: Yup.string(),
   });
 
@@ -42,8 +42,9 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
+      funcao: currentUser?.funcao || '',
       funcao_usuario: currentUser?.funcao_usuario || '',
-      status: currentUser?.status || '',
+      status: (currentUser?.status ? "true" : "false") || '',
       ddz: currentUser?.ddz || '',
       escola: currentUser?.escola || '',
     }),
@@ -51,7 +52,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewUserSchema),
+    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -63,10 +64,29 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      var novoUsuario = {}
+      if (data.senha) {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          senha: data.senha, 
+          login: data.nome,
+          status: data.status,
+        }
+      } else {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          login: data.nome,
+          status: data.status,
+        }
+      }
+      await userMethods.updateUserById(currentUser.id, novoUsuario);   
+      reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
+
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
@@ -87,11 +107,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
-          <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
+          {/* <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
             A conta está aguardando confirmação
-          </Alert>
-
-          <RHFTextField name="nome" label="Nome Completo" sx={{ mb: 3 }} />
+          </Alert> */}
+          <br></br>
 
           <Box
             rowGap={3}
@@ -102,11 +121,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               sm: 'repeat(2, 1fr)',
             }}
           >
-
+            <RHFTextField name="nome" label="Nome Completo" />
             <RHFTextField name="email" label="Email" />
-            <RHFTextField name="senha" label="Senha" />
+            <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="funcao_usuario" label="Função">
+            <RHFSelect name="funcao" label="Função">
               {_roles.map((funcao) => (
                 <MenuItem key={funcao} value={funcao}>
                   {funcao}
@@ -122,13 +141,13 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="ddz" label="DDZ">
+           {/* <RHFSelect name="ddz" label="DDZ">
               {_ddzs.map((ddz) => (
                 <MenuItem key={ddz} value={ddz}>
                   {ddz}
                 </MenuItem>
               ))}
-            </RHFSelect>
+              </RHFSelect> */}
 
             <RHFSelect name="escola" label="Escola">
               {_escolas.map((escola) => (

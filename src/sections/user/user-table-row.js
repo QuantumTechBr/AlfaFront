@@ -18,18 +18,25 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import UserQuickEditForm from './user-quick-edit-form';
+import { useRouter } from 'src/routes/hook';
+import { paths } from 'src/routes/paths';
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, login, email, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at, status } = row;
+  let { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
+  const router = useRouter();
 
   const confirm = useBoolean();
 
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  const closeQuickEdit = (retorno=null) => {
+    quickEdit.onFalse();
+  }
 
   return (
     <>
@@ -38,35 +45,37 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-         {/* <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> */}
+        {/* <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> 
 
           <ListItemText
             primary={nome}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
           />
-        </TableCell>
+        </TableCell> */}
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao_usuario}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao}</TableCell>
 
         <TableCell>
           <Label
             variant="soft"
             color={
-              (status === 'ativo' && 'success') ||
+              (status === true && 'success') ||
               (status === 'pending' && 'warning') ||
-              (status === 'inativo' && 'error') ||
+              (status === false && 'error') ||
               'default'
             }
           >
-            {status}
+            {status? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
+
+
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
@@ -81,7 +90,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} />
 
       <CustomPopover
         open={popover.open}
