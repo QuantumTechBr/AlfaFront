@@ -108,7 +108,7 @@ export default function RegistroAprendizagemTableToolbar({
         </FormControl>
         )}
 
-        {turmaOptions && !!turmaOptions.length && (
+        {turmaOptions && (
         <FormControl
           sx={{
             flexShrink: 0,

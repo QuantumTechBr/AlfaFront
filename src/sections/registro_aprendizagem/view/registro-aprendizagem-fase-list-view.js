@@ -18,9 +18,12 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _anos, _turmas, _escolas, _registrosAprendizagemFase } from 'src/_mock';
+import { _anos, _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useContext } from 'react';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -65,10 +68,14 @@ const defaultFilters = {
 
 export default function RegistroAprendizagemFaseListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
+  const {turmas, buscaTurmas} = useContext(TurmasContext);
+  const {escolas, buscaEscolas} = useContext(EscolasContext);
 
   useEffect(() => {
+    buscaTurmas();
+    buscaEscolas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-    //   setRegistroAprendizagemList(response.data);
+      //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
     setRegistroAprendizagemList(_registrosAprendizagemFase);
@@ -177,8 +184,8 @@ export default function RegistroAprendizagemFaseListView() {
             filters={filters}
             onFilters={handleFilters}
             anoEscolarOptions={_anos}
-            turmaOptions={_turmas}
-            escolaOptions={_escolas}
+            turmaOptions={turmas}
+            escolaOptions={escolas}
           />
 
           {canReset && (
@@ -264,8 +271,7 @@ export default function RegistroAprendizagemFaseListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
+            dense={false}
           />
         </Card>
       </Container>

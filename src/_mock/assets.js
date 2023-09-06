@@ -396,6 +396,23 @@ export const _registrosAprendizagemFase = [
   },
 ]
 
+export const _registrosAprendizagemComponente = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'Matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+  },
+]
+
 export const _ddzs = [
   'DDZ I (Sul) ZONA SUL',
   'DDZ I (Sul) ZONA CENTRO-SUL',

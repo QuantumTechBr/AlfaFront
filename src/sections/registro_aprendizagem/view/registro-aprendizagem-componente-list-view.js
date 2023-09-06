@@ -18,12 +18,13 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _anos, _registrosAprendizagemDiagnostico } from 'src/_mock';
+import { _anos, _registrosAprendizagemComponente } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -40,7 +41,7 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemDiagnosticoTableRow from '../registro-aprendizagem-diagnostico-table-row';
+import RegistroAprendizagemComponenteTableRow from '../registro-aprendizagem-componente-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
@@ -53,7 +54,6 @@ const TABLE_HEAD = [
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'tipo', label: 'Tipo', width: 105 },
   { id: 'escola', label: 'Escola' },
   { id: '', width: 88 },
 ];
@@ -66,21 +66,20 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemDiagnosticoListView() {
+export default function RegistroAprendizagemComponenteListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const {turmas, buscaTurmas} = useContext(TurmasContext);
   const {escolas, buscaEscolas} = useContext(EscolasContext);
 
   useEffect(() => {
-    console.log(escolas);
     buscaTurmas();
     buscaEscolas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
-    setRegistroAprendizagemList(_registrosAprendizagemDiagnostico);
-    setTableData(_registrosAprendizagemDiagnostico);
+    setRegistroAprendizagemList(_registrosAprendizagemComponente);
+    setTableData(_registrosAprendizagemComponente);
   }, []);
 
   const table = useTable();
@@ -146,7 +145,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_diagnostico(id));
+      router.push(paths.dashboard.registro_aprendizagem.edit_componente(id));
     },
     [router]
   );
@@ -166,10 +165,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
+          <Typography variant="h4">Avaliação por componente</Typography>
           <Button
             component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_diagnostico}
+            href={paths.dashboard.registro_aprendizagem.new_componente}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -245,7 +244,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemDiagnosticoTableRow
+                      <RegistroAprendizagemComponenteTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
