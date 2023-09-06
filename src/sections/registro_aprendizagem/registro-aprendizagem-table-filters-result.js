@@ -19,18 +19,24 @@ export default function RegistroAprendizagemTableFiltersResult({
   ...other
 }) {
 
-  const handleRemoveAnoEscolar = (inputValue) => {
-    const newValue = filters.anoEscolar.filter((item) => item !== inputValue);
-    onFilters('anoEscolar', newValue);
+  const handleRemoveEscola = (inputValue) => {
+    const newValue = filters.escola.filter((item) => item !== inputValue);
+    onFilters('escola', newValue);
   };
+  
   const handleRemoveTurma = (inputValue) => {
     const newValue = filters.turma.filter((item) => item !== inputValue);
     onFilters('turma', newValue);
   };
+
+  const handleRemoveBimestre = (inputValue) => {
+    const newValue = filters.bimestre.filter((item) => item !== inputValue);
+    onFilters('bimestre', newValue);
+  };
   
-  const handleRemoveEscola = (inputValue) => {
-    const newValue = filters.escola.filter((item) => item !== inputValue);
-    onFilters('escola', newValue);
+  const handleRemoveDisciplina = (inputValue) => {
+    const newValue = filters.disciplina.filter((item) => item !== inputValue);
+    onFilters('disciplina', newValue);
   };
 
   const handleRemoveNome = (inputValue) => {
@@ -52,10 +58,10 @@ export default function RegistroAprendizagemTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.anoEscolar.length && (
-          <Block label="Ano letivo:">
-            {filters.anoEscolar.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveAnoEscolar(item)} />
+        {!!filters.escola.length && (
+          <Block label="Escola:">
+            {filters.escola.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
             ))}
           </Block>
         )}
@@ -68,10 +74,18 @@ export default function RegistroAprendizagemTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.escola.length && (
-          <Block label="Escola:">
-            {filters.escola.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
+        {filters.bimestre && !!filters.bimestre.length && (
+          <Block label="Bimestre:">
+            {filters.bimestre.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveBimestre(item)} />
+            ))}
+          </Block>
+        )}
+
+        {filters.disciplina && !!filters.disciplina.length && (
+          <Block label="Disciplina:">
+            {filters.disciplina.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDisciplina(item)} />
             ))}
           </Block>
         )}

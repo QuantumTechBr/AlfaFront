@@ -59,9 +59,9 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoEscolar: [],
-  turma: [],
+  anoEscolar: new Date().getFullYear(),
   escola: [],
+  turma: [],
 };
 
 // ----------------------------------------------------------------------
@@ -73,8 +73,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   useEffect(() => {
     console.log(escolas);
-    buscaTurmas();
     buscaEscolas();
+    buscaTurmas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -306,7 +306,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, turma, escola } = filters;
+  const { nome, anoEscolar, escola, turma } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -318,16 +318,16 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar.length) {
-    inputData = inputData.filter((item) => anoEscolar.includes(item.ano_escolar));
+  if (anoEscolar) {
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
   }
   
-  if (turma.length) {
-    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
-  }
-
   if (escola.length) {
     inputData = inputData.filter((item) => escola.includes(item.escola));
+  }
+
+  if (turma.length) {
+    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
   }
   
   if (nome) {

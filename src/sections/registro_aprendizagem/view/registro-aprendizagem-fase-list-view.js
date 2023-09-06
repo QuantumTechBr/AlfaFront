@@ -18,7 +18,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _anos, _registrosAprendizagemFase } from 'src/_mock';
+import { _anos, _bimestres, _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -59,9 +59,10 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoEscolar: [],
-  turma: [],
+  anoEscolar: new Date().getFullYear(),
   escola: [],
+  turma: [],
+  bimestre: [],
 };
 
 // ----------------------------------------------------------------------
@@ -72,8 +73,8 @@ export default function RegistroAprendizagemFaseListView() {
   const {escolas, buscaEscolas} = useContext(EscolasContext);
 
   useEffect(() => {
-    buscaTurmas();
     buscaEscolas();
+    buscaTurmas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
       //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -184,8 +185,9 @@ export default function RegistroAprendizagemFaseListView() {
             filters={filters}
             onFilters={handleFilters}
             anoEscolarOptions={_anos}
-            turmaOptions={turmas}
             escolaOptions={escolas}
+            turmaOptions={turmas}
+            bimestreOptions={_bimestres}
           />
 
           {canReset && (
@@ -305,7 +307,7 @@ export default function RegistroAprendizagemFaseListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, turma, escola } = filters;
+  const { nome, anoEscolar, escola, turma, bimestre } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -316,18 +318,22 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar.length) {
-    inputData = inputData.filter((item) => anoEscolar.includes(item.ano_escolar));
-  }
-  
-  if (turma.length) {
-    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+  if (anoEscolar) {
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
   }
 
   if (escola.length) {
     inputData = inputData.filter((item) => escola.includes(item.escola));
   }
   
+  if (turma.length) {
+    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+  }
+
+  if (bimestre.length) {
+    inputData = inputData.filter((item) => bimestre.includes(item.bimestre + 'º'));
+  }
+
   if (nome) {
     inputData = inputData.filter(
       (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1

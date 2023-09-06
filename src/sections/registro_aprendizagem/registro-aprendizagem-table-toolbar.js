@@ -21,8 +21,10 @@ export default function RegistroAprendizagemTableToolbar({
   filters,
   onFilters,
   anoEscolarOptions,
-  turmaOptions,
   escolaOptions,
+  turmaOptions,
+  bimestreOptions,
+  disciplinaOptions,
 }) {
   const popover = usePopover();
 
@@ -35,8 +37,15 @@ export default function RegistroAprendizagemTableToolbar({
 
   const handleFilterAnoEscolar = useCallback(
     (event) => {
+      onFilters('anoEscolar', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterEscola = useCallback(
+    (event) => {
       onFilters(
-        'anoEscolar',
+        'escola',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -53,10 +62,20 @@ export default function RegistroAprendizagemTableToolbar({
     [onFilters]
   );
 
-  const handleFilterEscola = useCallback(
+  const handleFilterBimestre = useCallback(
     (event) => {
       onFilters(
-        'escola',
+        'bimestre',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterDisciplina = useCallback(
+    (event) => {
+      onFilters(
+        'disciplina',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -87,10 +106,31 @@ export default function RegistroAprendizagemTableToolbar({
           <InputLabel>Ano Letivo</InputLabel>
           
           <Select
-            multiple
             value={filters.anoEscolar}
             onChange={handleFilterAnoEscolar}
             input={<OutlinedInput label="Ano Letivo" />}
+          >
+            {anoEscolarOptions.map((option) => (
+              <MenuItem key={option} value={option}>{option}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        )}
+
+        {escolaOptions && (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 300 },
+          }}
+        >
+          <InputLabel>Escola</InputLabel>
+
+          <Select
+            multiple
+            value={filters.escola}
+            onChange={handleFilterEscola}
+            input={<OutlinedInput label="Escola" />}
             renderValue={(selected) => selected.join(', ')}
             MenuProps={{
               PaperProps: {
@@ -98,9 +138,9 @@ export default function RegistroAprendizagemTableToolbar({
               },
             }}
           >
-            {anoEscolarOptions.map((option) => (
+            {escolaOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.anoEscolar.includes(option)} />
+                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
                 {option}
               </MenuItem>
             ))}
@@ -141,19 +181,20 @@ export default function RegistroAprendizagemTableToolbar({
         </FormControl>
         )}
 
+        {bimestreOptions && (
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 300 },
+            width: { xs: 1, md: 120 },
           }}
         >
-          <InputLabel>Escola</InputLabel>
-
+          <InputLabel>Bimestre</InputLabel>
+          
           <Select
             multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
+            value={filters.bimestre}
+            onChange={handleFilterBimestre}
+            input={<OutlinedInput label="Bimestre" />}
             renderValue={(selected) => selected.join(', ')}
             MenuProps={{
               PaperProps: {
@@ -161,14 +202,50 @@ export default function RegistroAprendizagemTableToolbar({
               },
             }}
           >
-            {escolaOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
+            {bimestreOptions.map((option) => {
+              return (
+                <MenuItem key={option} value={option + 'º'}>
+                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option + 'º' )} />
+                  {option + 'º'}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
+        )}
+
+        {disciplinaOptions && (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 120 },
+          }}
+        >
+          <InputLabel>Disciplina</InputLabel>
+          
+          <Select
+            multiple
+            value={filters.disciplina}
+            onChange={handleFilterDisciplina}
+            input={<OutlinedInput label="Disciplina" />}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {disciplinaOptions.map((option) => {
+              return (
+                <MenuItem key={option} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.disciplina.includes(option)} />
+                  {option}
+                </MenuItem>
+              );
+            })}
+          </Select>
+        </FormControl>
+        )}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField

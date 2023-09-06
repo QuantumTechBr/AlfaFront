@@ -250,6 +250,21 @@ export const _anos = [
   2024,
 ];
 
+export const _bimestres = [
+  1,
+  2,
+  3,
+  4,
+];
+
+export const _disciplinas = [
+  'Português',
+  'Matemática',
+  'Ciências',
+  'Geografia',
+  'Historia',
+];
+
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
