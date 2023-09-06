@@ -256,6 +256,21 @@ export const _anos = [
   2024,
 ];
 
+export const _bimestres = [
+  1,
+  2,
+  3,
+  4,
+];
+
+export const _disciplinas = [
+  'Português',
+  'Matemática',
+  'Ciências',
+  'Geografia',
+  'Historia',
+];
+
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
@@ -302,6 +317,120 @@ export const _turmas = [
     media: 92,
     alunos: 43,
     status: true
+  },
+]
+
+const RegistroAprendizagemTipos = {
+	diagnostico: "Diagnóstico",
+	fases: "Fases",
+}
+const RegistroAprendizagemDiagnosticoTipos = {
+	inicial: "Inicial",
+}
+
+export const _registrosAprendizagemDiagnostico = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'Matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+  },
+  {
+    id: '2',
+    ano_escolar: 2023,
+    ano_serie: 2,
+    turno: 'Vespertino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 75,
+    alunos: 23,
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+  },
+  {
+    id: '3',
+    ano_escolar: 2023,
+    ano_serie: 3,
+    turno: 'Noturno',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'C',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 92,
+    alunos: 43,
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+  },
+]
+export const _registrosAprendizagemFase = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'Matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+    bimestre: 1,
+  },
+  {
+    id: '2',
+    ano_escolar: 2023,
+    ano_serie: 2,
+    turno: 'Vespertino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 75,
+    alunos: 23,
+    bimestre: 1,
+  },
+  {
+    id: '3',
+    ano_escolar: 2023,
+    ano_serie: 3,
+    turno: 'Noturno',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'C',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 92,
+    alunos: 43,
+    bimestre: 1,
+  },
+]
+
+export const _registrosAprendizagemComponente = [
+  {
+    id: '1',
+    ano_escolar: 2023,
+    ano_serie: 1,
+    turno: 'Matutino',
+    escola: 'CMEI PHELIPPE DAOU',
+    turma: 'B',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+    media: 80,
+    alunos: 32,
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
   },
 ]
 
