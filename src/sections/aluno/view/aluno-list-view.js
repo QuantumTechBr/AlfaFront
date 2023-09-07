@@ -2,10 +2,8 @@
 
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
+
 // @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -18,12 +16,11 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
-// _mock
-import { _ddzs, _escolas, _turmas } from 'src/_mock';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -43,12 +40,12 @@ import {
 import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
 import AlunoTableFiltersResult from '../aluno-table-filters-result';
-//
 import alunoMethods from '../aluno-provider';
+
 // ----------------------------------------------------------------------
 
-
 const TABLE_HEAD = [
+  { id: 'id', label: 'id', width: 300 },
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matricula', width: 200 },
   { id: 'data_nascimento', label: 'Aniversário', width: 300 },
@@ -61,9 +58,8 @@ const anoAtual = new Date().getFullYear();
 const defaultFilters = {
   nome: '',
   ano: anoAtual,
-  ddz: [],
-  escola: [],
-  status: 'all',
+  matricula: '',
+  data_nascimento: ''
 };
 
 // ----------------------------------------------------------------------
@@ -73,15 +69,16 @@ export default function AlunoListView() {
   const [_alunoList, setAlunoList] = useState([]);
 
   useEffect(() => {
-    alunoMethods.getAllAlunos.then(aluno => {
-      for (var i = 0; i < aluno.data.length; i++) {
-        aluno.data[i].status = 'ativo';
+    alunoMethods.getAllAlunos().then(alunos => {
+      for (var i = 0; i < alunos.data.length; i++) {
+        alunos.data[i].status = 'ativo';
       }
-      setAlunoList(aluno.data);
-      setTableData(aluno.data);
+      setAlunoList(alunos.data);
+      setTableData(alunos.data);
     })
   }, []);
-  
+
+
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -194,17 +191,13 @@ export default function AlunoListView() {
           <AlunoTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            ddzOptions={_ddzs}
-            escolaOptions={_escolas}
           />
 
           {canReset && (
             <AlunoTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -316,8 +309,8 @@ export default function AlunoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
-
+ 
+  const { nome, matricula, data_nascimento } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -325,7 +318,7 @@ function applyFilter({ inputData, comparator, filters }) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-
+  
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (nome) {
@@ -334,12 +327,12 @@ function applyFilter({ inputData, comparator, filters }) {
     );
   }
 
-  if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
+  if (matricula) {
+    inputData = inputData.filter((user) => matricula.includes(user.matricula));
   }
 
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+  if (data_nascimento) {
+    inputData = inputData.filter((user) => data_nascimento.includes(user.data_nascimento));
   }
 
   return inputData;

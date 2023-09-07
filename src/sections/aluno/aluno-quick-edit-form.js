@@ -3,20 +3,21 @@ import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 // _mock
 import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
 // assets
-import { countries } from 'src/assets/data';
+
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
@@ -91,41 +92,11 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
             }}
           >
 
-            <RHFSelect name="ano_serie" label="Ano">
-              {_anosSerie.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}°
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            <RHFTextField name="nome" label="Nome do Aluno" />
 
-            <RHFTextField name="nome" label="Nome da Turma" />
-
-            <Box sx={{ display: { xs: 'none', sm: 'block' } }} />
-
-            <RHFSelect name="turno" label="Turno">
-              {_turnos.map((escola) => (
-                <MenuItem key={escola} value={escola}>
-                  {escola}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="ano_escolar" label="Ano Escolar">
-              {_anos.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="escola" label="Escola">
-              {_escolas.map((escola) => (
-                <MenuItem key={escola} value={escola}>
-                  {escola}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            <RHFTextField name="matricula" label="Matricula" />
+      
+            <DatePicker name="data_nascimento" label="Data de Nascimento"   />
 
           </Box>
         </DialogContent>

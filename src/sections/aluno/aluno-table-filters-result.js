@@ -11,36 +11,26 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableFiltersResult({
+export default function AlunoTableFiltersResult({
   filters,
   onFilters,
-  //
   onResetFilters,
-  //
   results,
   ...other
 }) {
-  // const handleRemoveStatus = () => {
-  //   onFilters('status', 'all');
-  // };
 
   const handleRemoveNome = (inputValue) => {
-    onFilters('nome', '');
+    onFilters('nome', 'matricula','data_nascimento');
   };
 
-  // const handleRemoveRole = (inputValue) => {
-  //   const newValue = filters.role.filter((item) => item !== inputValue);
-  //   onFilters('role', newValue);
-  // };
-
-  const handleRemoveDdz = (inputValue) => {
-    const newValue = filters.ddz.filter((item) => item !== inputValue);
-    onFilters('ddz', newValue);
+  const handleRemoveMatricula = (inputValue) => {
+    const newValue = filters.matricula.filter((item) => item !== inputValue);
+    onFilters('matricula', newValue);
   };
   
-  const handleRemoveEscola = (inputValue) => {
-    const newValue = filters.escola.filter((item) => item !== inputValue);
-    onFilters('escola', newValue);
+  const handleRemoveDataNascimento = (inputValue) => {
+    const newValue = filters.data_nascimento.filter((item) => item !== inputValue);
+    onFilters('data_nascimento', newValue);
   };
 
   return (
@@ -53,39 +43,22 @@ export default function TurmaTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {/* {filters.status !== 'all' && (
-          <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
-          </Block>
-        )} */}
 
         {filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
         )}
-
-        {/* {!!filters.role.length && (
-          <Block label="Função:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
-            ))}
-          </Block>
-        )} */}
-
-        {!!filters.ddz.length && (
-          <Block label="DDZ:">
-            {filters.ddz.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
-            ))}
+        
+        {filters.matricula !== '' && (
+          <Block label="Matricula:">
+            <Chip size="small" label={filters.matricula} onDelete={handleRemoveMatricula} />
           </Block>
         )}
 
-        {!!filters.escola.length && (
-          <Block label="Escola:">
-            {filters.escola.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
-            ))}
+        {filters.data_nascimento !== '' && (
+          <Block label="Data Nascimento:">
+            <Chip size="small" label={filters.data_nascimento} onDelete={handleRemoveDataNascimento} />
           </Block>
         )}
 
@@ -101,7 +74,7 @@ export default function TurmaTableFiltersResult({
   );
 }
 
-TurmaTableFiltersResult.propTypes = {
+AlunoTableFiltersResult.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   onResetFilters: PropTypes.func,

@@ -1,18 +1,17 @@
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -22,7 +21,7 @@ import AlunoQuickEditForm from './aluno-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, matricula, data_nasacimento, created_at, updated_at, deleted_at } = row;
+  const { id, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
 
   const confirm = useBoolean();
@@ -44,13 +43,13 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{data_nasacimento}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{data_nascimento}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{created_at}</TableCell>
+        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{created_at}</TableCell>*/}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{updated_at}</TableCell>
+        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{updated_at}</TableCell>*/}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{deleted_at}</TableCell>
+        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{deleted_at}</TableCell>*/}
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

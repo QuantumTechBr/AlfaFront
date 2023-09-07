@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 // routes
 import { paths } from 'src/routes/paths';
 // _mock
-import { _turmas } from 'src/_mock';
+import { _alunos } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -18,7 +18,7 @@ import AlunoNewEditForm from '../aluno-new-edit-form';
 export default function AlunoEditView({ id }) {
   const settings = useSettingsContext();
 
-  const currentAluno = _turmas.find((turma) => turma.id === id);
+  const currentAluno = _alunos.find((aluno) => aluno.id === id);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

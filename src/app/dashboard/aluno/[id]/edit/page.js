@@ -1,15 +1,9 @@
-'use client';
-
 import PropTypes from 'prop-types';
-// _mock
-import { _turmas } from 'src/_mock';
-// sections
+import { _alunos } from 'src/_mock/';
 import { AlunoEditView } from 'src/sections/aluno/view';
 
-// ----------------------------------------------------------------------
-
 export const metadata = {
-  title: 'Dashboard: Aluno Edit',
+  title: 'Dashboard: Turma Edit',
 };
 
 export default function AlunoEditPage({ params }) {
@@ -19,8 +13,8 @@ export default function AlunoEditPage({ params }) {
 }
 
 export async function generateStaticParams() {
-  return _turmas.map((turma) => ({
-    id: turma.id,
+  return _alunos.map((aluno) => ({
+    id: aluno.id,
   }));
 }
 
