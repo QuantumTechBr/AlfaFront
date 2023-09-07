@@ -117,8 +117,28 @@ export function useNavData() {
               { title: t('frequência'), path: paths.dashboard.root },
               { title: t('atividades pedagógicas'), path: paths.dashboard.root },
               { title: 'Planos de Aulas', path: paths.dashboard.root },
-              { title: t('avaliações'), path: paths.dashboard.root },
             ],
+          },
+
+          // AVALIAÇÕES
+          { 
+            title: t('avaliações'), 
+            path: paths.dashboard.registro_aprendizagem.root,
+            icon: ICONS.alfaBookAccount,
+            children: [
+              {
+                title: t('Dianóstico'), 
+                path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
+              },
+              {
+                title: t('Fase'), 
+                path: paths.dashboard.registro_aprendizagem.root_fase, 
+              },
+              {
+                title: t('Componente'), 
+                path: paths.dashboard.registro_aprendizagem.root_componente, 
+              }
+            ]
           },
 
           // TOUR

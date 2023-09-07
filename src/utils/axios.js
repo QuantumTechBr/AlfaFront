@@ -181,11 +181,18 @@ export const endpoints = {
     delete: '/api/v1/usuarios/',
   },
   zona: {
-    list: '/api/v1/zonas',
+    list: '/api/v1/zonas/',
     post: '/api/v1/zonas',
     get_by_id: '/api/v1/zonas/',
     update: '/api/v1/zonas/',
     delete: '/api/v1/zonas/',
+  },
+  registro_aprendizagem :{
+    list: '/api/v1/registros_aprendizagens/',
+    post: '/api/v1/registros_aprendizagens',
+    get_by_id: '/api/v1/registros_aprendizagens/',
+    update: '/api/v1/registros_aprendizagens/',
+    delete: '/api/v1/registros_aprendizagens/',
   },
   /*mail: {
     list: '/api/mail/list',

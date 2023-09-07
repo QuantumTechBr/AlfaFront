@@ -33,7 +33,7 @@ import FormProvider, {
   RHFAutocomplete,
 } from 'src/components/hook-form';
 import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
-import userMethods from './user-provider';
+import userMethods from './user-repository';
 import { useEffect, useState } from 'react';
 
 

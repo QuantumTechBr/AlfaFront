@@ -3,14 +3,13 @@
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
 // @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
+import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
+import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
@@ -19,16 +18,18 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import { _anos, _disciplinas, _registrosAprendizagemComponente } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useContext } from 'react';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
-import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -40,48 +41,46 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import UserTableRow from '../user-table-row';
-import UserTableToolbar from '../user-table-toolbar';
-import UserTableFiltersResult from '../user-table-filters-result';
+import RegistroAprendizagemComponenteTableRow from '../registro-aprendizagem-componente-table-row';
+import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
+import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
-import userMethods from '../user-repository';
+import registroAprendizagemMethods from '../registro-aprendizagem-provider';
 // ----------------------------------------------------------------------
 
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
-
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 200 },
-  { id: 'email', label: 'E-Mail', width: 300 },
-  { id: 'funcao', label: 'Função', width: 200 },
-  { id: 'status', label: 'Status', width: 200 },
+  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
+  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
+  { id: 'turma', label: 'Turma', width: 75 },
+  { id: 'turno', label: 'Turno', width: 105 },
+  { id: 'alunos', label: 'Alunos', width: 80 },
+  { id: 'escola', label: 'Escola' },
   { id: '', width: 88 },
 ];
 
 const defaultFilters = {
-  nome: '',
-  role: [],
-  ddz: [],
+  anoEscolar: new Date().getFullYear(),
   escola: [],
-  status: 'all',
+  turma: [],
+  disciplina: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function UserListView() {
-
-  const [_userList, setUserList] = useState([]);
+export default function RegistroAprendizagemComponenteListView() {
+  const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
+  const {turmas, buscaTurmas} = useContext(TurmasContext);
+  const {escolas, buscaEscolas} = useContext(EscolasContext);
 
   useEffect(() => {
-    userMethods.getAllUsers().then(usuarios => {
-      const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
-      for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        usuariosNaoDeletados[i].funcao = 'Diretor';
-        usuariosNaoDeletados[i].escola = 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES';
-      }
-      setUserList(usuariosNaoDeletados);
-      setTableData(usuariosNaoDeletados);
-    })
+    buscaEscolas();
+    buscaTurmas();
+    // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
+    //   setRegistroAprendizagemList(response.data);
+    //   setTableData(response.data);
+    // });
+    setRegistroAprendizagemList(_registrosAprendizagemComponente);
+    setTableData(_registrosAprendizagemComponente);
   }, []);
 
   const table = useTable();
@@ -127,9 +126,7 @@ export default function UserListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      userMethods.deleteUserById(id);
       setTableData(deleteRow);
-      //userMethods.deleteUserById(id);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -149,16 +146,9 @@ export default function UserListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.user.edit(id));
+      router.push(paths.dashboard.registro_aprendizagem.edit_componente(id));
     },
     [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {
@@ -168,84 +158,40 @@ export default function UserListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <CustomBreadcrumbs
-          heading="Usuários"
-          links={[
-            { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Usuário', href: paths.dashboard.user.list },
-            { name: 'Listar' },
-          ]}
-          action={
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.user.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: "#00A5AD",
-              }}
-            >
-              Adicionar
-            </Button>
-          }
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
-        />
-
-        <Card>
-          <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
+        >
+          <Typography variant="h4">Avaliação por componente</Typography>
+          <Button
+            component={RouterLink}
+            href={paths.dashboard.registro_aprendizagem.new_componente}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+              bgcolor: '#00A5AD',
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === true && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === false && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && _userList.length}
-                    {tab.value === true &&
-                      _userList.filter((user) => user.status === true).length}
-                    {tab.value === 'pending' &&
-                      _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === false &&
-                      _userList.filter((user) => user.status === false).length}
-                    {tab.value === 'rejected' &&
-                      _userList.filter((user) => user.status === 'rejected').length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
+            Adicionar
+          </Button>
+        </Stack>
 
-          <UserTableToolbar
+        <Card>
+          <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //
-            roleOptions={_roles}
-            ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            anoEscolarOptions={_anos}
+            escolaOptions={escolas}
+            turmaOptions={turmas}
+            disciplinaOptions={_disciplinas}
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <RegistroAprendizagemTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -300,7 +246,7 @@ export default function UserListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <UserTableRow
+                      <RegistroAprendizagemComponenteTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -327,9 +273,7 @@ export default function UserListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
+            dense={false}
           />
         </Card>
       </Container>
@@ -340,7 +284,7 @@ export default function UserListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> usuários?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> registro?
           </>
         }
         action={
@@ -363,7 +307,7 @@ export default function UserListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, status, role, ddz, escola } = filters;
+  const { nome, anoEscolar, escola, turma, disciplina } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -375,26 +319,26 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
+  if (anoEscolar) {
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
+  }
+  
+  if (escola.length) {
+    inputData = inputData.filter((item) => escola.includes(item.escola));
+  }
+
+  if (turma.length) {
+    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+  }
+  
+  if (disciplina.length) {
+    inputData = inputData.filter((item) => disciplina.includes(item.disciplina));
+  }
+  
   if (nome) {
     inputData = inputData.filter(
-      (user) => user.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
-  }
-
- /* if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }*/
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
   }
 
   return inputData;
