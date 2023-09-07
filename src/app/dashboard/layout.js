@@ -6,12 +6,18 @@ import { AuthGuard } from 'src/auth/guard';
 // components
 import DashboardLayout from 'src/layouts/dashboard';
 
+import { TurmasProvider } from 'src/sections/turma/context/turma-context';
+import { EscolasProvider } from 'src/sections/escola/context/escola-context';
 // ----------------------------------------------------------------------
 
 export default function Layout({ children }) {
   return (
     <AuthGuard>
-      <DashboardLayout>{children}</DashboardLayout>
+      <TurmasProvider>
+        <EscolasProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </EscolasProvider>
+      </TurmasProvider>
     </AuthGuard>
   );
 }
