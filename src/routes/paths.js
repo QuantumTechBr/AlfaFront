@@ -143,7 +143,7 @@ export const paths = {
       edit_diagnostico: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/${id}/edit`,
       root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/list`,
       new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
-      edit_fase: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${id}/edit`,
+      edit_fase: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${id}`,
       root_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/list`,
       new_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/new`,
       edit_componente: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/${id}/edit`,

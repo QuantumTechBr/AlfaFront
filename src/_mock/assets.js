@@ -250,38 +250,31 @@ export const _roles = [
   'Professor',*/
 ];
 
-export const _anos = [
-  2024,
-  2023,
-  2022,
-];
+export const _anos = [2024, 2023, 2022];
 
-export const _bimestres = [
-  1,
-  2,
-  3,
-  4,
-];
+export const _bimestres = [1, 2, 3, 4];
 
-export const _disciplinas = [
-  'Português',
-  'Matemática',
-  'Ciências',
-  'Geografia',
-  'Historia',
-];
+export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
 
 const RegistroAprendizagemTipos = {
-	diagnostico: "Diagnóstico",
-	fases: "Fases",
-}
+  diagnostico: 'Diagnóstico',
+  fases: 'Fases',
+};
 const RegistroAprendizagemDiagnosticoTipos = {
-	inicial: "Inicial",
-}
+  inicial: 'Inicial',
+};
+
+const RegistroAprendizagemFases = {
+  pre_alfabetica: 'Pré Alfabética',
+  alfabetica_parcial: 'Alfabética Parcial',
+  alfabetica_completa: 'Alfabética Completa',
+  alfabetica_consolidada: 'Alfabética Consolidada',
+  nao_avaliado: 'Não Avaliado',
+};
 
 export const _registrosAprendizagemDiagnostico = [
   {
@@ -296,7 +289,7 @@ export const _registrosAprendizagemDiagnostico = [
     deleted_at: Date(),
     media: 80,
     alunos: 32,
-    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
   {
     id: '2',
@@ -310,7 +303,7 @@ export const _registrosAprendizagemDiagnostico = [
     deleted_at: Date(),
     media: 75,
     alunos: 23,
-    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
   {
     id: '3',
@@ -324,9 +317,9 @@ export const _registrosAprendizagemDiagnostico = [
     deleted_at: Date(),
     media: 92,
     alunos: 43,
-    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
-]
+];
 export const _registrosAprendizagemFase = [
   {
     id: '1',
@@ -370,7 +363,7 @@ export const _registrosAprendizagemFase = [
     alunos: 43,
     bimestre: 1,
   },
-]
+];
 
 export const _registrosAprendizagemComponente = [
   {
@@ -385,14 +378,11 @@ export const _registrosAprendizagemComponente = [
     deleted_at: Date(),
     media: 80,
     alunos: 32,
-    tipo: RegistroAprendizagemDiagnosticoTipos.inicial
+    tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
-]
-
-export const _ddzs = [
-  'DDZ I (Sul) ZONA SUL',
-  'DDZ I (Sul) ZONA CENTRO-SUL',
 ];
+
+export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];
 
 // ----------------------------------------------------------------------
 

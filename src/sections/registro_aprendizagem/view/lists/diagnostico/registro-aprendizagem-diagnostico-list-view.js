@@ -18,7 +18,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import {_bimestres, _registrosAprendizagemFase } from 'src/_mock';
+import { _anos, _registrosAprendizagemDiagnostico } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -41,11 +41,11 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemFaseTableRow from '../registro-aprendizagem-fase-table-row';
+import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-diagnostico-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
-import registroAprendizagemMethods from '../registro-aprendizagem-provider';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -54,21 +54,20 @@ const TABLE_HEAD = [
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'bimestre', label: 'Bimestre', width: 80 },
+  { id: 'tipo', label: 'Tipo', width: 105 },
   { id: 'escola', label: 'Escola' },
-  { id: '', width: 72 },
+  { id: '', width: 88 },
 ];
 
 const defaultFilters = {
   anoEscolar: new Date().getFullYear(),
   escola: [],
   turma: [],
-  bimestre: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseListView() {
+export default function RegistroAprendizagemDiagnosticoListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -84,8 +83,8 @@ export default function RegistroAprendizagemFaseListView() {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
-    setRegistroAprendizagemList(_registrosAprendizagemFase);
-    setTableData(_registrosAprendizagemFase);
+    setRegistroAprendizagemList(_registrosAprendizagemDiagnostico);
+    setTableData(_registrosAprendizagemDiagnostico);
   }, []);
 
   const table = useTable();
@@ -163,7 +162,7 @@ export default function RegistroAprendizagemFaseListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
+      router.push(paths.dashboard.registro_aprendizagem.edit_diagnostico(id));
     },
     [router]
   );
@@ -183,12 +182,10 @@ export default function RegistroAprendizagemFaseListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">
-            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
-          </Typography>
+          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
           <Button
             component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_fase}
+            href={paths.dashboard.registro_aprendizagem.new_diagnostico}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -204,9 +201,8 @@ export default function RegistroAprendizagemFaseListView() {
             filters={filters}
             onFilters={handleFilters}
             anoEscolarOptions={anosLetivos}
-            escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
-            bimestreOptions={_bimestres}
+            escolaOptions={escolas}
           />
 
           {canReset && (
@@ -265,7 +261,7 @@ export default function RegistroAprendizagemFaseListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemFaseTableRow
+                      <RegistroAprendizagemDiagnosticoTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -326,7 +322,8 @@ export default function RegistroAprendizagemFaseListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma, bimestre } = filters;
+  const { nome, anoEscolar, escola, turma } = filters;
+
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -338,7 +335,7 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
   }
 
   if (escola.length) {
@@ -351,10 +348,6 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((item) =>
       turma.map((baseItem) => baseItem.nome).includes(item.turma)
     );
-  }
-
-  if (bimestre.length) {
-    inputData = inputData.filter((item) => bimestre.includes(item.bimestre + 'º'));
   }
 
   if (nome) {

@@ -18,14 +18,11 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _disciplinas, _registrosAprendizagemComponente } from 'src/_mock';
+import { _registrosAprendizagemFaseUnica } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -42,50 +39,42 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemComponenteTableRow from '../registro-aprendizagem-componente-table-row';
-import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
-//
-import registroAprendizagemMethods from '../registro-aprendizagem-provider';
+import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-form-table-row';
+import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
+import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
-  { id: 'turma', label: 'Turma', width: 75 },
-  { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'escola', label: 'Escola' },
-  { id: '', width: 88 },
+  { id: 'nome', label: 'Nome', width: 150 },
+  // {...RegistroAprendizagemFases.map((fase)=> { id: 'pre_alfabetica', label: 'Pré Alfabética', width: 80 },)}
+  { id: 'pre_alfabetica', label: 'Pré Alfabética', width: 80 },
+  { id: 'alfabetica_parcial', label: 'Alfabética Parcial', width: 80 },
+  { id: 'alfabetica_completa', label: 'Alfabética Completa', width: 80 },
+  { id: 'alfabetica_consolidada', label: 'Alfabética Consolidada', width: 80 },
+  { id: 'nao_avaliado', label: 'Não Avaliado', width: 80 },
+  { id: 'observacao', label: 'Observação' },
 ];
 
 const defaultFilters = {
-  anoEscolar: new Date().getFullYear(),
-  escola: [],
   turma: [],
-  disciplina: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemComponenteListView() {
+export default function RegistroAprendizagemFaseFormListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
-    buscaAnosLetivos();
-    buscaEscolas();
     buscaTurmas().then(() => setTurmasFiltered(turmas));
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
-    setRegistroAprendizagemList(_registrosAprendizagemComponente);
-    setTableData(_registrosAprendizagemComponente);
+    setRegistroAprendizagemList(_registrosAprendizagemFase);
+    setTableData(_registrosAprendizagemFase);
   }, []);
 
   const table = useTable();
@@ -121,16 +110,6 @@ export default function RegistroAprendizagemComponenteListView() {
 
   const handleFilters = useCallback(
     (nome, value) => {
-      if (nome == 'escola') {
-        if (value.length == 0) {
-          setTurmasFiltered(turmas);
-        } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
-        }
-      }
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -163,7 +142,7 @@ export default function RegistroAprendizagemComponenteListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_componente(id));
+      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
     },
     [router]
   );
@@ -183,10 +162,12 @@ export default function RegistroAprendizagemComponenteListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação por componente</Typography>
+          <Typography variant="h4">
+            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+          </Typography>
           <Button
             component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_componente}
+            href={paths.dashboard.registro_aprendizagem.new_fase}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -198,17 +179,14 @@ export default function RegistroAprendizagemComponenteListView() {
         </Stack>
 
         <Card>
-          <RegistroAprendizagemTableToolbar
+          <RegistroAprendizagemFaseFormTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={anosLetivos}
-            escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
-            disciplinaOptions={_disciplinas}
           />
 
           {canReset && (
-            <RegistroAprendizagemTableFiltersResult
+            <RegistroAprendizagemFaseFormTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -263,7 +241,7 @@ export default function RegistroAprendizagemComponenteListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemComponenteTableRow
+                      <RegistroAprendizagemFaseFormTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -324,8 +302,7 @@ export default function RegistroAprendizagemComponenteListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma, disciplina } = filters;
-
+  const { nome, turma, } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -336,24 +313,10 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola)
-    );
-  }
-
   if (turma.length) {
     inputData = inputData.filter((item) =>
       turma.map((baseItem) => baseItem.nome).includes(item.turma)
     );
-  }
-
-  if (disciplina.length) {
-    inputData = inputData.filter((item) => disciplina.includes(item.disciplina));
   }
 
   if (nome) {
