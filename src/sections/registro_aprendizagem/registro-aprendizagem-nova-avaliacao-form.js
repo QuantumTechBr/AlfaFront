@@ -24,9 +24,9 @@ import FormProvider, { RHFMultiSelect, RHFSelect, RHFTextField, RHFAutocomplete 
 import { useBoolean } from 'src/hooks/use-boolean';
 import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';
-import turmaMethods from '../turma/turma-provider';
-import disciplinaMethods from '../disciplina/disciplina-provider';
-import habilidadeMethods from '../habilidade/habilidade-provider';
+import turmaMethods from '../turma/turma-repository';
+import disciplinaMethods from '../disciplina/disciplina-repository';
+import habilidadeMethods from '../habilidade/habilidade-repository';
 import ReactHookForm from '../_examples/extra/form-validation-view/react-hook-form';
 
 
