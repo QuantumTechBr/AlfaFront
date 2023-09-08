@@ -35,12 +35,53 @@ import FormProvider, {
 import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
 import userMethods from './user-repository';
 import { useEffect, useState } from 'react';
+import funcaoMethods from '../funcao/funcao-repository';
+import escolaMethods from '../escola/escola-repository';
+import permissaoMethods from '../permissao/permissao-repository';
 
 
 // ----------------------------------------------------------------------
 
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
+
+  const [funcoes, setFuncoes] = useState([]);
+  const [escolas, setEscolas] = useState([]);
+  const [permissoes, setPermissoes] = useState([]);
+
+
+  useEffect(() => {
+    funcaoMethods.getAllFuncoes().then(funcoes => {
+      // const funcoesList = funcoes.data.map(funcao => {
+      //   return {'label': funcao.nome, 'value': funcao.id}
+      // })
+      setFuncoes(funcoes.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+
+    escolaMethods.getAllEscolas().then(escolas => {
+      // const escolasList = escolas.data.map(escola => {
+      //   return {'label': escola.nome, 'value': escola.id}
+      // })
+      setEscolas(escolas.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+
+    
+    permissaoMethods.getAllPermissoes().then(permissoes => {
+      // const permissoesList = permissoes.data.map(permissao => {
+      //   return {'label': permissao.nome, 'value': permissao.id}
+      // })
+      setPermissoes(permissoes.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+  }, []);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -100,18 +141,26 @@ export default function UserNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
+      novoUsuario.funcao_usuario = [{
+        funcao_id: data.funcao,
+        escola_id: data.escola
+      }];
+      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario);
         
       } else {
-        novoUsuario.permissao_usuario = [{
-          id: '91bbd3c9-61fa-4987-b31e-2a41f623e002',
-          created_at: '2023-08-23 15:06:10',
-          updated_at: null,
-          deleted_at: null,
-          nome: 'SUPERADMIN',
-          permissao_modulo: [],
-        }];
+        // novoUsuario.permissao_usuario_id = ['fc3d719c-7a2c-4d2a-a966-831dbb38922c'];
+        // novoUsuario.permissao_usuario = [{
+        //   id: '91bbd3c9-61fa-4987-b31e-2a41f623e002',
+        //   created_at: '2023-08-23 15:06:10',
+        //   updated_at: null,
+        //   deleted_at: null,
+        //   nome: 'SUPERADMIN',
+        //   permissao_modulo: [],
+        // }];
         await userMethods.insertUser(novoUsuario);
       }
       reset();
@@ -123,21 +172,6 @@ export default function UserNewEditForm({ currentUser }) {
     }
   });
 
- /* const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-
-      if (file) {
-        setValue('avatarUrl', newFile, { shouldValidate: true });
-      }
-    },
-    [setValue]
-  );*/
-
   useEffect(()  => {
     reset(defaultValues)
   }, [currentUser]);
@@ -145,102 +179,6 @@ export default function UserNewEditForm({ currentUser }) {
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
-        {/*<Grid xs={12} md={4}>
-          <Card sx={{ pt: 10, pb: 5, px: 3 }}>
-            {currentUser && (
-              <Label
-                color={
-                  (values.status === 'ativo' && 'success') ||
-                  (values.status === 'inativo' && 'error') ||
-                  'warning'
-                }
-                sx={{ position: 'absolute', top: 24, right: 24 }}
-              >
-                {values.status}
-              </Label>
-              )}
-
-            <Box sx={{ mb: 5 }}>
-              <RHFUploadAvatar
-                name="avatarUrl"
-                maxSize={3145728}
-                onDrop={handleDrop}
-                helperText={
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      mt: 3,
-                      mx: 'auto',
-                      display: 'block',
-                      textAlign: 'center',
-                      color: 'text.disabled',
-                    }}
-                  >
-                    Allowed *.jpeg, *.jpg, *.png, *.gif
-                    <br /> max size of {fData(3145728)}
-                  </Typography>
-                }
-              />
-              </Box>
-
-            {currentUser && (
-              <FormControlLabel
-                labelPlacement="start"
-                control={
-                  <Controller
-                    name="status"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        {...field}
-                        checked={field.value !== 'ativo'}
-                        onChange={(event) =>
-                          field.onChange(event.target.checked ? 'inativo' : 'ativo')
-                        }
-                      />
-                    )}
-                  />
-                }
-                label={
-                  <>
-                    <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                      Inativo
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                      Apply disable account
-                    </Typography>
-                  </>
-                }
-                sx={{ mx: 0, mb: 3, width: 1, justifyContent: 'space-between' }}
-              />
-            )}
-
-            <RHFSwitch
-              name="isVerified"
-              labelPlacement="start"
-              label={
-                <>
-                  <Typography variant="subtitle2" sx={{ mb: 0.5 }}>
-                    Email Verified
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                    Disabling this will automatically send the user a verification email
-                  </Typography>
-                </>
-              }
-              sx={{ mx: 0, width: 1, justifyContent: 'space-between' }}
-            />
-
-            {currentUser && (
-              <Stack justifyContent="center" alignItems="center" sx={{ mt: 3 }}>
-                <Button variant="soft" color="error">
-                  Delete User
-                </Button>
-              </Stack>
-            )}
-          </Card>
-            </Grid>*/}
-        
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
             <Box
@@ -257,9 +195,9 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {_roles.map((funcao) => (
-                  <MenuItem key={funcao} value={funcao}>
-                    {funcao}
+                {funcoes.map((funcao) => (
+                  <MenuItem key={funcao.id} value={funcao.id}>
+                    {funcao.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
@@ -272,18 +210,10 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              {/*<RHFSelect name="ddz" label="DDZ">
-                {_ddzs.map((ddz) => (
-                  <MenuItem key={ddz} value={ddz}>
-                    {ddz}
-                  </MenuItem>
-                ))}
-              </RHFSelect>*/}
-
               <RHFSelect name="escola" label="Escola">
-                {_escolas.map((escola) => (
-                  <MenuItem key={escola} value={escola}>
-                    {escola}
+                {escolas.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    {escola.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
