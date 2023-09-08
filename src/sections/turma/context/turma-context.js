@@ -1,6 +1,5 @@
 import { createContext, useState } from 'react';
 import turmaMethods from '../turma-repository';
-import { _turmas as _turmasMock } from 'src/_mock';
 
 export const TurmasContext = createContext();
 

@@ -18,7 +18,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _registrosAprendizagemFaseUnica } from 'src/_mock';
+import { _registrosAprendizagemFaseUnicaRegistros } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -73,8 +73,8 @@ export default function RegistroAprendizagemFaseFormListView() {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
-    setRegistroAprendizagemList(_registrosAprendizagemFase);
-    setTableData(_registrosAprendizagemFase);
+    setRegistroAprendizagemList(_registrosAprendizagemFaseUnicaRegistros);
+    setTableData(_registrosAprendizagemFaseUnicaRegistros);
   }, []);
 
   const table = useTable();
@@ -163,19 +163,8 @@ export default function RegistroAprendizagemFaseFormListView() {
           }}
         >
           <Typography variant="h4">
-            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+            Criação/Edição Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
           </Typography>
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_fase}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#00A5AD',
-            }}
-          >
-            Adicionar
-          </Button>
         </Stack>
 
         <Card>
@@ -198,16 +187,9 @@ export default function RegistroAprendizagemFaseFormListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
+            <Table
               dense={table.dense}
-              numSelected={table.selected.length}
               rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
               action={
                 <Tooltip title="Delete">
                   <IconButton color="primary" onClick={confirm.onTrue}>
@@ -224,14 +206,7 @@ export default function RegistroAprendizagemFaseFormListView() {
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
-                  numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
@@ -244,10 +219,6 @@ export default function RegistroAprendizagemFaseFormListView() {
                       <RegistroAprendizagemFaseFormTableRow
                         key={row.id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
                       />
                     ))}
 

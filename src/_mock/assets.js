@@ -266,9 +266,10 @@ const RegistroAprendizagemTipos = {
 };
 const RegistroAprendizagemDiagnosticoTipos = {
   inicial: 'Inicial',
+  final: 'Final',
 };
 
-const RegistroAprendizagemFases = {
+export const RegistroAprendizagemFases = {
   pre_alfabetica: 'Pré Alfabética',
   alfabetica_parcial: 'Alfabética Parcial',
   alfabetica_completa: 'Alfabética Completa',
@@ -380,6 +381,32 @@ export const _registrosAprendizagemComponente = [
     alunos: 32,
     tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
+];
+
+
+export const _registrosAprendizagemFaseUnicaRegistros = [
+  {
+    id: 1,
+    aluno: {
+      nome: 'João Marcos',
+    },
+    resultado: RegistroAprendizagemFases.pre_alfabetica,
+    observacao: 'Aptidão em tarefas',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+  },
+  {
+    id: 2,
+    aluno: {
+      nome: 'Daniela Silva',
+    },
+    resultado: RegistroAprendizagemFases.alfabetica_consolidada,
+    observacao: '',
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date(),
+  }
 ];
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];

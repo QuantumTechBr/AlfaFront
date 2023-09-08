@@ -22,7 +22,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano_serie, turma, turno, alunos, bimestre, escola, created_at, updated_at, deleted_at } = row;
+  const { id, aluno, resultado, observacao, created_at, updated_at, deleted_at } = row;
 
 
   const confirm = useBoolean();
@@ -34,35 +34,21 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, selected, on
   return (
     <>
       <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+        
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_serie}°</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{bimestre}&ordm;</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{observacao}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
-
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
-
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
       </TableRow>
 
       {/* <RegistroAprendizagemQuickEditForm currentRegistroAprendizagem={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
