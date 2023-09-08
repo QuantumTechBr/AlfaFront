@@ -21,7 +21,7 @@ import { countries } from 'src/assets/data';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-import userMethods from './user-provider';
+import userMethods from './user-repository';
 
 
 // ----------------------------------------------------------------------
