@@ -1,22 +1,18 @@
 import { createContext, useState } from 'react';
 import turmaMethods from '../turma-repository';
-import { _turmas as _turmasMock } from 'src/_mock';
 
 export const TurmasContext = createContext();
 
 export const TurmasProvider = ({ children }) => {
   const [turmas, setTurmas] = useState([]);
 
-  const buscaTurmas = ({ force = false } = {}) => {
-    // TODO TROCAR PARA METHODS
-    if (turmas.length == 0) setTurmas(_turmasMock);
-
-    // if (force || turmas.length == 0) {
-    //   turmaMethods.getAllTurmas().then((_turmas) => {
-    //     if (_turmas == '' || _turmas.length == 0) _turmas = _turmasMock;
-    //     setTurmas(_turmas);
-    //   });
-    // }
+  const buscaTurmas = async  ({ force = false } = {}) => {
+    if (force || turmas.length == 0) {
+      await turmaMethods.getAllTurmas().then((response) => {
+        if (response.data == '' || response.data === undefined) response.data = [];
+        setTurmas(response.data);
+      });
+    }
   };
 
   return (

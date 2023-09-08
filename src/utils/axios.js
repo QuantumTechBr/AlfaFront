@@ -39,7 +39,7 @@ export const endpoints = {
     delete: '/api/v1/alunos/',
   },
   ano_letivo: {
-    list: '/api/v1/anos-letivos',
+    list: '/api/v1/anos-letivos/',
     post: '/api/v1/anos-letivos',
     get_by_id: '/api/v1/anos-letivos/',
     update: '/api/v1/anos-letivos/',
@@ -97,7 +97,7 @@ export const endpoints = {
     delete: '/api/v1/documentos/',
   },
   escola: {
-    list: '/api/v1/escolas',
+    list: '/api/v1/escolas/',
     post: '/api/v1/escolas',
     get_by_id: '/api/v1/escolas/',
     update: '/api/v1/escolas/',

@@ -263,9 +263,9 @@ export const _roles = [
 ];
 
 export const _anos = [
-  2022,
-  2023,
   2024,
+  2023,
+  2022,
 ];
 
 export const _bimestres = [
@@ -286,51 +286,6 @@ export const _disciplinas = [
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
-
-export const _turmas = [
-  {
-    id: '1',
-    ano_escolar: 2023,
-    ano_serie: 1,
-    turno: 'matutino',
-    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-    nome: 'A',
-    created_at: Date(),
-    updated_at: Date(),
-    deleted_at: Date(),
-    media: 80,
-    alunos: 32,
-    status: true
-  },
-  {
-    id: '2',
-    ano_escolar: 2023,
-    ano_serie: 2,
-    turno: 'vespertino',
-    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-    nome: 'B',
-    created_at: Date(),
-    updated_at: Date(),
-    deleted_at: Date(),
-    media: 75,
-    alunos: 23,
-    status: false
-  },
-  {
-    id: '3',
-    ano_escolar: 2023,
-    ano_serie: 3,
-    turno: 'noturno',
-    escola: 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-    nome: 'C',
-    created_at: Date(),
-    updated_at: Date(),
-    deleted_at: Date(),
-    media: 92,
-    alunos: 43,
-    status: true
-  },
-]
 
 const RegistroAprendizagemTipos = {
 	diagnostico: "Diagnóstico",
@@ -449,19 +404,6 @@ export const _registrosAprendizagemComponente = [
 export const _ddzs = [
   'DDZ I (Sul) ZONA SUL',
   'DDZ I (Sul) ZONA CENTRO-SUL',
-];
-
-export const _escolas = [
-  'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES',
-  /*'E.M COMUNITARIA SAGRADO CORACAO DE JESUS',
-  'E.M. GRAZIELA RIBEIRO',
-  'E.M. PADRE JOSE DE ANCHIETA',
-  'CMEI PHELIPPE DAOU',
-  'CMEI HUMBERTO DE ALENCAR CASTELO BRANCO',
-  'CMEI FRANCISCO PEREIRA DA SILVA',
-  'CMEI PROF. ESCRITOR PAULINHO DE BRITO',
-  'E.M. THOMAS MEIRELES',
-  'E.M. PADRE PUGA',*/
 ];
 
 // ----------------------------------------------------------------------

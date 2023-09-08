@@ -21,7 +21,6 @@ const loginPaths = {
 // ----------------------------------------------------------------------
 
 export default function AuthGuard({ children }) {
-  console.log("auth guard");
   const router = useRouter();
 
   const { authenticated, method } = useAuthContext();
