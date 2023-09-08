@@ -244,6 +244,18 @@ export const _tiposAvaliacao = [
   'Avaliação de Diagnóstico',
 ];
 
+export const _habilidades = [
+  { value: 'H1', label: 'H1' },
+  { value: 'H2', label: 'H2' },
+  { value: 'H3', label: 'H3' },
+  { value: 'H4', label: 'H4' },
+]
+
+export const _periodos = [
+  'Inicial',
+  'Final',
+];
+
 export const _roles = [
   'Diretor',
   /*'Acessor DDZ',

@@ -45,7 +45,7 @@ import RegistroAprendizagemFaseTableRow from '../registro-aprendizagem-fase-tabl
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
-import registroAprendizagemMethods from '../registro-aprendizagem-provider';
+import registroAprendizagemMethods from '../registro-aprendizagem-repository';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [

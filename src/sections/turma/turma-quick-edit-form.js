@@ -26,8 +26,6 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  console.log();
-
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     ano: Yup.string().required('Ano é obrigatório'),
