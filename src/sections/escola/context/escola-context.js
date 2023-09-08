@@ -1,22 +1,18 @@
 import { createContext, useState } from 'react';
-// import escolaMethods from '../escola-provider';
-import { _escolas as _escolasMock } from 'src/_mock';
+import escolaMethods from '../escola-repository';
 
 export const EscolasContext = createContext();
 
 export const EscolasProvider = ({ children }) => {
   const [escolas, setEscolas] = useState([]);
 
-  const buscaEscolas = ({ force = false } = {}) => {
-    // TODO TROCAR PARA METHODS
-    if(escolas.length == 0) setEscolas(_escolasMock);
-
-    // if (force || escolas.length == 0) {
-    //   escolaMethods.getAllEscolas().then((_escolas) => {
-    //     if (_escolas.length == 0) _escolas = _escolasMock;
-    //     setEscolas(_escolas);
-    //   });
-    // }
+  const buscaEscolas = async ({ force = false } = {}) => {
+    if (force || escolas.length == 0) {
+      await escolaMethods.getAllEscolas().then((response) => {
+        if (response.data == '' || response.data === undefined) response.data = [];
+        setEscolas(response.data);
+      });
+    }
   };
 
   return (

@@ -22,8 +22,9 @@ import { _anos, _registrosAprendizagemDiagnostico } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -68,13 +69,16 @@ const defaultFilters = {
 
 export default function RegistroAprendizagemDiagnosticoListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const {turmas, buscaTurmas} = useContext(TurmasContext);
-  const {escolas, buscaEscolas} = useContext(EscolasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+
+  const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
-    console.log(escolas);
+    buscaAnosLetivos();
     buscaEscolas();
-    buscaTurmas();
+    buscaTurmas().then(() => setTurmasFiltered(turmas));
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -112,8 +116,20 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
+  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+
   const handleFilters = useCallback(
     (nome, value) => {
+      if (nome == 'escola') {
+        if (value.length == 0) {
+          setTurmasFiltered(turmas);
+        } else {
+          var filtered = turmas.filter((turma) =>
+            value.map((escola) => escola.id).includes(turma.escola.id)
+          );
+          setTurmasFiltered(filtered);
+        }
+      }
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -184,8 +200,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={_anos}
-            turmaOptions={turmas}
+            anoEscolarOptions={anosLetivos}
+            turmaOptions={_turmasFiltered}
             escolaOptions={escolas}
           />
 
@@ -321,15 +337,19 @@ function applyFilter({ inputData, comparator, filters }) {
   if (anoEscolar) {
     inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
   }
-  
+
   if (escola.length) {
-    inputData = inputData.filter((item) => escola.includes(item.escola));
+    inputData = inputData.filter((item) =>
+      escola.map((baseItem) => baseItem.nome).includes(item.escola)
+    );
   }
 
   if (turma.length) {
-    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+    inputData = inputData.filter((item) =>
+      turma.map((baseItem) => baseItem.nome).includes(item.turma)
+    );
   }
-  
+
   if (nome) {
     inputData = inputData.filter(
       (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1

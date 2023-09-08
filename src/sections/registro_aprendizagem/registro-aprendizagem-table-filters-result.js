@@ -61,7 +61,7 @@ export default function RegistroAprendizagemTableFiltersResult({
         {!!filters.escola.length && (
           <Block label="Escola:">
             {filters.escola.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item)} />
             ))}
           </Block>
         )}
@@ -69,7 +69,7 @@ export default function RegistroAprendizagemTableFiltersResult({
         {!!filters.turma.length && (
           <Block label="Turma:">
             {filters.turma.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveTurma(item)} />
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveTurma(item)} />
             ))}
           </Block>
         )}
