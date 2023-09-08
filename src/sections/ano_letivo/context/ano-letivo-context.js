@@ -1,5 +1,5 @@
 import { createContext, useState } from 'react';
-import anoLetivoMethods from '../ano-letivo-provider';
+import anoLetivoMethods from '../ano-letivo-repository';
 
 export const AnosLetivosContext = createContext();
 

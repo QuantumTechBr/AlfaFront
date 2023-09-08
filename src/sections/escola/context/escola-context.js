@@ -1,5 +1,5 @@
 import { createContext, useState } from 'react';
-import escolaMethods from '../escola-provider';
+import escolaMethods from '../escola-repository';
 
 export const EscolasContext = createContext();
 
