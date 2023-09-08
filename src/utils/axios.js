@@ -1,7 +1,7 @@
 import axios from 'axios';
 // config
 import { HOST_API } from 'src/config-global';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+
 
 
 // ----------------------------------------------------------------------
@@ -83,7 +83,7 @@ export const endpoints = {
     delete: '/api/v1/cidades/',
   },
   disciplina: {
-    list: '/api/v1/disciplinas',
+    list: '/api/v1/disciplinas/',
     post: '/api/v1/disciplinas',
     get_by_id: '/api/v1/disciplinas/',
     update: '/api/v1/disciplinas/',
@@ -125,7 +125,7 @@ export const endpoints = {
     delete: '/api/v1/funcoes/',
   },
   habilidade: {
-    list: '/api/v1/habilidades',
+    list: '/api/v1/habilidades/',
     post: '/api/v1/habilidades',
     get_by_id: '/api/v1/habilidades/',
     update: '/api/v1/habilidades/',
