@@ -12,7 +12,7 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import UserNewEditForm from '../user-new-edit-form';
-import userMethods from '../user-provider';
+import userMethods from '../user-repository';
 import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
