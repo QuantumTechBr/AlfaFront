@@ -10,7 +10,7 @@ export const getAnoLetivoById = id => axios.get(endpoints.ano_letivo.get_by_id.c
 
 const anoLetivoMethods = {
     insertAnoLetivo,
-    getAllAnosLetivos: getAllAnosLetivos,
+    getAllAnosLetivos,
     updateAnoLetivoById,
     deleteAnoLetivoById,
     getAnoLetivoById,
