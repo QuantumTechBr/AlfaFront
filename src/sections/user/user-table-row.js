@@ -26,6 +26,8 @@ import { paths } from 'src/routes/paths';
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   let { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
+  const funcaoNome = funcao_usuario?.length > 0 ? funcao_usuario[0].funcao.nome : ''
+
   const router = useRouter();
 
   const confirm = useBoolean();
@@ -45,21 +47,11 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        {/* <TableCell sx={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar alt={name} src={avatarUrl} sx={{ mr: 2 }} /> 
-
-          <ListItemText
-            primary={nome}
-            primaryTypographyProps={{ typography: 'body2' }}
-            secondaryTypographyProps={{ component: 'span', color: 'text.disabled' }}
-          />
-        </TableCell> */}
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
 
         <TableCell>
           <Label
