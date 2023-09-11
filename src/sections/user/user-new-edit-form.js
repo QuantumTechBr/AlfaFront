@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -32,50 +32,26 @@ import FormProvider, {
   RHFUploadAvatar,
   RHFAutocomplete,
 } from 'src/components/hook-form';
-import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 import userMethods from './user-repository';
-import { useEffect, useState } from 'react';
-import funcaoMethods from '../funcao/funcao-repository';
-import escolaMethods from '../escola/escola-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import permissaoMethods from '../permissao/permissao-repository';
-
 
 // ----------------------------------------------------------------------
 
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
 
-  const [funcoes, setFuncoes] = useState([]);
-  const [escolas, setEscolas] = useState([]);
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [permissoes, setPermissoes] = useState([]);
 
-
   useEffect(() => {
-    funcaoMethods.getAllFuncoes().then(funcoes => {
-      // const funcoesList = funcoes.data.map(funcao => {
-      //   return {'label': funcao.nome, 'value': funcao.id}
-      // })
-      setFuncoes(funcoes.data);
-    }).catch((erro) => {
-      console.log(erro);
-      throw(erro);
-    })
+    buscaFuncoes();
+    buscaEscolas();
 
-    escolaMethods.getAllEscolas().then(escolas => {
-      // const escolasList = escolas.data.map(escola => {
-      //   return {'label': escola.nome, 'value': escola.id}
-      // })
-      setEscolas(escolas.data);
-    }).catch((erro) => {
-      console.log(erro);
-      throw(erro);
-    })
-
-    
     permissaoMethods.getAllPermissoes().then(permissoes => {
-      // const permissoesList = permissoes.data.map(permissao => {
-      //   return {'label': permissao.nome, 'value': permissao.id}
-      // })
       setPermissoes(permissoes.data);
     }).catch((erro) => {
       console.log(erro);
@@ -97,8 +73,8 @@ export default function UserNewEditForm({ currentUser }) {
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
-      funcao_usuario: currentUser?.funcao_usuario || '',
       status: (currentUser?.status ? "true" : "false") || '',
+      ddz: currentUser?.ddz || '',
       escola: currentUser?.escola || '',
     }),
     [currentUser]
@@ -152,15 +128,6 @@ export default function UserNewEditForm({ currentUser }) {
         await userMethods.updateUserById(currentUser.id, novoUsuario);
         
       } else {
-        // novoUsuario.permissao_usuario_id = ['fc3d719c-7a2c-4d2a-a966-831dbb38922c'];
-        // novoUsuario.permissao_usuario = [{
-        //   id: '91bbd3c9-61fa-4987-b31e-2a41f623e002',
-        //   created_at: '2023-08-23 15:06:10',
-        //   updated_at: null,
-        //   deleted_at: null,
-        //   nome: 'SUPERADMIN',
-        //   permissao_modulo: [],
-        // }];
         await userMethods.insertUser(novoUsuario);
       }
       reset();

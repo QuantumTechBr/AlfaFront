@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _turmas, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -45,6 +45,7 @@ import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
 import turmaMethods from '../turma-repository';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -73,14 +74,15 @@ const defaultFilters = {
 export default function TurmaListView() {
 
   const [_turmaList, setTurmaList] = useState([]);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
 
   useEffect(() => {
-    // turmaMethods.getAllTurmas().then(turmas => {
-    //   setTurmaList(turmas.data);
-    //   setTableData(turmas.data);
-    // })
-    setTurmaList(_turmas);
-    setTableData(_turmas);
+    turmaMethods.getAllTurmas().then(turmas => {
+      console.log(turmas.data);
+      setTurmaList(turmas.data);
+      setTableData(turmas.data);
+    })
+    buscaEscolas();
   }, []);
   
   const table = useTable();
@@ -217,15 +219,15 @@ export default function TurmaListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && _turmas.length}
+                    {tab.value === 'all' && _turmaList.length}
                     {tab.value === true &&
-                      _turmas.filter((user) => user.status === true).length}
+                      _turmaList.filter((user) => user.status === true).length}
                     {tab.value === 'pending' &&
-                      _turmas.filter((user) => user.status === 'pending').length}
+                      _turmaList.filter((user) => user.status === 'pending').length}
                     {tab.value === false &&
-                      _turmas.filter((user) => user.status === false).length}
+                      _turmaList.filter((user) => user.status === false).length}
                     {tab.value === 'rejected' &&
-                      _turmas.filter((user) => user.status === 'rejected').length}
+                      _turmaList.filter((user) => user.status === 'rejected').length}
                   </Label>
                 }
               />
@@ -237,7 +239,7 @@ export default function TurmaListView() {
             onFilters={handleFilters}
             //roleOptions={_roles}
             ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            escolaOptions={escolas}
           />
 
           {canReset && (

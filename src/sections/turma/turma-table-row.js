@@ -23,8 +23,9 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, ano_escolar, ano_serie, turno, alunos, media, status, created_at, updated_at, deleted_at } = row;
+  const { id, nome, ano_escolar, ano, turno, aluno_turma, media, status, created_at, updated_at, deleted_at } = row;
 
+  console.log(row);
 
   const confirm = useBoolean();
 
@@ -39,7 +40,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_serie}°</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
@@ -47,9 +48,9 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma?.length > 0 ? aluno_turma.length : 0}</TableCell>
 
         <TableCell>
           <Label
