@@ -44,7 +44,7 @@ import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
-import turmaMethods from '../turma-provider';
+import turmaMethods from '../turma-repository';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
