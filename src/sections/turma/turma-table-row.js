@@ -40,7 +40,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}° ano</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 

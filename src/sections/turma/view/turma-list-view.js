@@ -44,8 +44,8 @@ import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
-import turmaMethods from '../turma-repository';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -73,16 +73,16 @@ const defaultFilters = {
 
 export default function TurmaListView() {
 
-  const [_turmaList, setTurmaList] = useState([]);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
 
+  const [tableData, setTableData] = useState([]);
+  const [filters, setFilters] = useState(defaultFilters);
+
   useEffect(() => {
-    turmaMethods.getAllTurmas().then(turmas => {
-      console.log(turmas.data);
-      setTurmaList(turmas.data);
-      setTableData(turmas.data);
-    })
+    buscaTurmas({force:true});
     buscaEscolas();
+    setTableData(turmas);
   }, []);
   
   const table = useTable();
@@ -93,9 +93,6 @@ export default function TurmaListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -219,15 +216,15 @@ export default function TurmaListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && _turmaList.length}
+                    {tab.value === 'all' && turmas.length}
                     {tab.value === true &&
-                      _turmaList.filter((user) => user.status === true).length}
+                      turmas.filter((user) => user.status === true).length}
                     {tab.value === 'pending' &&
-                      _turmaList.filter((user) => user.status === 'pending').length}
+                      turmas.filter((user) => user.status === 'pending').length}
                     {tab.value === false &&
-                      _turmaList.filter((user) => user.status === false).length}
+                      turmas.filter((user) => user.status === false).length}
                     {tab.value === 'rejected' &&
-                      _turmaList.filter((user) => user.status === 'rejected').length}
+                      turmas.filter((user) => user.status === 'rejected').length}
                   </Label>
                 }
               />

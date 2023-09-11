@@ -74,7 +74,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewTurmaSchema),
+    // resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
 

@@ -12,19 +12,20 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import TurmaNewEditForm from '../turma-new-edit-form';
 
-import turmaMethods from '../turma-repository';
-
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
 export default function TurmaEditView({ id }) {
   const settings = useSettingsContext();
 
+  
+  const { buscaTurmaPorId } = useContext(TurmasContext);
+
   const [currentTurma, setCurrentTurma] = useState({});
+
   useEffect(()  => {
-    turmaMethods.getTurmaById(id).then(turma => {
-      setCurrentTurma(turma.data);
-    })
+    buscaTurmaPorId({id}).then(turma => setCurrentTurma(turma))
   }, []);
 
   const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
