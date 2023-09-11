@@ -80,9 +80,9 @@ export default function TurmaListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    buscaTurmas({force:true});
+    buscaTurmas({force:true}).then((_turmas) => setTableData(_turmas))
     buscaEscolas();
-    setTableData(turmas);
+    
   }, []);
   
   const table = useTable();

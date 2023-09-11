@@ -25,8 +25,6 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, nome, ano_escolar, ano, turno, aluno_turma, media, status, created_at, updated_at, deleted_at } = row;
 
-  console.log(row);
-
   const confirm = useBoolean();
 
   const quickEdit = useBoolean();
