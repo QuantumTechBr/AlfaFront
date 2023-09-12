@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Grid from '@mui/material/Unstable_Grid2';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
@@ -65,10 +66,9 @@ export default function RegistroAprendizagemFaseFormListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
-  const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
+    buscaTurmas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -171,7 +171,7 @@ export default function RegistroAprendizagemFaseFormListView() {
           <RegistroAprendizagemFaseFormTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            turmaOptions={_turmasFiltered}
+            turmaOptions={turmas}
           />
 
           {canReset && (
@@ -187,53 +187,36 @@ export default function RegistroAprendizagemFaseFormListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <Table
-              dense={table.dense}
-              rowCount={tableData.length}
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
 
-            <Scrollbar>
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <RegistroAprendizagemFaseFormTableRow
-                        key={row.id}
-                        row={row}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+              <Scrollbar>
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    onSort={table.onSort}
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
+                  <TableBody>
+                    {dataFiltered
+                      .map((row) => (
+                        <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} id_avaliacao={row.id} />
+                      ))}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+            
           </TableContainer>
 
           <TablePaginationCustom
+            hidden
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
@@ -242,6 +225,19 @@ export default function RegistroAprendizagemFaseFormListView() {
             dense={false}
           />
         </Card>
+
+        <Stack
+        style={{marginTop: 10}}
+        direction="row"
+        spacing={0.5}
+        justifyContent="flex-end"
+ >
+          <Grid alignItems='center' xs={3}>
+            <Button variant="contained" color="primary">
+              Salvar
+            </Button>
+          </Grid>
+        </Stack>
       </Container>
 
       <ConfirmDialog
@@ -273,7 +269,7 @@ export default function RegistroAprendizagemFaseFormListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, turma, } = filters;
+  const { nome, turma } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -292,7 +288,7 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => item.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 

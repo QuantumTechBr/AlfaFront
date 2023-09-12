@@ -18,28 +18,13 @@ export default function RegistroAprendizagemFaseFormTableFiltersResult({
   results,
   ...other
 }) {
-
-  const handleRemoveEscola = (inputValue) => {
-    const newValue = filters.escola.filter((item) => item !== inputValue);
-    onFilters('escola', newValue);
-  };
   
   const handleRemoveTurma = (inputValue) => {
     const newValue = filters.turma.filter((item) => item !== inputValue);
     onFilters('turma', newValue);
   };
 
-  const handleRemoveBimestre = (inputValue) => {
-    const newValue = filters.bimestre.filter((item) => item !== inputValue);
-    onFilters('bimestre', newValue);
-  };
-  
-  const handleRemoveDisciplina = (inputValue) => {
-    const newValue = filters.disciplina.filter((item) => item !== inputValue);
-    onFilters('disciplina', newValue);
-  };
-
-  const handleRemoveNome = (inputValue) => {
+    const handleRemoveNome = (inputValue) => {
     onFilters('nome', '');
   };
   return (
@@ -58,34 +43,12 @@ export default function RegistroAprendizagemFaseFormTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.escola.length && (
-          <Block label="Escola:">
-            {filters.escola.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item)} />
-            ))}
-          </Block>
-        )}
+       
 
         {!!filters.turma.length && (
           <Block label="Turma:">
             {filters.turma.map((item) => (
               <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveTurma(item)} />
-            ))}
-          </Block>
-        )}
-
-        {filters.bimestre && !!filters.bimestre.length && (
-          <Block label="Bimestre:">
-            {filters.bimestre.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveBimestre(item)} />
-            ))}
-          </Block>
-        )}
-
-        {filters.disciplina && !!filters.disciplina.length && (
-          <Block label="Disciplina:">
-            {filters.disciplina.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDisciplina(item)} />
             ))}
           </Block>
         )}

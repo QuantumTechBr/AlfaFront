@@ -1,105 +1,123 @@
+import * as React from 'react';
 import PropTypes from 'prop-types';
 // @mui
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
-import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
+import Radio from '@mui/material/Radio';
+import Checkbox from '@mui/material/Checkbox';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+
+// _mock
+import { RegistroAprendizagemFases } from 'src/_mock';
+
 //
-// import RegistroAprendizagemQuickEditForm from './registro-aprendizagem-quick-edit-form';
+import { slugify } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, aluno, resultado, observacao, created_at, updated_at, deleted_at } = row;
+export default function RegistroAprendizagemFaseFormTableRow({ id_avaliacao, row }) {
+  const { aluno, resultado, observacao } = row;
 
+  const [selectedValue, setSelectedValue] = React.useState(resultado);
 
-  const confirm = useBoolean();
+  const handleChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
 
-  const quickEdit = useBoolean();
 
   const popover = usePopover();
 
   return (
     <>
-      <TableRow hover selected={selected}>
+      <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>{aluno.nome}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <Checkbox
+            checked={selectedValue === RegistroAprendizagemFases.pre_alfabetica}
+            name={'fase-resultado_' + slugify(id_avaliacao + ' ' + aluno.nome)}
+            onChange={handleChange}
+            value={RegistroAprendizagemFases.pre_alfabetica}
+            label=""
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: 28,
+              },
+            }}
+          />
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <Checkbox
+            checked={selectedValue === RegistroAprendizagemFases.alfabetica_parcial}
+            name={'fase-resultado_' + slugify(id_avaliacao + ' ' + aluno.nome)}
+            onChange={handleChange}
+            value={RegistroAprendizagemFases.alfabetica_parcial}
+            label=""
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: 28,
+              },
+            }}
+          />
+        </TableCell>
         
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <Checkbox
+            checked={selectedValue === RegistroAprendizagemFases.alfabetica_completa}
+            name={'fase-resultado_' + slugify(id_avaliacao + ' ' + aluno.nome)}
+            onChange={handleChange}
+            value={RegistroAprendizagemFases.alfabetica_completa}
+            label=""
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: 28,
+              },
+            }}
+          />
+        </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <Checkbox
+            checked={selectedValue === RegistroAprendizagemFases.alfabetica_consolidada}
+            name={'fase-resultado_' + slugify(id_avaliacao + ' ' + aluno.nome)}
+            onChange={handleChange}
+            value={RegistroAprendizagemFases.alfabetica_consolidada}
+            label=""
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: 28,
+              },
+            }}
+          />
+        </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}></TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
+          <Checkbox
+            checked={selectedValue === RegistroAprendizagemFases.nao_avaliado}
+            name={'fase-resultado_' + slugify(id_avaliacao + ' ' + aluno.nome)}
+            onChange={handleChange}
+            value={RegistroAprendizagemFases.nao_avaliado}
+            label=""
+            sx={{
+              '& .MuiSvgIcon-root': {
+                fontSize: 28,
+              },
+            }}
+          />
+        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{observacao}</TableCell>
-
       </TableRow>
 
-      {/* <RegistroAprendizagemQuickEditForm currentRegistroAprendizagem={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
-      </CustomPopover>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Excluir Avaliação"
-        content="Tem certeza que deseja excluir a avaliação?"
-        action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Deletar
-          </Button>
-        }
-      />
     </>
   );
 }
 
 RegistroAprendizagemFaseFormTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
+  id_avaliacao: PropTypes.number,
   row: PropTypes.object,
-  selected: PropTypes.bool,
 };

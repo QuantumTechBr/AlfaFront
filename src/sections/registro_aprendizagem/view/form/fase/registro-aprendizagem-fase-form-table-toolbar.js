@@ -20,41 +20,10 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function RegistroAprendizagemFaseFormTableToolbar({
   filters,
   onFilters,
-  anoEscolarOptions,
-  escolaOptions,
   turmaOptions,
-  bimestreOptions,
-  disciplinaOptions,
 }) {
 
-  if(typeof filters.anoEscolar === 'number'){
-    filters.anoEscolar = anoEscolarOptions.filter((item) => item.ano == filters.anoEscolar)[0];
-  }
   const popover = usePopover();
-
-  const handleFilterNome = useCallback(
-    (event) => {
-      onFilters('nome', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterAnoEscolar = useCallback(
-    (event) => {
-      onFilters('anoEscolar', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const handleFilterEscola = useCallback(
-    (event) => {
-      onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
 
   const handleFilterTurma = useCallback(
     (event) => {
@@ -66,22 +35,9 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
     [onFilters]
   );
 
-  const handleFilterBimestre = useCallback(
+  const handleFilterNome = useCallback(
     (event) => {
-      onFilters(
-        'bimestre',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-
-  const handleFilterDisciplina = useCallback(
-    (event) => {
-      onFilters(
-        'disciplina',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
+      onFilters('nome', event.target.value);
     },
     [onFilters]
   );
@@ -100,57 +56,6 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {anoEscolarOptions && !!anoEscolarOptions.length && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Ano Letivo</InputLabel>
-          
-          <Select
-            value={filters.anoEscolar}
-            onChange={handleFilterAnoEscolar}
-            input={<OutlinedInput label="Ano Letivo" />}
-          >
-            {anoEscolarOptions.map((option) => (
-              <MenuItem key={option.id} value={option}>{option.ano}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        )}
-
-        {escolaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {escolaOptions.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        )}
 
         {turmaOptions && (
         <FormControl
@@ -185,71 +90,6 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
         </FormControl>
         )}
 
-        {bimestreOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Bimestre</InputLabel>
-          
-          <Select
-            multiple
-            value={filters.bimestre}
-            onChange={handleFilterBimestre}
-            input={<OutlinedInput label="Bimestre" />}
-            renderValue={(selected) => selected.join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {bimestreOptions.map((option) => {
-              return (
-                <MenuItem key={option} value={option + 'º'}>
-                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option + 'º' )} />
-                  {option + 'º'}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-        )}
-
-        {disciplinaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Disciplina</InputLabel>
-          
-          <Select
-            multiple
-            value={filters.disciplina}
-            onChange={handleFilterDisciplina}
-            input={<OutlinedInput label="Disciplina" />}
-            renderValue={(selected) => selected.join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {disciplinaOptions.map((option) => {
-              return (
-                <MenuItem key={option} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.disciplina.includes(option)} />
-                  {option}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
-        )}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
@@ -312,7 +152,5 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
 RegistroAprendizagemFaseFormTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  anoEscolarOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
-  escolaOptions: PropTypes.array,
 };
