@@ -14,7 +14,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _habilidades, _disciplinas, _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas, _tiposAvaliacao } from 'src/_mock';
+import { _habilidades, _disciplinas, _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _tiposAvaliacao } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
 // components

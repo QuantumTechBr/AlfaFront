@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _turmas, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -44,7 +44,8 @@ import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
-import turmaMethods from '../turma-repository';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -72,15 +73,16 @@ const defaultFilters = {
 
 export default function TurmaListView() {
 
-  const [_turmaList, setTurmaList] = useState([]);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
+  const [tableData, setTableData] = useState([]);
+  const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    // turmaMethods.getAllTurmas().then(turmas => {
-    //   setTurmaList(turmas.data);
-    //   setTableData(turmas.data);
-    // })
-    setTurmaList(_turmas);
-    setTableData(_turmas);
+    buscaTurmas({force:true}).then((_turmas) => setTableData(_turmas))
+    buscaEscolas();
+    
   }, []);
   
   const table = useTable();
@@ -91,9 +93,6 @@ export default function TurmaListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -217,15 +216,15 @@ export default function TurmaListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && _turmas.length}
+                    {tab.value === 'all' && turmas.length}
                     {tab.value === true &&
-                      _turmas.filter((user) => user.status === true).length}
+                      turmas.filter((user) => user.status === true).length}
                     {tab.value === 'pending' &&
-                      _turmas.filter((user) => user.status === 'pending').length}
+                      turmas.filter((user) => user.status === 'pending').length}
                     {tab.value === false &&
-                      _turmas.filter((user) => user.status === false).length}
+                      turmas.filter((user) => user.status === false).length}
                     {tab.value === 'rejected' &&
-                      _turmas.filter((user) => user.status === 'rejected').length}
+                      turmas.filter((user) => user.status === 'rejected').length}
                   </Label>
                 }
               />
@@ -237,7 +236,7 @@ export default function TurmaListView() {
             onFilters={handleFilters}
             //roleOptions={_roles}
             ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            escolaOptions={escolas}
           />
 
           {canReset && (

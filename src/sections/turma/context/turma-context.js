@@ -8,14 +8,28 @@ export const TurmasProvider = ({ children }) => {
 
   const buscaTurmas = async  ({ force = false } = {}) => {
     if (force || turmas.length == 0) {
-      await turmaMethods.getAllTurmas().then((response) => {
+      return await turmaMethods.getAllTurmas().then((response) => {
         if (response.data == '' || response.data === undefined) response.data = [];
         setTurmas(response.data);
+        return response.data;
       });
     }
   };
 
+  const buscaTurmaPorId = async ({ id, force = false } = {}) => {
+    if (!force && turmas.length > 0) {
+      const turmaBuscada = turmas.find((turma) => turma.id == id);
+      if(turmaBuscada) {
+        return turmaBuscada;
+      }
+    }
+    return turmaMethods.getTurmaById(id).then((response) => {
+      return response.data;
+    });
+  }
+
+
   return (
-    <TurmasContext.Provider value={{ turmas, buscaTurmas }}>{children}</TurmasContext.Provider>
+    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId }}>{children}</TurmasContext.Provider>
   );
 };

@@ -1,10 +1,10 @@
 'use client';
+import { useEffect, useState, useCallback, useContext } from 'react';
 
 import PropTypes from 'prop-types';
-// _mock
-import { _turmas } from 'src/_mock';
 // sections
 import { TurmaEditView } from 'src/sections/turma/view';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
@@ -19,7 +19,16 @@ export default function TurmaEditPage({ params }) {
 }
 
 export async function generateStaticParams() {
-  return _turmas.map((turma) => ({
+  
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+
+  useEffect(() => {
+    buscaTurmas({force:true});
+    buscaEscolas();
+    setTableData(turmas);
+  }, []);
+
+  return turmas.map((turma) => ({
     id: turma.id,
   }));
 }
