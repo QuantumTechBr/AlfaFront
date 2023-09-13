@@ -82,7 +82,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
               return (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {option.nome}
+                  {option.ano_escolar+'º '+option.nome}
                 </MenuItem>
               );
             })}

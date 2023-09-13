@@ -398,8 +398,9 @@ export const _registrosAprendizagemComponente = [
 
 export const _registrosAprendizagemFaseUnicaRegistros = [
   {
-    id: 1,
+    id: 17684176,
     aluno: {
+      id: 12126,
       nome: 'João Marcos',
     },
     resultado: RegistroAprendizagemFases.pre_alfabetica,
@@ -411,6 +412,7 @@ export const _registrosAprendizagemFaseUnicaRegistros = [
   {
     id: 2,
     aluno: {
+      id: 664784,
       nome: 'Daniela Silva',
     },
     resultado: RegistroAprendizagemFases.alfabetica_consolidada,

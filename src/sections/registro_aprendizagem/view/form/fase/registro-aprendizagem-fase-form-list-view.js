@@ -2,7 +2,9 @@
 
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
+
 // @mui
+import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -19,16 +21,21 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _registrosAprendizagemFaseUnicaRegistros } from 'src/_mock';
+import { _registrosAprendizagemFaseUnicaRegistros, RegistroAprendizagemFases } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { useForm, Controller } from 'react-hook-form';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
+
+import FormProvider from 'src/components/hook-form';
+import { getAllEnumEntries } from 'enum-for';
+
 import {
   useTable,
   getComparator,
@@ -47,12 +54,9 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 150 },
-  // {...RegistroAprendizagemFases.map((fase)=> { id: 'pre_alfabetica', label: 'Pré Alfabética', width: 80 },)}
-  { id: 'pre_alfabetica', label: 'Pré Alfabética', width: 80 },
-  { id: 'alfabetica_parcial', label: 'Alfabética Parcial', width: 80 },
-  { id: 'alfabetica_completa', label: 'Alfabética Completa', width: 80 },
-  { id: 'alfabetica_consolidada', label: 'Alfabética Consolidada', width: 80 },
-  { id: 'nao_avaliado', label: 'Não Avaliado', width: 80 },
+  ...getAllEnumEntries(RegistroAprendizagemFases).map((itemList) => {
+    return { id: itemList[0], label: itemList[1], width: 80 };
+  }),
   { id: 'observacao', label: 'Observação' },
 ];
 
@@ -66,7 +70,6 @@ export default function RegistroAprendizagemFaseFormListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
-
   useEffect(() => {
     buscaTurmas();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
@@ -77,13 +80,22 @@ export default function RegistroAprendizagemFaseFormListView() {
     setTableData(_registrosAprendizagemFaseUnicaRegistros);
   }, []);
 
+  const defaultValues = {
+    registros: [],
+  };
+
+  _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
+    defaultValues.registros[itemList.aluno.id] = {
+      avaliacao_id: itemList.id,
+      resultado: itemList.resultado,
+      observacao: itemList.observacao,
+    };
+  });
+
+
   const table = useTable();
 
   const settings = useSettingsContext();
-
-  const router = useRouter();
-
-  const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
@@ -119,37 +131,30 @@ export default function RegistroAprendizagemFaseFormListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
-    },
-    [router]
-  );
-
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  const methods = useForm({
+    //resolver: yupResolver(NewUserSchema),
+    defaultValues,
+  });
+
+  const {
+    register,
+    reset,
+    watch,
+    control,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  const values = watch();
+
+  const onSubmit = handleSubmit(async (data) => {
+    console.table(data.registros);
+  });
 
   return (
     <>
@@ -167,27 +172,27 @@ export default function RegistroAprendizagemFaseFormListView() {
           </Typography>
         </Stack>
 
-        <Card>
-          <RegistroAprendizagemFaseFormTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            turmaOptions={turmas}
-          />
-
-          {canReset && (
-            <RegistroAprendizagemFaseFormTableFiltersResult
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <Card>
+            <RegistroAprendizagemFaseFormTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
+              turmaOptions={turmas}
             />
-          )}
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            {canReset && (
+              <RegistroAprendizagemFaseFormTableFiltersResult
+                filters={filters}
+                onFilters={handleFilters}
+                //
+                onResetFilters={handleResetFilters}
+                //
+                results={dataFiltered.length}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar>
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom
@@ -198,10 +203,9 @@ export default function RegistroAprendizagemFaseFormListView() {
                   />
 
                   <TableBody>
-                    {dataFiltered
-                      .map((row) => (
-                        <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} id_avaliacao={row.id} />
-                      ))}
+                    {dataFiltered.map((row) => (
+                      <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} />
+                    ))}
 
                     <TableEmptyRows
                       height={denseHeight}
@@ -212,56 +216,28 @@ export default function RegistroAprendizagemFaseFormListView() {
                   </TableBody>
                 </Table>
               </Scrollbar>
-            
-          </TableContainer>
+            </TableContainer>
 
-          <TablePaginationCustom
-            hidden
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={false}
-          />
-        </Card>
+            <TablePaginationCustom
+              hidden
+              count={dataFiltered.length}
+              page={table.page}
+              rowsPerPage={table.rowsPerPage}
+              onPageChange={table.onChangePage}
+              onRowsPerPageChange={table.onChangeRowsPerPage}
+              dense={false}
+            />
+          </Card>
 
-        <Stack
-        style={{marginTop: 10}}
-        direction="row"
-        spacing={0.5}
-        justifyContent="flex-end"
- >
-          <Grid alignItems='center' xs={3}>
-            <Button variant="contained" color="primary">
-              Salvar
-            </Button>
-          </Grid>
-        </Stack>
+          <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
+            <Grid alignItems="center" xs={3}>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                Salvar informações
+              </LoadingButton>
+            </Grid>
+          </Stack>
+        </FormProvider>
       </Container>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> registro?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
