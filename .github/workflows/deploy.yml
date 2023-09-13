@@ -1,0 +1,17 @@
+name: Push-to-EC2
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    steps:
+    - run: mkdir -p ~/.ssh/
+    - run: echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private.key
+    - run: chmod 600 ~/.ssh/private.key
+    - run: ssh -i ~/.ssh/private.key -o "StrictHostKeyChecking no" ec2-user@ec2-35-173-140-221.compute-1.amazonaws.com -p 22 whoami
+
+    - name: Checkout the files
+      uses: actions/checkout@v2
