@@ -12,7 +12,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Copy files with SSH
-      uses: easingthemes/ssh-deploy@main
+      uses: easingthemes/ssh-deploy@v4
       env:
         SSH_PRIVATE_KEY: ${{secrets.EC2_SSH_KEY}}
         ARGS: "-rltgoDzvO --delete"
