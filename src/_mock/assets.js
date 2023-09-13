@@ -283,6 +283,17 @@ export const _disciplinas = [
   'Historia',
 ];
 
+export const habilidades_options = [
+  'D',
+  'PD',
+  'ND',
+];
+
+export const promo_options = [
+  'Rendimento Escolar',
+  'Dispositivo Legal',
+];
+
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const _turnos = ['matutino', 'vespertino', 'noturno'];

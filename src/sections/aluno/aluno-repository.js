@@ -8,7 +8,7 @@ export const updateAlunoById = (id, payload) => axios.patch(endpoints.aluno.upda
 export const deleteAlunoById = id => axios.delete(endpoints.aluno.delete.concat(id));
 export const getAlunoById = id => axios.get(endpoints.aluno.get_by_id.concat(id));
 
-const alunoMethods = {
+const alunoMethods = { 
     insertAluno,
     getAllAlunos,
     updateAlunoById,

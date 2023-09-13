@@ -235,7 +235,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
       <RHFSelect name="turma" label="Turma" onChange={handleTurma} value={turma} > 
         {turmaList.map((turma) => (
           <MenuItem key={turma.id} value={turma.id}>
-           {turma.nome}
+            {`${turma.ano_escolar}º ${turma.nome}`}
           </MenuItem>
         ))}  
       </RHFSelect>
@@ -320,7 +320,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
               <RHFSelect name="bimestre" label="Bimestre" onChange={handleBimestre} value={bimestre}> 
               {_bimestres.map((bimestre) => (
                 <MenuItem key={bimestre} value={bimestre}>
-                  {bimestre}
+                  {`${bimestre}º Bimestre`}
                 </MenuItem>
               ))}
               </RHFSelect>

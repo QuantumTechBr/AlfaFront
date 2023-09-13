@@ -32,7 +32,7 @@ export const endpoints = {
   kanban: '/api/kanban',
   calendar: '/api/calendar',
   aluno: {
-    list: '/api/v1/alunos',
+    list: '/api/v1/alunos/',
     post: '/api/v1/alunos',
     get_by_id: '/api/v1/alunos/',
     update: '/api/v1/alunos/',
