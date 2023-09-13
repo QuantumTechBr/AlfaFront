@@ -8,9 +8,10 @@ export const TurmasProvider = ({ children }) => {
 
   const buscaTurmas = async  ({ force = false } = {}) => {
     if (force || turmas.length == 0) {
-      await turmaMethods.getAllTurmas().then((response) => {
+      return await turmaMethods.getAllTurmas().then((response) => {
         if (response.data == '' || response.data === undefined) response.data = [];
         setTurmas(response.data);
+        return response.data;
       });
     }
   };

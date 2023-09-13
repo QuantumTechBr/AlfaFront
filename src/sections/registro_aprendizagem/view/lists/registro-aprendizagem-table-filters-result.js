@@ -11,57 +11,37 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableFiltersResult({
+export default function RegistroAprendizagemTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
-  roleOptions,
-  escolaOptions,
   ...other
 }) {
 
-  const funcoesSelecionadas = [];
-  const escolasSelecionadas = [];
+  const handleRemoveEscola = (inputValue) => {
+    const newValue = filters.escola.filter((item) => item !== inputValue);
+    onFilters('escola', newValue);
+  };
+  
+  const handleRemoveTurma = (inputValue) => {
+    const newValue = filters.turma.filter((item) => item !== inputValue);
+    onFilters('turma', newValue);
+  };
 
-  roleOptions.map((funcao) => {
-    if(filters.role?.includes(funcao.id)) {
-      funcoesSelecionadas.push(funcao)
-    }
-  })
-
-  escolaOptions.map((escola) => {
-    if(filters.escola?.includes(escola.id)) {
-      escolasSelecionadas.push(escola)
-    }
-  })
-
-
-  const handleRemoveStatus = () => {
-    onFilters('status', 'all');
+  const handleRemoveBimestre = (inputValue) => {
+    const newValue = filters.bimestre.filter((item) => item !== inputValue);
+    onFilters('bimestre', newValue);
+  };
+  
+  const handleRemoveDisciplina = (inputValue) => {
+    const newValue = filters.disciplina.filter((item) => item !== inputValue);
+    onFilters('disciplina', newValue);
   };
 
   const handleRemoveNome = (inputValue) => {
     onFilters('nome', '');
   };
-
-  const handleRemoveRole = (inputValue) => {
-    const newValue = filters.role.filter((item) => item !== inputValue);
-    onFilters('role', newValue);
-  };
-
-  const handleRemoveDdz = (inputValue) => {
-    const newValue = filters.ddz.filter((item) => item !== inputValue);
-    onFilters('ddz', newValue);
-  };
-  
-  const handleRemoveEscola = (inputValue) => {
-    const newValue = filters.escola.filter((item) => item !== inputValue);
-    onFilters('escola', newValue);
-  };
-
-
-
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -72,38 +52,40 @@ export default function UserTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.status !== 'all' && (
-          <Block label="Status:">
-            <Chip size="small" label={filters.status ? 'Ativo' : 'Inativo'} onDelete={handleRemoveStatus} />
-          </Block>
-        )}
-
-        {filters.nome !== '' && (
+        {filters.nome && filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
         )}
 
-        {!!funcoesSelecionadas.length && (
-          <Block label="Função:">
-            {funcoesSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveRole(item.id)} />
-            ))}
-          </Block>
-        )}
-
-        {!!filters.ddz.length && (
-          <Block label="DDZ:">
-            {filters.ddz.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
-            ))}
-          </Block>
-        )}
-
         {!!filters.escola.length && (
           <Block label="Escola:">
-            {escolasSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
+            {filters.escola.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item)} />
+            ))}
+          </Block>
+        )}
+
+        {!!filters.turma.length && (
+          <Block label="Turma:">
+            {filters.turma.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveTurma(item)} />
+            ))}
+          </Block>
+        )}
+
+        {filters.bimestre && !!filters.bimestre.length && (
+          <Block label="Bimestre:">
+            {filters.bimestre.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveBimestre(item)} />
+            ))}
+          </Block>
+        )}
+
+        {filters.disciplina && !!filters.disciplina.length && (
+          <Block label="Disciplina:">
+            {filters.disciplina.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDisciplina(item)} />
             ))}
           </Block>
         )}
@@ -120,7 +102,7 @@ export default function UserTableFiltersResult({
   );
 }
 
-UserTableFiltersResult.propTypes = {
+RegistroAprendizagemTableFiltersResult.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   onResetFilters: PropTypes.func,

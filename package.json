@@ -43,6 +43,7 @@
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "encoding": "^0.1.13",
+    "enum-for": "^0.0.6",
     "firebase": "^9.23.0",
     "framer-motion": "^10.12.18",
     "highlight.js": "^11.8.0",
@@ -101,5 +102,5 @@
     "prettier": "^2.8.8",
     "typescript": "^5.1.6"
   },
-  "proxy":"http://localhost:8000"
+  "proxy": "http://localhost:8000"
 }

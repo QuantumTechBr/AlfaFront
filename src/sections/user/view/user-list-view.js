@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import { _userList, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -45,6 +45,8 @@ import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
 //
 import userMethods from '../user-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 // ----------------------------------------------------------------------
 
 
@@ -72,16 +74,25 @@ export default function UserListView() {
 
   const [_userList, setUserList] = useState([]);
 
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
+
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
       const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        usuariosNaoDeletados[i].funcao = 'Diretor';
-        usuariosNaoDeletados[i].escola = 'E.M. DESEMBARGADOR FELISMINO FRANCISCO SOARES';
+        if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
+          usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
+          usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
+        }
       }
       setUserList(usuariosNaoDeletados);
       setTableData(usuariosNaoDeletados);
     })
+
+    buscaEscolas();
+    buscaFuncoes();
   }, []);
 
   const table = useTable();
@@ -137,8 +148,15 @@ export default function UserListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(row.id)) {
+        userMethods.deleteUserById(row.id);
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -238,20 +256,20 @@ export default function UserListView() {
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //
-            roleOptions={_roles}
+            roleOptions={funcoes}
             ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            escolaOptions={escolas}
           />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
+              roleOptions={funcoes}
+              ddzOptions={_ddzs}
+              escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -386,12 +404,8 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
+    inputData = inputData.filter((user) => role.includes(user.funcao));
   }
-
- /* if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }*/
 
   if (escola.length) {
     inputData = inputData.filter((user) => escola.includes(user.escola));

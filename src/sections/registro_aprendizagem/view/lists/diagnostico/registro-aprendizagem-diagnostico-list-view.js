@@ -42,10 +42,10 @@ import {
 } from 'src/components/table';
 //
 import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-diagnostico-table-row';
-import RegistroAprendizagemTableToolbar from '../../form/fase/registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../../form/fase/registro-aprendizagem-table-filters-result';
+import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
+import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 //
-import registroAprendizagemMethods from '../../../registro-aprendizagem-repository';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -335,7 +335,7 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
   }
 
   if (escola.length) {

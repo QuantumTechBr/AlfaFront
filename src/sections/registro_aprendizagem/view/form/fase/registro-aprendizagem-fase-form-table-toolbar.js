@@ -17,14 +17,23 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableToolbar({
+export default function RegistroAprendizagemFaseFormTableToolbar({
   filters,
   onFilters,
-  //roleOptions,
-  ddzOptions,
-  escolaOptions,
+  turmaOptions,
 }) {
+
   const popover = usePopover();
+
+  const handleFilterTurma = useCallback(
+    (event) => {
+      onFilters(
+        'turma',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -32,31 +41,6 @@ export default function TurmaTableToolbar({
     },
     [onFilters]
   );
-
-  const handleFilterDdz = useCallback(
-    (event) => {
-      onFilters(
-        'ddz',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-
-  const handleFilterEscola = useCallback(
-    (event) => {
-      onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-
-  const renderValueEscola = (selected) => 
-    selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
 
   return (
     <>
@@ -73,64 +57,39 @@ export default function TurmaTableToolbar({
         }}
       >
 
-
+        {turmaOptions && (
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 120 },
           }}
         >
-          <InputLabel>DDZ</InputLabel>
-
+          <InputLabel>Turma</InputLabel>
+          
           <Select
             multiple
-            value={filters.ddz}
-            onChange={handleFilterDdz}
-            input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            value={filters.turma}
+            onChange={handleFilterTurma}
+            input={<OutlinedInput label="Turma" />}
+            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
+            {turmaOptions.map((option) => {
+              return (
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
+                  {option.ano_escolar+'º '+option.nome}
+                </MenuItem>
+              );
+            })}
           </Select>
         </FormControl>
+        )}
 
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-           {escolaOptions?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
@@ -190,10 +149,8 @@ export default function TurmaTableToolbar({
   );
 }
 
-TurmaTableToolbar.propTypes = {
+RegistroAprendizagemFaseFormTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  // roleOptions: PropTypes.array,
-  ddzOptions: PropTypes.array,
-  escolaOptions: PropTypes.array,
+  turmaOptions: PropTypes.array,
 };

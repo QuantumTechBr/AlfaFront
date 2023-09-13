@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState, useContext } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -14,7 +15,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
 // components
@@ -22,12 +23,32 @@ import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import userMethods from './user-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import permissaoMethods from '../permissao/permissao-repository';
 
 
 // ----------------------------------------------------------------------
 
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+  
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const [permissoes, setPermissoes] = useState([]);
+
+  useEffect(() => {
+    buscaFuncoes();
+    buscaEscolas();
+    
+    permissaoMethods.getAllPermissoes().then(permissoes => {
+      setPermissoes(permissoes.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+  }, []);
+
 
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -43,7 +64,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
-      funcao_usuario: currentUser?.funcao_usuario || '',
       status: (currentUser?.status ? "true" : "false") || '',
       ddz: currentUser?.ddz || '',
       escola: currentUser?.escola || '',
@@ -81,6 +101,13 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           status: data.status,
         }
       }
+      novoUsuario.funcao_usuario = [{
+        funcao_id: data.funcao,
+        escola_id: data.escola
+      }];
+      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      novoUsuario.permissao_usuario_id = [permissao.id]
       await userMethods.updateUserById(currentUser.id, novoUsuario);   
       reset() 
       onClose();
@@ -107,9 +134,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
-          {/* <Alert variant="outlined" severity="info" sx={{ mb: 3 }}>
-            A conta está aguardando confirmação
-          </Alert> */}
           <br></br>
 
           <Box
@@ -126,9 +150,9 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
             <RHFSelect name="funcao" label="Função">
-              {_roles.map((funcao) => (
-                <MenuItem key={funcao} value={funcao}>
-                  {funcao}
+              {funcoes.map((_funcao) => (
+                <MenuItem key={_funcao.id} value={_funcao.id}>
+                  {_funcao.nome}
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -141,18 +165,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               ))}
             </RHFSelect>
 
-           {/* <RHFSelect name="ddz" label="DDZ">
-              {_ddzs.map((ddz) => (
-                <MenuItem key={ddz} value={ddz}>
-                  {ddz}
-                </MenuItem>
-              ))}
-              </RHFSelect> */}
-
             <RHFSelect name="escola" label="Escola">
-              {_escolas.map((escola) => (
-                <MenuItem key={escola} value={escola}>
-                  {escola}
+              {escolas.map((_escola) => (
+                <MenuItem key={_escola.id} value={_escola.id}>
+                  {_escola.nome}
                 </MenuItem>
               ))}
             </RHFSelect>
