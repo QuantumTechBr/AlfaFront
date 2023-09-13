@@ -20,5 +20,6 @@ DEV {
 }
 
 ## CONFIG WORKFlOW
+GIT > EC2
 
 
