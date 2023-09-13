@@ -20,6 +20,5 @@ DEV {
 }
 
 ## CONFIG WORKFlOW
-GIT > EC2
-
+ec2-user@ec2******************
 
