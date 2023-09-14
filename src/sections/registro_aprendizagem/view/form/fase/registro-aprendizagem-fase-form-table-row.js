@@ -15,7 +15,6 @@ import { RegistroAprendizagemFases } from 'src/_mock';
 
 //
 import { FormControl, TextField } from '@mui/material';
-import { getAllEnumEntries } from 'enum-for';
 
 // ----------------------------------------------------------------------
 
@@ -28,42 +27,36 @@ export default function RegistroAprendizagemFaseFormTableRow({ row }) {
     <>
       <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
-          <Tooltip key={aluno.id} title={'Registro único da avaliação: ' + id}>
+          <Tooltip key={id} title={'Registro único da avaliação: ' + id}>
             <span>{aluno.nome}</span>
           </Tooltip>
-          <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno.id + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + id + '].avaliacao_id'} />
         </TableCell>
-        {getAllEnumEntries(RegistroAprendizagemFases)
-          .map((itemList) => {
-            return itemList[1];
-          })
-          .map((itemList) => {
-            return (
-              <TableCell
-                key={aluno.id + '_resultado_' + itemList}
-                sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
-              >
-                <Controller
-                  name={'registros[' + aluno.id + '].resultado'}
-                  control={control}
-                  render={({ field, fieldState: { error } }) => (
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value === itemList}
-                        onChange={(event) => {
-                          field.onChange(event.target.value);
-                        }}
-                        value={itemList}
-                        sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                      />
-                    </FormControl>
-                  )}
-                />
-              </TableCell>
-            );
-          })}
+        {Object.values(RegistroAprendizagemFases).map((tipoFaseValue) => {
+          return (
+            <TableCell
+              key={id + '_resultado'}
+              sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
+            >
+              <Controller
+                name={'registros[' + id + '].resultado'}
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <Checkbox
+                    checked={field.value === tipoFaseValue}
+                    onChange={(event) => {
+                      field.onChange(event.target.value);
+                    }}
+                    value={tipoFaseValue}
+                    sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+                  />
+                )}
+              />
+            </TableCell>
+          );
+        })}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          <RHFTextField name={`registros[` + aluno.id + `].observacao`} label="" />
+          <RHFTextField name={`registros[` + id + `].observacao`} label="" />
         </TableCell>
       </TableRow>
     </>

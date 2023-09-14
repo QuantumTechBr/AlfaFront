@@ -53,10 +53,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
         }}
       >
         {turmaOptions && (
-          <Controller
-            name="turma"
-            control={control}
-            render={({ field, fieldState: { error } }) => (
+          
               <FormControl
                 sx={{
                   flexShrink: 0,
@@ -69,7 +66,6 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                   value={turmaSelected}
                   onChange={(event) => {
                     handleChangeTurma(event);
-                    field.onChange(event.target.value);
                   }}
                   input={<OutlinedInput label="Turma" />}
                   renderValue={(selected) => `${selected.ano_escolar}º ${selected.nome}`}
@@ -88,8 +84,6 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                   })}
                 </Select>
               </FormControl>
-            )}
-          />
         )}
 
         {bimestreOptions && (

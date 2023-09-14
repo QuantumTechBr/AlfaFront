@@ -32,7 +32,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 
 import FormProvider from 'src/components/hook-form';
-import { getAllEnumEntries } from 'enum-for';
 
 import {
   useTable,
@@ -52,7 +51,7 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 150 },
-  ...getAllEnumEntries(RegistroAprendizagemFases).map((itemList) => {
+  ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 80 };
   }),
   { id: 'observacao', label: 'Observação' },
@@ -70,7 +69,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const [tableData, setTableData] = useState([]);
 
   const initialFormValues = {
-    turma: null,
     bimestre: null,
     registros: [],
   };
