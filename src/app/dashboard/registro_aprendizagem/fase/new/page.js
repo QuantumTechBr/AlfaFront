@@ -1,6 +1,6 @@
 // sections
 
-import { RegistroAprendizagemFaseFormListView } from "src/sections/registro_aprendizagem/view";
+import { RegistroAprendizagemFaseFormListView } from 'src/sections/registro_aprendizagem/view';
 
 // ----------------------------------------------------------------------
 

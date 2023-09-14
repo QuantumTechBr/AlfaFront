@@ -14,6 +14,7 @@ export const TurmasProvider = ({ children }) => {
         return response.data;
       });
     }
+    return turmas;
   };
 
   const buscaTurmaPorId = async ({ id, force = false } = {}) => {
@@ -26,6 +27,7 @@ export const TurmasProvider = ({ children }) => {
     return turmaMethods.getTurmaById(id).then((response) => {
       return response.data;
     });
+    return null;
   }
 
 

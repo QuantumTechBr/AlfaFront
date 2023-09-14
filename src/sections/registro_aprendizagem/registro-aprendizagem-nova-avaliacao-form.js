@@ -13,6 +13,11 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
+
 // _mock
 import { _habilidades, _disciplinas, _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _tiposAvaliacao } from 'src/_mock';
 // assets
@@ -33,8 +38,8 @@ import ReactHookForm from '../_examples/extra/form-validation-view/react-hook-fo
 // ----------------------------------------------------------------------
 
 export default function NovaAvaliacaoForm({ open, onClose }) {
+  const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-
 
   const [turmaList, setTurmaList] = useState([]);
   const [habilidadeList, setHabilidadeList] = useState([]);
@@ -243,13 +248,28 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   }
 
   const onSubmit = handleSubmit(async (data) => {
-    if (tipoFase.value) {
-      console.log(data);
-    } else if (tipoComponente.value) {
-      console.log(data);
-    } else {
-      console.log(data);
+    console.warn('form data');
+    console.table(data);
+    console.log('tipoFase', tipoFase.value);
+    console.log('tipoComponente', tipoComponente.value);
+    console.log('tipoDiagnostico', tipoDiagnostico.value);
+    console.log('periodo', periodo);
+    console.log('turma', turma);
+    console.log('bimestre', bimestre);
+    console.log('periodo', periodo);
+    console.log('disciplina', disciplina);
+    console.log('habilidades', habilidades);
+    
+    if(tipoFase.value){
+      router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
     }
+    // if (tipoFase.value) {
+    //   console.log(data);
+    // } else if (tipoComponente.value) {
+    //   console.log(data);
+    // } else {
+    //   console.log(data);
+    // }
     try {
       //await userMethods.updateUserById(currentUser.id, novoUsuario);   
       //reset() 
@@ -257,7 +277,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
       //enqueueSnackbar('Atualizado com sucesso!');
       //window.location.reload();
 
-      console.info('DATA', data);
+      // console.info('DATA', data);
     } catch (error) {
       console.error(error);
     }

@@ -160,8 +160,8 @@ export default function RegistroAprendizagemFaseListView() {
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
+    (turmaInicial, bimestreInicial) => {
+      router.push(paths.dashboard.registro_aprendizagem.edit_fase(turmaInicial, bimestreInicial));
     },
     [router]
   );
@@ -269,7 +269,7 @@ export default function RegistroAprendizagemFaseListView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        onEditRow={() => handleEditRow(row.turma, row.bimestre)}
                       />
                     ))}
 
@@ -352,7 +352,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (bimestre.length) {
-    inputData = inputData.filter((item) => bimestre.includes(item.bimestre + 'º'));
+    inputData = inputData.filter((item) => bimestre.includes(`${item.bimestre} º`));
   }
 
   if (nome) {

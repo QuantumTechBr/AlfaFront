@@ -177,7 +177,7 @@ export default function RegistroAprendizagemTableToolbar({
               return (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {option.nome}
+                  {` ${option.ano_escolar}º ${option.nome}`}
                 </MenuItem>
               );
             })}
@@ -208,9 +208,9 @@ export default function RegistroAprendizagemTableToolbar({
           >
             {bimestreOptions.map((option) => {
               return (
-                <MenuItem key={option} value={option + 'º'}>
-                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option + 'º' )} />
-                  {option + 'º'}
+                <MenuItem key={option} value={`${option} º`}>
+                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(`${option} º` )} />
+                  {`${option} º`}
                 </MenuItem>
               );
             })}
