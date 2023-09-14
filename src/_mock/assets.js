@@ -401,6 +401,40 @@ export const _registrosAprendizagemComponente = [
   },
 ]
 
+export const _alunos = [
+  {
+    id: '1',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+  {
+    id: '2',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+  {
+    id: '3',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+]
+
+
 export const _ddzs = [
   'DDZ I (Sul) ZONA SUL',
   'DDZ I (Sul) ZONA CENTRO-SUL',
