@@ -18,7 +18,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import {_bimestres, _registrosAprendizagemFase } from 'src/_mock';
+import { _bimestres, _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -44,6 +44,7 @@ import {
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -170,6 +171,13 @@ export default function RegistroAprendizagemFaseListView() {
     setFilters(defaultFilters);
   }, []);
 
+  
+  const novaAvaliacao = useBoolean();
+
+  const closeNovaAvaliacao = (retorno=null) => {
+    novaAvaliacao.onFalse();
+  }
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -185,8 +193,7 @@ export default function RegistroAprendizagemFaseListView() {
             Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
           </Typography>
           <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_fase}
+            onClick={novaAvaliacao.onTrue}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -196,6 +203,8 @@ export default function RegistroAprendizagemFaseListView() {
             Adicionar
           </Button>
         </Stack>
+
+        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
           <RegistroAprendizagemTableToolbar

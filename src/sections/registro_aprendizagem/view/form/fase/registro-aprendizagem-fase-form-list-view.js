@@ -139,11 +139,17 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
   const getRegistros = useCallback(
     (turma) => {
-      buscaTurmaPorId({ id: turma.id }).then((turma) => {
-        resetField('registros');
-        setTableData(turma.aluno_turma);
-      });
+      // currentTurma?.nome || ''
 
+      if (!!turma || (!!turmaSelected.id && turma == turmaSelected)) {
+        buscaTurmaPorId({ id: turma.id }).then((turma) => {
+          resetField('registros');
+          setTableData(turma.aluno_turma);
+        });
+      }
+      
+
+      // TODO GET REGISTROS DO BANCO
       // _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
       //   initialFormValues.registros[itemList.aluno.id] = {
       //     avaliacao_id: itemList.id,
@@ -155,7 +161,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     [resetField]
   );
 
-  const onSubmit = handleSubmit(async (data) => {});
+  const onSubmit = handleSubmit(async (data) => {
+    console.table(data);
+  });
 
   useEffect(() => {
     buscaTurmas().then((turmas) => {
@@ -164,15 +172,19 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
             setTurmaSelected(_turmaComplete[0]);
+            setValue('turma', _turmaComplete[0]);
+            getRegistros(_turmaComplete[0]);
           }
         }
       }
 
       if (!!bimestreInicial) {
+        setValue('bimestre', bimestreInicial);
         setBimestreSelected(bimestreInicial);
+        getRegistros();
       }
     });
-  }, [turmas, buscaTurmas, turmaInicial, bimestreInicial]);
+  }, [turmas, buscaTurmas, turmaInicial, bimestreInicial, setValue]);
 
   return (
     <>
@@ -198,13 +210,14 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               turmaOptions={turmas}
               turmaSelected={turmaSelected}
               handleChangeTurma={(value) => {
-                getRegistros(value.target.value);
                 setTurmaSelected(value.target.value);
+                getRegistros(value.target.value);
               }}
               bimestreOptions={_bimestres}
               bimestreSelected={bimestreSelected}
               handleChangeBimestre={(value) => {
                 setBimestreSelected(value.target.value);
+                getRegistros();
               }}
             />
 
