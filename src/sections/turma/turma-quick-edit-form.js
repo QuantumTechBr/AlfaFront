@@ -23,6 +23,7 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import turmaMethods from '../turma/turma-repository';
 
 // ----------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewTurmaSchema),
+    // resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
 
@@ -70,15 +71,29 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      var novaTurma = {
+        nome:  data.nome,
+        turno: data.turno,
+        ano_letivo: data.ano_letivo
+      }
+    
+      novaTurma.escola_id = data.escola_id;
+      novaTurma.ano_id = data.ano_id;
+      novaTurma.status = true;
+      novaTurma.ano_escolar = data.ano_escolar;
+
+      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma);
+      reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
+
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
     }
   });
+
 
 
   return (
@@ -122,7 +137,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="anoId" label="Ano Letivo">
+            <RHFSelect name="ano_id" label="Ano Letivo">
               {anosLetivos.map((ano) => (
                 <MenuItem key={ano.id} value={ano.id}>
                   {ano.ano}
@@ -130,7 +145,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="escolaId" label="Escola">
+            <RHFSelect name="escola_id" label="Escola">
               {escolas.map((escola) => (
                 <MenuItem key={escola.id} value={escola.id} >
                   {escola.nome}
