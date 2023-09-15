@@ -20,7 +20,7 @@ import ChartDonut from './chart-donut';
 import ChartsRadarBar from './chart-radar-bar';
 import ChartRadialBar from './chart-radial-bar';
 import ChartColumnSingle from './chart-column-single';
-import ChartColumnStacked from './chart-column-stacked';
+import ChartColumnStacked from './ChartColumnStacked';
 import ChartColumnNegative from './chart-column-negative';
 import ChartColumnMultiple from './chart-column-multiple';
 

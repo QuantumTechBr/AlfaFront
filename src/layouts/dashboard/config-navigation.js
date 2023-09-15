@@ -103,7 +103,7 @@ export function useNavData() {
             children: [
               { title: t('calendário'), path: paths.dashboard.root },
               { title: t('gerar relatório'), path: paths.dashboard.root },
-              { title: t('documentos administrativos'), path: paths.dashboard.root },
+              { title: t('documentos administrativos'), path: paths.dashboard.fileManager },
             ],
           },
 

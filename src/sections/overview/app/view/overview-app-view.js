@@ -26,7 +26,8 @@ import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
 import AppTopInstalledCountries from '../app-top-installed-countries';
-import { useState } from 'react';
+import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
+import AppAvaliacaoComponente from '../app-avaliacao-componente';
 
 // ----------------------------------------------------------------------
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
@@ -177,56 +178,16 @@ export default function OverviewAppView() {
             }}
           />
         </Grid>
-        { /*      
-        <Grid xs={12} lg={8}>
-          <AppNewInvoice
-            title="New Invoice"
-            tableData={_appInvoices}
-            tableLabels={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
-              { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
-            ]}
-          />
+            
+        <Grid xs={12} lg={6}>
+          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" subheader="" />
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopRelated title="Top Related Applications" list={_appRelated} />
+        <Grid xs={12} md={6} lg={6}>
+          <AppAvaliacaoComponente title="Avaliação por Component" list={_appRelated} /> 
         </Grid>
 
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopInstalledCountries title="Top Installed Countries" list={_appInstalled} />
         </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopAuthors title="Top Authors" list={_appAuthors} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <Stack spacing={3}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{
-                series: 48,
-              }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              color="info"
-              chart={{
-                series: 75,
-              }}
-            />
-          </Stack>
-            </Grid> */ }
-      </Grid>
     </Container>
   );
 }
