@@ -145,7 +145,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           setTableData(turma.aluno_turma);
         });
       }
-      
 
       // TODO GET REGISTROS DO BANCO
       // _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
@@ -169,9 +168,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         if (!!turmas) {
           const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
-            setTurmaSelected(_turmaComplete[0]);
-            setValue('turma', _turmaComplete[0]);
-            getRegistros(_turmaComplete[0]);
+            setTurmaSelected(_turmaComplete[0]); // CONTEXT
+            getRegistros(_turmaComplete[0]); // API
           }
         }
       }
