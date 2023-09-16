@@ -7,6 +7,10 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
+
+// react
+import { useEffect, useState, useCallback } from 'react';
+
 // hooks
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 // _mock
@@ -30,11 +34,29 @@ import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
 
 // ----------------------------------------------------------------------
+
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
 import { useBoolean } from 'src/hooks/use-boolean';
+import OverviewTableToolbar from './overview-table-toolbar'; 
 
 export default function OverviewAppView() {
  // const { user } = useMockedUser();
+
+  const defaultFilters = {
+    nome: ''
+  };
+
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const handleFilters = useCallback(
+    (nome, value) => {
+      setFilters((prevState) => ({
+        ...prevState,
+        [nome]: value,
+      }));
+    },
+    [setFilters]
+  );
 
   const theme = useTheme();
 
@@ -45,6 +67,7 @@ export default function OverviewAppView() {
   const closeNovaAvaliacao = (retorno=null) => {
     novaAvaliacao.onFalse();
   }
+
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -66,10 +89,20 @@ export default function OverviewAppView() {
           <AppFeatured list={_appFeatured} />
         </Grid> */}
 
-        <Grid xs={12} md={10}>
+        <Grid xs={12} md={3}>
           <Typography variant="h3" paragraph>
-            Dashboard
+            Dashboard 
           </Typography>
+
+        </Grid>
+
+        <Grid xs={12} md={6}>
+
+          <OverviewTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+          />
+
         </Grid>
 
         <Grid xs={12} md={2}>

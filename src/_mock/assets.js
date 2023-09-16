@@ -401,6 +401,30 @@ export const _registrosAprendizagemComponente = [
   },
 ]
 
+export const _profissionais = [
+  {
+    id: '1',
+    nome: 'Annaliese',
+    funcao: 'Diretor',
+    escola: 'CMEI PHELIPPE DAOU',
+    zona: 'ZONA SUL',
+  },
+  {
+    id: '2',
+    nome: 'Annaliese',
+    funcao: 'Diretor',
+    escola: 'CMEI PHELIPPE DAOU',
+    zona: 'ZONA SUL',
+  },
+  {
+    id: '3',
+    nome: 'Annaliese',
+    funcao: 'Diretor',
+    escola: 'CMEI PHELIPPE DAOU',
+    zona: 'ZONA SUL',
+  }
+]
+
 export const _alunos = [
   {
     id: '1',

@@ -31,6 +31,13 @@ export const endpoints = {
   chat: '/api/chat',
   kanban: '/api/kanban',
   calendar: '/api/calendar',
+  profissional: {
+    list: '/api/v1/profissional/',
+    post: '/api/v1/profissional',
+    get_by_id: '/api/v1/profissional/',
+    update: '/api/v1/profissional/',
+    delete: '/api/v1/profissional/',
+  },
   aluno: {
     list: '/api/v1/alunos/',
     post: '/api/v1/alunos',

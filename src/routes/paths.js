@@ -136,6 +136,18 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/aluno/${MOCK_ID}/edit`,
       },
     },
+    profissional: {
+      root: `${ROOTS.DASHBOARD}/profissional`,
+      new: `${ROOTS.DASHBOARD}/profissional/new`,
+      list: `${ROOTS.DASHBOARD}/profissional/list`,
+      cards: `${ROOTS.DASHBOARD}/profissional/cards`,
+      profile: `${ROOTS.DASHBOARD}/profissional/profile`,
+      account: `${ROOTS.DASHBOARD}/profissional/account`,
+      edit: (id) => `${ROOTS.DASHBOARD}/profissional/${id}/edit`,
+      demo: {
+        edit: `${ROOTS.DASHBOARD}/profissional/${MOCK_ID}/edit`,
+      },
+    },  
     turma: {
       root: `${ROOTS.DASHBOARD}/turma/list`,
       new: `${ROOTS.DASHBOARD}/turma/new`,
