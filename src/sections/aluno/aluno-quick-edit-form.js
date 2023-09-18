@@ -25,13 +25,13 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentUser: currentAluno, open, onClose }) {
+export default function AlunoQuickEditForm({ currentUser: currentAluno, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewTurmaSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matricula é obrigatória'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório')
+    nome: Yup.string().required('Nome é obrigatório!'),
+    matricula: Yup.string().required('Matricula é obrigatória !'),
+    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório!')
   });
 
   const defaultValues = useMemo(
@@ -115,7 +115,7 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
   );
 }
 
-TurmaQuickEditForm.propTypes = {
+AlunoQuickEditForm.propTypes = {
   currentUser: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
