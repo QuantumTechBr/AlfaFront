@@ -3,7 +3,7 @@ import { _alunos } from 'src/_mock/';
 import { AlunoEditView } from 'src/sections/aluno/view';
 
 export const metadata = {
-  title: 'Dashboard: Turma Edit',
+  title: 'Dashboard: Edição do Aluno',
 };
 
 export default function AlunoEditPage({ params }) {
