@@ -111,7 +111,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       }
       reset();
       enqueueSnackbar(currentTurma ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      router.push(paths.dashboard.user.list);
+      router.push(paths.dashboard.turma.list);
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
