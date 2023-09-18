@@ -5,7 +5,7 @@ import { AlunoCreateView } from "src/sections/aluno/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Create a new aluno',
+  title: 'Dashboard: Criar um novo Aluno',
 };
 
 export default function AlunoCreatePage() {
