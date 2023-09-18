@@ -30,9 +30,9 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const NewAlunoSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matricula é obrigatório'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
+    nome: Yup.string().required('Nome é obrigatório !'),
+    matricula: Yup.string().required('Matricula é obrigatório !'),
+    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório !'),
   });
 
   const defaultValues = useMemo(
