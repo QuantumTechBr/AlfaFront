@@ -20,7 +20,7 @@ export default function AlunoTableFiltersResult({
 }) {
 
   const handleRemoveNome = (inputValue) => {
-    onFilters('nome', 'matricula','data_nascimento');
+    onFilters('nome','matricula','data_nascimento');
   };
 
   const handleRemoveMatricula = (inputValue) => {
@@ -38,7 +38,7 @@ export default function AlunoTableFiltersResult({
       <Box sx={{ typography: 'body2' }}>
         <strong>{results}</strong>
         <Box component="span" sx={{ color: 'text.secondary', ml: 0.25 }}>
-          resultados escontrados
+          resultados encontrado
         </Box>
       </Box>
 
