@@ -140,7 +140,6 @@ export default function UserListView() {
       const deleteRow = tableData.filter((row) => row.id !== id);
       userMethods.deleteUserById(id);
       setTableData(deleteRow);
-      //userMethods.deleteUserById(id);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
