@@ -22,8 +22,7 @@ import AlunoQuickEditForm from './aluno-quick-edit-form';
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
-
-
+  
   const confirm = useBoolean();
 
   const quickEdit = useBoolean();
@@ -64,7 +63,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
       </TableRow>
 
-      <AlunoQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <AlunoQuickEditForm currentaluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -98,7 +97,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         open={confirm.value}
         onClose={confirm.onFalse}
         title="Excluir Aluno"
-        content="Tem certeza que deseja excluir o aluno?"
+        content="Tem certeza que deseja excluir o aluno ? "
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar
