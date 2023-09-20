@@ -240,7 +240,7 @@ export const _phoneNumbers = [
 
 export const _tiposAvaliacao = [
   'Avaliação de Fase',
-  'Avaliação de Componente Curricular',
+  // 'Avaliação de Componente Curricular',
   'Avaliação de Diagnóstico',
 ];
 
