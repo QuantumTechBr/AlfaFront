@@ -9,10 +9,10 @@ export const deleteRegistroAprendizagemById = id => axios.delete(endpoints.regis
 export const getRegistroAprendizagemById = id => axios.get(endpoints.registro_aprendizagem.get_by_id.concat(id));
 
 export const insertRegistroAprendizagemDiagnostico = payload => axios.post(endpoints.registro_aprendizagem.diagnostico.post, payload);
-export const getAllRegistrosAprendizagemDiagnostico = () => axios.get(endpoints.registro_aprendizagem.diagnostico.list);
+export const getAllRegistrosAprendizagemDiagnostico = ({turmaId='', nome='', periodo='', promoAnoAnterior='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?turma=${turmaId}&nome=${nome}&periodo=${periodo}&promo_ano_anterior=${promoAnoAnterior}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.diagnostico.update.concat(id), payload);
 export const deleteRegistroAprendizagemDiagnosticoById = id => axios.delete(endpoints.registro_aprendizagem.diagnostico.delete.concat(id));
-export const getRegistroAprendizagemDiagnosticoByTurmaId = id_turma => axios.get(endpoints.registro_aprendizagem.diagnostico.get_by_id.concat(`?turma=${id_turma}`));
+// export const getRegistroAprendizagemDiagnosticoByTurmaId = id_turma => axios.get(endpoints.registro_aprendizagem.diagnostico.get_by_id.concat(`?turma=${id_turma}`));
 
 export const insertRegistroAprendizagemFase = payload => axios.post(endpoints.registro_aprendizagem.fase.post, payload);
 export const getAllRegistrosAprendizagemFase = () => axios.get(endpoints.registro_aprendizagem.fase.list);
@@ -30,7 +30,7 @@ const registroAprendizagemMethods = {
     getAllRegistrosAprendizagemDiagnostico,
     updateRegistroAprendizagemDiagnosticoById,
     deleteRegistroAprendizagemDiagnosticoById,
-    getRegistroAprendizagemDiagnosticoByTurmaId,
+    // getRegistroAprendizagemDiagnosticoByTurmaId,
     insertRegistroAprendizagemFase,
     getAllRegistrosAprendizagemFase,
     updateRegistroAprendizagemFaseById,

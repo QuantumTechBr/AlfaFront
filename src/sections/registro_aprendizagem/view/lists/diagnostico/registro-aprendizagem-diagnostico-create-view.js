@@ -31,12 +31,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       let habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
       setHabilidades(habilidade_turma);
       if(_turma.aluno_turma){
-        registroAprendizagemMethods.getRegistroAprendizagemDiagnosticoByTurmaId(_turma.id).then(registros => {
-          const registrosAprendizagemTurma = registros.data.filter((registro) => registro.periodo == periodo);
-          // alunosTurma.forEach(alunoTurma => {
-          //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
-          //   console.log('habilidades', habilidadesRegistroAprendizagem);
-          //})
+        registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo:periodo}).then(registros => {
           setRegistrosAprendizagemTurma(registrosAprendizagemTurma)
           if (registrosAprendizagemTurma) {
             const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
@@ -80,7 +75,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
     if(novaTurma.aluno_turma){
-      await registroAprendizagemMethods.getRegistroAprendizagemDiagnosticoByTurmaId(novaTurma.id).then(registros => {
+      await registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico(turmaId=novaTurma.id).then(registros => {
         const novoRegistrosAprendizagemTurma = registros.data.filter((registro) => registro.periodo == periodo);
         // alunosTurma.forEach(alunoTurma => {
         //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
