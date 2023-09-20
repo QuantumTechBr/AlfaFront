@@ -4,7 +4,7 @@ import { AlunoCardsView } from 'src/sections/aluno/view';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Aurma Cards',
+  title: 'Dashboard: Cartão do Aluno,
 };
 
 export default function AlunoCardsPage() {
