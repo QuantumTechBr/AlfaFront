@@ -75,14 +75,14 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
             value={turma}
             onChange={handleTurma}
             input={<OutlinedInput label="Turma" />}
+            renderValue={(selected) => ` ${selected.ano_escolar}º ${selected.nome}` }
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
-          >
-            {turmas.map((option) => (
-              <MenuItem key={option} value={option}>
+          >{turmas.map((option) => (
+              <MenuItem key={option.id} value={option}>
                 {` ${option.ano_escolar}º ${option.nome}`}
               </MenuItem>
             ))}
@@ -92,7 +92,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
        <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 200 },
           }}
         >
           <InputLabel>Promoção no ano anterior</InputLabel>

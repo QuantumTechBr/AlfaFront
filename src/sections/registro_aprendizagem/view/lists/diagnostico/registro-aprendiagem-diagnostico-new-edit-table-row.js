@@ -22,19 +22,25 @@ import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import { _habilidades, habilidades_options, promo_options } from 'src/_mock';
 import FormProvider, { RHFMultiSelect, RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import { getAllEnumEntries } from 'enum-for';
+import TextField from '@mui/material/TextField';
+import { useFormContext, Controller } from 'react-hook-form';
+import { FormControl, Input } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, onEditRow, onSelectRow, onDeleteRow }) {
   let { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
   const router = useRouter();
 
   const confirm = useBoolean();
-
+  
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  const { control } = useFormContext();  
 
   return (
     <>
@@ -43,39 +49,59 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.aluno.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {row.aluno.nome}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >
+          <Controller
+            name={`registros[${id}].id_aluno_turma`}
+            control={control}
+            defaultValue = {id}
+            render={({ field, fieldState: { error } }) => (
+            <FormControl>
+                <TextField
+                  color='primary'
+                  value={id}
+                />  
+            </FormControl>
+            )}
+          />
+        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-            <RHFSelect name={aluno.id} label=""> 
+            <RHFSelect key={id+'promo'} name={'registros[' + id + '].promo_ano_anterior'} > 
               {promo_options.map((promo) => (
-                <MenuItem key={promo} value={promo}>
+                <MenuItem key={id + '_promo_' + promo} value={promo}>
                   {promo}
                 </MenuItem>
               ))}
             </RHFSelect>
-        </TableCell>     
+        </TableCell>
 
-        {mapHabilidades.map((habilidade) => (
-            <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                <RHFSelect name={habilidade.nome} label=""> 
-                    {habilidades_options.map((habilidade) => (
-                <MenuItem key={habilidade} value={habilidade}>
+        {habilidades.map((habilidade) => {
+          
+          // console.log(`registros[${id}]['habilidades_registro_aprendizagem'][${habilidade[1].id}] `);
+          return (
+            <TableCell key={id+'habcell'+habilidade.id}sx={{ whiteSpace: 'nowrap' }}>
+              <RHFSelect name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
+                {habilidades_options.map((hab) => (
+                  <MenuItem key={id + '_hab_' + hab} value={hab}>
                     <Label
-                        variant="soft"
-                        color={
-                            (habilidade === 'D' && 'success') ||
-                            (habilidade === 'PD' && 'warning') ||
-                            (habilidade === 'ND' && 'error') ||
-                            'default'
-                        }
-                        >
-                        {habilidade}
+                      variant="soft"
+                      color={(hab === 'D' && 'success') ||
+                        (hab === 'PD' && 'warning') ||
+                        (hab === 'ND' && 'error') ||
+                        'default'}
+                    >
+                      {hab}
                     </Label>
-                </MenuItem>
+                  </MenuItem>
                 ))}
-                </RHFSelect>
+              </RHFSelect>
             </TableCell>
-        ))}
+          );
+        })}
       </TableRow>
     </>
   );

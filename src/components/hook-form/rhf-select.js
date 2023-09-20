@@ -21,6 +21,7 @@ export function RHFSelect({
   helperText,
   children,
   PaperPropsSx,
+  defaultValue,
   ...other
 }) {
   const { control } = useFormContext();
@@ -29,6 +30,7 @@ export function RHFSelect({
     <Controller
       name={name}
       control={control}
+      defaultValue = {defaultValue || ''}
       render={({ field, fieldState: { error } }) => (
         <TextField
           {...field}

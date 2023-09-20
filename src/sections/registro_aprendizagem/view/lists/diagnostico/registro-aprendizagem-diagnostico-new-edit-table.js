@@ -47,53 +47,35 @@ import {
 import RegistroAprendizagemDiagnosticoNewEditTableRow from './registro-aprendiagem-diagnostico-new-edit-table-row';
 import RegistroAprendizagemDiagnosticoNewEditTableToolbar from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-table-toolbar';
 import { promo_options } from 'src/_mock';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+//import { getAllEnumEntries } from 'enum-for';
 // ----------------------------------------------------------------------
 
 
  
-export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, habilidades, handleTurma }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma }) {
   const defaultFilters = {
     nome: '',
     promo_ano_anterior: [],
   };
 
-  
-
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
-  const [alunosTurma, setAlunosTurma] = useState([]);
-
 
   useEffect(() => {
     let cabecalho = [
         { id: 'nome', label: 'Nome', width: 150 },
         { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
     ];
-    const alunosTurma = (turma.aluno_turma == undefined) ? [] : turma.aluno_turma;
-    //console.log(_habilidades)
-    // alunosTurma.map(alunoTurma => {
-    //   alunoTurma.mapHabilidades = new Map();
-    //   habilidades.map(habilidade => {
-    //     alunoTurma.mapHabilidades.set(habilidade.nome, '')
-    //   })
-    // });
-    let mapHabilidades = [];
     for (var i = 0; i < habilidades.length; i++) {
-      cabecalho.push({ id: habilidades[i].nome, label: habilidades[i].nome, width: 88 });
-      mapHabilidades.push({ nome: habilidades[i].nome, value: '' });
+      cabecalho.push({ id: habilidades[i].id, label: habilidades[i].nome, width: 88 });
     }
-    alunosTurma.map(alunoTurma => {
-      alunoTurma.mapHabilidades = mapHabilidades;
-    })
     setTableHead(cabecalho);
-    setTableData(alunosTurma);
-    setAlunosTurma(alunosTurma);
-  }, [turma, habilidades]);
-  //console.log(turma);
-  console.log(TABLE_HEAD);
-  console.log(habilidades);
-  //console.log(tableData);
-  console.log(alunosTurma);
+    const tableData = (alunosTurma == undefined) ? [] : alunosTurma;
+    setTableData(tableData);
+ 
+    
+  }, [habilidades, alunosTurma]);
 
   const table = useTable();
 
@@ -110,7 +92,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, hab
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
 
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
@@ -242,6 +223,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, hab
                       <RegistroAprendizagemDiagnosticoNewEditTableRow
                         key={row.id}
                         row={row}
+                        habilidades={habilidades}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
@@ -301,6 +283,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, hab
 
 RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
   turma: PropTypes.object,
+  alunosTurma: PropTypes.array,
   habilidades: PropTypes.array,
   handleTurma: PropTypes.func,
 };
