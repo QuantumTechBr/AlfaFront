@@ -63,7 +63,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
       </TableRow>
 
-      <AlunoQuickEditForm currentaluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
