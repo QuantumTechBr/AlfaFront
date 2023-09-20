@@ -29,9 +29,9 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
   const { enqueueSnackbar } = useSnackbar();
 
   const NewTurmaSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matricula é obrigatória'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório')
+    nome: Yup.string().required('Nome é obrigatório !'),
+    matricula: Yup.string().required('Matricula é obrigatória !'),
+    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório !')
   });
 
   const defaultValues = useMemo(
