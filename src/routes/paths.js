@@ -1,6 +1,6 @@
 // utils
 import { paramCase } from 'src/utils/change-case';
-import { _id, _postTitles } from 'src/_mock/assets';
+import { _bimestres, _id, _postTitles } from 'src/_mock/assets';
 
 // ----------------------------------------------------------------------
 
@@ -140,10 +140,10 @@ export const paths = {
       root: `${ROOTS.DASHBOARD}/registro_aprendizagem`,
       root_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/list`,
       new_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/new`,
-      edit_diagnostico: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/${id}/edit`,
-      root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/list`,
+      edit_diagnostico: (turmaInicial, periodoInicial, habilidadesInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${turmaInicial}/${periodoInicial}/${habilidadesInicial}`,
+      root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase`,
       new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
-      edit_fase: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${id}`,
+      edit_fase: (turmaInicial, bimestreInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${turmaInicial}/${bimestreInicial}`,
       root_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/list`,
       new_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/new`,
       edit_componente: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/${id}/edit`,

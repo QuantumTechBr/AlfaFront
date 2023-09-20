@@ -9,19 +9,17 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Grid from '@mui/material/Unstable_Grid2';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-// routes
-import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
 // _mock
-import { _registrosAprendizagemFaseUnicaRegistros, RegistroAprendizagemFases } from 'src/_mock';
+import {
+  _bimestres,
+  _registrosAprendizagemFaseUnicaRegistros,
+  RegistroAprendizagemFases,
+} from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -34,7 +32,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 
 import FormProvider from 'src/components/hook-form';
-import { getAllEnumEntries } from 'enum-for';
 
 import {
   useTable,
@@ -54,50 +51,39 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 150 },
-  ...getAllEnumEntries(RegistroAprendizagemFases).map((itemList) => {
+  ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 80 };
   }),
   { id: 'observacao', label: 'Observação' },
 ];
 
-const defaultFilters = {
-  turma: [],
-};
+const defaultFilters = {};
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormListView() {
+export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
+  const [turmaSelected, setTurmaSelected] = useState('');
+  const [bimestreSelected, setBimestreSelected] = useState('');
+  const [tableData, setTableData] = useState([]);
 
-  useEffect(() => {
-    buscaTurmas();
-    // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-    //   setRegistroAprendizagemList(response.data);
-    //   setTableData(response.data);
-    // });
-    setRegistroAprendizagemList(_registrosAprendizagemFaseUnicaRegistros);
-    setTableData(_registrosAprendizagemFaseUnicaRegistros);
-  }, []);
-
-  const defaultValues = {
+  const initialFormValues = {
+    bimestre: null,
     registros: [],
   };
 
-  _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
-    defaultValues.registros[itemList.aluno.id] = {
-      avaliacao_id: itemList.id,
-      resultado: itemList.resultado,
-      observacao: itemList.observacao,
-    };
-  });
-
+  // _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
+  //   initialFormValues.registros[itemList.aluno.id] = {
+  //     avaliacao_id: itemList.id,
+  //     resultado: itemList.resultado,
+  //     observacao: itemList.observacao,
+  //   };
+  // });
 
   const table = useTable();
 
   const settings = useSettingsContext();
-
-  const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -106,11 +92,6 @@ export default function RegistroAprendizagemFaseFormListView() {
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
-  const dataInPage = dataFiltered.slice(
-    table.page * table.rowsPerPage,
-    table.page * table.rowsPerPage + table.rowsPerPage
-  );
 
   const denseHeight = table.dense ? 52 : 72;
 
@@ -137,12 +118,13 @@ export default function RegistroAprendizagemFaseFormListView() {
 
   const methods = useForm({
     //resolver: yupResolver(NewUserSchema),
-    defaultValues,
+    defaultValues: initialFormValues,
   });
 
   const {
     register,
     reset,
+    resetField,
     watch,
     control,
     setValue,
@@ -150,11 +132,55 @@ export default function RegistroAprendizagemFaseFormListView() {
     formState: { isSubmitting },
   } = methods;
 
-  const values = watch();
+  // const formValues = watch();
+  const watchTurmaSelected = watch('turma', null);
+
+  const getRegistros = useCallback(
+    (turma) => {
+      // currentTurma?.nome || ''
+
+      if (!!turma || (!!turmaSelected.id && turma == turmaSelected)) {
+        buscaTurmaPorId({ id: turma.id }).then((turma) => {
+          resetField('registros');
+          setTableData(turma.aluno_turma);
+        });
+      }
+
+      // TODO GET REGISTROS DO BANCO
+      // _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
+      //   initialFormValues.registros[itemList.aluno.id] = {
+      //     avaliacao_id: itemList.id,
+      //     resultado: itemList.resultado,
+      //     observacao: itemList.observacao,
+      //   };
+      // });
+    },
+    [resetField]
+  );
 
   const onSubmit = handleSubmit(async (data) => {
-    console.table(data.registros);
+    console.table(data);
   });
+
+  useEffect(() => {
+    buscaTurmas().then((turmas) => {
+      if (!!turmaInicial) {
+        if (!!turmas) {
+          const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
+          if (_turmaComplete && !!_turmaComplete.length) {
+            setTurmaSelected(_turmaComplete[0]); // CONTEXT
+            getRegistros(_turmaComplete[0]); // API
+          }
+        }
+      }
+
+      if (!!bimestreInicial) {
+        setValue('bimestre', bimestreInicial);
+        setBimestreSelected(bimestreInicial);
+        getRegistros();
+      }
+    });
+  }, [turmas, buscaTurmas, turmaInicial, bimestreInicial, setValue]);
 
   return (
     <>
@@ -178,15 +204,24 @@ export default function RegistroAprendizagemFaseFormListView() {
               filters={filters}
               onFilters={handleFilters}
               turmaOptions={turmas}
+              turmaSelected={turmaSelected}
+              handleChangeTurma={(value) => {
+                setTurmaSelected(value.target.value);
+                getRegistros(value.target.value);
+              }}
+              bimestreOptions={_bimestres}
+              bimestreSelected={bimestreSelected}
+              handleChangeBimestre={(value) => {
+                setBimestreSelected(value.target.value);
+                getRegistros();
+              }}
             />
 
             {canReset && (
               <RegistroAprendizagemFaseFormTableFiltersResult
                 filters={filters}
                 onFilters={handleFilters}
-                //
                 onResetFilters={handleResetFilters}
-                //
                 results={dataFiltered.length}
                 sx={{ p: 2.5, pt: 0 }}
               />
@@ -203,9 +238,9 @@ export default function RegistroAprendizagemFaseFormListView() {
                   />
 
                   <TableBody>
-                    {dataFiltered.map((row) => (
-                      <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} />
-                    ))}
+                    {dataFiltered.map((row) => {
+                      return <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} />;
+                    })}
 
                     <TableEmptyRows
                       height={denseHeight}
@@ -245,7 +280,7 @@ export default function RegistroAprendizagemFaseFormListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, turma } = filters;
+  const { nome } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -255,12 +290,6 @@ function applyFilter({ inputData, comparator, filters }) {
   });
 
   inputData = stabilizedThis.map((el) => el[0]);
-
-  if (turma.length) {
-    inputData = inputData.filter((item) =>
-      turma.map((baseItem) => baseItem.nome).includes(item.turma)
-    );
-  }
 
   if (nome) {
     inputData = inputData.filter(

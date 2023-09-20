@@ -240,7 +240,7 @@ export const _phoneNumbers = [
 
 export const _tiposAvaliacao = [
   'Avaliação de Fase',
-  'Avaliação de Componente Curricular',
+  // 'Avaliação de Componente Curricular',
   'Avaliação de Diagnóstico',
 ];
 
@@ -249,12 +249,9 @@ export const _habilidades = [
   { value: 'H2', label: 'H2' },
   { value: 'H3', label: 'H3' },
   { value: 'H4', label: 'H4' },
-]
-
-export const _periodos = [
-  'Inicial',
-  'Final',
 ];
+
+export const _periodos = ['Inicial', 'Final'];
 
 export const _roles = [
   'Diretor',
@@ -268,16 +265,9 @@ export const _bimestres = [1, 2, 3, 4];
 
 export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
-export const habilidades_options = [
-  'D',
-  'PD',
-  'ND',
-];
+export const habilidades_options = ['D', 'PD', 'ND'];
 
-export const promo_options = [
-  'Rendimento Escolar',
-  'Dispositivo Legal',
-];
+export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -351,7 +341,18 @@ export const _registrosAprendizagemFase = [
     ano_serie: 1,
     turno: 'Matutino',
     escola: 'CMEI PHELIPPE DAOU',
-    turma: 'B',
+    turma: {
+      id: '01ce0d17-9e1d-4fc1-ad90-3ef1f71dab5a',
+      ano_escolar: '1',
+      nome: 'A',
+      status: true,
+      turno: 'VESPERTINO',
+      aluno_turma: [],
+      professor_turma: [],
+      created_at: '2023-01-07 20:00:00',
+      updated_at: '2023-04-04 20:00:00',
+      deleted_at: null,
+    },
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
@@ -365,7 +366,17 @@ export const _registrosAprendizagemFase = [
     ano_serie: 2,
     turno: 'Vespertino',
     escola: 'CMEI PHELIPPE DAOU',
-    turma: 'B',
+    turma: {
+      id: 'e019006c-f490-4c6e-a89c-829fe6c74c64',
+      ano_escolar: '2',
+      nome: 'B',
+      status: true,
+      turno: 'MATUTINO',
+      professor_turma: [],
+      created_at: '2023-07-04 20:00:00',
+      updated_at: '2023-03-14 20:00:00',
+      deleted_at: null,
+    },
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
@@ -379,7 +390,17 @@ export const _registrosAprendizagemFase = [
     ano_serie: 3,
     turno: 'Noturno',
     escola: 'CMEI PHELIPPE DAOU',
-    turma: 'C',
+    turma: {
+      id: '13730ef0-af84-4c9d-8dc6-e3a89e7278bf',
+      ano_escolar: '3',
+      nome: 'C',
+      status: true,
+      turno: 'VERPERTINO',
+      professor_turma: [],
+      created_at: '2022-10-18 20:00:00',
+      updated_at: '2023-01-02 20:00:00',
+      deleted_at: null,
+    },
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
@@ -406,7 +427,6 @@ export const _registrosAprendizagemComponente = [
   },
 ];
 
-
 export const _registrosAprendizagemFaseUnicaRegistros = [
   {
     id: 17684176,
@@ -431,7 +451,7 @@ export const _registrosAprendizagemFaseUnicaRegistros = [
     created_at: Date(),
     updated_at: Date(),
     deleted_at: Date(),
-  }
+  },
 ];
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];

@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
@@ -11,6 +10,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
+import { useFormContext, Controller } from 'react-hook-form';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -21,19 +21,15 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
   filters,
   onFilters,
   turmaOptions,
+  turmaSelected,
+  handleChangeTurma,
+  bimestreOptions,
+  bimestreSelected,
+  handleChangeBimestre,
 }) {
-
   const popover = usePopover();
 
-  const handleFilterTurma = useCallback(
-    (event) => {
-      onFilters(
-        'turma',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
+  const { control } = useFormContext();
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -56,40 +52,80 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-
         {turmaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Turma</InputLabel>
           
-          <Select
-            multiple
-            value={filters.turma}
-            onChange={handleFilterTurma}
-            input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {turmaOptions.map((option) => {
-              return (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {option.ano_escolar+'º '+option.nome}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+              <FormControl
+                sx={{
+                  flexShrink: 0,
+                  width: { xs: 1, md: 120 },
+                }}
+              >
+                <InputLabel>Turma</InputLabel>
+
+                <Select
+                  value={turmaSelected}
+                  onChange={(event) => {
+                    handleChangeTurma(event);
+                  }}
+                  input={<OutlinedInput label="Turma" />}
+                  renderValue={(selected) => `${selected.ano_escolar}º ${selected.nome}`}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: { maxHeight: 240 },
+                    },
+                  }}
+                >
+                  {turmaOptions.map((option) => {
+                    return (
+                      <MenuItem key={option.id} value={option}>
+                        {` ${option.ano_escolar}º ${option.nome}`}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
         )}
 
+        {bimestreOptions && (
+          <Controller
+            name="bimestre"
+            control={control}
+            render={({ field, fieldState: { error } }) => (
+              <FormControl
+                sx={{
+                  flexShrink: 0,
+                  width: { xs: 1, md: 120 },
+                }}
+              >
+                <InputLabel>Bimestre</InputLabel>
+
+                <Select
+                  name="bimestre"
+                  value={bimestreSelected}
+                  onChange={(event) => {
+                    handleChangeBimestre(event);
+                    field.onChange(event.target.value);
+                  }}
+                  input={<OutlinedInput label="Bimestre" />}
+                  renderValue={(selected) => `${selected}º`}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: { maxHeight: 240 },
+                    },
+                  }}
+                >
+                  {bimestreOptions.map((option) => {
+                    return (
+                      <MenuItem key={`${option}bimestre`} value={option}>
+                        {`${option}º`}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>
+            )}
+          />
+        )}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
