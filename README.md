@@ -18,3 +18,8 @@ DEV {
 
 
 }
+
+## CONFIG WORKFlOW
+ec2-user@ec2******************
+V2|main
+

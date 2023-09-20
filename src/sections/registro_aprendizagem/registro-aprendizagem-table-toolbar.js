@@ -26,6 +26,10 @@ export default function RegistroAprendizagemTableToolbar({
   bimestreOptions,
   disciplinaOptions,
 }) {
+
+  if(typeof filters.anoEscolar === 'number'){
+    filters.anoEscolar = anoEscolarOptions.filter((item) => item.ano == filters.anoEscolar)[0];
+  }
   const popover = usePopover();
 
   const handleFilterNome = useCallback(
@@ -111,7 +115,7 @@ export default function RegistroAprendizagemTableToolbar({
             input={<OutlinedInput label="Ano Letivo" />}
           >
             {anoEscolarOptions.map((option) => (
-              <MenuItem key={option} value={option}>{option}</MenuItem>
+              <MenuItem key={option.id} value={option}>{option.ano}</MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -131,7 +135,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.escola}
             onChange={handleFilterEscola}
             input={<OutlinedInput label="Escola" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -139,9 +143,9 @@ export default function RegistroAprendizagemTableToolbar({
             }}
           >
             {escolaOptions.map((option) => (
-              <MenuItem key={option} value={option}>
+              <MenuItem key={option.id} value={option}>
                 <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option}
+                {option.nome}
               </MenuItem>
             ))}
           </Select>
@@ -162,7 +166,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.turma}
             onChange={handleFilterTurma}
             input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -171,9 +175,9 @@ export default function RegistroAprendizagemTableToolbar({
           >
             {turmaOptions.map((option) => {
               return (
-                <MenuItem key={option.id} value={option.ano_serie + 'º ' + option.nome}>
-                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option.ano_serie + 'º ' + option.nome)} />
-                  {option.ano_serie + 'º ' + option.nome}
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
+                  {option.nome}
                 </MenuItem>
               );
             })}

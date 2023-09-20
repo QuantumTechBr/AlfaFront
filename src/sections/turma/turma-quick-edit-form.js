@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo } from 'react';
+import { useMemo, useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -15,16 +15,28 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // assets
 import { countries } from 'src/assets/data';
-import { _anos, _escolas, _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
+import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import turmaMethods from '../turma/turma-repository';
+
 // ----------------------------------------------------------------------
 
 export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+  
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+
+  useEffect(() => {
+    buscaEscolas();
+    buscaAnosLetivos();
+  }, [])
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -35,16 +47,19 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const defaultValues = useMemo(
     () => ({
       nome: currentTurma?.nome || '',
-      ano_serie: currentTurma?.ano_serie || '',
+      ano: currentTurma?.ano || '',
+      anoId: currentTurma?.ano?.id || '',
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
+      escolaId: currentTurma.escola.id || '',
       turno: currentTurma?.turno || '',
+      status: currentTurma?.status || ''
     }),
     [currentTurma]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewTurmaSchema),
+    // resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
 
@@ -56,15 +71,29 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
+      var novaTurma = {
+        nome:  data.nome,
+        turno: data.turno,
+        ano_letivo: data.ano_letivo
+      }
+    
+      novaTurma.escola_id = data.escola_id;
+      novaTurma.ano_id = data.ano_id;
+      novaTurma.status = true;
+      novaTurma.ano_escolar = data.ano_escolar;
+
+      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma);
+      reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
+
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
     }
   });
+
 
 
   return (
@@ -92,7 +121,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
             }}
           >
 
-            <RHFSelect name="ano_serie" label="Ano">
+            <RHFSelect name="ano_escolar" label="Ano Escolar">
               {_anosSerie.map((ano) => (
                 <MenuItem key={ano} value={ano}>
                   {ano}°
@@ -108,18 +137,18 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="ano_escolar" label="Ano Escolar">
-              {_anos.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}
+            <RHFSelect name="ano_id" label="Ano Letivo">
+              {anosLetivos.map((ano) => (
+                <MenuItem key={ano.id} value={ano.id}>
+                  {ano.ano}
                 </MenuItem>
               ))}
             </RHFSelect>
 
-            <RHFSelect name="escola" label="Escola">
-              {_escolas.map((escola) => (
-                <MenuItem key={escola} value={escola} >
-                  {escola}
+            <RHFSelect name="escola_id" label="Escola">
+              {escolas.map((escola) => (
+                <MenuItem key={escola.id} value={escola.id} >
+                  {escola.nome}
                 </MenuItem>
               ))}
             </RHFSelect>

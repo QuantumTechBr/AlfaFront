@@ -18,12 +18,13 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _anos, _bimestres, _registrosAprendizagemFase } from 'src/_mock';
+import {_bimestres, _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -54,7 +55,7 @@ const TABLE_HEAD = [
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
   { id: 'bimestre', label: 'Bimestre', width: 80 },
-  { id: 'escola', label: 'Escola'},
+  { id: 'escola', label: 'Escola' },
   { id: '', width: 72 },
 ];
 
@@ -69,14 +70,18 @@ const defaultFilters = {
 
 export default function RegistroAprendizagemFaseListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const {turmas, buscaTurmas} = useContext(TurmasContext);
-  const {escolas, buscaEscolas} = useContext(EscolasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+
+  const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
+    buscaAnosLetivos();
     buscaEscolas();
-    buscaTurmas();
+    buscaTurmas().then(() => setTurmasFiltered(turmas));
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-      //   setRegistroAprendizagemList(response.data);
+    //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
     // });
     setRegistroAprendizagemList(_registrosAprendizagemFase);
@@ -112,8 +117,20 @@ export default function RegistroAprendizagemFaseListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
+  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+
   const handleFilters = useCallback(
     (nome, value) => {
+      if (nome == 'escola') {
+        if (value.length == 0) {
+          setTurmasFiltered(turmas);
+        } else {
+          var filtered = turmas.filter((turma) =>
+            value.map((escola) => escola.id).includes(turma.escola.id)
+          );
+          setTurmasFiltered(filtered);
+        }
+      }
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -166,7 +183,9 @@ export default function RegistroAprendizagemFaseListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação de Fases do Desenvolvimento da Leitura e da Escrita</Typography>
+          <Typography variant="h4">
+            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+          </Typography>
           <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_fase}
@@ -184,9 +203,9 @@ export default function RegistroAprendizagemFaseListView() {
           <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={_anos}
+            anoEscolarOptions={anosLetivos}
             escolaOptions={escolas}
-            turmaOptions={turmas}
+            turmaOptions={_turmasFiltered}
             bimestreOptions={_bimestres}
           />
 
@@ -323,11 +342,15 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (escola.length) {
-    inputData = inputData.filter((item) => escola.includes(item.escola));
+    inputData = inputData.filter((item) =>
+      escola.map((baseItem) => baseItem.nome).includes(item.escola)
+    );
   }
-  
+
   if (turma.length) {
-    inputData = inputData.filter((item) => turma.includes(item.ano_serie + 'º ' + item.turma));
+    inputData = inputData.filter((item) =>
+      turma.map((baseItem) => baseItem.nome).includes(item.turma)
+    );
   }
 
   if (bimestre.length) {

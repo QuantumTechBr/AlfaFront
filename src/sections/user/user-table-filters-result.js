@@ -14,12 +14,29 @@ import Iconify from 'src/components/iconify';
 export default function UserTableFiltersResult({
   filters,
   onFilters,
-  //
   onResetFilters,
-  //
   results,
+  roleOptions,
+  escolaOptions,
   ...other
 }) {
+
+  const funcoesSelecionadas = [];
+  const escolasSelecionadas = [];
+
+  roleOptions.map((funcao) => {
+    if(filters.role?.includes(funcao.id)) {
+      funcoesSelecionadas.push(funcao)
+    }
+  })
+
+  escolaOptions.map((escola) => {
+    if(filters.escola?.includes(escola.id)) {
+      escolasSelecionadas.push(escola)
+    }
+  })
+
+
   const handleRemoveStatus = () => {
     onFilters('status', 'all');
   };
@@ -43,6 +60,8 @@ export default function UserTableFiltersResult({
     onFilters('escola', newValue);
   };
 
+
+
   return (
     <Stack spacing={1.5} {...other}>
       <Box sx={{ typography: 'body2' }}>
@@ -65,10 +84,10 @@ export default function UserTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.role.length && (
+        {!!funcoesSelecionadas.length && (
           <Block label="Função:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
+            {funcoesSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveRole(item.id)} />
             ))}
           </Block>
         )}
@@ -83,8 +102,8 @@ export default function UserTableFiltersResult({
 
         {!!filters.escola.length && (
           <Block label="Escola:">
-            {filters.escola.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
+            {escolasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
             ))}
           </Block>
         )}
