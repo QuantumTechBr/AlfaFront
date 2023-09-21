@@ -62,7 +62,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoEscolar: new Date().getFullYear(),
+  anoLetivo: '',
   escola: [],
   turma: [],
 };
@@ -74,60 +74,84 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
-  
-  const [ turmasComDiagnosticoInicial, setTurmasComDiagnosticoInicial ] = useState([]);
-  const [ turmasComDiagnosticoFinal, setTurmasComDiagnosticoFinal ] = useState([]);
+
+  const [turmasComRegistro, setTurmasComRegistro] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
+  const table = useTable();
+  const settings = useSettingsContext();
+  const router = useRouter();
+  const confirm = useBoolean();
+  const [tableData, setTableData] = useState([]);
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const preparacaoInicial = async () => {
+    preencheTabela();
+    await Promise.all([buscaAnosLetivos(), buscaEscolas(), buscaTurmas()]);
+  };
   useEffect(() => {
     console.log('useEffect DIAGNOSTICO LIST VIEW');
-    buscaAnosLetivos();
-    buscaEscolas();
-    setTableData([]);
+    preparacaoInicial();
+  }, [setTableData]);
+
+  const preencheTabela = () => {
+    console.log('preencheTabela DIAGNOSTICO LIST VIEW 1');
     const promisesList = [];
-    let turmasRegistroInicial = []
-    let turmasRegistroFinal = []
-    const buscaTurmasPromise = buscaTurmas().then(turmasBusca => {
-      setTurmasFiltered(turmasBusca);
-      const buscaPeriodoInicial = registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemDiagnostico({periodo: 'Inicial'}).then(listaIdsTurmas => {
-        if (listaIdsTurmas.data.length){
-          turmasRegistroInicial = turmasBusca.filter(turma => listaIdsTurmas.data.includes(turma.id));
-          turmasRegistroInicial.map(turma => turma.tipo='Inicial')
-          setTurmasComDiagnosticoInicial(turmasRegistroInicial);
-        }
-      });
+    let turmasRegistroInicial = [];
+    let turmasRegistroFinal = [];
+    if (!!turmas && turmas.length) {
+      console.log('preencheTabela DIAGNOSTICO LIST VIEW 2');
+
+      setTurmasFiltered(turmas);
+      let turmasComRegistroNovo = [];
+      const buscaPeriodoInicial = registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
+        .then((listaIdsTurmas) => {
+          if (listaIdsTurmas.data.length) {
+            turmasRegistroInicial = turmas.filter((turma) =>
+              listaIdsTurmas.data.includes(turma.id)
+            );
+            turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
+              const retorno = { ...turma };
+              retorno.tipo = 'Inicial';
+              return retorno;
+            });
+            turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
+          }
+        });
       promisesList.push(buscaPeriodoInicial);
-      const buscaPeriodoFinal = registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemDiagnostico({periodo: 'Final'}).then(listaIdsTurmas => {
-        if (listaIdsTurmas.data.length){
-          turmasRegistroFinal = turmasBusca.filter(turma => listaIdsTurmas.data.includes(turma.id))
-          turmasRegistroFinal.map(turma => turma.tipo='Final')
-          setTurmasComDiagnosticoFinal(turmasRegistroFinal)
-        }
-      });
+      const buscaPeriodoFinal = registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Final' })
+        .then((listaIdsTurmas) => {
+          if (listaIdsTurmas.data.length) {
+            turmasRegistroFinal = turmas.filter((turma) => listaIdsTurmas.data.includes(turma.id));
+            turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
+              const retorno = { ...turma };
+              retorno.tipo = 'Final';
+              return retorno;
+            });
+            turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
+          }
+        });
       promisesList.push(buscaPeriodoFinal);
       Promise.all(promisesList).then(() => {
         console.log(turmasRegistroInicial);
         console.log(turmasRegistroFinal);
-        setTableData([...turmasRegistroInicial, ...turmasRegistroFinal])
-      })
-    });
-  }, []);
+        setTurmasComRegistro(turmasComRegistroNovo);
+        setTableData(turmasComRegistroNovo);
+        setTurmasFiltered(turmasComRegistroNovo);
+      });
+    }
+  };
 
-  const table = useTable();
-
-  const settings = useSettingsContext();
-
-  const router = useRouter();
-
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
+  useEffect(() => {
+    console.log('useEffect promises DIAGNOSTICO LIST VIEW 1');
+    preencheTabela();
+  }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
+    // comparator: getComparator(table.order, table.orderBy),
     filters,
   });
 
@@ -165,26 +189,26 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
+  // const handleDeleteRow = useCallback(
+  //   (id) => {
+  //     const deleteRow = tableData.filter((row) => row.id !== id);
+  //     setTableData(deleteRow);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+  //     table.onUpdatePageDeleteRow(dataInPage.length);
+  //   },
+  //   [dataInPage.length, table, tableData]
+  // );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+  // const handleDeleteRows = useCallback(() => {
+  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+  //   setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  //   table.onUpdatePageDeleteRows({
+  //     totalRows: tableData.length,
+  //     totalRowsInPage: dataInPage.length,
+  //     totalRowsFiltered: dataFiltered.length,
+  //   });
+  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -199,9 +223,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const novaAvaliacao = useBoolean();
 
-  const closeNovaAvaliacao = (retorno=null) => {
+  const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
-  }
+  };
 
   return (
     <>
@@ -230,15 +254,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
-          <RegistroAprendizagemTableToolbar
+          {/* <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={anosLetivos}
-            turmaOptions={_turmasFiltered}
-            escolaOptions={escolas}
-          />
+            // anoLetivoOptions={anosLetivos}
+            // turmaOptions={_turmasFiltered}
+            // escolaOptions={escolas}
+          /> */}
 
-          {canReset && (
+          {/* {canReset && (
             <RegistroAprendizagemTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
@@ -248,10 +272,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )}
+          )} */}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
+            {/* <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
@@ -268,34 +292,34 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                   </IconButton>
                 </Tooltip>
               }
-            />
+            /> */}
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
+                  // order={table.order}
+                  // orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
+                  // onSelectAllRows={(checked) =>
+                  //   table.onSelectAllRows(
+                  //     checked,
+                  //     tableData.map((row) => row.id)
+                  //   )
+                  // }
                 />
 
                 <TableBody>
                   {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
+                    // .slice(
+                    //   table.page * table.rowsPerPage,
+                    //   table.page * table.rowsPerPage + table.rowsPerPage
+                    // )
                     .map((row) => (
                       <RegistroAprendizagemDiagnosticoTableRow
-                        key={row.id}
+                        key={`${row.id}_${row.periodo}`}
                         row={row}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
@@ -315,14 +339,14 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             </Scrollbar>
           </TableContainer>
 
-          <TablePaginationCustom
+          {/* <TablePaginationCustom
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             dense={false}
-          />
+          /> */}
         </Card>
       </Container>
 
@@ -355,22 +379,24 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma } = filters;
+  const { nome, anoLetivo, escola, turma } = filters;
 
-  if(!inputData) {return []}
+  if (!inputData) {
+    return [];
+  }
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
+  // stabilizedThis.sort((a, b) => {
+  //   const order = comparator(a[0], b[0]);
+  //   if (order !== 0) return order;
+  //   return a[1] - b[1];
+  // });
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
+  if (anoLetivo) {
+    inputData = inputData.filter((item) => item.ano_letivo == anoLetivo.ano);
   }
 
   if (escola.length) {
@@ -387,7 +413,15 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => {
+        if(item.escola.nome.toLowerCase().includes(nome.toLowerCase())) {
+          return true;
+        }
+        if(item.nome.toLowerCase().includes(nome.toLowerCase())){
+          return true;
+        }
+        return false;
+      }
     );
   }
 
