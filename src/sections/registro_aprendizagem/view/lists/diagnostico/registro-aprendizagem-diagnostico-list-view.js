@@ -80,6 +80,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
+    console.log('useEffect DIAGNOSTICO LIST VIEW');
     buscaAnosLetivos();
     buscaEscolas();
     setTableData([]);

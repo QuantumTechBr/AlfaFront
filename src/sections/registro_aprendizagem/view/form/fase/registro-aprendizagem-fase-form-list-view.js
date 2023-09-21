@@ -159,7 +159,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
           _newRegistros[alunoTurmaItem.id] = {
             aluno_nome: alunoTurmaItem.aluno.nome,
-            avaliacao_id: registroEncontrado?.id ?? '',
+            id: registroEncontrado?.id ?? '',
             aluno_turma_id: alunoTurmaItem.id,
             resultado: registroEncontrado?.resultado ?? '',
             observacao: registroEncontrado?.observacao ?? '',
@@ -192,9 +192,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const toSend = Object.values(data.registros).map((formItem) => {
       // console.table(formItem);
       let item = { ...retornoPadrao, ...formItem };
-      item.nome = `${item.nome} - ${item.aluno_nome}`
+      item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
-      delete item.avaliacao_id; // TODO REMOVE - RECEBER NO BANCO PARA UPDATE
       return item;
     });
 
@@ -212,13 +211,15 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   });
 
   useEffect(() => {
+    console.log('useEffect FORM FASE LIST VIEW');
     buscaBimestres();
-    buscaTurmas().then((turmas) => {
+    buscaTurmas().then((_turmas) => {
       if (!!turmaInicial) {
-        if (!!turmas) {
-          const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
+        if (!!_turmas) {
+          const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
+            turmaInicial = _turmaComplete[0];
           }
         }
       }
@@ -228,11 +229,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
           if (_bimestreComplete && !!_bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
+            bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (!!turmaInicial && !!bimestreInicial) getRegistros();
+      if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     });
   }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 

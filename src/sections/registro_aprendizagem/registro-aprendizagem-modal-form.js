@@ -38,6 +38,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
+    console.log('useEffect MODAL');
     buscaTurmas();
     buscaBimestres();
   }, [buscaTurmas, buscaBimestres]);
