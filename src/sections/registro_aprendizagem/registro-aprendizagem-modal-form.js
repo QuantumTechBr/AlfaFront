@@ -19,7 +19,8 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 
 // _mock
-import { _tiposAvaliacao, _periodos } from 'src/_mock';
+import { _tiposAvaliacao, 
+  _periodos } from 'src/_mock';
 
 // components
 import FormProvider, { RHFMultiSelect, RHFSelect } from 'src/components/hook-form';
