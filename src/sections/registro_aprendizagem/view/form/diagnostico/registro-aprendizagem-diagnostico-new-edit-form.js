@@ -106,30 +106,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     formState: { isSubmitting },
   } = methods;
 
-  // const defineDefaultValues = (alunosTurma) => {
-  //   console.log('fora')
-  //   if (alunosTurma.length) {
-  //     console.log('dentro')
-  //     //console.log(alunosTurmaEdit);
-  //     //console.log('1. new edit form - alunosTurma:', alunosTurma);
-  //     const novosRegistros = [];
-  //     alunosTurma.forEach((alunoTurma) => {
-  //       novosRegistros[alunoTurma.id] = {
-  //         habilidades_registro_aprendizagem: alunoTurma.mapHabilidades,
-  //         id_aluno_turma: alunoTurma.id,
-  //         promo_ano_anterior: alunoTurma.promo_ano_anterior,
-  //       }
-  //       //console.log('novosRegistros', novosRegistros);
-  //       //setDefaultValues(novosRegistros);
-  //       //setValue('registros', novosRegistros); 
-  //       })
-  //       console.log('novosRegistros', novosRegistros);
-  //       setValue('registros', novosRegistros);
-  //     return novosRegistros;
-  //   }
-  // }
-
-
   useEffect(() => {
     console.log('1. new edit form - alunosTurma:', alunosTurma);
     if (alunosTurma.length) {

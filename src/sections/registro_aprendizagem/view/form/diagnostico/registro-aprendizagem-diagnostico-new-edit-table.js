@@ -49,6 +49,7 @@ import RegistroAprendizagemDiagnosticoNewEditTableToolbar from './registro-apren
 import { promo_options } from 'src/_mock';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import InfoIcon from '@mui/icons-material/Info';
+import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 
@@ -65,14 +66,16 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
   const labelHabilidade = (habilidade) => {
     const { nome, descricao } = habilidade;
     return (
-      <Tooltip title={descricao}>
-       {nome} 
-       <InfoIcon 
-          sx={{
-            fontSize: 'large',
-          }}
-        />
-      </Tooltip>
+        <Box>
+          {nome}
+          <Tooltip title={descricao}>
+          <InfoIcon 
+              sx={{
+                fontSize: 'large',
+              }}
+            />
+          </Tooltip>
+        </Box>
     );
   };
 
@@ -82,7 +85,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
         { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
     ];
     for (var i = 0; i < habilidades.length; i++) {
-      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 88 });
+      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 120 });
     }
     setTableHead(cabecalho);
     const tableData = (alunosTurma == undefined) ? [] : alunosTurma;
