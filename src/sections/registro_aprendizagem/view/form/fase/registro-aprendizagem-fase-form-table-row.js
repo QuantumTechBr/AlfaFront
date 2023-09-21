@@ -32,7 +32,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
             <span>{row.aluno.nome}</span>
           </Tooltip>
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].aluno_nome'} />
-          <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].id'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].aluno_turma_id'} />
         </TableCell>
         {Object.values(RegistroAprendizagemFases).map((tipoFaseValue) => {

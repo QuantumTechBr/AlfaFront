@@ -159,7 +159,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
           _newRegistros[alunoTurmaItem.id] = {
             aluno_nome: alunoTurmaItem.aluno.nome,
-            avaliacao_id: registroEncontrado?.id ?? '',
+            id: registroEncontrado?.id ?? '',
             aluno_turma_id: alunoTurmaItem.id,
             resultado: registroEncontrado?.resultado ?? '',
             observacao: registroEncontrado?.observacao ?? '',
@@ -194,7 +194,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       let item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
-      delete item.avaliacao_id; // TODO REMOVE - RECEBER NO BANCO PARA UPDATE
       return item;
     });
 
