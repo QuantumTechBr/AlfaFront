@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useCallback, useMemo, useState } from 'react';
+import { useEffect, useCallback, useMemo, useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -13,67 +13,31 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
+
 // _mock
 import { _habilidades, _disciplinas, _periodos, _bimestres, _roles, USER_STATUS_OPTIONS, _ddzs, _tiposAvaliacao } from 'src/_mock';
-// assets
-import { countries } from 'src/assets/data';
+
 // components
-import Iconify from 'src/components/iconify';
-import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFMultiSelect, RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-import { useBoolean } from 'src/hooks/use-boolean';
+import FormProvider, { RHFMultiSelect, RHFSelect } from 'src/components/hook-form';
+
 import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';
-import turmaMethods from '../turma/turma-repository';
-import disciplinaMethods from '../disciplina/disciplina-repository';
-import habilidadeMethods from '../habilidade/habilidade-repository';
-import ReactHookForm from '../_examples/extra/form-validation-view/react-hook-form';
 
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
 export default function NovaAvaliacaoForm({ open, onClose }) {
-  const { enqueueSnackbar } = useSnackbar();
+  const router = useRouter();
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
-
-  const [turmaList, setTurmaList] = useState([]);
-  const [habilidadeList, setHabilidadeList] = useState([]);
   useEffect(() => {
-    turmaMethods.getAllTurmas().then(turmas => {
-      setTurmaList(turmas.data);
-    });
-    //  habilidadeMethods.getAllHabilidades().then(habilidades => {
-    //    setHabilidadeList(habilidades.data);
-    //    console.log(habilidades);
-    //   let opcoesHabilidade = [];
-    //   for (var i = 0; i < habilidades.data.length; i++) {
-    //     opcoesHabilidade[i] = {
-    //       id: habilidades.data[i].id,
-    //       nome: habilidades.data[i].nome,
-    //     };
-    //   };
-    //})
-  }, []);
-
-  //console.log(disciplinaList);
-  const [tipoAvaliacao, setTipoAvaliacao] = useState('');
-  const [turma, setTurma] = useState('');
-  const [bimestre, setBimestre] = useState('');
-  const [disciplina, setDisciplina] = useState('');
-  const [habilidades, setHabilidades] = useState([]);
-  const [nomeAvaliacao, setNomeAvaliacao] = useState('');
-  const [periodo, setPeriodo] = useState('');
-
-  const tipoFase = useBoolean(false);
-  const tipoComponente = useBoolean(false);
-  const tipoDiagnostico = useBoolean(false);
-  const turmaDefinida = useBoolean(false);
-  const bimestreDefinido = useBoolean(false);
-  const disciplinaDefinida = useBoolean(false);
-  const habilidadeDefinida = useBoolean(false);
-  const botaoAvancar = useBoolean(false);
-  const nomeAvaliacaoDefinida = useBoolean(false);
-  const periodoDefinido = useBoolean(false);
+    buscaTurmas();
+  }, [buscaTurmas]);
 
   const defaultValues = useMemo(
     () => ({
@@ -82,8 +46,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
       habilidades: [],
       disciplina: '',
       periodo: '',
-      nomeAvaliacao: '',
-      teste: [],
     }),
     []
   );
@@ -97,167 +59,63 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
     reset,
     handleSubmit,
     setValue,
+    watch,
     formState: { isSubmitting },
   } = methods;
 
-  const handleTipoAvaliacao = useCallback ((event) => {
-    if (event.target.value == 'Avaliação de Fase') {
-        tipoComponente.onFalse();
-        tipoDiagnostico.onFalse();
-        setTurma('');
-        turmaDefinida.onFalse();
-        setBimestre('');
-        bimestreDefinido.onFalse();
-        setDisciplina('');
-        disciplinaDefinida.onFalse();
-        setValue('habilidades', []);
-        setHabilidades([]);
-        habilidadeDefinida.onFalse;
-        setNomeAvaliacao('');
-        nomeAvaliacaoDefinida.onFalse();
-        setPeriodo('');
-        periodoDefinido.onFalse();
-        botaoAvancar.onFalse();
-        setTipoAvaliacao(event.target.value);
-        tipoFase.onTrue();
-    } else if (event.target.value == 'Avaliação de Componente Curricular') {
-        tipoDiagnostico.onFalse();
-        tipoFase.onFalse();
-        setTurma('');
-        turmaDefinida.onFalse();
-        setBimestre('');
-        bimestreDefinido.onFalse();
-        setDisciplina('');
-        disciplinaDefinida.onFalse();
-        setValue('habilidades', []);
-        setHabilidades([]);
-        habilidadeDefinida.onFalse;
-        setNomeAvaliacao('');
-        nomeAvaliacaoDefinida.onFalse();
-        setPeriodo('');
-        periodoDefinido.onFalse();
-        botaoAvancar.onFalse();
-        setTipoAvaliacao(event.target.value);
-        tipoComponente.onTrue();
-    } else {
-        tipoFase.onFalse();
-        tipoComponente.onFalse();
-        setTurma('');
-        turmaDefinida.onFalse();
-        setBimestre('');
-        bimestreDefinido.onFalse();
-        setDisciplina('');
-        disciplinaDefinida.onFalse();
-        setValue('habilidades', []);
-        setHabilidades([]);
-        habilidadeDefinida.onFalse;
-        setNomeAvaliacao('');
-        nomeAvaliacaoDefinida.onFalse();
-        setPeriodo('');
-        periodoDefinido.onFalse();
-        botaoAvancar.onFalse();
-        setTipoAvaliacao(event.target.value);
-        tipoDiagnostico.onTrue();
-    }
-  }, [tipoComponente, tipoDiagnostico, tipoFase, turmaDefinida, botaoAvancar, disciplinaDefinida, habilidadeDefinida, nomeAvaliacaoDefinida, periodoDefinido]);
+  useEffect(() => {
+    const subscription = watch((values, { name, type }) => {
+      // console.log(name, type);
+      // console.table(values);
 
-  const handleTurma = useCallback ((event) => {
-    setBimestre('');
-    bimestreDefinido.onFalse();
-    setDisciplina('');
-    disciplinaDefinida.onFalse();
-    botaoAvancar.onFalse();
-    setTurma(event.target.value);
-    turmaDefinida.onTrue();
-    if (tipoDiagnostico.value && periodoDefinido.value) {
-      botaoAvancar.onTrue()
-    }
-  }, [turmaDefinida, bimestreDefinido, botaoAvancar, disciplinaDefinida]);
+      if (type == 'change' && name == 'tipo') {
+        if (values.turma != '') setValue('turma', '');
+        if (values.bimestre != '') setValue('bimestre', '');
+        if (values.habilidades.length) setValue('habilidades', []);
+        if (values.periodo != '') setValue('periodo', '');
+      }
 
-  const handleBimestre = useCallback ((event) => {
-    setBimestre(event.target.value);
-    bimestreDefinido.onTrue();
-    if (tipoFase.value && turmaDefinida.value) {
-      botaoAvancar.onTrue()
-    }
-  }, [bimestreDefinido, botaoAvancar]);
+      // if (type == 'change' && name == 'turma') {
+      //   if (values.bimestre != '') setValue('bimestre', '');
+      //   if (values.habilidades.length) setValue('habilidades', []);
+      // }
+    });
 
-  const handleDisciplina = useCallback ((event) => {
-    setDisciplina(event.target.value);
-    disciplinaDefinida.onTrue();
-    setValue('habilidades', event.target.value);
-    setHabilidades([]);
-    habilidadeDefinida.onFalse();
-    setNomeAvaliacao('');
-    nomeAvaliacaoDefinida.onFalse();
-    botaoAvancar.onFalse();
-  }, [disciplinaDefinida, habilidadeDefinida, botaoAvancar, nomeAvaliacaoDefinida]);
+    return () => subscription.unsubscribe();
+  }, [setValue, watch]);
 
-  const handleHabilidade = useCallback((event) => {
-    setValue('habilidades', event.target.value);
-    setHabilidades(event.target.value);
-    habilidadeDefinida.onTrue();
-    setNomeAvaliacao('');
-    nomeAvaliacaoDefinida.onFalse();
-    botaoAvancar.onFalse();
-  }, [setValue, habilidadeDefinida, botaoAvancar, disciplinaDefinida, nomeAvaliacaoDefinida]);
+  const values = watch();
 
-  const handleNomeAvaliacao = useCallback((event) => {
-    setNomeAvaliacao(event.target.value);
-    nomeAvaliacaoDefinida.onTrue();
-    if (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value && habilidadeDefinida.value) {
-      botaoAvancar.onTrue()
-    }
-  }, [nomeAvaliacaoDefinida, botaoAvancar]);
+  const { tipo, turma, periodo, bimestre, habilidades } = values;
 
-  const handlePeriodo = useCallback((event) => {
-    setPeriodo(event.target.value);
-    periodoDefinido.onTrue();
-    setTurma('');
-    turmaDefinida.onFalse();
-    botaoAvancar.onFalse();
-  }, [turmaDefinida, periodoDefinido, botaoAvancar]);
-
-  const NewUserSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
-    senha: Yup.string(),
-    funcao_usuario: Yup.string(),
-    escola: Yup.string(),
-  });
-
-  const currentUser = [];
-  // console.log(habilidades);
-  
+  const podeAvancar =
+    (tipo == 'Avaliação de Fase' && turma && bimestre) ||
+    (tipo == 'Avaliação de Diagnóstico' && periodo && turma && habilidades.length > 0);
 
   const selectTurma = () => {
     return (
-      <RHFSelect name="turma" label="Turma" onChange={handleTurma} value={turma} > 
-        {turmaList.map((turma) => (
+      <RHFSelect name="turma" label="Turma">
+        {turmas.map((turma) => (
           <MenuItem key={turma.id} value={turma.id}>
-           {turma.nome}
+            {turma.ano_serie}º {turma.nome}
           </MenuItem>
-        ))}  
+        ))}
       </RHFSelect>
-    )
-  }
+    );
+  };
 
   const onSubmit = handleSubmit(async (data) => {
-    if (tipoFase.value) {
-      console.log(data);
-    } else if (tipoComponente.value) {
-      console.log(data);
-    } else {
-      console.log(data);
-    }
     try {
-      //await userMethods.updateUserById(currentUser.id, novoUsuario);   
-      //reset() 
-      //onClose();
-      //enqueueSnackbar('Atualizado com sucesso!');
-      //window.location.reload();
-
-      console.info('DATA', data);
+      if (tipo == 'Avaliação de Fase') {
+        router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
+      } else if (tipo == 'Avaliação de Diagnóstico') {
+        router.push(
+          paths.dashboard.registro_aprendizagem.edit_diagnostico(periodo, turma, habilidades.map((hab) => hab.id).join(','))
+        );
+      } else {
+        console.info('DATA', data);
+        throw 'Tipo não implementado';
+      }
     } catch (error) {
       console.error(error);
     }
@@ -290,80 +148,65 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
         <DialogContent>
           <br></br>
-          <Box
-            rowGap={3}
-            display="grid"
-          >
-
-            <RHFSelect name="tipo" label="Tipo" onChange={handleTipoAvaliacao} value={tipoAvaliacao} multiple>
+          <Box rowGap={3} display="grid">
+            <RHFSelect name="tipo" label="Tipo" multiple>
               {_tiposAvaliacao.map((tipo_avaliacao) => (
-                <MenuItem key={tipo_avaliacao} value={tipo_avaliacao} >
+                <MenuItem key={tipo_avaliacao} value={tipo_avaliacao}>
                   {tipo_avaliacao}
                 </MenuItem>
               ))}
             </RHFSelect>
 
-            { tipoFase.value && ( selectTurma() ) }
+            {/* FASE */}
+            {tipo == 'Avaliação de Fase' && selectTurma()}
 
-            { tipoComponente.value && ( selectTurma() ) }
-
-            { tipoDiagnostico.value && (<RHFSelect name="periodo" label="Período" onChange={handlePeriodo} value={periodo}> 
-              {_periodos.map((periodo) => (
-                <MenuItem key={periodo} value={periodo}>
-                  {periodo}
-                </MenuItem>
-              ))}
+            {tipo == 'Avaliação de Fase' && turma && (
+              <RHFSelect name="bimestre" label="Bimestre" value={bimestre}>
+                {_bimestres.map((bimestre) => (
+                  <MenuItem key={bimestre} value={bimestre}>
+                    {`${bimestre}º Bimestre`}
+                  </MenuItem>
+                ))}
               </RHFSelect>
             )}
 
-            { (tipoFase.value && turmaDefinida.value) && (
-              <RHFSelect name="bimestre" label="Bimestre" onChange={handleBimestre} value={bimestre}> 
-              {_bimestres.map((bimestre) => (
-                <MenuItem key={bimestre} value={bimestre}>
-                  {bimestre}
-                </MenuItem>
-              ))}
-              </RHFSelect>
-            ) }
-
-            { (tipoComponente.value && turmaDefinida.value) && (
-              <RHFSelect name="disciplina" label="Disciplina" onChange={handleDisciplina} value={disciplina}> 
-              {_disciplinas.map((disciplina) => (
-                <MenuItem key={disciplina} value={disciplina}>
-                  {disciplina}
-                </MenuItem>
-              ))}
+            {/* DIAGNOSTICO */}
+            {tipo == 'Avaliação de Diagnóstico' && (
+              <RHFSelect name="periodo" label="Período" value={periodo}>
+                {_periodos.map((periodo) => (
+                  <MenuItem key={periodo} value={periodo}>
+                    {periodo}
+                  </MenuItem>
+                ))}
               </RHFSelect>
             )}
 
-            { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value) && (
-            <RHFMultiSelect
-              chip
-              checkbox
-              name="habilidades"
-              label="Habilidades"
-              options={_habilidades}
-              value={habilidades}
-              onChange={handleHabilidade}
-            /> 
-            ) }
+            {tipo == 'Avaliação de Diagnóstico' && periodo && selectTurma()}
 
-            { (tipoComponente.value && turmaDefinida.value && disciplinaDefinida.value && habilidadeDefinida.value) && (
-               <RHFTextField name="nomeAvaliacao" label="Digite o nome da avaliação" onChange={handleNomeAvaliacao} value={nomeAvaliacao}/>
-            ) }
-
-          { (tipoDiagnostico.value && periodoDefinido.value) && (selectTurma()) }
-
+            {tipo == 'Avaliação de Diagnóstico' && periodo && turma && (
+              <RHFMultiSelect
+                chip
+                checkbox
+                name="habilidades"
+                label="Habilidades"
+                options={_habilidades}
+                value={habilidades}
+              />
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
-        {botaoAvancar.value && (
-            <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
+          {/* {!podeAvancar && (
+            <Button variant="contained" color="primary" disabled={true}>
               Avançar
-            </LoadingButton>   
-        )}
+            </Button>
+          )} */}
+          
+            <LoadingButton disabled={!podeAvancar} type="submit" variant="contained" color="primary" loading={isSubmitting}>
+              Avançar
+            </LoadingButton>
+          
         </DialogActions>
-
       </FormProvider>
     </Dialog>
   );
