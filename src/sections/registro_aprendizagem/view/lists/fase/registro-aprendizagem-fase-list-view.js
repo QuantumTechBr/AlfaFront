@@ -18,13 +18,14 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _bimestres, _registrosAprendizagemFase } from 'src/_mock';
+import { _registrosAprendizagemFase } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -69,9 +70,10 @@ const defaultFilters = {
 
 export default function RegistroAprendizagemFaseListView() {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
@@ -79,6 +81,7 @@ export default function RegistroAprendizagemFaseListView() {
     buscaAnosLetivos();
     buscaEscolas();
     buscaTurmas().then(() => setTurmasFiltered(turmas));
+    buscaBimestres();
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -171,12 +174,11 @@ export default function RegistroAprendizagemFaseListView() {
     setFilters(defaultFilters);
   }, []);
 
-  
   const novaAvaliacao = useBoolean();
 
-  const closeNovaAvaliacao = (retorno=null) => {
+  const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
-  }
+  };
 
   return (
     <>
@@ -213,7 +215,7 @@ export default function RegistroAprendizagemFaseListView() {
             anoEscolarOptions={anosLetivos}
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
-            bimestreOptions={_bimestres}
+            bimestreOptions={bimestres}
           />
 
           {canReset && (
@@ -278,7 +280,7 @@ export default function RegistroAprendizagemFaseListView() {
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.turma, row.bimestre)}
+                        onEditRow={() => handleEditRow(row.turma.id, row.bimestre.id)}
                       />
                     ))}
 
@@ -361,7 +363,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (bimestre.length) {
-    inputData = inputData.filter((item) => bimestre.includes(`${item.bimestre} º`));
+    inputData = inputData.filter((item) => bimestre.includes(item.bimestre));
   }
 
   if (nome) {

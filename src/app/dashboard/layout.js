@@ -10,6 +10,7 @@ import { AnosLetivosProvider } from 'src/sections/ano_letivo/context/ano-letivo-
 import { EscolasProvider } from 'src/sections/escola/context/escola-context';
 import { FuncoesProvider } from 'src/sections/funcao/context/funcao-context';
 import { TurmasProvider } from 'src/sections/turma/context/turma-context';
+import { BimestresProvider } from 'src/sections/bimestre/context/bimestre-context';
 // ----------------------------------------------------------------------
 
 export default function Layout({ children }) {
@@ -19,7 +20,9 @@ export default function Layout({ children }) {
         <EscolasProvider>
           <FuncoesProvider>
             <TurmasProvider>
-              <DashboardLayout>{children}</DashboardLayout>
+              <BimestresProvider>
+                <DashboardLayout>{children}</DashboardLayout>
+              </BimestresProvider>
             </TurmasProvider>
           </FuncoesProvider>
         </EscolasProvider>

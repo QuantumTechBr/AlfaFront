@@ -68,6 +68,13 @@ export const endpoints = {
     confirm_password: '/api/v1/password_reset/confirm',
     validate_token: '/api/v1/password_reset/validate_token',
   },
+  bimestre: {
+    list: '/api/v1/bimestres/',
+    post: '/api/v1/bimestres',
+    get_by_id: '/api/v1/bimestres/',
+    update: '/api/v1/bimestres/',
+    delete: '/api/v1/bimestres/',
+  },
   calendario: {
     list: '/api/v1/calendarios/',
     post: '/api/v1/calendarios',

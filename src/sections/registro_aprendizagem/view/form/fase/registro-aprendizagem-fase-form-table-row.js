@@ -15,31 +15,34 @@ import { RegistroAprendizagemFases } from 'src/_mock';
 
 //
 import { FormControl, TextField } from '@mui/material';
+import { slugify } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormTableRow({ row }) {
-  const { id, aluno } = row;
-
+export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
+  // console.log(row);
+  const { id: aluno_turma_id, aluno } = row;
   const { control } = useFormContext();
 
   return (
     <>
       <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
-          <Tooltip key={id} title={'Registro único da avaliação: ' + id}>
-            <span>{aluno.nome}</span>
+          <Tooltip key={`tooltip_${aluno_turma_id}`} title={'Registro único da avaliação: ' + aluno_turma_id}>
+            <span>{row.aluno.nome}</span>
           </Tooltip>
-          <RHFTextField sx={{ display: 'none' }} name={'registros[' + id + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: '' }} name={'registros[' + aluno_turma_id + '].aluno_nome'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].aluno_turma_id'} />
         </TableCell>
         {Object.values(RegistroAprendizagemFases).map((tipoFaseValue) => {
           return (
             <TableCell
-              key={id + '_resultado'}
+              key={`resultado_${slugify(tipoFaseValue)}_{${aluno_turma_id}`}
               sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
             >
               <Controller
-                name={'registros[' + id + '].resultado'}
+                name={'registros[' + aluno_turma_id + '].resultado'}
                 control={control}
                 render={({ field, fieldState: { error } }) => (
                   <Checkbox
@@ -56,7 +59,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row }) {
           );
         })}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          <RHFTextField name={`registros[` + id + `].observacao`} label="" />
+          <RHFTextField name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>
       </TableRow>
     </>

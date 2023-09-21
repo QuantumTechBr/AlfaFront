@@ -53,7 +53,10 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
         }}
       >
         {turmaOptions && (
-          
+          <Controller
+            name="turma"
+            control={control}
+            render={({ field, fieldState: { error } }) => (
               <FormControl
                 sx={{
                   flexShrink: 0,
@@ -63,10 +66,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 <InputLabel>Turma</InputLabel>
 
                 <Select
-                  value={turmaSelected}
-                  onChange={(event) => {
-                    handleChangeTurma(event);
-                  }}
+                  {...field}
                   input={<OutlinedInput label="Turma" />}
                   renderValue={(selected) => `${selected.ano_escolar}º ${selected.nome}`}
                   MenuProps={{
@@ -84,6 +84,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                   })}
                 </Select>
               </FormControl>
+            )}
+          />
         )}
 
         {bimestreOptions && (
@@ -100,14 +102,9 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 <InputLabel>Bimestre</InputLabel>
 
                 <Select
-                  name="bimestre"
-                  value={bimestreSelected}
-                  onChange={(event) => {
-                    handleChangeBimestre(event);
-                    field.onChange(event.target.value);
-                  }}
+                  {...field}
                   input={<OutlinedInput label="Bimestre" />}
-                  renderValue={(selected) => `${selected}º`}
+                  renderValue={(selected) => `${selected.ordinal}º`}
                   MenuProps={{
                     PaperProps: {
                       sx: { maxHeight: 240 },
@@ -116,8 +113,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 >
                   {bimestreOptions.map((option) => {
                     return (
-                      <MenuItem key={`${option}bimestre`} value={option}>
-                        {`${option}º`}
+                      <MenuItem key={`bimestre_${option.id}`} value={option}>
+                        {`${option.ordinal}º`}
                       </MenuItem>
                     );
                   })}
