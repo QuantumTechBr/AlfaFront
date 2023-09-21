@@ -19,15 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 
 // _mock
-import {
-  _periodos,
-  _bimestres,
-  _roles,
-  USER_STATUS_OPTIONS,
-  _ddzs,
-  _escolas,
-  _tiposAvaliacao,
-} from 'src/_mock';
+import { _tiposAvaliacao, _periodos } from 'src/_mock';
 
 // components
 import FormProvider, { RHFMultiSelect, RHFSelect } from 'src/components/hook-form';
@@ -36,16 +28,19 @@ import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';
 
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
 // ----------------------------------------------------------------------
 
 export default function NovaAvaliacaoForm({ open, onClose }) {
   const router = useRouter();
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
     buscaTurmas();
-  }, [buscaTurmas]);
+    buscaBimestres();
+  }, [buscaTurmas, buscaBimestres]);
 
   const defaultValues = useMemo(
     () => ({
@@ -111,16 +106,12 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (tipo == 'Avaliação de Fase') {
-        const dados = {
-          turma: turma,
-          periodo: periodo,
-        }
         router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
       } else if (tipo == 'Avaliação de Diagnóstico') {
         const dadosDiagnostico = {
           turma: turma,
           periodo: periodo,
-        }
+        };
         sessionStorage.setItem('dadosDiagnosticoTurma', dadosDiagnostico.turma);
         sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
         router.push(paths.dashboard.registro_aprendizagem.new_diagnostico);
@@ -174,9 +165,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
             {tipo == 'Avaliação de Fase' && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
-                {_bimestres.map((bimestre) => (
-                  <MenuItem key={bimestre} value={bimestre}>
-                    {`${bimestre}º Bimestre`}
+                {bimestres.map((bimestre) => (
+                  <MenuItem key={bimestre.id} value={bimestre.id}>
+                    {`${bimestre.ordinal}º Bimestre`}
                   </MenuItem>
                 ))}
               </RHFSelect>
@@ -194,14 +185,18 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             )}
 
             {tipo == 'Avaliação de Diagnóstico' && periodo && selectTurma()}
-
           </Box>
         </DialogContent>
-        <DialogActions>          
-            <LoadingButton disabled={!podeAvancar} type="submit" variant="contained" color="primary" loading={isSubmitting}>
-              Avançar
-            </LoadingButton>
-          
+        <DialogActions>
+          <LoadingButton
+            disabled={!podeAvancar}
+            type="submit"
+            variant="contained"
+            color="primary"
+            loading={isSubmitting}
+          >
+            Avançar
+          </LoadingButton>
         </DialogActions>
       </FormProvider>
     </Dialog>

@@ -104,7 +104,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 <Select
                   {...field}
                   input={<OutlinedInput label="Bimestre" />}
-                  renderValue={(selected) => `${selected}º`}
+                  renderValue={(selected) => `${selected.ordinal}º`}
                   MenuProps={{
                     PaperProps: {
                       sx: { maxHeight: 240 },
@@ -113,8 +113,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 >
                   {bimestreOptions.map((option) => {
                     return (
-                      <MenuItem key={`${option}bimestre`} value={option}>
-                        {`${option}º`}
+                      <MenuItem key={`bimestre_${option.id}`} value={option}>
+                        {`${option.ordinal}º`}
                       </MenuItem>
                     );
                   })}

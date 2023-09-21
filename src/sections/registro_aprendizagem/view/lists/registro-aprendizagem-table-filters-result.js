@@ -77,7 +77,7 @@ export default function RegistroAprendizagemTableFiltersResult({
         {filters.bimestre && !!filters.bimestre.length && (
           <Block label="Bimestre:">
             {filters.bimestre.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveBimestre(item)} />
+              <Chip key={item} label={`${item.ordinal}º`} size="small" onDelete={() => handleRemoveBimestre(item)} />
             ))}
           </Block>
         )}

@@ -199,7 +199,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.bimestre}
             onChange={handleFilterBimestre}
             input={<OutlinedInput label="Bimestre" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.map((item)=> `${item.ordinal}º`).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -208,9 +208,9 @@ export default function RegistroAprendizagemTableToolbar({
           >
             {bimestreOptions.map((option) => {
               return (
-                <MenuItem key={option} value={`${option} º`}>
-                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(`${option} º` )} />
-                  {`${option} º`}
+                <MenuItem key={option} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option)} />
+                  {`${option.ordinal} º`}
                 </MenuItem>
               );
             })}
