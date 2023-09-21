@@ -68,6 +68,13 @@ export const endpoints = {
     confirm_password: '/api/v1/password_reset/confirm',
     validate_token: '/api/v1/password_reset/validate_token',
   },
+  bimestre: {
+    list: '/api/v1/bimestres/',
+    post: '/api/v1/bimestres',
+    get_by_id: '/api/v1/bimestres/',
+    update: '/api/v1/bimestres/',
+    delete: '/api/v1/bimestres/',
+  },
   calendario: {
     list: '/api/v1/calendarios/',
     post: '/api/v1/calendarios',
@@ -160,11 +167,25 @@ export const endpoints = {
     delete: '/api/v1/planos-aulas/',
   },
   registro_aprendizagem: {
-    list: '/api/v1/registros-aprendizagem/',
-    post: '/api/v1/registros-aprendizagem',
-    get_by_id: '/api/v1/registros-aprendizagem/',
-    update: '/api/v1/registros-aprendizagem/',
-    delete: '/api/v1/registros-aprendizagem/',
+    list: '/api/v1/registros-aprendizagens/',
+    post: '/api/v1/registros-aprendizagens',
+    get_by_id: '/api/v1/registros-aprendizagens/',
+    update: '/api/v1/registros-aprendizagens/',
+    delete: '/api/v1/registros-aprendizagens/',
+    diagnostico: {
+      post: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+      list: '/api/v1/registros-aprendizagens/avaliacao-diagnostico',
+      get_by_id: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+      update: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+      delete: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+    },
+    fase: {
+      post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+      list: '/api/v1/registros-aprendizagens/avaliacao-fase',
+      get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+      update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+      delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+    },
   },
   turma: {
     list: '/api/v1/turmas/',
@@ -186,13 +207,6 @@ export const endpoints = {
     get_by_id: '/api/v1/zonas/',
     update: '/api/v1/zonas/',
     delete: '/api/v1/zonas/',
-  },
-  registro_aprendizagem :{
-    list: '/api/v1/registros_aprendizagens/',
-    post: '/api/v1/registros_aprendizagens',
-    get_by_id: '/api/v1/registros_aprendizagens/',
-    update: '/api/v1/registros_aprendizagens/',
-    delete: '/api/v1/registros_aprendizagens/',
   },
   /*mail: {
     list: '/api/mail/list',

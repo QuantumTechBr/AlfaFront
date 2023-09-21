@@ -7,29 +7,25 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
-// _mock
-import { _disciplinas, _registrosAprendizagemComponente } from 'src/_mock';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+
 import { useSettingsContext } from 'src/components/settings';
 import {
   useTable,
@@ -38,63 +34,92 @@ import {
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemComponenteTableRow from '../registro-aprendizagem-componente-table-row';
+import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
-//
-import registroAprendizagemMethods from '../registro-aprendizagem-repository';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
+  { id: 'ano_letivo', label: 'Ano Letivo', width: 75 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
+  { id: 'bimestre', label: 'Bimestre', width: 80 },
   { id: 'escola', label: 'Escola' },
-  { id: '', width: 88 },
+  { id: '', width: 72 },
 ];
 
 const defaultFilters = {
   anoEscolar: new Date().getFullYear(),
   escola: [],
   turma: [],
-  disciplina: [],
+  bimestre: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemComponenteListView() {
-  const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
+export default function RegistroAprendizagemFaseListView() {
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
+  const preparado = useBoolean(false);
+
+  const preparacaoInicial = async () => {
+    await Promise.all([
+      buscaAnosLetivos(),
+      buscaEscolas(),
+      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
+      buscaBimestres(),
+    ]);
+  };
+
+  const preencheTabela = () => {
+    if (!preparado.value && anosLetivos.length && turmas.length && bimestres.length) {
+      let _registrosAprendizagemFase = [];
+
+      turmas.forEach((_turma) => {
+        console.log(_turma);
+        bimestres.forEach((_bimestre) => {
+          _registrosAprendizagemFase.push({
+            id: _turma.id,
+            ano_letivo: _turma.ano.ano,
+            ano_escolar: _turma.ano_escolar,
+            nome: _turma.nome,
+            turno: _turma.turno,
+            alunos: _turma.aluno_turma.length,
+            bimestre: _bimestre,
+            escola: _turma.escola.nome,
+          });
+        });
+      });
+
+      setTableData(_registrosAprendizagemFase);
+      preparado.onTrue();
+    }
+  };
 
   useEffect(() => {
-    buscaAnosLetivos();
-    buscaEscolas();
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
-    // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-    //   setRegistroAprendizagemList(response.data);
-    //   setTableData(response.data);
-    // });
-    setRegistroAprendizagemList(_registrosAprendizagemComponente);
-    setTableData(_registrosAprendizagemComponente);
-  }, []);
+    console.log('useEffect FASE LIST VIEW');
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+  useEffect(() => {
+    console.log('useEffect preencheTabela');
+    preencheTabela();
+  }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const table = useTable();
 
   const settings = useSettingsContext();
 
   const router = useRouter();
-
-  const confirm = useBoolean();
 
   const [tableData, setTableData] = useState([]);
 
@@ -140,30 +165,9 @@ export default function RegistroAprendizagemComponenteListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
-
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
   const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_componente(id));
+    (turmaInicial, bimestreInicial) => {
+      router.push(paths.dashboard.registro_aprendizagem.edit_fase(turmaInicial, bimestreInicial));
     },
     [router]
   );
@@ -171,6 +175,12 @@ export default function RegistroAprendizagemComponenteListView() {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  const novaAvaliacao = useBoolean();
+
+  const closeNovaAvaliacao = (retorno = null) => {
+    novaAvaliacao.onFalse();
+  };
 
   return (
     <>
@@ -183,10 +193,11 @@ export default function RegistroAprendizagemComponenteListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação por componente</Typography>
+          <Typography variant="h4">
+            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+          </Typography>
           <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_componente}
+            onClick={novaAvaliacao.onTrue}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -197,6 +208,8 @@ export default function RegistroAprendizagemComponenteListView() {
           </Button>
         </Stack>
 
+        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+
         <Card>
           <RegistroAprendizagemTableToolbar
             filters={filters}
@@ -204,7 +217,7 @@ export default function RegistroAprendizagemComponenteListView() {
             anoEscolarOptions={anosLetivos}
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
-            disciplinaOptions={_disciplinas}
+            bimestreOptions={bimestres}
           />
 
           {canReset && (
@@ -220,25 +233,6 @@ export default function RegistroAprendizagemComponenteListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
@@ -246,14 +240,7 @@ export default function RegistroAprendizagemComponenteListView() {
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
-                  numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
@@ -263,13 +250,10 @@ export default function RegistroAprendizagemComponenteListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemComponenteTableRow
-                        key={row.id}
+                      <RegistroAprendizagemFaseTableRow
+                        key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
                       />
                     ))}
 
@@ -294,29 +278,6 @@ export default function RegistroAprendizagemComponenteListView() {
           />
         </Card>
       </Container>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> registro?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
@@ -324,8 +285,7 @@ export default function RegistroAprendizagemComponenteListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma, disciplina } = filters;
-
+  const { nome, anoEscolar, escola, turma, bimestre } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -337,7 +297,7 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
   }
 
   if (escola.length) {
@@ -347,13 +307,23 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (turma.length) {
-    inputData = inputData.filter((item) =>
-      turma.map((baseItem) => baseItem.nome).includes(item.turma)
-    );
+    inputData = inputData.filter((item) => {
+      return turma
+        .map((baseItem) => {
+          console.log( `${baseItem.ano_escolar}${baseItem.nome}`);
+          console.log(`${item.ano_escolar}${item.nome}`);
+          return `${baseItem.ano_escolar}${baseItem.nome}`;
+        })
+        .includes(`${item.ano_escolar}${item.nome}`);
+    });
   }
 
-  if (disciplina.length) {
-    inputData = inputData.filter((item) => disciplina.includes(item.disciplina));
+  if (bimestre.length) {
+    inputData = inputData.filter((item) => {
+      console.log(bimestre);
+      console.log(item.bimestre);
+      return bimestre.includes(item.bimestre);
+    });
   }
 
   if (nome) {

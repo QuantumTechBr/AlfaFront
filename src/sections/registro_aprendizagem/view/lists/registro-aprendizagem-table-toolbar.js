@@ -166,7 +166,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.turma}
             onChange={handleFilterTurma}
             input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
+            renderValue={(selected) => selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -177,7 +177,7 @@ export default function RegistroAprendizagemTableToolbar({
               return (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {option.nome}
+                  {` ${option.ano_escolar}º ${option.nome}`}
                 </MenuItem>
               );
             })}
@@ -199,7 +199,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.bimestre}
             onChange={handleFilterBimestre}
             input={<OutlinedInput label="Bimestre" />}
-            renderValue={(selected) => selected.join(', ')}
+            renderValue={(selected) => selected.map((item)=> `${item.ordinal}º`).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -208,9 +208,9 @@ export default function RegistroAprendizagemTableToolbar({
           >
             {bimestreOptions.map((option) => {
               return (
-                <MenuItem key={option} value={option + 'º'}>
-                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option + 'º' )} />
-                  {option + 'º'}
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option)} />
+                  {`${option.ordinal} º`}
                 </MenuItem>
               );
             })}

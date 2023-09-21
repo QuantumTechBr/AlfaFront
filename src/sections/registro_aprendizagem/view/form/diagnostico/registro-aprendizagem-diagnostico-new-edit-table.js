@@ -1,15 +1,17 @@
 'use client';
 
+import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
-import Stack from '@mui/material/Stack';
+import { alpha } from '@mui/material/styles';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
@@ -18,18 +20,16 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import {_bimestres, _registrosAprendizagemFase } from 'src/_mock';
+import { _userList, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useContext } from 'react';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // components
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
@@ -41,52 +41,58 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemFaseTableRow from '../registro-aprendizagem-fase-table-row';
-import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
-//
-import registroAprendizagemMethods from '../registro-aprendizagem-repository';
+// import UserTableRow from '../user-table-row';
+// import UserTableToolbar from '../user-table-toolbar';
+// import UserTableFiltersResult from '../user-table-filters-result';
+import RegistroAprendizagemDiagnosticoNewEditTableRow from './registro-aprendiagem-diagnostico-new-edit-table-row';
+import RegistroAprendizagemDiagnosticoNewEditTableToolbar from './registro-aprendizagem-diagnostico-new-edit-table-toolbar';
+import { promo_options } from 'src/_mock';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import InfoIcon from '@mui/icons-material/Info';
+import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
-const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
-  { id: 'turma', label: 'Turma', width: 75 },
-  { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'bimestre', label: 'Bimestre', width: 80 },
-  { id: 'escola', label: 'Escola' },
-  { id: '', width: 72 },
-];
 
-const defaultFilters = {
-  anoEscolar: new Date().getFullYear(),
-  escola: [],
-  turma: [],
-  bimestre: [],
-};
+ 
+export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma }) {
+  const defaultFilters = {
+    nome: '',
+    promo_ano_anterior: [],
+  };
 
-// ----------------------------------------------------------------------
+  const [TABLE_HEAD, setTableHead] = useState([]);
+  const [tableData, setTableData] = useState([]);
 
-export default function RegistroAprendizagemFaseListView() {
-  const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
-
-  const [_turmasFiltered, setTurmasFiltered] = useState([]);
+  const labelHabilidade = (habilidade) => {
+    const { nome, descricao } = habilidade;
+    return (
+        <Box>
+          {nome}
+          <Tooltip title={descricao}>
+          <InfoIcon 
+              sx={{
+                fontSize: 'large',
+              }}
+            />
+          </Tooltip>
+        </Box>
+    );
+  };
 
   useEffect(() => {
-    buscaAnosLetivos();
-    buscaEscolas();
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
-    // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-    //   setRegistroAprendizagemList(response.data);
-    //   setTableData(response.data);
-    // });
-    setRegistroAprendizagemList(_registrosAprendizagemFase);
-    setTableData(_registrosAprendizagemFase);
-  }, []);
+    let cabecalho = [
+        { id: 'nome', label: 'Nome', width: 150 },
+        { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
+    ];
+    for (var i = 0; i < habilidades.length; i++) {
+      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 120 });
+    }
+    setTableHead(cabecalho);
+    const tableData = (alunosTurma == undefined) ? [] : alunosTurma;
+    setTableData(tableData);
+ 
+    
+  }, [habilidades, alunosTurma]);
 
   const table = useTable();
 
@@ -95,8 +101,6 @@ export default function RegistroAprendizagemFaseListView() {
   const router = useRouter();
 
   const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -117,20 +121,8 @@ export default function RegistroAprendizagemFaseListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
-
   const handleFilters = useCallback(
     (nome, value) => {
-      if (nome == 'escola') {
-        if (value.length == 0) {
-          setTurmasFiltered(turmas);
-        } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
-        }
-      }
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
@@ -140,33 +132,35 @@ export default function RegistroAprendizagemFaseListView() {
     [table]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
+  // const handleDeleteRow = useCallback(
+  //   (id) => {
+  //     const deleteRow = tableData.filter((row) => row.id !== id);
+  //     userMethods.deleteUserById(id);
+  //     setTableData(deleteRow);
+  //     //userMethods.deleteUserById(id);
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
-    },
-    [dataInPage.length, table, tableData]
-  );
+  //     table.onUpdatePageDeleteRow(dataInPage.length);
+  //   },
+  //   [dataInPage.length, table, tableData]
+  // );
 
-  const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+  // const handleDeleteRows = useCallback(() => {
+  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+  //   setTableData(deleteRows);
 
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  //   table.onUpdatePageDeleteRows({
+  //     totalRows: tableData.length,
+  //     totalRowsInPage: dataInPage.length,
+  //     totalRowsFiltered: dataFiltered.length,
+  //   });
+  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_fase(id));
-    },
-    [router]
-  );
+  // const handleEditRow = useCallback(
+  //   (id) => {
+  //     router.push(paths.dashboard.user.edit(id));
+  //   },
+  //   [router]
+  // );
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
@@ -175,42 +169,20 @@ export default function RegistroAprendizagemFaseListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">
-            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
-          </Typography>
-          <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_fase}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#00A5AD',
-            }}
-          >
-            Adicionar
-          </Button>
-        </Stack>
 
         <Card>
-          <RegistroAprendizagemTableToolbar
+
+          <RegistroAprendizagemDiagnosticoNewEditTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={anosLetivos}
-            escolaOptions={escolas}
-            turmaOptions={_turmasFiltered}
-            bimestreOptions={_bimestres}
+            promoOptions={promo_options}
+            turma={turma}
+            handleTurma={handleTurma}
           />
 
+          {/*
           {canReset && (
-            <RegistroAprendizagemTableFiltersResult
+            <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -219,10 +191,10 @@ export default function RegistroAprendizagemFaseListView() {
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )}
+          )} */}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
+            {/* <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
@@ -239,7 +211,7 @@ export default function RegistroAprendizagemFaseListView() {
                   </IconButton>
                 </Tooltip>
               }
-            />
+            /> */}
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
@@ -250,12 +222,12 @@ export default function RegistroAprendizagemFaseListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
+                  // onSelectAllRows={(checked) =>
+                  //   table.onSelectAllRows(
+                  //     checked,
+                  //     tableData.map((row) => row.id)
+                  //   )
+                  // }
                 />
 
                 <TableBody>
@@ -265,9 +237,10 @@ export default function RegistroAprendizagemFaseListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <RegistroAprendizagemFaseTableRow
+                      <RegistroAprendizagemDiagnosticoNewEditTableRow
                         key={row.id}
                         row={row}
+                        habilidades={habilidades}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
@@ -292,7 +265,9 @@ export default function RegistroAprendizagemFaseListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={false}
+            //
+            dense={table.dense}
+            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>
@@ -303,7 +278,7 @@ export default function RegistroAprendizagemFaseListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> registro?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> usuários?
           </>
         }
         action={
@@ -323,10 +298,17 @@ export default function RegistroAprendizagemFaseListView() {
   );
 }
 
+RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
+  turma: PropTypes.object,
+  alunosTurma: PropTypes.array,
+  habilidades: PropTypes.array,
+  handleTurma: PropTypes.func,
+};
+
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma, bimestre } = filters;
+  const { nome, promo_ano_anterior } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -337,30 +319,14 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola)
-    );
-  }
-
-  if (turma.length) {
-    inputData = inputData.filter((item) =>
-      turma.map((baseItem) => baseItem.nome).includes(item.turma)
-    );
-  }
-
-  if (bimestre.length) {
-    inputData = inputData.filter((item) => bimestre.includes(item.bimestre + 'º'));
-  }
-
   if (nome) {
     inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (alunosTurma) => alunosTurma.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
+  }
+
+  if (promo_ano_anterior.length) {
+    inputData = inputData.filter((aluno) => promo_ano_anterior.includes(aluno.promo));
   }
 
   return inputData;

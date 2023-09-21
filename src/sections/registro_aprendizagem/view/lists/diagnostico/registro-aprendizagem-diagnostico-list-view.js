@@ -41,11 +41,12 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemDiagnosticoTableRow from '../registro-aprendizagem-diagnostico-table-row';
+import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-diagnostico-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 //
-import registroAprendizagemMethods from '../registro-aprendizagem-repository';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -76,9 +77,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
+    console.log('useEffect DIAGNOSTICO LIST VIEW');
     buscaAnosLetivos();
     buscaEscolas();
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
+    buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas));
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);
@@ -171,6 +173,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     setFilters(defaultFilters);
   }, []);
 
+  const novaAvaliacao = useBoolean();
+
+  const closeNovaAvaliacao = (retorno=null) => {
+    novaAvaliacao.onFalse();
+  }
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -184,8 +192,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         >
           <Typography variant="h4">Avaliação de Diagnóstico</Typography>
           <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_diagnostico}
+            onClick={novaAvaliacao.onTrue}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -195,6 +202,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             Adicionar
           </Button>
         </Stack>
+
+        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
           <RegistroAprendizagemTableToolbar
@@ -335,7 +344,7 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar);
+    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
   }
 
   if (escola.length) {
