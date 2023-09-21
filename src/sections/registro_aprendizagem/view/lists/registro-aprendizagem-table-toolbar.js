@@ -166,7 +166,7 @@ export default function RegistroAprendizagemTableToolbar({
             value={filters.turma}
             onChange={handleFilterTurma}
             input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
+            renderValue={(selected) => selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ')}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
