@@ -45,6 +45,7 @@ import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-dia
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 //
 
 // ----------------------------------------------------------------------
@@ -195,6 +196,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     setFilters(defaultFilters);
   }, []);
 
+  const novaAvaliacao = useBoolean();
+
+  const closeNovaAvaliacao = (retorno=null) => {
+    novaAvaliacao.onFalse();
+  }
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -208,8 +215,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         >
           <Typography variant="h4">Avaliação de Diagnóstico</Typography>
           <Button
-            component={RouterLink}
-            href={paths.dashboard.registro_aprendizagem.new_diagnostico}
+            onClick={novaAvaliacao.onTrue}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -219,6 +225,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             Adicionar
           </Button>
         </Stack>
+
+        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
           <RegistroAprendizagemTableToolbar

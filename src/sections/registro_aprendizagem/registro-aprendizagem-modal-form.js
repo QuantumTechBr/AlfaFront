@@ -20,7 +20,6 @@ import { useRouter } from 'src/routes/hook';
 
 // _mock
 import {
-  _habilidades,
   _periodos,
   _bimestres,
   _roles,
@@ -52,8 +51,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
     () => ({
       turma: '',
       bimestre: '',
-      habilidades: [],
-      disciplina: '',
       periodo: '',
     }),
     []
@@ -80,13 +77,11 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
       if (type == 'change' && name == 'tipo') {
         if (values.turma != '') setValue('turma', '');
         if (values.bimestre != '') setValue('bimestre', '');
-        if (values.habilidades.length) setValue('habilidades', []);
         if (values.periodo != '') setValue('periodo', '');
       }
 
       // if (type == 'change' && name == 'turma') {
       //   if (values.bimestre != '') setValue('bimestre', '');
-      //   if (values.habilidades.length) setValue('habilidades', []);
       // }
     });
 
@@ -95,18 +90,18 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
   const values = watch();
 
-  const { tipo, turma, periodo, bimestre, habilidades } = values;
+  const { tipo, turma, periodo, bimestre } = values;
 
   const podeAvancar =
     (tipo == 'Avaliação de Fase' && turma && bimestre) ||
-    (tipo == 'Avaliação de Diagnóstico' && periodo && turma && habilidades.length > 0);
+    (tipo == 'Avaliação de Diagnóstico' && turma && periodo);
 
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
         {turmas.map((turma) => (
           <MenuItem key={turma.id} value={turma.id}>
-            {turma.ano_serie}º {turma.nome}
+            {turma.ano_escolar}º {turma.nome}
           </MenuItem>
         ))}
       </RHFSelect>
@@ -116,11 +111,19 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       if (tipo == 'Avaliação de Fase') {
+        const dados = {
+          turma: turma,
+          periodo: periodo,
+        }
         router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
       } else if (tipo == 'Avaliação de Diagnóstico') {
-        router.push(
-          paths.dashboard.registro_aprendizagem.edit_diagnostico(periodo, turma, habilidades.map((hab) => hab.id).join(','))
-        );
+        const dadosDiagnostico = {
+          turma: turma,
+          periodo: periodo,
+        }
+        sessionStorage.setItem('dadosDiagnosticoTurma', dadosDiagnostico.turma);
+        sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
+        router.push(paths.dashboard.registro_aprendizagem.new_diagnostico);
       } else {
         console.info('DATA', data);
         throw 'Tipo não implementado';
@@ -158,7 +161,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
         <DialogContent>
           <br></br>
           <Box rowGap={3} display="grid">
-            <RHFSelect name="tipo" label="Tipo" multiple>
+            <RHFSelect name="tipo" label="Tipo">
               {_tiposAvaliacao.map((tipo_avaliacao) => (
                 <MenuItem key={tipo_avaliacao} value={tipo_avaliacao}>
                   {tipo_avaliacao}
@@ -170,7 +173,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             {tipo == 'Avaliação de Fase' && selectTurma()}
 
             {tipo == 'Avaliação de Fase' && turma && (
-              <RHFSelect name="bimestre" label="Bimestre" value={bimestre}>
+              <RHFSelect name="bimestre" label="Bimestre">
                 {_bimestres.map((bimestre) => (
                   <MenuItem key={bimestre} value={bimestre}>
                     {`${bimestre}º Bimestre`}
@@ -181,7 +184,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
             {/* DIAGNOSTICO */}
             {tipo == 'Avaliação de Diagnóstico' && (
-              <RHFSelect name="periodo" label="Período" value={periodo}>
+              <RHFSelect name="periodo" label="Período">
                 {_periodos.map((periodo) => (
                   <MenuItem key={periodo} value={periodo}>
                     {periodo}
@@ -192,25 +195,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
             {tipo == 'Avaliação de Diagnóstico' && periodo && selectTurma()}
 
-            {tipo == 'Avaliação de Diagnóstico' && periodo && turma && (
-              <RHFMultiSelect
-                chip
-                checkbox
-                name="habilidades"
-                label="Habilidades"
-                options={_habilidades}
-                value={habilidades}
-              />
-            )}
           </Box>
         </DialogContent>
-        <DialogActions>
-          {/* {!podeAvancar && (
-            <Button variant="contained" color="primary" disabled={true}>
-              Avançar
-            </Button>
-          )} */}
-          
+        <DialogActions>          
             <LoadingButton disabled={!podeAvancar} type="submit" variant="contained" color="primary" loading={isSubmitting}>
               Avançar
             </LoadingButton>

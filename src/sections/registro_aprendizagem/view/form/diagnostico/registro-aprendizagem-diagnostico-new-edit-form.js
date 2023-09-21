@@ -48,7 +48,7 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-import RegistroAprendizagemDiagnosticoNewEditTable from '../../lists/diagnostico/registro-aprendizagem-diagnostico-new-edit-table';
+import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 
 
@@ -170,6 +170,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     // console.log(defaultValues);
     console.log('Data');
     console.log(data);
+    console.log('alunosTurmaSubmit', alunosTurma);
 
     const registrosAprendizagem = [];
     alunosTurma.forEach((itemList) => {
@@ -182,75 +183,58 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       // })
       for (let item in dataHabilidades) {
         if (typeof (dataHabilidades[item]) == 'string') {
-          const habilidadeRegistroAprendizagem = {
-            habilidade_id: item,
-            nota: dataHabilidades[item]
+          if (itemList.id_habilidades_registro_aprendizagem) {
+            let encontrada = itemList.id_habilidades_registro_aprendizagem[item];
+            const habilidadeRegistroAprendizagem = {
+              habilidade_id: item,
+              nota: dataHabilidades[item],
+              id: encontrada,
+            }
+            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+          } else {
+            const habilidadeRegistroAprendizagem = {
+              habilidade_id: item,
+              nota: dataHabilidades[item],
+            }
+            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
           }
-          habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
         }
       }
-      const registroAprendizagem = {
-        nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-        tipo: 'Diagnóstico',
-        periodo: periodo,
-        aluno_turma_id: itemList.id,
-        promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
-        habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem
+      if (itemList.id_registro) {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
+          id: itemList.id_registro,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
+      } else {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
       }
-      registrosAprendizagem.push(registroAprendizagem);
     });
     console.log("json submit", registrosAprendizagem);
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem);
-      // reset();
-      //enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+      reset();
+      enqueueSnackbar('Atualizado com sucesso!');
       //enqueueSnackbar('Criado com sucesso!');
-      //router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
+      router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
       //console.info('DATA', data);
     } catch (error) {
-      //console.error(error);
+        console.log('Erro ao Salvar');
+        console.error(error);
     }
-
-    // console.log(alunosTurma);
-    // try {
-    //   var novoUsuario = {}
-    //   if (data.senha) {
-    //     novoUsuario = {
-    //       nome:  data.nome,
-    //       email: data.email,
-    //       senha: data.senha, 
-    //       login: data.email,
-    //       status: data.status,
-    //     }
-    //   } else {
-    //     novoUsuario = {
-    //       nome:  data.nome,
-    //       email: data.email,
-    //       login: data.email,
-    //       status: data.status,
-    //     }
-    //   }
-    //   if (currentUser) {
-    //     await userMethods.updateUserById(currentUser.id, novoUsuario);
-
-    //   } else {
-    //     novoUsuario.permissao_usuario = [{
-    //       id: '91bbd3c9-61fa-4987-b31e-2a41f623e002',
-    //       created_at: '2023-08-23 15:06:10',
-    //       updated_at: null,
-    //       deleted_at: null,
-    //       nome: 'SUPERADMIN',
-    //       permissao_modulo: [],
-    //     }];
-    //     await userMethods.insertUser(novoUsuario);
-    //   }
-    //   reset();
-    //   enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-    //   router.push(paths.dashboard.user.list);
-    //   console.info('DATA', data);
-    // } catch (error) {
-    //   console.error(error);
-    // }
   });
 
   /* const handleDrop = useCallback(
@@ -270,7 +254,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
-      {(true) && (<RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} />)}
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} />
       <Stack alignItems="flex-end" sx={{ mt: 3 }}>
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar
