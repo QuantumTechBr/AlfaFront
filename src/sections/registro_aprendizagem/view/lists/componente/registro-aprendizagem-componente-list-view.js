@@ -75,9 +75,10 @@ export default function RegistroAprendizagemComponenteListView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
+    console.log('useEffect COMPONENTE');
     buscaAnosLetivos();
     buscaEscolas();
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
+    buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas));
     // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
     //   setRegistroAprendizagemList(response.data);
     //   setTableData(response.data);

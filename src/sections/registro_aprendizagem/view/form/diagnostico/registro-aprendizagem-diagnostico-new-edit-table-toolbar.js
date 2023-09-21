@@ -29,6 +29,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
 
   const {turmas, buscaTurmas} = useContext(TurmasContext);
   useEffect(() => {
+    console.log('useEffect DIAGNOSTICO EDIT VIEW');
     buscaTurmas();
   }, []);
 

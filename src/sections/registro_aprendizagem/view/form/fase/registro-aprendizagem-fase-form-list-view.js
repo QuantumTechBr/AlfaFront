@@ -212,11 +212,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   });
 
   useEffect(() => {
+    console.log('useEffect FORM FASE LIST VIEW');
     buscaBimestres();
-    buscaTurmas().then((turmas) => {
+    buscaTurmas().then((_turmas) => {
       if (!!turmaInicial) {
-        if (!!turmas) {
-          const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
+        if (!!_turmas) {
+          const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
           }
