@@ -18,7 +18,7 @@ import { FormControl, TextField } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormTableRow({ row }) {
+export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
   const { id, aluno } = row;
 
   const { control } = useFormContext();
@@ -30,7 +30,8 @@ export default function RegistroAprendizagemFaseFormTableRow({ row }) {
           <Tooltip key={id} title={'Registro único da avaliação: ' + id}>
             <span>{aluno.nome}</span>
           </Tooltip>
-          <RHFTextField sx={{ display: 'none' }} name={'registros[' + id + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + index + '].avaliacao_id'} />
+          <RHFTextField sx={{ display: 'none' }} name={'registros[' + index + '].id_aluno_turma'} />
         </TableCell>
         {Object.values(RegistroAprendizagemFases).map((tipoFaseValue) => {
           return (
@@ -39,7 +40,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row }) {
               sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
             >
               <Controller
-                name={'registros[' + id + '].resultado'}
+                name={'registros[' + index + '].resultado'}
                 control={control}
                 render={({ field, fieldState: { error } }) => (
                   <Checkbox
@@ -56,7 +57,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row }) {
           );
         })}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          <RHFTextField name={`registros[` + id + `].observacao`} label="" />
+          <RHFTextField name={`registros[` + index + `].observacao`} label="" />
         </TableCell>
       </TableRow>
     </>

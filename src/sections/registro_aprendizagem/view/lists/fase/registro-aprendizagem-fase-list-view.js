@@ -44,7 +44,7 @@ import {
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
-import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [

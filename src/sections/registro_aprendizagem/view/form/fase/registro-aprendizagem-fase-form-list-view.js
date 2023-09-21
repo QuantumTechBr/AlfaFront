@@ -17,7 +17,6 @@ import TableContainer from '@mui/material/TableContainer';
 // _mock
 import {
   _bimestres,
-  _registrosAprendizagemFaseUnicaRegistros,
   RegistroAprendizagemFases,
 } from 'src/_mock';
 // hooks
@@ -64,12 +63,11 @@ const defaultFilters = {};
 export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
-  const [turmaSelected, setTurmaSelected] = useState('');
-  const [bimestreSelected, setBimestreSelected] = useState('');
   const [tableData, setTableData] = useState([]);
 
   const initialFormValues = {
-    bimestre: null,
+    turma: '',
+    bimestre: '',
     registros: [],
   };
 
@@ -132,34 +130,51 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     formState: { isSubmitting },
   } = methods;
 
-  // const formValues = watch();
-  const watchTurmaSelected = watch('turma', null);
+  const formValues = watch();
+  const { turma, bimestre } = formValues;
 
-  const getRegistros = useCallback(
-    (turma) => {
-      // currentTurma?.nome || ''
+  const getRegistros = (turmaToGetRegistros) => {
+    turmaToGetRegistros ??= turma;
 
-      if (!!turma || (!!turmaSelected.id && turma == turmaSelected)) {
-        buscaTurmaPorId({ id: turma.id }).then((turma) => {
-          resetField('registros');
-          setTableData(turma.aluno_turma);
-        });
+    if (!!turmaToGetRegistros) {
+      buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
+        resetField('registros');
+        setTableData(_turma.aluno_turma);
+      });
+    }
+
+      // BUSCAR
+    let _newRegistros =  [].map((itemRegistro) => ({
+      avaliacao_id: itemRegistro.id,
+      aluno_turma_id : itemRegistro.aluno_turma_id,
+      resultado: itemRegistro.resultado,
+      observacao: itemRegistro.observacao,
+    }));
+    setValue('registros', _newRegistros);
+
+    // avaliacao_id: itemList.id,
+    // resultado: itemList.resultado,
+    // observacao: itemList.observacao,
+  };
+
+  useEffect(() => {
+    const subscription = watch((values, { name, type }) => {
+      if (type == 'change' && ['turma', 'bimestre'].includes(name)) {
+        getRegistros(values.turma);
       }
+    });
 
-      // TODO GET REGISTROS DO BANCO
-      // _registrosAprendizagemFaseUnicaRegistros.forEach((itemList) => {
-      //   initialFormValues.registros[itemList.aluno.id] = {
-      //     avaliacao_id: itemList.id,
-      //     resultado: itemList.resultado,
-      //     observacao: itemList.observacao,
-      //   };
-      // });
-    },
-    [resetField]
-  );
+    return () => subscription.unsubscribe();
+  }, [watch, getRegistros]);
 
   const onSubmit = handleSubmit(async (data) => {
     console.table(data);
+    let retorno = {
+      nome: `Avaliação de Fase ${turma.ano_escolar}º ${turma.nome} - ${bimestre}º Bimestre - ${turma.ano.ano}`,
+    };
+
+    console.log('retorno');
+    console.table(retorno);
   });
 
   useEffect(() => {
@@ -168,17 +183,13 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         if (!!turmas) {
           const _turmaComplete = turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
-            setTurmaSelected(_turmaComplete[0]); // CONTEXT
-            getRegistros(_turmaComplete[0]); // API
+            setValue('turma', _turmaComplete[0]); // FORM INPUT
           }
         }
       }
 
-      if (!!bimestreInicial) {
-        setValue('bimestre', bimestreInicial);
-        setBimestreSelected(bimestreInicial);
-        getRegistros();
-      }
+      if (!!bimestreInicial) setValue('bimestre', bimestreInicial);
+      if (!!turmaInicial && !!bimestreInicial) getRegistros();
     });
   }, [turmas, buscaTurmas, turmaInicial, bimestreInicial, setValue]);
 
@@ -204,17 +215,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               filters={filters}
               onFilters={handleFilters}
               turmaOptions={turmas}
-              turmaSelected={turmaSelected}
-              handleChangeTurma={(value) => {
-                setTurmaSelected(value.target.value);
-                getRegistros(value.target.value);
-              }}
               bimestreOptions={_bimestres}
-              bimestreSelected={bimestreSelected}
-              handleChangeBimestre={(value) => {
-                setBimestreSelected(value.target.value);
-                getRegistros();
-              }}
             />
 
             {canReset && (
@@ -238,8 +239,14 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                   />
 
                   <TableBody>
-                    {dataFiltered.map((row) => {
-                      return <RegistroAprendizagemFaseFormTableRow key={row.id} row={row} />;
+                    {dataFiltered.map((row, index) => {
+                      return (
+                        <RegistroAprendizagemFaseFormTableRow
+                          key={row.id}
+                          row={row}
+                          index={index}
+                        />
+                      );
                     })}
 
                     <TableEmptyRows

@@ -48,7 +48,6 @@ import RegistroAprendizagemDiagnosticoNewEditTableRow from './registro-aprendiag
 import RegistroAprendizagemDiagnosticoNewEditTableToolbar from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-table-toolbar';
 import { promo_options } from 'src/_mock';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-//import { getAllEnumEntries } from 'enum-for';
 // ----------------------------------------------------------------------
 
 

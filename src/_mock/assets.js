@@ -427,32 +427,6 @@ export const _registrosAprendizagemComponente = [
   },
 ];
 
-export const _registrosAprendizagemFaseUnicaRegistros = [
-  {
-    id: 17684176,
-    aluno: {
-      id: 12126,
-      nome: 'João Marcos',
-    },
-    resultado: RegistroAprendizagemFases.pre_alfabetica,
-    observacao: 'Aptidão em tarefas',
-    created_at: Date(),
-    updated_at: Date(),
-    deleted_at: Date(),
-  },
-  {
-    id: 2,
-    aluno: {
-      id: 664784,
-      nome: 'Daniela Silva',
-    },
-    resultado: RegistroAprendizagemFases.alfabetica_consolidada,
-    observacao: '',
-    created_at: Date(),
-    updated_at: Date(),
-    deleted_at: Date(),
-  },
-];
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];
 

@@ -29,7 +29,7 @@ import AppTopInstalledCountries from '../app-top-installed-countries';
 import { useState } from 'react';
 
 // ----------------------------------------------------------------------
-import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 export default function OverviewAppView() {
