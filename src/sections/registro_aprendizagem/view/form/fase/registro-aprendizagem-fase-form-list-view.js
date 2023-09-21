@@ -192,7 +192,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const toSend = Object.values(data.registros).map((formItem) => {
       // console.table(formItem);
       let item = { ...retornoPadrao, ...formItem };
-      item.nome = `${item.nome} - ${item.aluno_nome}`
+      item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       delete item.avaliacao_id; // TODO REMOVE - RECEBER NO BANCO PARA UPDATE
       return item;
@@ -220,6 +220,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && !!_turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
+            turmaInicial = _turmaComplete[0];
           }
         }
       }
@@ -229,11 +230,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
           if (_bimestreComplete && !!_bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
+            bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (!!turmaInicial && !!bimestreInicial) getRegistros();
+      if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     });
   }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
