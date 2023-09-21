@@ -31,24 +31,33 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       let habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
       setHabilidades(habilidade_turma);
       if(_turma.aluno_turma){
-        registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo:periodo}).then(registros => {
+        registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo: periodo}).then(registros => {
+          const registrosAprendizagemTurma = registros.data;
+          // alunosTurma.forEach(alunoTurma => {
+          //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
+          //   console.log('habilidades', habilidadesRegistroAprendizagem);
+          //})
           setRegistrosAprendizagemTurma(registrosAprendizagemTurma)
           if (registrosAprendizagemTurma) {
             const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
             console.log('alunosTurma', alunosTurma)
             registrosAprendizagemTurma.forEach(registro => {
               let mapHabilidades = [];
+              let idHabilidadesRegistroAprendizagem = [];
               habilidade_turma.forEach(hab => {
                 let encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
                   return habReg.habilidade.id == hab.id;
                 });
                 if (encontrada){
                   mapHabilidades[encontrada.habilidade.id] = encontrada.nota
+                  idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
                 }
               })
               const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
               alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
               alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
+              alunosTurma[searchIndex].id_registro = registro.id;
+              alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
             });
             console.log(alunosTurma);
             setAlunosTurma(alunosTurma);
@@ -75,8 +84,8 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
     if(novaTurma.aluno_turma){
-      await registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico(turmaId=novaTurma.id).then(registros => {
-        const novoRegistrosAprendizagemTurma = registros.data.filter((registro) => registro.periodo == periodo);
+      registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId: novaTurma.id, periodo: periodo}).then(registros => {
+        const novoRegistrosAprendizagemTurma = registros.data;
         // alunosTurma.forEach(alunoTurma => {
         //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
         //   console.log('habilidades', habilidadesRegistroAprendizagem);
@@ -87,17 +96,21 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           console.log('alunosTurma', alunosTurma)
           novoRegistrosAprendizagemTurma.forEach(registro => {
             let mapHabilidades = [];
+            let idHabilidadesRegistroAprendizagem = [];
             habilidade_turma.forEach(hab => {
               let encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
                 return habReg.habilidade.id == hab.id;
               });
               if (encontrada){
                 mapHabilidades[encontrada.habilidade.id] = encontrada.nota
+                idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
               }
             })
             const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
             alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
             alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
+            alunosTurma[searchIndex].id_registro = registro.id;
+            alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
           });
           console.log('set alunos turma:', alunosTurma);
           setAlunosTurma(alunosTurma);

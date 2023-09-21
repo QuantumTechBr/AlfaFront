@@ -45,9 +45,10 @@ import {
 // import UserTableToolbar from '../user-table-toolbar';
 // import UserTableFiltersResult from '../user-table-filters-result';
 import RegistroAprendizagemDiagnosticoNewEditTableRow from './registro-aprendiagem-diagnostico-new-edit-table-row';
-import RegistroAprendizagemDiagnosticoNewEditTableToolbar from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-table-toolbar';
+import RegistroAprendizagemDiagnosticoNewEditTableToolbar from './registro-aprendizagem-diagnostico-new-edit-table-toolbar';
 import { promo_options } from 'src/_mock';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import InfoIcon from '@mui/icons-material/Info';
 // ----------------------------------------------------------------------
 
 
@@ -61,13 +62,27 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
 
+  const labelHabilidade = (habilidade) => {
+    const { nome, descricao } = habilidade;
+    return (
+      <Tooltip title={descricao}>
+       {nome} 
+       <InfoIcon 
+          sx={{
+            fontSize: 'large',
+          }}
+        />
+      </Tooltip>
+    );
+  };
+
   useEffect(() => {
     let cabecalho = [
         { id: 'nome', label: 'Nome', width: 150 },
         { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
     ];
     for (var i = 0; i < habilidades.length; i++) {
-      cabecalho.push({ id: habilidades[i].id, label: habilidades[i].nome, width: 88 });
+      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 88 });
     }
     setTableHead(cabecalho);
     const tableData = (alunosTurma == undefined) ? [] : alunosTurma;
