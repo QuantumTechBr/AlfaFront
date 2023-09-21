@@ -18,7 +18,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _anos, _registrosAprendizagemDiagnostico } from 'src/_mock';
+import { _anos } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -44,6 +44,7 @@ import {
 import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-diagnostico-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 //
 
 // ----------------------------------------------------------------------
@@ -72,19 +73,42 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
-
+  
+  const [ turmasComDiagnosticoInicial, setTurmasComDiagnosticoInicial ] = useState([]);
+  const [ turmasComDiagnosticoFinal, setTurmasComDiagnosticoFinal ] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
     buscaAnosLetivos();
     buscaEscolas();
-    buscaTurmas().then(() => setTurmasFiltered(turmas));
-    // registroAprendizagemMethods.getAllRegistrosAprendizagem().then((response) => {
-    //   setRegistroAprendizagemList(response.data);
-    //   setTableData(response.data);
-    // });
-    setRegistroAprendizagemList(_registrosAprendizagemDiagnostico);
-    setTableData(_registrosAprendizagemDiagnostico);
+    setTableData([]);
+    const promisesList = [];
+    let turmasRegistroInicial = []
+    let turmasRegistroFinal = []
+    const buscaTurmasPromise = buscaTurmas().then(turmasBusca => {
+      setTurmasFiltered(turmasBusca);
+      const buscaPeriodoInicial = registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemDiagnostico({periodo: 'Inicial'}).then(listaIdsTurmas => {
+        if (listaIdsTurmas.data.length){
+          turmasRegistroInicial = turmasBusca.filter(turma => listaIdsTurmas.data.includes(turma.id));
+          turmasRegistroInicial.map(turma => turma.tipo='Inicial')
+          setTurmasComDiagnosticoInicial(turmasRegistroInicial);
+        }
+      });
+      promisesList.push(buscaPeriodoInicial);
+      const buscaPeriodoFinal = registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemDiagnostico({periodo: 'Final'}).then(listaIdsTurmas => {
+        if (listaIdsTurmas.data.length){
+          turmasRegistroFinal = turmasBusca.filter(turma => listaIdsTurmas.data.includes(turma.id))
+          turmasRegistroFinal.map(turma => turma.tipo='Final')
+          setTurmasComDiagnosticoFinal(turmasRegistroFinal)
+        }
+      });
+      promisesList.push(buscaPeriodoFinal);
+      Promise.all(promisesList).then(() => {
+        console.log(turmasRegistroInicial);
+        console.log(turmasRegistroFinal);
+        setTableData([...turmasRegistroInicial, ...turmasRegistroFinal])
+      })
+    });
   }, []);
 
   const table = useTable();
@@ -323,6 +347,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
 function applyFilter({ inputData, comparator, filters }) {
   const { nome, anoEscolar, escola, turma } = filters;
+
+  if(!inputData) {return []}
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 

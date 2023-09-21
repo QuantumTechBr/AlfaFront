@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { useRouter } from 'src/routes/hook';
+import { paths } from 'src/routes/paths';
 // @mui
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -22,8 +24,9 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano_serie, turma, turno, alunos, tipo, escola, created_at, updated_at, deleted_at } = row;
+  const { id, ano_escolar, ano, nome, turno, aluno_turma, tipo, escola, created_at, updated_at, deleted_at } = row;
 
+  const router = useRouter();
 
   const confirm = useBoolean();
 
@@ -31,41 +34,49 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
 
   const popover = usePopover();
 
+  const editarRegistros = () => {
+    const dadosDiagnostico = {
+      turma: id,
+      periodo: tipo,
+    }
+    sessionStorage.setItem('dadosDiagnosticoTurma', dadosDiagnostico.turma);
+    sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
+    router.push(paths.dashboard.registro_aprendizagem.new_diagnostico);
+  }
+
   return (
     <>
-      <TableRow hover selected={selected}>
+      <TableRow hover selected={selected} onClick={editarRegistros}>
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_serie}°</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma.length}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{tipo}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          {/* <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
-          </Tooltip>
+          </Tooltip> */}
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
-
-      {/* <RegistroAprendizagemQuickEditForm currentRegistroAprendizagem={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
 
       <CustomPopover
         open={popover.open}
