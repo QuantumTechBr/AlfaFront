@@ -14,7 +14,8 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { TurmasContext } from '../../../../turma/context/turma-context';
+//import { TurmasContext } from '../../../../turma/context/turma-context';
+import turmaMethods from 'src/sections/turma/turma-repository';
 
 // ----------------------------------------------------------------------
 
@@ -26,11 +27,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   handleTurma
   }) {
   const popover = usePopover();
+  const [turmas, setTurmas] = useState([]);
 
-  const {turmas, buscaTurmas} = useContext(TurmasContext);
+ // const {turmas, buscaTurmas} = useContext(TurmasContext);
+
   useEffect(() => {
     console.log('useEffect DIAGNOSTICO EDIT VIEW');
-    buscaTurmas();
+    turmaMethods.getAllTurmas().then(turmas => {
+      setTurmas(turmas.data);
+    });
   }, []);
 
   const handleFilterNome = useCallback(
