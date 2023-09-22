@@ -310,8 +310,6 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((item) => {
       return turma
         .map((baseItem) => {
-          console.log( `${baseItem.ano_escolar}${baseItem.nome}`);
-          console.log(`${item.ano_escolar}${item.nome}`);
           return `${baseItem.ano_escolar}${baseItem.nome}`;
         })
         .includes(`${item.ano_escolar}${item.nome}`);
@@ -320,8 +318,8 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (bimestre.length) {
     inputData = inputData.filter((item) => {
-      console.log(bimestre);
-      console.log(item.bimestre);
+      // console.log(bimestre);
+      // console.log(item.bimestre);
       return bimestre.includes(item.bimestre);
     });
   }
