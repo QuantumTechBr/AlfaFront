@@ -11,9 +11,6 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 
-// react
-import { useEffect, useState, useCallback } from 'react';
-
 // hooks
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 // _mock
@@ -81,11 +78,14 @@ export default function OverviewAppView() {
 
         </Grid>
 
-        <Grid xs={12} md={6}>
+        <Grid xs={12} md={8}>
 
           <OverviewTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            ddzOptions={[]}
+            escolaOptions={[]}
+            turmaOptions={[]}
           />
 
         </Grid>
