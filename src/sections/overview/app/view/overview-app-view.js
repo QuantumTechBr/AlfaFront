@@ -1,5 +1,8 @@
 'use client';
 
+import isEqual from 'lodash/isEqual';
+import { useEffect, useState, useCallback, useContext } from 'react';
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
@@ -7,6 +10,10 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
+
+// react
+import { useEffect, useState, useCallback } from 'react';
+
 // hooks
 import { useMockedUser } from 'src/hooks/use-mocked-user';
 // _mock
@@ -32,12 +39,28 @@ import AppAvaliacaoComponente from '../app-avaliacao-componente';
 // ----------------------------------------------------------------------
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-nova-avaliacao-form';
 import { useBoolean } from 'src/hooks/use-boolean';
+import OverviewTableToolbar from './overview-table-toolbar'; 
 
 export default function OverviewAppView() {
  // const { user } = useMockedUser();
 
-  const theme = useTheme();
+  const defaultFilters = {
+    nome: ''
+  };
 
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const handleFilters = useCallback(
+    (nome, value) => {
+      setFilters((prevState) => ({
+        ...prevState,
+        [nome]: value,
+      }));
+    },
+    [setFilters]
+  );
+
+  const theme = useTheme();
   const settings = useSettingsContext();
 
   const novaAvaliacao = useBoolean();
@@ -46,30 +69,25 @@ export default function OverviewAppView() {
     novaAvaliacao.onFalse();
   }
 
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
-        {/* <Grid xs={12} md={8}>
-          <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
-            description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
-            img={<SeoIllustration />}
-            action={
-              <Button variant="contained" color="primary">
-                Go Now
-              </Button>
-            }
-          /> 
-        </Grid> 
-
-        <Grid xs={12} md={4}>
-          <AppFeatured list={_appFeatured} />
-        </Grid> */}
 
         <Grid xs={12} md={10}>
           <Typography variant="h3" paragraph>
             Dashboard
           </Typography>
+
+        </Grid>
+
+        <Grid xs={12} md={6}>
+
+          <OverviewTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+          />
+
         </Grid>
 
         <Grid xs={12} md={2}>
@@ -77,8 +95,6 @@ export default function OverviewAppView() {
             Registro de Aprendizagem
           </Button>
         </Grid>
-
-        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
@@ -149,7 +165,7 @@ export default function OverviewAppView() {
               ],
               series: [
                 {
-                  year: '2019',
+                  year: '2023',
                   data: [
                     {
                       name: '',
@@ -162,7 +178,7 @@ export default function OverviewAppView() {
                   ],
                 },
                 {
-                  year: '2020',
+                  year: '2022',
                   data: [
                     {
                       name: 'Asia',
