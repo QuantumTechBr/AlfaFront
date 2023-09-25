@@ -93,7 +93,6 @@ export default function RegistroAprendizagemFaseListView() {
       let _registrosAprendizagemFase = [];
 
       turmas.forEach((_turma) => {
-        console.log(_turma);
         bimestres.forEach((_bimestre) => {
           _registrosAprendizagemFase.push({
             id: _turma.id,
@@ -114,11 +113,9 @@ export default function RegistroAprendizagemFaseListView() {
   };
 
   useEffect(() => {
-    console.log('useEffect FASE LIST VIEW');
     preparacaoInicial();
   }, [setTableData]); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
-    console.log('useEffect preencheTabela');
     preencheTabela();
   }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
@@ -308,8 +305,6 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((item) => {
       return turma
         .map((baseItem) => {
-          console.log( `${baseItem.ano_escolar}${baseItem.nome}`);
-          console.log(`${item.ano_escolar}${item.nome}`);
           return `${baseItem.ano_escolar}${baseItem.nome}`;
         })
         .includes(`${item.ano_escolar}${item.nome}`);
@@ -318,8 +313,6 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (bimestre.length) {
     inputData = inputData.filter((item) => {
-      console.log(bimestre);
-      console.log(item.bimestre);
       return bimestre.includes(item.bimestre);
     });
   }

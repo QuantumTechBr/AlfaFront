@@ -38,7 +38,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
-    console.log('useEffect MODAL');
     buscaTurmas();
     buscaBimestres();
   }, [buscaTurmas, buscaBimestres]);
@@ -67,18 +66,11 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
-      // console.log(name, type);
-      // console.table(values);
-
       if (type == 'change' && name == 'tipo') {
         if (values.turma != '') setValue('turma', '');
         if (values.bimestre != '') setValue('bimestre', '');
         if (values.periodo != '') setValue('periodo', '');
       }
-
-      // if (type == 'change' && name == 'turma') {
-      //   if (values.bimestre != '') setValue('bimestre', '');
-      // }
     });
 
     return () => subscription.unsubscribe();
@@ -117,7 +109,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
         sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
         router.push(paths.dashboard.registro_aprendizagem.new_diagnostico);
       } else {
-        console.info('DATA', data);
         throw 'Tipo não implementado';
       }
     } catch (error) {
@@ -130,7 +121,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
       fullWidth
       maxWidth={false}
       open={open}
-      onClose={false}
+      onClose={onClose}
       PaperProps={{
         sx: { maxWidth: 720 },
       }}

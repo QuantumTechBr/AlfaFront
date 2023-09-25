@@ -90,17 +90,14 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     await Promise.all([buscaAnosLetivos(), buscaEscolas(), buscaTurmas()]);
   };
   useEffect(() => {
-    console.log('useEffect DIAGNOSTICO LIST VIEW');
     preparacaoInicial();
   }, [setTableData]);
 
   const preencheTabela = () => {
-    console.log('preencheTabela DIAGNOSTICO LIST VIEW 1');
     const promisesList = [];
     let turmasRegistroInicial = [];
     let turmasRegistroFinal = [];
     if (!!turmas && turmas.length) {
-      console.log('preencheTabela DIAGNOSTICO LIST VIEW 2');
 
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
@@ -141,8 +138,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         });
       promisesList.push(buscaPeriodoFinal);
       Promise.all(promisesList).then(() => {
-        console.log(turmasRegistroInicial);
-        console.log(turmasRegistroFinal);
         setTurmasComRegistro(turmasComRegistroNovo);
         setTableData(turmasComRegistroNovo);
         setTurmasFiltered(turmasComRegistroNovo);
@@ -151,7 +146,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   };
 
   useEffect(() => {
-    console.log('useEffect promises DIAGNOSTICO LIST VIEW 1');
     preencheTabela();
   }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered]);
 

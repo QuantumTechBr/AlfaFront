@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -11,15 +11,10 @@ import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
-// routes
-import { useRouter } from 'src/routes/hook';
 // _mock
 import { promo_options } from 'src/_mock';
-// hooks
-import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import {
   useTable,
@@ -80,10 +75,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
   const table = useTable();
 
   const settings = useSettingsContext();
-
-  const router = useRouter();
-
-  const confirm = useBoolean();
 
   const [filters, setFilters] = useState(defaultFilters);
 
