@@ -172,6 +172,7 @@ export const endpoints = {
     get_by_id: '/api/v1/registros-aprendizagens/',
     update: '/api/v1/registros-aprendizagens/',
     delete: '/api/v1/registros-aprendizagens/',
+    delete_by_filter: '/api/v1/registros-aprendizagens/byFilters/',
     diagnostico: {
       post: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       list: '/api/v1/registros-aprendizagens/avaliacao-diagnostico',

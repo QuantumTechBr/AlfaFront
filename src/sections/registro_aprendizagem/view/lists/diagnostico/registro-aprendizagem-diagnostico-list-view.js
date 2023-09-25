@@ -189,26 +189,35 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     [table]
   );
 
-  // const handleDeleteRow = useCallback(
-  //   (id) => {
-  //     const deleteRow = tableData.filter((row) => row.id !== id);
-  //     setTableData(deleteRow);
+  const handleDeleteRow = useCallback(
+    (id, periodo) => {
+      const deleteRow = tableData.find((row) => (row.id == id && row.periodo == periodo));
+      if(!deleteRow){
+        console.log("Linha a ser deletada não encontrada.")
+        return;
+      } else {
+        console.log("Linha a ser deletada: ", deleteRow);
+      }
+      const remainingRows = tableData.filter((row) => (row.id !== id || row.periodo !== periodo));
+      setTableData(remainingRows);
 
-  //     table.onUpdatePageDeleteRow(dataInPage.length);
-  //   },
-  //   [dataInPage.length, table, tableData]
-  // );
+      table.onUpdatePageDeleteRow(dataInPage.length);
+      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:id, periodo:periodo})
 
-  // const handleDeleteRows = useCallback(() => {
-  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-  //   setTableData(deleteRows);
+    },
+    [dataInPage.length, table, tableData]
+  );
 
-  //   table.onUpdatePageDeleteRows({
-  //     totalRows: tableData.length,
-  //     totalRowsInPage: dataInPage.length,
-  //     totalRowsFiltered: dataFiltered.length,
-  //   });
-  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const handleDeleteRows = useCallback(() => {
+    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    setTableData(deleteRows);
+
+    table.onUpdatePageDeleteRows({
+      totalRows: tableData.length,
+      totalRowsInPage: dataInPage.length,
+      totalRowsFiltered: dataFiltered.length,
+    });
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -266,23 +275,21 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             <RegistroAprendizagemTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            {/* <TableSelectedAction
+            <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row.id)
+                  tableData.map((row) => `${row.id}_${row.periodo}`)
                 )
               }
               action={
@@ -292,7 +299,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                   </IconButton>
                 </Tooltip>
               }
-            /> */}
+            />
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
@@ -303,12 +310,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  // onSelectAllRows={(checked) =>
-                  //   table.onSelectAllRows(
-                  //     checked,
-                  //     tableData.map((row) => row.id)
-                  //   )
-                  // }
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      tableData.map((row) => `${row.id}_${row.periodo}`)
+                    )
+                  }
                 />
 
                 <TableBody>
@@ -321,10 +328,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                       <RegistroAprendizagemDiagnosticoTableRow
                         key={`${row.id}_${row.periodo}`}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        selected={table.selected.includes(`${row.id}_${row.periodo}`)}
+                        onSelectRow={() => table.onSelectRow(`${row.id}_${row.periodo}`)}
+                        onDeleteRow={() => handleDeleteRow(row.id, row.periodo)}
+                        onEditRow={() => handleEditRow(row.id, row.periodo)}
                       />
                     ))}
 
