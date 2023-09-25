@@ -47,9 +47,9 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
   return (
     <>
       <TableRow hover selected={selected} >
-        {/* <TableCell padding="checkbox">
+        <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell> */}
+        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
@@ -72,9 +72,9 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
             </IconButton>
           </Tooltip>
 
-          {/* <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </TableCell>
       </TableRow>
 
