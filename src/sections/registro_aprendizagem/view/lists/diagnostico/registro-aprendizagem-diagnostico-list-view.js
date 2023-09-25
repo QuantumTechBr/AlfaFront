@@ -51,13 +51,13 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
-  { id: 'turma', label: 'Turma', width: 75 },
+  { id: 'ano_letivo', label: 'Ano Letivo', width: 75 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
+  { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'tipo', label: 'Tipo', width: 105 },
-  { id: 'escola', label: 'Escola' },
+  { id: 'periodo', label: 'Período', width: 105 },
+  { id: 'escola_nome', label: 'Escola' },
   { id: '', width: 88 },
 ];
 
@@ -113,7 +113,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             );
             turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
               const retorno = { ...turma };
-              retorno.tipo = 'Inicial';
+              retorno.periodo = 'Inicial';
+              retorno.alunos = turma.aluno_turma.length;
+              retorno.escola_nome = turma.escola.nome;
+              retorno.ano_letivo = turma.ano.ano;
               return retorno;
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
@@ -127,7 +130,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             turmasRegistroFinal = turmas.filter((turma) => listaIdsTurmas.data.includes(turma.id));
             turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
               const retorno = { ...turma };
-              retorno.tipo = 'Final';
+              retorno.periodo = 'Final';
+              retorno.alunos = turma.aluno_turma.length;
+              retorno.escola_nome = turma.escola.nome;
+              retorno.ano_letivo = turma.ano.ano;
               return retorno;
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
@@ -151,7 +157,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const dataFiltered = applyFilter({
     inputData: tableData,
-    // comparator: getComparator(table.order, table.orderBy),
+    comparator: getComparator(table.order, table.orderBy),
     filters,
   });
 
@@ -254,15 +260,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
-          {/* <RegistroAprendizagemTableToolbar
+          <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            // anoLetivoOptions={anosLetivos}
-            // turmaOptions={_turmasFiltered}
-            // escolaOptions={escolas}
-          /> */}
+            anoLetivoOptions={anosLetivos}
+            turmaOptions={_turmasFiltered}
+            escolaOptions={escolas}
+          />
 
-          {/* {canReset && (
+          {canReset && (
             <RegistroAprendizagemTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
@@ -272,7 +278,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )} */}
+          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             {/* <TableSelectedAction
@@ -297,8 +303,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
-                  // order={table.order}
-                  // orderBy={table.orderBy}
+                  order={table.order}
+                  orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
@@ -313,10 +319,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
                 <TableBody>
                   {dataFiltered
-                    // .slice(
-                    //   table.page * table.rowsPerPage,
-                    //   table.page * table.rowsPerPage + table.rowsPerPage
-                    // )
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
                     .map((row) => (
                       <RegistroAprendizagemDiagnosticoTableRow
                         key={`${row.id}_${row.periodo}`}
@@ -339,14 +345,14 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             </Scrollbar>
           </TableContainer>
 
-          {/* <TablePaginationCustom
+          <TablePaginationCustom
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             dense={false}
-          /> */}
+          />
         </Card>
       </Container>
 
@@ -387,11 +393,11 @@ function applyFilter({ inputData, comparator, filters }) {
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
-  // stabilizedThis.sort((a, b) => {
-  //   const order = comparator(a[0], b[0]);
-  //   if (order !== 0) return order;
-  //   return a[1] - b[1];
-  // });
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
 
   inputData = stabilizedThis.map((el) => el[0]);
 
@@ -401,22 +407,19 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (escola.length) {
     inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola)
+      escola.map((baseItem) => baseItem.nome).includes(item.escola_nome)
     );
   }
 
   if (turma.length) {
     inputData = inputData.filter((item) =>
-      turma.map((baseItem) => baseItem.nome).includes(item.turma)
+      turma.map((baseItem) => baseItem.id).includes(item.id)
     );
   }
 
   if (nome) {
     inputData = inputData.filter(
       (item) => {
-        if(item.escola.nome.toLowerCase().includes(nome.toLowerCase())) {
-          return true;
-        }
         if(item.nome.toLowerCase().includes(nome.toLowerCase())){
           return true;
         }
