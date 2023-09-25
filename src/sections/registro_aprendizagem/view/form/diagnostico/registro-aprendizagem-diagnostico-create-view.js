@@ -6,7 +6,7 @@ import Container from '@mui/material/Container';
 import { paths } from 'src/routes/paths';
 // components
 import { useSettingsContext } from 'src/components/settings';
-import { TurmasContext } from '../../../../turma/context/turma-context'
+//import { TurmasContext } from '../../../../turma/context/turma-context'
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import RegistroAprendizagemDiagnosticoNewEditForm from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-form';
@@ -18,7 +18,7 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 
 export default function RegistroAprendizagemDiagnosticoCreateView({ turma, periodo }) {
   const settings = useSettingsContext();
-  const {turmas, buscaTurmas, buscaTurmaPorId} = useContext(TurmasContext);
+  //const {turmas, buscaTurmas, buscaTurmaPorId} = useContext(TurmasContext);
   const [_turma, setTurma] = useState(turma);
   const [alunosTurma, setAlunosTurma] = useState([]);
   const [habilidades, setHabilidades] = useState([]);

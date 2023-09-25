@@ -20,16 +20,16 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function RegistroAprendizagemTableToolbar({
   filters,
   onFilters,
-  anoEscolarOptions,
+  anoLetivoOptions,
   escolaOptions,
   turmaOptions,
   bimestreOptions,
   disciplinaOptions,
 }) {
 
-  if(typeof filters.anoEscolar === 'number'){
-    filters.anoEscolar = anoEscolarOptions.filter((item) => item.ano == filters.anoEscolar)[0];
-  }
+  // if(typeof filters.anoLetivo === 'number'){
+  //   filters.anoLetivo = anoLetivoOptions.filter((item) => item.ano == filters.anoEscolar)[0];
+  // }
   const popover = usePopover();
 
   const handleFilterNome = useCallback(
@@ -39,9 +39,9 @@ export default function RegistroAprendizagemTableToolbar({
     [onFilters]
   );
 
-  const handleFilterAnoEscolar = useCallback(
+  const handleFilterAnoLetivo = useCallback(
     (event) => {
-      onFilters('anoEscolar', event.target.value);
+      onFilters('anoLetivo', event.target.value);
     },
     [onFilters]
   );
@@ -100,7 +100,7 @@ export default function RegistroAprendizagemTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {anoEscolarOptions && !!anoEscolarOptions.length && (
+        {anoLetivoOptions && !!anoLetivoOptions.length && (
         <FormControl
           sx={{
             flexShrink: 0,
@@ -110,11 +110,11 @@ export default function RegistroAprendizagemTableToolbar({
           <InputLabel>Ano Letivo</InputLabel>
           
           <Select
-            value={filters.anoEscolar}
-            onChange={handleFilterAnoEscolar}
+            value={filters.anoLetivo}
+            onChange={handleFilterAnoLetivo}
             input={<OutlinedInput label="Ano Letivo" />}
           >
-            {anoEscolarOptions.map((option) => (
+            {anoLetivoOptions.map((option) => (
               <MenuItem key={option.id} value={option}>{option.ano}</MenuItem>
             ))}
           </Select>
@@ -270,7 +270,7 @@ export default function RegistroAprendizagemTableToolbar({
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </Stack>
-      </Stack>
+      </Stack> 
 
       <CustomPopover
         open={popover.open}
@@ -312,7 +312,7 @@ export default function RegistroAprendizagemTableToolbar({
 RegistroAprendizagemTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  anoEscolarOptions: PropTypes.array,
+  anoLetivoOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
 };

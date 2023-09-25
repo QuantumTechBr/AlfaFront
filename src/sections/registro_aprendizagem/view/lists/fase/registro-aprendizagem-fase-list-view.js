@@ -55,7 +55,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoEscolar: new Date().getFullYear(),
+  anoLetivo: '',
   escola: [],
   turma: [],
   bimestre: [],
@@ -72,7 +72,14 @@ export default function RegistroAprendizagemFaseListView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
   const preparado = useBoolean(false);
 
+  const table = useTable();
+  const settings = useSettingsContext();
+  const router = useRouter();
+  const [tableData, setTableData] = useState([]);
+  const [filters, setFilters] = useState(defaultFilters);
+
   const preparacaoInicial = async () => {
+    preencheTabela();
     await Promise.all([
       buscaAnosLetivos(),
       buscaEscolas(),
@@ -109,22 +116,13 @@ export default function RegistroAprendizagemFaseListView() {
   useEffect(() => {
     console.log('useEffect FASE LIST VIEW');
     preparacaoInicial();
-  }, []); // CHAMADA UNICA AO ABRIR
+  }, [setTableData]); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
     console.log('useEffect preencheTabela');
     preencheTabela();
   }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
-  const table = useTable();
-
-  const settings = useSettingsContext();
-
-  const router = useRouter();
-
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
-
+ 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -214,7 +212,7 @@ export default function RegistroAprendizagemFaseListView() {
           <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            anoEscolarOptions={anosLetivos}
+            anoLetivoOptions={anosLetivos}
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
             bimestreOptions={bimestres}
@@ -285,7 +283,7 @@ export default function RegistroAprendizagemFaseListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoEscolar, escola, turma, bimestre } = filters;
+  const { nome, anoLetivo, escola, turma, bimestre } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -296,8 +294,8 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoEscolar) {
-    inputData = inputData.filter((item) => item.ano_escolar == anoEscolar.ano);
+  if (anoLetivo) {
+    inputData = inputData.filter((item) => item.ano_letivo == anoLetivo.ano);
   }
 
   if (escola.length) {
