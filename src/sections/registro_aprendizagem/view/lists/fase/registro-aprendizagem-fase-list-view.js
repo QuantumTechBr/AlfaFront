@@ -90,25 +90,28 @@ export default function RegistroAprendizagemFaseListView() {
     ]);
   };
 
-  const preencheTabela = () => {
+  const preencheTabela = async () => {
     if (!preparado.value && anosLetivos.length && turmas.length && bimestres.length) {
       let _registrosAprendizagemFase = [];
 
-      turmas.forEach((_turma) => {
-        console.log(_turma);
-        bimestres.forEach((_bimestre) => {
-          _registrosAprendizagemFase.push({
-            id: _turma.id,
-            ano_letivo: _turma.ano.ano,
-            ano_escolar: _turma.ano_escolar,
-            nome: _turma.nome,
-            turno: _turma.turno,
-            alunos: _turma.aluno_turma.length,
-            bimestre: _bimestre,
-            escola: _turma.escola.nome,
+      const _turmasComRegistros = await registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({});
+
+      turmas
+        .filter((_turma) => _turmasComRegistros.data.includes(_turma.id))
+        .forEach((_turma) => {
+          bimestres.forEach((_bimestre) => {
+            _registrosAprendizagemFase.push({
+              id: _turma.id,
+              ano_letivo: _turma.ano.ano,
+              ano_escolar: _turma.ano_escolar,
+              nome: _turma.nome,
+              turno: _turma.turno,
+              alunos: _turma.aluno_turma.length,
+              bimestre: _bimestre,
+              escola: _turma.escola.nome,
+            });
           });
         });
-      });
 
       setTableData(_registrosAprendizagemFase);
       preparado.onTrue();
@@ -169,19 +172,24 @@ export default function RegistroAprendizagemFaseListView() {
 
   const handleDeleteRow = useCallback(
     (turmaId, bimestreId) => {
-      const deleteRow = tableData.find((row) => (row.id == turmaId && row.bimestre.id == bimestreId));
-      if(!deleteRow){
-        console.log("Linha a ser deletada não encontrada.")
+      const deleteRow = tableData.find((row) => row.id == turmaId && row.bimestre.id == bimestreId);
+      if (!deleteRow) {
+        // console.log('Linha a ser deletada não encontrada.');
         return;
       } else {
-        console.log("Linha a ser deletada: ", deleteRow);
+        // console.log('Linha a ser deletada: ', deleteRow);
       }
-      const remainingRows = tableData.filter((row) => (row.id !== turmaId || row.bimestre.id !== bimestreId));
+      const remainingRows = tableData.filter(
+        (row) => row.id !== turmaId || row.bimestre.id !== bimestreId
+      );
       setTableData(remainingRows);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
-      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'fase', turmaId:turmaId, bimestreId: bimestreId})
-
+      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({
+        tipo: 'fase',
+        turmaId: turmaId,
+        bimestreId: bimestreId,
+      });
     },
     [dataInPage.length, table, tableData]
   );
