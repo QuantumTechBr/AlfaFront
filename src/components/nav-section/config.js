@@ -19,7 +19,7 @@ export const navMiniConfig = (config) => ({
   itemSubHeight: config?.itemSubHeight || 34,
   itemPadding: config?.itemPadding || '6px 0 0 0',
   itemRadius: config?.itemRadius || 6,
-  hiddenLabel: config?.hiddenLabel || true,
+  hiddenLabel: config?.hiddenLabel || false,
 });
 
 export const navHorizontalConfig = (config) => ({
