@@ -14,7 +14,7 @@ export default function TableNoData({ notFound, sx }) {
         <TableCell colSpan={12}>
           <EmptyContent
             filled
-            title="No Data"
+            title="Nenhum Registro"
             sx={{
               py: 10,
               ...sx,

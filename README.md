@@ -11,3 +11,15 @@
 
 - npm i OR npm i --legacy-peer-deps
 - npm run dev
+
+
+## CONFIG ENV
+DEV {
+
+
+}
+
+## CONFIG WORKFlOW
+ec2-user@ec2******************
+V2|main
+
