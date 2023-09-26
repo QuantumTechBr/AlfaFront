@@ -139,12 +139,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     bimestreToGetRegistros ??= bimestre;
 
     if (!!turmaToGetRegistros && !!bimestreToGetRegistros) {
-      // BUSCAR NO BANCO DE DADOS
+      setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
 
       let registrosDaTurmaBimestre =
         await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaToGetRegistros.id,
-          bimestreId: bimestre.id,
+          bimestreId: bimestreToGetRegistros.id,
         });
       console.table(registrosDaTurmaBimestre.data);
 

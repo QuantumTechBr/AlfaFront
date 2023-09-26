@@ -24,7 +24,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano, nome, turno, aluno_turma, tipo, escola, created_at, updated_at, deleted_at } = row;
+  const { id, ano_escolar, ano, nome, turno, aluno_turma, periodo, escola, created_at, updated_at, deleted_at } = row;
 
   const router = useRouter();
 
@@ -37,7 +37,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
   const editarRegistros = () => {
     const dadosDiagnostico = {
       turma: id,
-      periodo: tipo,
+      periodo: periodo,
     }
     sessionStorage.setItem('dadosDiagnosticoTurma', dadosDiagnostico.turma);
     sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
@@ -47,9 +47,9 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
   return (
     <>
       <TableRow hover selected={selected} >
-        {/* <TableCell padding="checkbox">
+        <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell> */}
+        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
@@ -61,7 +61,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma.length}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{tipo}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodo}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
@@ -72,9 +72,9 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
             </IconButton>
           </Tooltip>
 
-          {/* <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </TableCell>
       </TableRow>
 

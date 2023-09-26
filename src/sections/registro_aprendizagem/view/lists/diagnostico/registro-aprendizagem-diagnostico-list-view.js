@@ -51,13 +51,13 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
-  { id: 'turma', label: 'Turma', width: 75 },
+  { id: 'ano_letivo', label: 'Ano Letivo', width: 75 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
+  { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'alunos', label: 'Alunos', width: 80 },
-  { id: 'tipo', label: 'Tipo', width: 105 },
-  { id: 'escola', label: 'Escola' },
+  { id: 'periodo', label: 'Período', width: 105 },
+  { id: 'escola_nome', label: 'Escola' },
   { id: '', width: 88 },
 ];
 
@@ -65,6 +65,7 @@ const defaultFilters = {
   anoLetivo: '',
   escola: [],
   turma: [],
+  pesquisa: '',
 };
 
 // ----------------------------------------------------------------------
@@ -113,7 +114,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             );
             turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
               const retorno = { ...turma };
-              retorno.tipo = 'Inicial';
+              retorno.periodo = 'Inicial';
+              retorno.alunos = turma.aluno_turma.length;
+              retorno.escola_nome = turma.escola.nome;
+              retorno.ano_letivo = turma.ano.ano;
               return retorno;
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
@@ -127,7 +131,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             turmasRegistroFinal = turmas.filter((turma) => listaIdsTurmas.data.includes(turma.id));
             turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
               const retorno = { ...turma };
-              retorno.tipo = 'Final';
+              retorno.periodo = 'Final';
+              retorno.alunos = turma.aluno_turma.length;
+              retorno.escola_nome = turma.escola.nome;
+              retorno.ano_letivo = turma.ano.ano;
               return retorno;
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
@@ -151,7 +158,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const dataFiltered = applyFilter({
     inputData: tableData,
-    // comparator: getComparator(table.order, table.orderBy),
+    comparator: getComparator(table.order, table.orderBy),
     filters,
   });
 
@@ -169,8 +176,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
 
   const handleFilters = useCallback(
-    (nome, value) => {
-      if (nome == 'escola') {
+    (campo, value) => {
+      if (campo == 'escola') {
         if (value.length == 0) {
           setTurmasFiltered(turmas);
         } else {
@@ -183,32 +190,41 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [nome]: value,
+        [campo]: value,
       }));
     },
     [table]
   );
 
-  // const handleDeleteRow = useCallback(
-  //   (id) => {
-  //     const deleteRow = tableData.filter((row) => row.id !== id);
-  //     setTableData(deleteRow);
+  const handleDeleteRow = useCallback(
+    (id, periodo) => {
+      const deleteRow = tableData.find((row) => (row.id == id && row.periodo == periodo));
+      if(!deleteRow){
+        console.log("Linha a ser deletada não encontrada.")
+        return;
+      } else {
+        console.log("Linha a ser deletada: ", deleteRow);
+      }
+      const remainingRows = tableData.filter((row) => (row.id !== id || row.periodo !== periodo));
+      setTableData(remainingRows);
 
-  //     table.onUpdatePageDeleteRow(dataInPage.length);
-  //   },
-  //   [dataInPage.length, table, tableData]
-  // );
+      table.onUpdatePageDeleteRow(dataInPage.length);
+      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:id, periodo:periodo})
 
-  // const handleDeleteRows = useCallback(() => {
-  //   const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-  //   setTableData(deleteRows);
+    },
+    [dataInPage.length, table, tableData]
+  );
 
-  //   table.onUpdatePageDeleteRows({
-  //     totalRows: tableData.length,
-  //     totalRowsInPage: dataInPage.length,
-  //     totalRowsFiltered: dataFiltered.length,
-  //   });
-  // }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  const handleDeleteRows = useCallback(() => {
+    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
+    setTableData(deleteRows);
+
+    table.onUpdatePageDeleteRows({
+      totalRows: tableData.length,
+      totalRowsInPage: dataInPage.length,
+      totalRowsFiltered: dataFiltered.length,
+    });
+  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -254,35 +270,33 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Card>
-          {/* <RegistroAprendizagemTableToolbar
+          <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            // anoLetivoOptions={anosLetivos}
-            // turmaOptions={_turmasFiltered}
-            // escolaOptions={escolas}
-          /> */}
+            anoLetivoOptions={anosLetivos}
+            turmaOptions={_turmasFiltered}
+            escolaOptions={escolas}
+          />
 
-          {/* {canReset && (
+          {canReset && (
             <RegistroAprendizagemTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )} */}
+          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            {/* <TableSelectedAction
+            <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
               rowCount={tableData.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row.id)
+                  tableData.map((row) => `${row.id}_${row.periodo}`)
                 )
               }
               action={
@@ -292,39 +306,39 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                   </IconButton>
                 </Tooltip>
               }
-            /> */}
+            />
 
             <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
-                  // order={table.order}
-                  // orderBy={table.orderBy}
+                  order={table.order}
+                  orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  // onSelectAllRows={(checked) =>
-                  //   table.onSelectAllRows(
-                  //     checked,
-                  //     tableData.map((row) => row.id)
-                  //   )
-                  // }
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      tableData.map((row) => `${row.id}_${row.periodo}`)
+                    )
+                  }
                 />
 
                 <TableBody>
                   {dataFiltered
-                    // .slice(
-                    //   table.page * table.rowsPerPage,
-                    //   table.page * table.rowsPerPage + table.rowsPerPage
-                    // )
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
                     .map((row) => (
                       <RegistroAprendizagemDiagnosticoTableRow
                         key={`${row.id}_${row.periodo}`}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
+                        selected={table.selected.includes(`${row.id}_${row.periodo}`)}
+                        onSelectRow={() => table.onSelectRow(`${row.id}_${row.periodo}`)}
+                        onDeleteRow={() => handleDeleteRow(row.id, row.periodo)}
+                        onEditRow={() => handleEditRow(row.id, row.periodo)}
                       />
                     ))}
 
@@ -339,14 +353,14 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             </Scrollbar>
           </TableContainer>
 
-          {/* <TablePaginationCustom
+          <TablePaginationCustom
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             dense={false}
-          /> */}
+          />
         </Card>
       </Container>
 
@@ -379,7 +393,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoLetivo, escola, turma } = filters;
+  const { anoLetivo, escola, turma, pesquisa } = filters;
 
   if (!inputData) {
     return [];
@@ -387,11 +401,11 @@ function applyFilter({ inputData, comparator, filters }) {
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
-  // stabilizedThis.sort((a, b) => {
-  //   const order = comparator(a[0], b[0]);
-  //   if (order !== 0) return order;
-  //   return a[1] - b[1];
-  // });
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
 
   inputData = stabilizedThis.map((el) => el[0]);
 
@@ -401,26 +415,25 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (escola.length) {
     inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola)
+      escola.map((baseItem) => baseItem.nome).includes(item.escola_nome)
     );
   }
 
   if (turma.length) {
     inputData = inputData.filter((item) =>
-      turma.map((baseItem) => baseItem.nome).includes(item.turma)
+      turma.map((baseItem) => baseItem.id).includes(item.id)
     );
   }
 
-  if (nome) {
+  if (pesquisa.trim().length) {
     inputData = inputData.filter(
       (item) => {
-        if(item.escola.nome.toLowerCase().includes(nome.toLowerCase())) {
-          return true;
-        }
-        if(item.nome.toLowerCase().includes(nome.toLowerCase())){
-          return true;
-        }
-        return false;
+        return item.ano.ano.toString().toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        (`${item.ano_escolar.toLowerCase()}${item.nome.toLowerCase()}`).indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.turno.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.periodo.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.escola.nome.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 
+        ;
       }
     );
   }

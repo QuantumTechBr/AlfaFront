@@ -26,63 +26,58 @@ export default function RegistroAprendizagemTableToolbar({
   bimestreOptions,
   disciplinaOptions,
 }) {
-
   // if(typeof filters.anoLetivo === 'number'){
   //   filters.anoLetivo = anoLetivoOptions.filter((item) => item.ano == filters.anoEscolar)[0];
   // }
   const popover = usePopover();
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
-      onFilters('nome', event.target.value);
+      console.log(event.target);
+      console.log(event.target.value);
+      onFilters('pesquisa', event.target.value);
     },
     [onFilters]
   );
 
   const handleFilterAnoLetivo = useCallback(
-    (event) => {
-      onFilters('anoLetivo', event.target.value);
-    },
+    (event) => onFilters('anoLetivo', event.target.value),
     [onFilters]
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
+    (event) =>
       onFilters(
         'escola',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
+      ),
     [onFilters]
   );
 
   const handleFilterTurma = useCallback(
-    (event) => {
+    (event) =>
       onFilters(
         'turma',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
+      ),
     [onFilters]
   );
 
   const handleFilterBimestre = useCallback(
-    (event) => {
+    (event) =>
       onFilters(
         'bimestre',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
+      ),
     [onFilters]
   );
 
   const handleFilterDisciplina = useCallback(
-    (event) => {
+    (event) =>
       onFilters(
         'disciplina',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
+      ),
     [onFilters]
   );
 
@@ -101,161 +96,173 @@ export default function RegistroAprendizagemTableToolbar({
         }}
       >
         {anoLetivoOptions && !!anoLetivoOptions.length && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Ano Letivo</InputLabel>
-          
-          <Select
-            value={filters.anoLetivo}
-            onChange={handleFilterAnoLetivo}
-            input={<OutlinedInput label="Ano Letivo" />}
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
           >
-            {anoLetivoOptions.map((option) => (
-              <MenuItem key={option.id} value={option}>{option.ano}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>Ano Letivo</InputLabel>
+
+            <Select
+              value={filters.anoLetivo}
+              onChange={handleFilterAnoLetivo}
+              input={<OutlinedInput label="Ano Letivo" />}
+            >
+              {anoLetivoOptions.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  {option.ano}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
 
         {escolaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
             }}
           >
-            {escolaOptions.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>Escola</InputLabel>
+
+            <Select
+              multiple
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              input={<OutlinedInput label="Escola" />}
+              renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                  {option.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         )}
 
         {turmaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Turma</InputLabel>
-          
-          <Select
-            multiple
-            value={filters.turma}
-            onChange={handleFilterTurma}
-            input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
             }}
           >
-            {turmaOptions.map((option) => {
-              return (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {` ${option.ano_escolar}º ${option.nome}`}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+            <InputLabel>Turma</InputLabel>
+
+            <Select
+              multiple
+              value={filters.turma}
+              onChange={handleFilterTurma}
+              input={<OutlinedInput label="Turma" />}
+              renderValue={(selected) =>
+                selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ')
+              }
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {turmaOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
+                    {` ${option.ano_escolar}º ${option.nome}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
 
         {bimestreOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Bimestre</InputLabel>
-          
-          <Select
-            multiple
-            value={filters.bimestre}
-            onChange={handleFilterBimestre}
-            input={<OutlinedInput label="Bimestre" />}
-            renderValue={(selected) => selected.map((item)=> `${item.ordinal}º`).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
             }}
           >
-            {bimestreOptions.map((option) => {
-              return (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.bimestre.includes(option)} />
-                  {`${option.ordinal} º`}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+            <InputLabel>Bimestre</InputLabel>
+
+            <Select
+              multiple
+              value={filters.bimestre}
+              onChange={handleFilterBimestre}
+              input={<OutlinedInput label="Bimestre" />}
+              renderValue={(selected) => selected.map((item) => `${item.ordinal}º`).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {bimestreOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.bimestre.includes(option)}
+                    />
+                    {`${option.ordinal} º`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
 
         {disciplinaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel>Disciplina</InputLabel>
-          
-          <Select
-            multiple
-            value={filters.disciplina}
-            onChange={handleFilterDisciplina}
-            input={<OutlinedInput label="Disciplina" />}
-            renderValue={(selected) => selected.join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
             }}
           >
-            {disciplinaOptions.map((option) => {
-              return (
-                <MenuItem key={option} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.disciplina.includes(option)} />
-                  {option}
-                </MenuItem>
-              );
-            })}
-          </Select>
-        </FormControl>
+            <InputLabel>Disciplina</InputLabel>
+
+            <Select
+              multiple
+              value={filters.disciplina}
+              onChange={handleFilterDisciplina}
+              input={<OutlinedInput label="Disciplina" />}
+              renderValue={(selected) => selected.join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {disciplinaOptions.map((option) => {
+                return (
+                  <MenuItem key={option} value={option}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.disciplina.includes(option)}
+                    />
+                    {option}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
+            value={filters.pesquisa}
+            onChange={handleFilterPesquisa}
             placeholder="Pesquisar..."
             InputProps={{
               startAdornment: (
@@ -270,7 +277,7 @@ export default function RegistroAprendizagemTableToolbar({
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </Stack>
-      </Stack> 
+      </Stack>
 
       <CustomPopover
         open={popover.open}

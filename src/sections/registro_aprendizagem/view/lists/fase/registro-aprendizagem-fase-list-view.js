@@ -41,6 +41,7 @@ import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -59,6 +60,7 @@ const defaultFilters = {
   escola: [],
   turma: [],
   bimestre: [],
+  pesquisa: '',
 };
 
 // ----------------------------------------------------------------------
@@ -122,7 +124,6 @@ export default function RegistroAprendizagemFaseListView() {
     preencheTabela();
   }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
- 
   const dataFiltered = applyFilter({
     inputData: tableData,
     comparator: getComparator(table.order, table.orderBy),
@@ -135,16 +136,12 @@ export default function RegistroAprendizagemFaseListView() {
   );
 
   const denseHeight = table.dense ? 52 : 72;
-
   const canReset = !isEqual(defaultFilters, filters);
-
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
-
   const handleFilters = useCallback(
-    (nome, value) => {
-      if (nome == 'escola') {
+    (campo, value) => {
+      if (campo == 'escola') {
         if (value.length == 0) {
           setTurmasFiltered(turmas);
         } else {
@@ -157,7 +154,7 @@ export default function RegistroAprendizagemFaseListView() {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [nome]: value,
+        [campo]: value,
       }));
     },
     [table]
@@ -168,6 +165,25 @@ export default function RegistroAprendizagemFaseListView() {
       router.push(paths.dashboard.registro_aprendizagem.edit_fase(turmaInicial, bimestreInicial));
     },
     [router]
+  );
+
+  const handleDeleteRow = useCallback(
+    (turmaId, bimestreId) => {
+      const deleteRow = tableData.find((row) => (row.id == turmaId && row.bimestre.id == bimestreId));
+      if(!deleteRow){
+        console.log("Linha a ser deletada não encontrada.")
+        return;
+      } else {
+        console.log("Linha a ser deletada: ", deleteRow);
+      }
+      const remainingRows = tableData.filter((row) => (row.id !== turmaId || row.bimestre.id !== bimestreId));
+      setTableData(remainingRows);
+
+      table.onUpdatePageDeleteRow(dataInPage.length);
+      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'fase', turmaId:turmaId, bimestreId: bimestreId})
+
+    },
+    [dataInPage.length, table, tableData]
   );
 
   const handleResetFilters = useCallback(() => {
@@ -252,6 +268,7 @@ export default function RegistroAprendizagemFaseListView() {
                         key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
                         row={row}
                         onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id, row.bimestre.id)}
                       />
                     ))}
 
@@ -283,7 +300,7 @@ export default function RegistroAprendizagemFaseListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoLetivo, escola, turma, bimestre } = filters;
+  const { anoLetivo, escola, turma, bimestre, pesquisa } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -306,27 +323,17 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (turma.length) {
     inputData = inputData.filter((item) => {
-      return turma
-        .map((baseItem) => {
-          console.log( `${baseItem.ano_escolar}${baseItem.nome}`);
-          console.log(`${item.ano_escolar}${item.nome}`);
-          return `${baseItem.ano_escolar}${baseItem.nome}`;
-        })
-        .includes(`${item.ano_escolar}${item.nome}`);
+      return turma.map((baseItem) => baseItem.id).includes(item.id);
     });
   }
 
   if (bimestre.length) {
-    inputData = inputData.filter((item) => {
-      console.log(bimestre);
-      console.log(item.bimestre);
-      return bimestre.includes(item.bimestre);
-    });
+    inputData = inputData.filter((item) => bimestre.includes(item.bimestre));
   }
 
-  if (nome) {
+  if (pesquisa.trim().length) {
     inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => item.escola.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1
     );
   }
 
