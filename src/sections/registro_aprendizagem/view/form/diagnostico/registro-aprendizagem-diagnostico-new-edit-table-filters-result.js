@@ -49,7 +49,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
         {!!filters.promo_ano_anterior.length && (
           <Block label="Promoção no ano anterior:">
             {filters.promo_ano_anterior.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemovePromo(item)} />
+              <Chip key={item} label={item == '' ? 'Não Preenchido' : item} size="small" onDelete={() => handleRemovePromo(item)} />
             ))}
           </Block>
         )}

@@ -111,6 +111,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
+             <MenuItem key='promo_vazio' value=''>
+                <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes('')} />
+                Não Preenchido
+              </MenuItem>
             {promoOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes(option)} />

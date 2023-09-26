@@ -56,6 +56,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
             <RHFSelect key={id+'promo'} name={'registros[' + id + '].promo_ano_anterior'} > 
+                <MenuItem key={id + '_promo_vazio'} value='' sx={{ height: '34px' }}>
+                  
+                </MenuItem>
               {promo_options.map((promo) => (
                 <MenuItem key={id + '_promo_' + promo} value={promo} sx={{ height: '34px' }}>
                   {promo}
