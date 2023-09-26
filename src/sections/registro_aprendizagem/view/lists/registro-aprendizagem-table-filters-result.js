@@ -18,12 +18,14 @@ export default function RegistroAprendizagemTableFiltersResult({
   results,
   ...other
 }) {
-
+  const handleRemoveAnoLetivo = (inputValue) => {
+    onFilters('anoLetivo', '');
+  };
   const handleRemoveEscola = (inputValue) => {
     const newValue = filters.escola.filter((item) => item !== inputValue);
     onFilters('escola', newValue);
   };
-  
+
   const handleRemoveTurma = (inputValue) => {
     const newValue = filters.turma.filter((item) => item !== inputValue);
     onFilters('turma', newValue);
@@ -33,7 +35,7 @@ export default function RegistroAprendizagemTableFiltersResult({
     const newValue = filters.bimestre.filter((item) => item !== inputValue);
     onFilters('bimestre', newValue);
   };
-  
+
   const handleRemoveDisciplina = (inputValue) => {
     const newValue = filters.disciplina.filter((item) => item !== inputValue);
     onFilters('disciplina', newValue);
@@ -52,6 +54,12 @@ export default function RegistroAprendizagemTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {filters.anoLetivo && filters.anoLetivo !== '' && (
+          <Block label="Ano Letivo:">
+            <Chip size="small" label={filters.anoLetivo.ano} onDelete={handleRemoveAnoLetivo} />
+          </Block>
+        )}
+
         {filters.nome && filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
@@ -61,7 +69,12 @@ export default function RegistroAprendizagemTableFiltersResult({
         {!!filters.escola.length && (
           <Block label="Escola:">
             {filters.escola.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item)} />
+              <Chip
+                key={item.id}
+                label={item.nome}
+                size="small"
+                onDelete={() => handleRemoveEscola(item)}
+              />
             ))}
           </Block>
         )}
@@ -69,7 +82,12 @@ export default function RegistroAprendizagemTableFiltersResult({
         {!!filters.turma.length && (
           <Block label="Turma:">
             {filters.turma.map((item) => (
-              <Chip key={item.id} label={`${item.ano_escolar}º ${item.nome}`} size="small" onDelete={() => handleRemoveTurma(item)} />
+              <Chip
+                key={item.id}
+                label={`${item.ano_escolar}º ${item.nome}`}
+                size="small"
+                onDelete={() => handleRemoveTurma(item)}
+              />
             ))}
           </Block>
         )}
@@ -77,7 +95,12 @@ export default function RegistroAprendizagemTableFiltersResult({
         {filters.bimestre && !!filters.bimestre.length && (
           <Block label="Bimestre:">
             {filters.bimestre.map((item) => (
-              <Chip key={item} label={`${item.ordinal}º`} size="small" onDelete={() => handleRemoveBimestre(item)} />
+              <Chip
+                key={item}
+                label={`${item.ordinal}º`}
+                size="small"
+                onDelete={() => handleRemoveBimestre(item)}
+              />
             ))}
           </Block>
         )}
@@ -85,7 +108,12 @@ export default function RegistroAprendizagemTableFiltersResult({
         {filters.disciplina && !!filters.disciplina.length && (
           <Block label="Disciplina:">
             {filters.disciplina.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDisciplina(item)} />
+              <Chip
+                key={item}
+                label={item}
+                size="small"
+                onDelete={() => handleRemoveDisciplina(item)}
+              />
             ))}
           </Block>
         )}
