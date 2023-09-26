@@ -72,10 +72,10 @@ export function useNavData() {
           // USER
           {
             title: 'Gerenciamento de Usuários',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaUserProfile,
             children: [
-              { title: 'Perfis e Permissões', path: paths.dashboard.root },
+              { title: 'Perfis e Permissões', path: paths.dashboard.blank },
               { title: t('usuários'), path: paths.dashboard.user.list },
             ],
           },
@@ -84,39 +84,39 @@ export function useNavData() {
           // PROFISSIONAIS
           {
             title: 'Profissionais da Educação',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaClipboardAccount,
           },
 
           // ALUNOS
           {
             title: 'Lista de Alunos',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaStudent,
           },
 
           // ANOS
           {
             title: 'Lista de Anos Letivos',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaCalendar,
             children: [
-              { title: t('calendário'), path: paths.dashboard.root },
-              { title: t('gerar relatório'), path: paths.dashboard.root },
-              { title: t('documentos administrativos'), path: paths.dashboard.root },
+              { title: t('calendário'), path: paths.dashboard.blank },
+              { title: t('gerar relatório'), path: paths.dashboard.blank },
+              { title: t('documentos administrativos'), path: paths.dashboard.blank },
             ],
           },
 
           // TURMAS
           {
             title: 'Turmas',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaBookAccount,
             children: [
               { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-              { title: t('frequência'), path: paths.dashboard.root },
-              { title: t('atividades pedagógicas'), path: paths.dashboard.root },
-              { title: 'Planos de Aulas', path: paths.dashboard.root },
+              { title: t('frequência'), path: paths.dashboard.blank },
+              { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
+              { title: 'Planos de Aulas', path: paths.dashboard.blank },
             ],
           },
 
@@ -144,11 +144,11 @@ export function useNavData() {
           // TOUR
           {
             title: 'Redes de Ensino',
-            path: paths.dashboard.root,
+            path: paths.dashboard.blank,
             icon: ICONS.alfaBuilding,
             children: [
-              { title: 'Lista de DDZ', path: paths.dashboard.root },
-              { title: 'Lista de Escolas', path: paths.dashboard.root },
+              { title: 'Lista de DDZ', path: paths.dashboard.blank },
+              { title: 'Lista de Escolas', path: paths.dashboard.blank },
             ],
           },
         ],
@@ -159,7 +159,7 @@ export function useNavData() {
      /* {
         subheader: t('overview'),
         items: [
-          { title: t('app'), path: paths.dashboard.root, icon: ICONS.dashboard },
+          { title: t('app'), path: paths.dashboard.blank, icon: ICONS.dashboard },
           { title: t('ecommerce'), path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
           { title: t('analytics'), path: paths.dashboard.general.analytics, icon: ICONS.analytics },
           { title: t('banking'), path: paths.dashboard.general.banking, icon: ICONS.banking },
