@@ -263,7 +263,7 @@ export const _anos = [2024, 2023, 2022];
 
 export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
-export const habilidades_options = ['D', 'PD', 'ND'];
+export const habilidades_options = ['', 'D', 'PD', 'ND'];
 
 export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 

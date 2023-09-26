@@ -119,11 +119,9 @@ export default function RegistroAprendizagemFaseListView() {
   };
 
   useEffect(() => {
-    console.log('useEffect FASE LIST VIEW');
     preparacaoInicial();
   }, [setTableData]); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
-    console.log('useEffect preencheTabela');
     preencheTabela();
   }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 

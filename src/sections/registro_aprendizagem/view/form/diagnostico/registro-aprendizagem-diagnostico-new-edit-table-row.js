@@ -1,32 +1,20 @@
 import PropTypes from 'prop-types';
 // @mui
-import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
-import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
-import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+import { usePopover } from 'src/components/custom-popover';
 //
-//import UserQuickEditForm from './user-quick-edit-form';
 import { useRouter } from 'src/routes/hook';
-import { paths } from 'src/routes/paths';
 import { _habilidades, habilidades_options, promo_options } from 'src/_mock';
-import FormProvider, { RHFMultiSelect, RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-//import { getAllEnumEntries } from 'enum-for';
+import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
-import { FormControl, Input } from '@mui/material';
-
+import { FormControl } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, onEditRow, onSelectRow, onDeleteRow }) {
@@ -45,9 +33,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   return (
     <>
       <TableRow hover selected={selected}>
-        {/* <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell> */}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {row.aluno.nome}  
@@ -71,8 +56,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
             <RHFSelect key={id+'promo'} name={'registros[' + id + '].promo_ano_anterior'} > 
+                <MenuItem key={id + '_promo_vazio'} value='' sx={{ height: '34px' }}>
+                  
+                </MenuItem>
               {promo_options.map((promo) => (
-                <MenuItem key={id + '_promo_' + promo} value={promo}>
+                <MenuItem key={id + '_promo_' + promo} value={promo} sx={{ height: '34px' }}>
                   {promo}
                 </MenuItem>
               ))}
@@ -81,12 +69,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         {habilidades.map((habilidade) => {
           
-          // console.log(`registros[${id}]['habilidades_registro_aprendizagem'][${habilidade[1].id}] `);
           return (
             <TableCell key={id+'habcell'+habilidade.id}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
                 {habilidades_options.map((hab) => (
-                  <MenuItem key={id + '_hab_' + hab} value={hab}>
+                  <MenuItem key={id + '_hab_' + hab} value={hab} sx={{ height: '34px' }}>
                     <Label
                       variant="soft"
                       color={(hab === 'D' && 'success') ||
