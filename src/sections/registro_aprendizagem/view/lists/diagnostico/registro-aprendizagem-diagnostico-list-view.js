@@ -210,14 +210,24 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(`${row.id}_${row.periodo}`)) {
+        registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:row.id, periodo:row.periodo});
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
+
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: dataFiltered.length,
     });
+
+
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
