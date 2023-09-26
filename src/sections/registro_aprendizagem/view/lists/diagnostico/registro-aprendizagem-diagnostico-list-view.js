@@ -65,6 +65,7 @@ const defaultFilters = {
   anoLetivo: '',
   escola: [],
   turma: [],
+  pesquisa: '',
 };
 
 // ----------------------------------------------------------------------
@@ -175,8 +176,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
 
   const handleFilters = useCallback(
-    (nome, value) => {
-      if (nome == 'escola') {
+    (campo, value) => {
+      if (campo == 'escola') {
         if (value.length == 0) {
           setTurmasFiltered(turmas);
         } else {
@@ -189,7 +190,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [nome]: value,
+        [campo]: value,
       }));
     },
     [table]
@@ -392,7 +393,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoLetivo, escola, turma } = filters;
+  const { anoLetivo, escola, turma, pesquisa } = filters;
 
   if (!inputData) {
     return [];
@@ -424,13 +425,15 @@ function applyFilter({ inputData, comparator, filters }) {
     );
   }
 
-  if (nome) {
+  if (pesquisa.trim().length) {
     inputData = inputData.filter(
       (item) => {
-        if(item.nome.toLowerCase().includes(nome.toLowerCase())){
-          return true;
-        }
-        return false;
+        return item.ano.ano.toString().toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        (`${item.ano_escolar.toLowerCase()}${item.nome.toLowerCase()}`).indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.turno.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.periodo.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
+        item.escola.nome.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 
+        ;
       }
     );
   }

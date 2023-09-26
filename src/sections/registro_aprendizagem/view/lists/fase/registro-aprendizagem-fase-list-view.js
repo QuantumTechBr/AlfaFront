@@ -60,6 +60,7 @@ const defaultFilters = {
   escola: [],
   turma: [],
   bimestre: [],
+  pesquisa: '',
 };
 
 // ----------------------------------------------------------------------
@@ -139,8 +140,8 @@ export default function RegistroAprendizagemFaseListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
-      if (nome == 'escola') {
+    (campo, value) => {
+      if (campo == 'escola') {
         if (value.length == 0) {
           setTurmasFiltered(turmas);
         } else {
@@ -153,7 +154,7 @@ export default function RegistroAprendizagemFaseListView() {
       table.onResetPage();
       setFilters((prevState) => ({
         ...prevState,
-        [nome]: value,
+        [campo]: value,
       }));
     },
     [table]
@@ -299,7 +300,7 @@ export default function RegistroAprendizagemFaseListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, anoLetivo, escola, turma, bimestre } = filters;
+  const { anoLetivo, escola, turma, bimestre, pesquisa } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -330,9 +331,9 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((item) => bimestre.includes(item.bimestre));
   }
 
-  if (nome) {
+  if (pesquisa.trim().length) {
     inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => item.escola.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1
     );
   }
 

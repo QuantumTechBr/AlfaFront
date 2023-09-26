@@ -21,6 +21,7 @@ export default function RegistroAprendizagemTableFiltersResult({
   const handleRemoveAnoLetivo = (inputValue) => {
     onFilters('anoLetivo', '');
   };
+
   const handleRemoveEscola = (inputValue) => {
     const newValue = filters.escola.filter((item) => item !== inputValue);
     onFilters('escola', newValue);
@@ -41,8 +42,8 @@ export default function RegistroAprendizagemTableFiltersResult({
     onFilters('disciplina', newValue);
   };
 
-  const handleRemoveNome = (inputValue) => {
-    onFilters('nome', '');
+  const handleRemovePesquisa = (inputValue) => {
+    onFilters('pesquisa', '');
   };
   return (
     <Stack spacing={1.5} {...other}>
@@ -60,9 +61,9 @@ export default function RegistroAprendizagemTableFiltersResult({
           </Block>
         )}
 
-        {filters.nome && filters.nome !== '' && (
-          <Block label="Nome:">
-            <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
+        {filters.pesquisa && filters.pesquisa !== '' && (
+          <Block label="Pesquisa:">
+            <Chip size="small" label={filters.pesquisa} onDelete={handleRemovePesquisa} />
           </Block>
         )}
 
