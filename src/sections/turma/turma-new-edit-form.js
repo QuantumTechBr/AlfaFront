@@ -68,7 +68,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
       escola_id: currentTurma?.escola?.id || '',
-      turno: currentTurma?.turno || '',
+      turno: currentTurma.turno?.toLowerCase() || '',
       status: currentTurma?.status || ''
     }),
     [currentTurma]
