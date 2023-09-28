@@ -66,7 +66,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Editar" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={editarRegistros}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
@@ -93,13 +93,6 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
-
-        <MenuItem
-          onClick={editarRegistros}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
         </MenuItem>
       </CustomPopover>
 
