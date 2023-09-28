@@ -20,7 +20,6 @@ import { slugify } from 'src/utils/functions';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
-  // console.log(row);
   const { id: aluno_turma_id, aluno } = row;
   const { control } = useFormContext();
 

@@ -36,6 +36,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   useEffect(() => {
     buscaEscolas();
     buscaAnosLetivos();
+
   }, [])
 
   const NewTurmaSchema = Yup.object().shape({
@@ -52,7 +53,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
       escolaId: currentTurma.escola.id || '',
-      turno: currentTurma?.turno || '',
+      turno: currentTurma.turno?.toLowerCase() || '',
       status: currentTurma?.status || ''
     }),
     [currentTurma]
@@ -131,9 +132,10 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
 
             <RHFSelect name="turno" label="Turno">
               {_turnos.map((turno) => (
-                <MenuItem key={turno} value={turno}>
-                   <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
+                <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
+                  {turno}
                 </MenuItem>
+
               ))}
             </RHFSelect>
 

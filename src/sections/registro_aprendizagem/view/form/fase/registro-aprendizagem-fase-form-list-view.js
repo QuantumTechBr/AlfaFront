@@ -146,7 +146,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           turmaId: turmaToGetRegistros.id,
           bimestreId: bimestreToGetRegistros.id,
         });
-      console.table(registrosDaTurmaBimestre.data);
 
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
@@ -190,15 +189,11 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     };
 
     const toSend = Object.values(data.registros).map((formItem) => {
-      // console.table(formItem);
       let item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       return item;
     });
-
-    console.log('toSend');
-    console.table(toSend);
 
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend);
@@ -211,7 +206,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   });
 
   useEffect(() => {
-    console.log('useEffect FORM FASE LIST VIEW');
     buscaBimestres();
     buscaTurmas().then((_turmas) => {
       if (!!turmaInicial) {
