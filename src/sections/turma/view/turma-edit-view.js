@@ -1,24 +1,34 @@
 'use client';
+import { useEffect, useState, useContext } from 'react';
 
 import PropTypes from 'prop-types';
 // @mui
 import Container from '@mui/material/Container';
 // routes
 import { paths } from 'src/routes/paths';
-// _mock
-import { _turmas } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import TurmaNewEditForm from '../turma-new-edit-form';
 
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+
 // ----------------------------------------------------------------------
 
 export default function TurmaEditView({ id }) {
   const settings = useSettingsContext();
 
-  const currentTurma = _turmas.find((turma) => turma.id === id);
+  
+  const { buscaTurmaPorId } = useContext(TurmasContext);
+
+  const [currentTurma, setCurrentTurma] = useState({});
+
+  useEffect(()  => {
+    buscaTurmaPorId({id}).then(turma => setCurrentTurma(turma))
+  }, []);
+
+  const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -33,7 +43,7 @@ export default function TurmaEditView({ id }) {
             name: 'Turmas',
             href: paths.dashboard.turma.root,
           },
-          { name: currentTurma?.nome },
+          { name: nomeBreadcrumbs },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

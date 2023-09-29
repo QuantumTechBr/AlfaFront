@@ -9,6 +9,7 @@ import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
+import Box from '@mui/material/Box';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -22,8 +23,7 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, ano_escolar, ano_serie, turno, alunos, media, status, created_at, updated_at, deleted_at } = row;
-
+  const { id, nome, ano_escolar, ano, turno, aluno_turma, media, status, created_at, updated_at, deleted_at } = row;
 
   const confirm = useBoolean();
 
@@ -38,17 +38,31 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_serie}°</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}° ano</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
+        </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma?.length > 0 ? aluno_turma.length : 0}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{status}</TableCell>
+        <TableCell>
+          <Label
+            variant="soft"
+            color={
+              (status === true && 'success') ||
+              (status === 'pending' && 'warning') ||
+              (status === false && 'error') ||
+              'default'
+            }
+          >
+            {status? 'Ativo' : 'Inativo'}
+          </Label>
+        </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

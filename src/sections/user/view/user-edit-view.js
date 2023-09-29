@@ -12,7 +12,7 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import UserNewEditForm from '../user-new-edit-form';
-import userMethods from '../user-provider';
+import userMethods from '../user-repository';
 import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
@@ -23,6 +23,8 @@ export default function UserEditView({ id }) {
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
+      usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao.id : '';
+      usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola.id : '';
       setCurrentUser(usuario.data);
     })
   }, []);
@@ -38,7 +40,7 @@ export default function UserEditView({ id }) {
           },
           {
             name: 'Usuário',
-            href: paths.dashboard.user.root,
+            href: paths.dashboard.user.list,
           },
           { name: currentUser?.nome },
         ]}

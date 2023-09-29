@@ -113,7 +113,7 @@ export const paths = {
       file: `${ROOTS.DASHBOARD}/file`,
     },
     user: {
-      root: `${ROOTS.DASHBOARD}/user`,
+      root: `${ROOTS.DASHBOARD}/user/list`,
       new: `${ROOTS.DASHBOARD}/user/new`,
       list: `${ROOTS.DASHBOARD}/user/list`,
       cards: `${ROOTS.DASHBOARD}/user/cards`,
@@ -147,6 +147,19 @@ export const paths = {
       demo: {
         edit: `${ROOTS.DASHBOARD}/turma/${MOCK_ID}/edit`,
       },
+    },
+    registro_aprendizagem: {
+      root: `${ROOTS.DASHBOARD}/registro_aprendizagem`,
+      root_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/list`,
+      new_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/new`,
+      edit_diagnostico: (turmaInicial, periodoInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/new`,
+      root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase`,
+      new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
+      edit_fase: (turmaInicial, bimestreInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${turmaInicial}/${bimestreInicial}`,
+      root_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/list`,
+      new_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/new`,
+      edit_componente: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/${id}/edit`,
+      
     },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,

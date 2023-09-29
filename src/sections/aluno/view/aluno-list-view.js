@@ -41,15 +41,15 @@ import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
 import AlunoTableFiltersResult from '../aluno-table-filters-result';
 import alunoMethods from '../aluno-provider';
-
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 // ----------------------------------------------------------------------
 
+const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
+
 const TABLE_HEAD = [
-  { id: 'id', label: 'id', width: 300 },
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matricula', width: 200 },
-  { id: 'data_nascimento', label: 'Aniversário', width: 300 },
-  { id: '', width: 88 },
+  { id: 'data_nascimento', label: 'Aniversário', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -57,9 +57,8 @@ const anoAtual = new Date().getFullYear();
 
 const defaultFilters = {
   nome: '',
-  ano: anoAtual,
   matricula: '',
-  data_nascimento: ''
+  data_nascimento: '',
 };
 
 // ----------------------------------------------------------------------
@@ -70,9 +69,6 @@ export default function AlunoListView() {
 
   useEffect(() => {
     alunoMethods.getAllAlunos().then(alunos => {
-      for (var i = 0; i < alunos.data.length; i++) {
-        alunos.data[i].status = 'ativo';
-      }
       setAlunoList(alunos.data);
       setTableData(alunos.data);
     })
@@ -145,13 +141,6 @@ export default function AlunoListView() {
       router.push(paths.dashboard.aluno.edit(id));
     },
     [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {

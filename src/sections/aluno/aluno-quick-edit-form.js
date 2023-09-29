@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
+import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -13,6 +14,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+//import DatePicker from 'src/theme/overrides/components/date-picker';
 
 // _mock
 import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
@@ -22,23 +24,30 @@ import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import { LocalizationProvider } from 'src/locales';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+
+
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentUser: currentAluno, open, onClose }) {
+export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+  const alunoNascimento = dayjs(currentAluno.data_nascimento);
+  console.log(currentAluno);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     matricula: Yup.string().required('Matricula é obrigatória'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório')
+    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
   });
+
 
   const defaultValues = useMemo(
     () => ({
       nome: currentAluno?.nome || '',
-      ano: currentAluno?.matricula || '',
-      escola: currentAluno?.data_nascimento || '',
+      matricula: currentAluno?.matricula || '',
+      data_nascimento: dayjs(currentAluno?.data_nascimento) || '',
     }),
     [currentAluno]
   );
@@ -56,10 +65,10 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      reset();
-      onClose();
-      enqueueSnackbar('Atualizado com sucesso!');
+      // await new Promise((resolve) => setTimeout(resolve, 500));
+      // reset();
+      // onClose();
+      // enqueueSnackbar('Atualizado com sucesso!');
       console.info('DATA', data);
     } catch (error) {
       console.error(error);
@@ -81,7 +90,7 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
-
+        <br></br>
           <Box
             rowGap={3}
             columnGap={2}
@@ -95,8 +104,9 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
             <RHFTextField name="nome" label="Nome do Aluno" />
 
             <RHFTextField name="matricula" label="Matricula" />
-      
-            <DatePicker name="data_nascimento" label="Data de Nascimento"   />
+
+            <DatePicker name="data_nascimento" label="Data de Nascimento" />
+
 
           </Box>
         </DialogContent>
@@ -116,7 +126,7 @@ export default function TurmaQuickEditForm({ currentUser: currentAluno, open, on
 }
 
 TurmaQuickEditForm.propTypes = {
-  currentUser: PropTypes.object,
+  currentAluno: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };

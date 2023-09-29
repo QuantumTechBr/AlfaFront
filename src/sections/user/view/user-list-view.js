@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, _roles, USER_STATUS_OPTIONS, _ddzs, _escolas } from 'src/_mock';
+import { _userList, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -44,7 +44,9 @@ import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 import UserTableFiltersResult from '../user-table-filters-result';
 //
-import userMethods from '../user-provider';
+import userMethods from '../user-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 // ----------------------------------------------------------------------
 
 
@@ -53,9 +55,8 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 200 },
   { id: 'email', label: 'E-Mail', width: 300 },
-  { id: 'funcao_usuario', label: 'Função', width: 200 },
+  { id: 'funcao', label: 'Função', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: ' ', width: 88 },
   { id: '', width: 88 },
 ];
 
@@ -73,16 +74,27 @@ export default function UserListView() {
 
   const [_userList, setUserList] = useState([]);
 
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
+
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
-      for (var i = 0; i < usuarios.data.length; i++) {
-        usuarios.data[i].status = 'ativo';
+      const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
+      for (var i = 0; i < usuariosNaoDeletados.length; i++) {
+        if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
+          usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
+          usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
+        }
       }
-      setUserList(usuarios.data);
-      setTableData(usuarios.data);
+      setUserList(usuariosNaoDeletados);
+      setTableData(usuariosNaoDeletados);
     })
+
+    buscaEscolas();
+    buscaFuncoes();
   }, []);
-  
+
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -126,6 +138,7 @@ export default function UserListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
+      userMethods.deleteUserById(id);
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -134,8 +147,15 @@ export default function UserListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(row.id)) {
+        userMethods.deleteUserById(row.id);
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -166,10 +186,10 @@ export default function UserListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Usuários"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Usuário', href: paths.dashboard.user.root },
+            { name: 'Usuário', href: paths.dashboard.user.list },
             { name: 'Listar' },
           ]}
           action={
@@ -211,20 +231,19 @@ export default function UserListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === 'ativo' && 'success') ||
+                      (tab.value === true && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'inativo' && 'error') ||
+                      (tab.value === false && 'error') ||
                       'default'
                     }
                   >
                     {tab.value === 'all' && _userList.length}
-                    {tab.value === 'ativo' &&
-                      _userList.filter((user) => user.status === 'ativo').length}
-
+                    {tab.value === true &&
+                      _userList.filter((user) => user.status === true).length}
                     {tab.value === 'pending' &&
                       _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'inativo' &&
-                      _userList.filter((user) => user.status === 'inativo').length}
+                    {tab.value === false &&
+                      _userList.filter((user) => user.status === false).length}
                     {tab.value === 'rejected' &&
                       _userList.filter((user) => user.status === 'rejected').length}
                   </Label>
@@ -236,20 +255,20 @@ export default function UserListView() {
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //
-            roleOptions={_roles}
+            roleOptions={funcoes}
             ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            escolaOptions={escolas}
           />
 
           {canReset && (
             <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
+              roleOptions={funcoes}
+              ddzOptions={_ddzs}
+              escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -384,11 +403,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.role));
-  }
-
-  if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
+    inputData = inputData.filter((user) => role.includes(user.funcao));
   }
 
   if (escola.length) {

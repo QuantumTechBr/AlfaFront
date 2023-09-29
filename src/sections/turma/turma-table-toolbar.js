@@ -33,16 +33,6 @@ export default function TurmaTableToolbar({
     [onFilters]
   );
 
-  // const handleFilterRole = useCallback(
-  //   (event) => {
-  //     onFilters(
-  //       'role',
-  //       typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //     );
-  //   },
-  //   [onFilters]
-  // );
-
   const handleFilterDdz = useCallback(
     (event) => {
       onFilters(
@@ -63,6 +53,11 @@ export default function TurmaTableToolbar({
     [onFilters]
   );
 
+  const renderValueEscola = (selected) => 
+    selected.map((escolaId) => {
+      return escolaOptions.find((option) => option.id == escolaId)?.nome;
+    }).join(', ');
+
   return (
     <>
       <Stack
@@ -77,34 +72,7 @@ export default function TurmaTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {/* <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 140 },
-          }}
-        >
-          <InputLabel>Função</InputLabel>
 
-          <Select
-            multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Função" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {roleOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
 
         <FormControl
           sx={{
@@ -148,17 +116,17 @@ export default function TurmaTableToolbar({
             value={filters.escola}
             onChange={handleFilterEscola}
             input={<OutlinedInput label="Escola" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueEscola}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {escolaOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option}
+           {escolaOptions?.map((escola) => (
+              <MenuItem key={escola.id} value={escola.id}>
+                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
+                {escola.nome}
               </MenuItem>
             ))}
           </Select>

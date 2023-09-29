@@ -6,12 +6,27 @@ import { AuthGuard } from 'src/auth/guard';
 // components
 import DashboardLayout from 'src/layouts/dashboard';
 
+import { AnosLetivosProvider } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { EscolasProvider } from 'src/sections/escola/context/escola-context';
+import { FuncoesProvider } from 'src/sections/funcao/context/funcao-context';
+import { TurmasProvider } from 'src/sections/turma/context/turma-context';
+import { BimestresProvider } from 'src/sections/bimestre/context/bimestre-context';
 // ----------------------------------------------------------------------
 
 export default function Layout({ children }) {
   return (
     <AuthGuard>
-      <DashboardLayout>{children}</DashboardLayout>
+      <AnosLetivosProvider>
+        <EscolasProvider>
+          <FuncoesProvider>
+            <TurmasProvider>
+              <BimestresProvider>
+                <DashboardLayout>{children}</DashboardLayout>
+              </BimestresProvider>
+            </TurmasProvider>
+          </FuncoesProvider>
+        </EscolasProvider>
+      </AnosLetivosProvider>
     </AuthGuard>
   );
 }

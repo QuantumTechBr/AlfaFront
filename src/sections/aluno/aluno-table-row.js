@@ -37,7 +37,6 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{id}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
@@ -52,7 +51,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{deleted_at}</TableCell>*/}
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Edição Rápida" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
@@ -64,7 +63,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
       </TableRow>
 
-      <AlunoQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -85,7 +84,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <MenuItem
           onClick={() => {
-            onEditRow();
+            //onEditRow();
             popover.onClose();
           }}
         >

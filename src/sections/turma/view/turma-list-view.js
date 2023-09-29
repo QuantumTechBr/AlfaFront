@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
 import Tab from '@mui/material/Tab';
@@ -19,7 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, _escolas, _turmas } from 'src/_mock';
+import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -44,9 +44,12 @@ import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
-import turmaMethods from '../turma-provider';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import turmaMethods from 'src/sections/turma/turma-repository';
 // ----------------------------------------------------------------------
 
+const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'ano_serie', label: 'Ano', width: 300 },
@@ -55,7 +58,6 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 300 },
   { id: 'alunos', label: 'Alunos', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
   { id: '', width: 88 },
 ];
 
@@ -72,15 +74,16 @@ const defaultFilters = {
 
 export default function TurmaListView() {
 
-  const [_turmaList, setTurmaList] = useState([]);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
+  const [tableData, setTableData] = useState([]);
+  const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    // turmaMethods.getAllTurmas().then(turmas => {
-    //   setTurmaList(turmas.data);
-    //   setTableData(turmas.data);
-    // })
-    setTurmaList(_turmas);
-    setTableData(_turmas);
+    buscaTurmas({force:true}).then((_turmas) => setTableData(_turmas))
+    buscaEscolas();
+    
   }, []);
   
   const table = useTable();
@@ -91,9 +94,6 @@ export default function TurmaListView() {
 
   const confirm = useBoolean();
 
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -126,6 +126,7 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
+      turmaMethods.deleteTurmaById(id);
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -134,8 +135,15 @@ export default function TurmaListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(row.id)) {
+        turmaMethods.deleteTurmaById(row.id);
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -166,7 +174,7 @@ export default function TurmaListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Turmas"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Turmas', href: paths.dashboard.turma.root },
@@ -191,13 +199,53 @@ export default function TurmaListView() {
         />
 
         <Card>
+        <Tabs
+            value={filters.status}
+            onChange={handleFilterStatus}
+            sx={{
+              px: 2.5,
+              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
+            }}
+          >
+            {STATUS_OPTIONS.map((tab) => (
+              <Tab
+                key={tab.value}
+                iconPosition="end"
+                value={tab.value}
+                label={tab.label}
+                icon={
+                  <Label
+                    variant={
+                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
+                    }
+                    color={
+                      (tab.value === true && 'success') ||
+                      (tab.value === 'pending' && 'warning') ||
+                      (tab.value === false && 'error') ||
+                      'default'
+                    }
+                  >
+                    {tab.value === 'all' && turmas.length}
+                    {tab.value === true &&
+                      turmas.filter((user) => user.status === true).length}
+                    {tab.value === 'pending' &&
+                      turmas.filter((user) => user.status === 'pending').length}
+                    {tab.value === false &&
+                      turmas.filter((user) => user.status === false).length}
+                    {tab.value === 'rejected' &&
+                      turmas.filter((user) => user.status === 'rejected').length}
+                  </Label>
+                }
+              />
+            ))}
+          </Tabs>
 
           <TurmaTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //roleOptions={_roles}
             ddzOptions={_ddzs}
-            escolaOptions={_escolas}
+            escolaOptions={escolas}
           />
 
           {canReset && (

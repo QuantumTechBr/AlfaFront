@@ -1,0 +1,144 @@
+import PropTypes from 'prop-types';
+import * as Yup from 'yup';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+// @mui
+import LoadingButton from '@mui/lab/LoadingButton';
+import Stack from '@mui/material/Stack';
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
+// components
+import { useSnackbar } from 'src/components/snackbar';
+import FormProvider from 'src/components/hook-form';
+import { _habilidades, _roles, _ddzs, _escolas } from 'src/_mock';
+import { useEffect } from 'react';
+import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+
+
+// ----------------------------------------------------------------------
+
+export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, periodo, handleTurma, habilidades, alunosTurma }) {
+  const router = useRouter();
+  const { enqueueSnackbar } = useSnackbar();
+  const NewUserSchema = Yup.object().shape({
+    nome: Yup.string().required('Nome é obrigatório'),
+    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
+    senha: Yup.string(),
+    funcao_usuario: Yup.string(),
+  });
+
+  const defaultValues = {
+    registros: []
+  }
+
+  const methods = useForm({
+    //resolver: yupResolver(NewUserSchema),
+    defaultValues,
+  });
+
+  const {
+    register,
+    getValues,
+    reset,
+    resetField,
+    watch,
+    control,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  useEffect(() => {
+    if (alunosTurma.length) {
+      const novosRegistros = [];
+      alunosTurma.forEach((alunoTurma) => {
+        novosRegistros[alunoTurma.id] = {
+          habilidades_registro_aprendizagem: alunoTurma.mapHabilidades,
+          id_aluno_turma: alunoTurma.id,
+          promo_ano_anterior: alunoTurma.promo_ano_anterior,
+        }       
+      })
+      setValue('registros', novosRegistros); 
+    }
+  }, [alunosTurma, turma]);
+
+  const values = watch();
+
+  const onSubmit = handleSubmit(async (data) => {
+    const registrosAprendizagem = [];
+    alunosTurma.forEach((itemList) => {
+      const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
+      const habilidadesRegistroAprendizagem = [];
+      for (let item in dataHabilidades) {
+        if (typeof (dataHabilidades[item]) == 'string') {
+          if (itemList.id_habilidades_registro_aprendizagem) {
+            let encontrada = itemList.id_habilidades_registro_aprendizagem[item];
+            const habilidadeRegistroAprendizagem = {
+              habilidade_id: item,
+              nota: dataHabilidades[item],
+              id: encontrada,
+            }
+            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+          } else {
+            const habilidadeRegistroAprendizagem = {
+              habilidade_id: item,
+              nota: dataHabilidades[item],
+            }
+            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+          }
+        }
+      }
+      if (itemList.id_registro) {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
+          id: itemList.id_registro,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
+      } else {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
+      }
+    });
+    try {
+      await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem);
+      reset();
+      enqueueSnackbar('Atualizado com sucesso!');
+      router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
+    } catch (error) {
+      enqueueSnackbar('Erro ao Salvar!');
+    }
+  });
+
+  return (
+    <FormProvider methods={methods} onSubmit={onSubmit}>
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} />
+      <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+        <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
+          Salvar
+        </LoadingButton>
+      </Stack>
+    </FormProvider>
+  );
+}
+
+RegistroAprendizagemDiagnosticoNewEditForm.propTypes = {
+  turma: PropTypes.object,
+  periodo: PropTypes.string,
+  handleTurma: PropTypes.func,
+  habilidades: PropTypes.array,
+  alunosTurma: PropTypes.array,
+};
