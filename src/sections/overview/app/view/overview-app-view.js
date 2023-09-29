@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState, useCallback, useContext } from 'react';
+
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
@@ -26,14 +28,31 @@ import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
 import AppTopInstalledCountries from '../app-top-installed-countries';
-import { useState } from 'react';
 
 // ----------------------------------------------------------------------
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
 import { useBoolean } from 'src/hooks/use-boolean';
+import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
+import AppAvaliacaoComponente from '../app-avaliacao-componente';
 
 export default function OverviewAppView() {
  // const { user } = useMockedUser();
+
+  const defaultFilters = {
+    nome: ''
+  };
+
+  const [filters, setFilters] = useState(defaultFilters);
+
+  const handleFilters = useCallback(
+    (nome, value) => {
+      setFilters((prevState) => ({
+        ...prevState,
+        [nome]: value,
+      }));
+    },
+    [setFilters]
+  );
 
   const theme = useTheme();
 
@@ -69,6 +88,18 @@ export default function OverviewAppView() {
           <Typography variant="h3" paragraph>
             Dashboard
           </Typography>
+        </Grid>
+
+        <Grid xs={12} md={8}>
+
+          <OverviewTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            ddzOptions={[]}
+            escolaOptions={[]}
+            turmaOptions={[]}
+          />
+
         </Grid>
 
         <Grid xs={12} md={2}>
@@ -226,6 +257,16 @@ export default function OverviewAppView() {
             />
           </Stack>
             </Grid> */ }
+
+
+        <Grid xs={12} lg={6}>
+          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" subheader="" />
+        </Grid>
+
+        <Grid xs={12} md={6} lg={6}>
+          <AppAvaliacaoComponente title="Avaliação por Component" list={_appRelated} />
+        </Grid>
+        
       </Grid>
     </Container>
   );
