@@ -1,5 +1,4 @@
-'use client';
-
+'use client'
 import PropTypes from 'prop-types';
 // @mui
 import Container from '@mui/material/Container';
@@ -12,13 +11,21 @@ import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import AlunoNewEditForm from '../aluno-new-edit-form';
+import { useState, useEffect } from 'react';
+import alunoMethods from '../aluno-repository';
 
 // ----------------------------------------------------------------------
 
 export default function AlunoEditView({ id }) {
   const settings = useSettingsContext();
 
-  const currentAluno = _alunos.find((aluno) => aluno.id === id);
+  const [currentAluno, setCurrentAluno] = useState({});
+
+  useEffect(()  => {
+    alunoMethods.getAlunoById(id).then(aluno => {
+      setCurrentAluno(aluno.data);
+    })
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

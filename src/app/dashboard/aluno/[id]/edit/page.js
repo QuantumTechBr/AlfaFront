@@ -1,3 +1,5 @@
+'use client'
+
 import PropTypes from 'prop-types';
 import { _alunos } from 'src/_mock/';
 import { AlunoEditView } from 'src/sections/aluno/view';

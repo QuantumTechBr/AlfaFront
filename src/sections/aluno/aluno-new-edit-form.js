@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -20,26 +20,34 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
 } from 'src/components/hook-form';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import alunoMethods from './aluno-repository';
 
 
 // ----------------------------------------------------------------------
 
 export default function AlunoNewEditForm({ currentAluno }) {
   const router = useRouter();
-
   const { enqueueSnackbar } = useSnackbar();
+  let alunoNascimento = new Date('01-01-2000');
+  if (currentAluno) {
+    alunoNascimento = new Date(currentAluno.data_nascimento)
+    alunoNascimento.setDate(alunoNascimento.getDate()+1)
+  }
+
 
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     matricula: Yup.string().required('Matricula é obrigatório'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
+    data_nascimento: Yup.date().required('Data de Nascimento é obrigatório'),
   });
 
   const defaultValues = useMemo(
     () => ({
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
-      data_nascimento: currentAluno?.data_nascimento || '',
+      data_nascimento: alunoNascimento,
     }),
     [currentAluno]
   );
@@ -62,30 +70,25 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      let nascimento = new Date(data.data_nascimento)
+      data.data_nascimento = nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate()
+      if (currentAluno) {
+        await alunoMethods.updateAlunoById(currentAluno.id, data);
+        
+      } else {
+        await alunoMethods.insertAluno(data);
+      }
       reset();
       enqueueSnackbar(currentAluno ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.aluno.list);
-      console.info('DATA', data);
     } catch (error) {
       console.error(error);
     }
   });
 
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-
-      if (file) {
-        setValue('avatarUrl', newFile, { shouldValidate: true });
-      }
-    },
-    [setValue]
-  );
+  useEffect(()  => {
+    reset(defaultValues)
+  }, [currentAluno]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -106,7 +109,15 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
             <RHFTextField name="matricula" label="Matricula" />
   
-            <DatePicker name="data_nascimento" label="Data de Nascimento" />
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <Controller
+                name="data_nascimento"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <DatePicker value={value} onChange={onChange} />
+                )}
+              />
+            </LocalizationProvider>
 
             </Box>
 
@@ -124,4 +135,4 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
 AlunoNewEditForm.propTypes = {
   currentAluno: PropTypes.object,
-};
+}

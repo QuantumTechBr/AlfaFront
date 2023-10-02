@@ -84,7 +84,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <MenuItem
           onClick={() => {
-            //onEditRow();
+            onEditRow();
             popover.onClose();
           }}
         >

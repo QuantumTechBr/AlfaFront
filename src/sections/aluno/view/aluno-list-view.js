@@ -40,7 +40,7 @@ import {
 import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
 import AlunoTableFiltersResult from '../aluno-table-filters-result';
-import alunoMethods from '../aluno-provider';
+import alunoMethods from '../aluno-repository';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 // ----------------------------------------------------------------------
 
