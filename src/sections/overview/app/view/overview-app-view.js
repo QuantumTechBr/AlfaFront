@@ -264,7 +264,7 @@ export default function OverviewAppView() {
         </Grid>
 
         <Grid xs={12} md={6} lg={6}>
-          <AppAvaliacaoComponente title="Avaliação por Component" list={_appRelated} />
+          <AppAvaliacaoComponente title="Avaliação por Componente" list={_appRelated} />
         </Grid>
         
       </Grid>
