@@ -18,26 +18,20 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import {  _appRelated, } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
+import { useBoolean } from 'src/hooks/use-boolean';
 // assets
 import { SeoIllustration } from 'src/assets/illustrations';
 //
-import AppWidget from '../app-widget';
-import AppWelcome from '../app-welcome';
-import AppFeatured from '../app-featured';
-import AppNewInvoice from '../app-new-invoice';
-import AppTopAuthors from '../app-top-authors';
-import AppTopRelated from '../app-top-related';
-import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
-import AppTopInstalledCountries from '../app-top-installed-countries';
-
-// ----------------------------------------------------------------------
-import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
-import { useBoolean } from 'src/hooks/use-boolean';
+import AppAreaInstalled from '../app-area-installed';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
+
+// ----------------------------------------------------------------------
 import OverviewTableToolbar from './overview-table-toolbar';
+import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
+import dashboardsMethods from '../../dashboards-repository';
 
 export default function OverviewAppView() {
   const theme = useTheme();
@@ -57,6 +51,18 @@ export default function OverviewAppView() {
   };
   
   const [filters, setFilters] = useState(defaultFilters);
+
+  const preencheGraficos = async () => {
+    const getObj = {escolaIds:filters.escola, turmaIds:filters.turma}
+
+    Promise.all([
+      dashboardsMethods.getDashboardAvaliacaoComponente(getObj).then((response) => { console.table(response.data); }),
+      dashboardsMethods.getDashboardIndiceFases(getObj).then((response) => { console.table(response.data); }),
+      dashboardsMethods.getDashboardTotalAlunosAtivos(getObj).then((response) => { console.table(response.data); }),
+      dashboardsMethods.getDashboardTotalTurmasAtivas(getObj).then((response) => { console.table(response.data); }),
+      dashboardsMethods.getDashboardTotalUsuariosAtivos(getObj).then((response) => { console.table(response.data); }),
+    ]);
+  }
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -105,12 +111,13 @@ export default function OverviewAppView() {
   );
 
   const preparacaoInicial = async () => {
-    // preencheTabela();
     await Promise.all([
       buscaZonas(),
       buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
       buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
     ]);
+
+    preencheGraficos();
   };
 
   useEffect(() => {
@@ -184,7 +191,7 @@ export default function OverviewAppView() {
         </Grid>
 
         <Grid xs={12} md="auto">
-          <Button variant="contained" onClick={novaAvaliacao.onTrue}>
+          <Button variant="contained" onClick={preencheGraficos}>
             Aplicar filtro
           </Button>
         </Grid>
