@@ -9,10 +9,13 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
+import { Box } from "@mui/material";
 // hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // _mock
-import { _appFeatured, _appAuthors, _appInstalled, _appRelated, _appInvoices } from 'src/_mock';
+import {  _appRelated, } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
 // assets
@@ -34,32 +37,91 @@ import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendiza
 import { useBoolean } from 'src/hooks/use-boolean';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
+import OverviewTableToolbar from './overview-table-toolbar';
 
 export default function OverviewAppView() {
- // const { user } = useMockedUser();
+  const theme = useTheme();
+  const settings = useSettingsContext();
+
+  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+
+  const [_escolasFiltered, setEscolasFiltered] = useState([]);
+  const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   const defaultFilters = {
-    nome: ''
+    zona: [],
+    escola: [],
+    turma: [],
   };
-
+  
   const [filters, setFilters] = useState(defaultFilters);
 
   const handleFilters = useCallback(
-    (nome, value) => {
-      setFilters((prevState) => ({
-        ...prevState,
-        [nome]: value,
-      }));
+    (campo, value) => {
+      if (campo == 'zona') {
+        if (value.length == 0) {
+          setEscolasFiltered(escolas);
+        } else {
+          var filtered = escolas.filter((escola) =>
+            value.map((zona) => zona.id).includes(escola.zona.id)
+          );
+          setEscolasFiltered(filtered);
+        }
+        
+        setTurmasFiltered(turmas);
+        setFilters((prevState) => ({
+          ...prevState,
+          ['escola']: [],
+          ['turma']: [],
+          [campo]: value,
+        }));
+      }
+
+      else if (campo == 'escola') {
+        if (value.length == 0) {
+          setTurmasFiltered(turmas);
+        } else {
+          var filtered = turmas.filter((turma) =>
+            value.map((escola) => escola.id).includes(turma.escola.id)
+          );
+          setTurmasFiltered(filtered);
+        }
+        setFilters((prevState) => ({
+          ...prevState,
+          ['turma']: [],
+          [campo]: value,
+        }));
+      }else{
+        setFilters((prevState) => ({
+          ...prevState,
+          [campo]: value,
+        }));
+      }
+      
     },
-    [setFilters]
+    [setFilters, setEscolasFiltered, escolas, setTurmasFiltered, turmas]
   );
 
-  const theme = useTheme();
+  const preparacaoInicial = async () => {
+    // preencheTabela();
+    await Promise.all([
+      buscaZonas(),
+      buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
+      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
+    ]);
+  };
 
-  const settings = useSettingsContext();
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
 
+  useEffect(() => {
+    // 
+  }, [zonas, escolas, turmas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  
   const novaAvaliacao = useBoolean();
-
   const closeNovaAvaliacao = (retorno=null) => {
     novaAvaliacao.onFalse();
   }
@@ -69,7 +131,7 @@ export default function OverviewAppView() {
       <Grid container spacing={3}>
         {/* <Grid xs={12} md={8}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
+            title={`Welcome back 👋 \n Nome`}
             description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
             img={<SeoIllustration />}
             action={
@@ -84,29 +146,50 @@ export default function OverviewAppView() {
           <AppFeatured list={_appFeatured} />
         </Grid> */}
 
-        <Grid xs={12} md={10}>
-          <Typography variant="h3" paragraph>
-            Dashboard
-          </Typography>
-        </Grid>
+        <Stack
+          flexGrow={1}
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+        >
+          <Grid xs={12} md>
+            <Typography variant="h3">
+              Dashboard
+            </Typography>
+          </Grid>
+          
+          <Grid xs={12} md="auto">
+            <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
+              Registro de Aprendizagem
+            </Button>
+          </Grid>
+        </Stack>
 
-        <Grid xs={12} md={8}>
+        <Stack
+          flexGrow={1}
+          direction="row"
+          alignItems="center"
+          justifyContent="start"
+        >
+
+        <Grid xs={12} md="auto">
 
           <OverviewTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            ddzOptions={[]}
-            escolaOptions={[]}
-            turmaOptions={[]}
+            zonaOptions={zonas}
+            escolaOptions={_escolasFiltered || escolas}
+            turmaOptions={_turmasFiltered  || turmas}
           />
-
         </Grid>
 
-        <Grid xs={12} md={2}>
-          <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
-            Registro de Aprendizagem
+        <Grid xs={12} md="auto">
+          <Button variant="contained" onClick={novaAvaliacao.onTrue}>
+            Aplicar filtro
           </Button>
         </Grid>
+
+        </Stack>
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 

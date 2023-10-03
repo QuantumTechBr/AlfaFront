@@ -20,20 +20,19 @@ import turmaMethods from 'src/sections/turma/turma-repository';
 
 // ----------------------------------------------------------------------
 
-import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
 
 export default function OverviewTableToolbar({
     filters,
     onFilters,
-    ddzOptions,
+    zonaOptions,
     escolaOptions,
     turmaOptions,
 }) {
 
-    const handleFilterDdz = useCallback(
+    const handleFilterZona = useCallback(
         (event) => {
             onFilters(
-                'ddz',
+                'zona',
                 typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
             );
         },
@@ -61,15 +60,10 @@ export default function OverviewTableToolbar({
     );
 
     const renderValueTurma = (selected) =>
-        selected.map((turmaId) => {
-            return turmaOptions.find((option) => option.id == turmaId)?.nome;
-        }).join(', ');
+        selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ');
 
     const renderValueEscola = (selected) =>
-        selected.map((escolaId) => {
-            console.log(escolaId);
-            return escolaOptions.find((option) => option.id == escolaId)?.nome;
-        }).join(', ');
+        selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
 
     return ( 
         <>
@@ -88,26 +82,26 @@ export default function OverviewTableToolbar({
                 <FormControl
                     sx={{
                         flexShrink: 0,
-                        width: { xs: 1, md: 100 },
+                        width: { xs: 1, md: 150 },
                     }}
                 >
                     <InputLabel>DDZ</InputLabel>
                     <Select
                         multiple
-                        value={filters.ddz}
-                        onChange={handleFilterDdz}
-                        input={<OutlinedInput label="DDZ" />}
-                        renderValue={(selected) => selected.map((value) => value).join(', ')}
+                        value={filters.zona}
+                        onChange={handleFilterZona}
+                        input={<OutlinedInput label="ZONA" />}
+                        renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
                         MenuProps={{
                             PaperProps: {
                                 sx: { maxHeight: 240 },
                             },
                         }}
                     >
-                        {ddzOptions.map((option) => (
-                            <MenuItem key={option} value={option}>
-                                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                                {option}
+                        {zonaOptions?.map((option) => (
+                            <MenuItem key={option.id} value={option}>
+                                <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
+                                {option.nome}
                             </MenuItem>
                         ))}
                     </Select>
@@ -133,10 +127,10 @@ export default function OverviewTableToolbar({
                             },
                         }}
                     >
-                        {escolaOptions?.map((escola) => (
-                            <MenuItem key={escola.id} value={escola.id}>
-                                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                                {escola.nome}
+                        {escolaOptions?.map((option) => (
+                            <MenuItem key={option.id} value={option}>
+                                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                                {option.nome}
                             </MenuItem>
                         ))}
                     </Select>
@@ -154,7 +148,7 @@ export default function OverviewTableToolbar({
                    
                     <Select
                         multiple
-                        value={turmaOptions}
+                        value={filters.turma}
                         onChange={handleFilterTurma}
                         input={<OutlinedInput label="Turma" />}
                         renderValue={renderValueTurma}
@@ -164,10 +158,10 @@ export default function OverviewTableToolbar({
                             },
                         }}
                     >
-                        {turmaOptions?.map((turma) => (
-                            <MenuItem key={turma.id} value={turma.id}>
-                                <Checkbox disableRipple size="small" />
-                                {turma.nome}
+                        {turmaOptions?.map((option) => (
+                            <MenuItem key={option.id} value={option}>
+                                <Checkbox disableRipple size="small" checked={filters.turma.includes(option)}/>
+                                {` ${option.ano_escolar}º ${option.nome}`}
                             </MenuItem>
                         ))}
                     </Select>
@@ -185,7 +179,7 @@ export default function OverviewTableToolbar({
 OverviewTableToolbar.propTypes = {
     filters: PropTypes.object,
     onFilters: PropTypes.func,
-    ddzOptions: PropTypes.array,
+    zonaOptions: PropTypes.array,
     turmaOptions: PropTypes.array,
     escolaOptions: PropTypes.array,
     turmaOptions: PropTypes.array,
