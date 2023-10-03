@@ -49,7 +49,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
-  { id: 'data_nascimento', label: 'Aniversário', width: 100 },
+  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -325,7 +325,9 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (matricula) {
-    inputData = inputData.filter((user) => matricula.includes(user.matricula));
+    inputData = inputData.filter(
+      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
+    );
   }
 
   if (data_nascimento) {
