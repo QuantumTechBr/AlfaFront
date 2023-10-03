@@ -40,7 +40,7 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matricula é obrigatória'),
+    matricula: Yup.string().required('Matrícula é obrigatória'),
     data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
   });
 
@@ -109,7 +109,7 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
 
             <RHFTextField name="nome" label="Nome do Aluno" />
 
-            <RHFTextField name="matricula" label="Matricula" />
+            <RHFTextField name="matricula" label="Matrícula" />
 
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller

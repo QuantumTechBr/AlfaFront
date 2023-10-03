@@ -51,7 +51,7 @@ export default function AlunoTableFiltersResult({
         )}
         
         {filters.matricula !== '' && (
-          <Block label="Matricula:">
+          <Block label="Matrícula:">
             <Chip size="small" label={filters.matricula} onDelete={handleRemoveMatricula} />
           </Block>
         )}

@@ -48,7 +48,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Aluno', width: 300 },
-  { id: 'matricula', label: 'Matricula', width: 200 },
+  { id: 'matricula', label: 'Matrícula', width: 200 },
   { id: 'data_nascimento', label: 'Aniversário', width: 100 },
   { id: '', width: 88 },
 ];

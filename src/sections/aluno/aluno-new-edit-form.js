@@ -39,7 +39,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matricula é obrigatório'),
+    matricula: Yup.string().required('Matrícula é obrigatório'),
     data_nascimento: Yup.date().required('Data de Nascimento é obrigatório'),
   });
 
@@ -107,7 +107,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
             
             <RHFTextField name="nome" label="Nome do Aluno" />
 
-            <RHFTextField name="matricula" label="Matricula" />
+            <RHFTextField name="matricula" label="Matrícula" />
   
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <Controller
