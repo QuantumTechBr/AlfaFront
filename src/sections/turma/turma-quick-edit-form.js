@@ -49,10 +49,10 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     () => ({
       nome: currentTurma?.nome || '',
       ano: currentTurma?.ano || '',
-      anoId: currentTurma?.ano?.id || '',
+      ano_id: currentTurma?.ano.id|| '',
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
-      escolaId: currentTurma.escola.id || '',
+      escola_id: currentTurma?.escola.id || '',
       turno: currentTurma.turno?.toLowerCase() || '',
       status: currentTurma?.status || ''
     }),
