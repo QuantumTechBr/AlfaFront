@@ -17,18 +17,22 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import AlunoQuickEditForm from './aluno-quick-edit-form';
+import parse from 'date-fns/parse';
+
 
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
+  let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
 
   const confirm = useBoolean();
 
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
 
   return (
     <>
@@ -42,7 +46,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{data_nascimento}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
 
         {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{created_at}</TableCell>*/}
 

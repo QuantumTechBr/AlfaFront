@@ -28,10 +28,7 @@ export default function AlunoTableToolbar({
 
   const handleFilterMatricula = useCallback(
     (event) => {
-      onFilters(
-        'matricula',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
+      onFilters('matricula', event.target.value);
     },
     [onFilters]
   );
@@ -66,7 +63,20 @@ export default function AlunoTableToolbar({
             fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            placeholder="Nome..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            value={filters.matricula}
+            onChange={handleFilterMatricula}
+            placeholder="Matrícula..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

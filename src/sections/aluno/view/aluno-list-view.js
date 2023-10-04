@@ -49,7 +49,7 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
-  { id: 'data_nascimento', label: 'Aniversário', width: 100 },
+  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -118,6 +118,7 @@ export default function AlunoListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
+      alunoMethods.deleteAlunoById(id);
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -126,8 +127,15 @@ export default function AlunoListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(row.id)) {
+        alunoMethods.deleteAlunoById(row.id);
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -317,7 +325,9 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (matricula) {
-    inputData = inputData.filter((user) => matricula.includes(user.matricula));
+    inputData = inputData.filter(
+      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
+    );
   }
 
   if (data_nascimento) {

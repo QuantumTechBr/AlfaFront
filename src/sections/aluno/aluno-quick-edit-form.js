@@ -13,15 +13,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-//import DatePicker from 'src/theme/overrides/components/date-picker';
 import alunoMethods from './aluno-repository';
-
-
-
 // _mock
 import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
-// assets
-
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
@@ -30,13 +24,14 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import { Controller } from 'react-hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
+import parseISO from 'date-fns/parseISO';
+import ptBR from 'date-fns/locale/pt-BR';
 // ----------------------------------------------------------------------
 
 export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  let alunoNascimento = new Date(currentAluno.data_nascimento);
-  alunoNascimento.setDate(alunoNascimento.getDate()+1)
+  let alunoNascimento = parseISO(currentAluno.data_nascimento);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -111,12 +106,12 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
 
             <RHFTextField name="matricula" label="Matrícula" />
 
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
               <Controller
                 name="data_nascimento"
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <DatePicker value={value} onChange={onChange} />
+                  <DatePicker value={value} onChange={onChange} label='Data de Nascimento' />
                 )}
               />
             </LocalizationProvider>

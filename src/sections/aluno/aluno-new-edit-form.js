@@ -23,6 +23,8 @@ import FormProvider, {
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import alunoMethods from './aluno-repository';
+import parseISO from 'date-fns/parseISO';
+import ptBR from 'date-fns/locale/pt-BR';
 
 
 // ----------------------------------------------------------------------
@@ -32,8 +34,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { enqueueSnackbar } = useSnackbar();
   let alunoNascimento = new Date('01-01-2000');
   if (currentAluno) {
-    alunoNascimento = new Date(currentAluno.data_nascimento)
-    alunoNascimento.setDate(alunoNascimento.getDate()+1)
+    alunoNascimento = parseISO(currentAluno.data_nascimento);
   }
 
 
@@ -109,12 +110,12 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
             <RHFTextField name="matricula" label="Matrícula" />
   
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
               <Controller
                 name="data_nascimento"
                 control={control}
                 render={({ field: { onChange, value } }) => (
-                  <DatePicker value={value} onChange={onChange} />
+                  <DatePicker value={value} onChange={onChange} label='Data de Nascimento' />
                 )}
               />
             </LocalizationProvider>

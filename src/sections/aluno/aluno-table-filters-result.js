@@ -20,12 +20,11 @@ export default function AlunoTableFiltersResult({
 }) {
 
   const handleRemoveNome = (inputValue) => {
-    onFilters('nome', 'matricula','data_nascimento');
+    onFilters('nome');
   };
 
   const handleRemoveMatricula = (inputValue) => {
-    const newValue = filters.matricula.filter((item) => item !== inputValue);
-    onFilters('matricula', newValue);
+    onFilters('matricula');
   };
   
   const handleRemoveDataNascimento = (inputValue) => {
