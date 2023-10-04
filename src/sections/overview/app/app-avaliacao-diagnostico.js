@@ -47,7 +47,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             bar: {
                 columnWidth: '100%',
                 horizontal: true,
-
+                
             },
         },
         stroke: {

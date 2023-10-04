@@ -158,6 +158,7 @@ export default function OverviewAppView() {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
+          width="100%"
         >
           <Grid xs={12} md>
             <Typography variant="h3">
@@ -177,6 +178,7 @@ export default function OverviewAppView() {
           direction="row"
           alignItems="center"
           justifyContent="start"
+          width="100%"
         >
 
         <Grid xs={12} md="auto">
