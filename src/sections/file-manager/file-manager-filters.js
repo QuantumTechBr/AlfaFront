@@ -171,7 +171,7 @@ export default function FileManagerFilters({
       >
         {!!filters.startDate && !!filters.endDate
           ? shortDateLabel(filters.startDate, filters.endDate)
-          : 'Select Date'}
+          : 'Selecionar data'}
       </Button>
 
       <CustomDateRangePicker

@@ -16,7 +16,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // ----------------------------------------------------------------------
 
 export default function CustomDateRangePicker({
-  title = 'Select date range',
+  title = 'Selecionar range de data',
   variant = 'input',
   //
   startDate,
@@ -98,11 +98,11 @@ export default function CustomDateRangePicker({
 
       <DialogActions>
         <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancel
+          Cancelar
         </Button>
 
         <Button disabled={error} variant="contained" onClick={onClose}>
-          Apply
+          Confirmar
         </Button>
       </DialogActions>
     </Dialog>
