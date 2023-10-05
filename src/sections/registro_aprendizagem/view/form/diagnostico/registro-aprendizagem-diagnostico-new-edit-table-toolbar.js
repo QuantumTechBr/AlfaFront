@@ -14,7 +14,6 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-//import { TurmasContext } from '../../../../turma/context/turma-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
 
 // ----------------------------------------------------------------------
@@ -29,10 +28,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   const popover = usePopover();
   const [turmas, setTurmas] = useState([]);
 
- // const {turmas, buscaTurmas} = useContext(TurmasContext);
-
   useEffect(() => {
-    console.log('useEffect DIAGNOSTICO EDIT VIEW');
     turmaMethods.getAllTurmas().then(turmas => {
       setTurmas(turmas.data);
     });
@@ -95,7 +91,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           </Select>
         </FormControl>
 
-       {/* <FormControl
+       <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 200 },
@@ -115,6 +111,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
+             <MenuItem key='promo_vazio' value=''>
+                <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes('')} />
+                Não Preenchido
+              </MenuItem>
             {promoOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes(option)} />
@@ -122,7 +122,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               </MenuItem>
             ))}
           </Select>
-        </FormControl> */}
+        </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField

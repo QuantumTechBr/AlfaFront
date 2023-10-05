@@ -91,7 +91,7 @@ export function useNavData() {
           // ALUNOS
           {
             title: 'Lista de Alunos',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.aluno.list,
             icon: ICONS.alfaStudent,
           },
 
@@ -151,6 +151,14 @@ export function useNavData() {
               { title: 'Lista de Escolas', path: paths.dashboard.blank },
             ],
           },
+
+          // FILE MANAGER
+          {
+            title: t('Documento'),
+            path: paths.dashboard.documento,
+            icon: ICONS.folder,
+          },
+
         ],
       },
 

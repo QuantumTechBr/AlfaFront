@@ -91,17 +91,14 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     await Promise.all([buscaAnosLetivos(), buscaEscolas(), buscaTurmas()]);
   };
   useEffect(() => {
-    console.log('useEffect DIAGNOSTICO LIST VIEW');
     preparacaoInicial();
   }, [setTableData]);
 
   const preencheTabela = () => {
-    console.log('preencheTabela DIAGNOSTICO LIST VIEW 1');
     const promisesList = [];
     let turmasRegistroInicial = [];
     let turmasRegistroFinal = [];
     if (!!turmas && turmas.length) {
-      console.log('preencheTabela DIAGNOSTICO LIST VIEW 2');
 
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
@@ -142,8 +139,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         });
       promisesList.push(buscaPeriodoFinal);
       Promise.all(promisesList).then(() => {
-        console.log(turmasRegistroInicial);
-        console.log(turmasRegistroFinal);
         setTurmasComRegistro(turmasComRegistroNovo);
         setTableData(turmasComRegistroNovo);
         setTurmasFiltered(turmasComRegistroNovo);
@@ -152,7 +147,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   };
 
   useEffect(() => {
-    console.log('useEffect promises DIAGNOSTICO LIST VIEW 1');
     preencheTabela();
   }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered]);
 
@@ -216,14 +210,24 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   );
 
   const handleDeleteRows = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = [];
+    tableData.map((row) => {
+      if(table.selected.includes(`${row.id}_${row.periodo}`)) {
+        registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:row.id, periodo:row.periodo});
+      } else {
+        remainingRows.push(row);
+      }
+    });
+    setTableData(remainingRows);
+
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: dataFiltered.length,
     });
+
+
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(

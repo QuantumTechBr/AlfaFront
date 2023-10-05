@@ -6,41 +6,29 @@ import Container from '@mui/material/Container';
 import { paths } from 'src/routes/paths';
 // components
 import { useSettingsContext } from 'src/components/settings';
-//import { TurmasContext } from '../../../../turma/context/turma-context'
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import RegistroAprendizagemDiagnosticoNewEditForm from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-form';
-import { useState, useContext, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import habilidadeMethods from '../../../../habilidade/habilidade-repository';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoCreateView({ turma, periodo }) {
   const settings = useSettingsContext();
-  //const {turmas, buscaTurmas, buscaTurmaPorId} = useContext(TurmasContext);
   const [_turma, setTurma] = useState(turma);
   const [alunosTurma, setAlunosTurma] = useState([]);
   const [habilidades, setHabilidades] = useState([]);
-  const [todasHabilidades, setTodasHabilidades] = useState([]);
-  const [registrosAprendizagemTurma, setRegistrosAprendizagemTurma] = useState([]);
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
-      setTodasHabilidades(habilidadesRetorno.data)
       let habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
       setHabilidades(habilidade_turma);
       if(_turma.aluno_turma){
         registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo: periodo}).then(registros => {
           const registrosAprendizagemTurma = registros.data;
-          // alunosTurma.forEach(alunoTurma => {
-          //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
-          //   console.log('habilidades', habilidadesRegistroAprendizagem);
-          //})
-          setRegistrosAprendizagemTurma(registrosAprendizagemTurma)
           if (registrosAprendizagemTurma) {
             const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
-            console.log('alunosTurma', alunosTurma)
             registrosAprendizagemTurma.forEach(registro => {
               let mapHabilidades = [];
               let idHabilidadesRegistroAprendizagem = [];
@@ -59,7 +47,6 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
               alunosTurma[searchIndex].id_registro = registro.id;
               alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
             });
-            console.log(alunosTurma);
             setAlunosTurma(alunosTurma);
           } else {
             const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
@@ -86,14 +73,8 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     if(novaTurma.aluno_turma){
       registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId: novaTurma.id, periodo: periodo}).then(registros => {
         const novoRegistrosAprendizagemTurma = registros.data;
-        // alunosTurma.forEach(alunoTurma => {
-        //   const habilidadesRegistroAprendizagem = registros.data.filter(registro => registro.aluno_turma.id == alunoTurma.id)
-        //   console.log('habilidades', habilidadesRegistroAprendizagem);
-        //})
-        setRegistrosAprendizagemTurma(novoRegistrosAprendizagemTurma)
         if (novoRegistrosAprendizagemTurma) {
           const alunosTurma = (novaTurma.aluno_turma == undefined) ? [] : novaTurma.aluno_turma;
-          console.log('alunosTurma', alunosTurma)
           novoRegistrosAprendizagemTurma.forEach(registro => {
             let mapHabilidades = [];
             let idHabilidadesRegistroAprendizagem = [];
@@ -112,7 +93,6 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
             alunosTurma[searchIndex].id_registro = registro.id;
             alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
           });
-          console.log('set alunos turma:', alunosTurma);
           setAlunosTurma(alunosTurma);
         } else {
           const alunosTurma = (novaTurma.aluno_turma == undefined) ? [] : novaTurma.aluno_turma;

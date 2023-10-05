@@ -32,11 +32,7 @@ export default function RegistroAprendizagemTableToolbar({
   const popover = usePopover();
 
   const handleFilterPesquisa = useCallback(
-    (event) => {
-      console.log(event.target);
-      console.log(event.target.value);
-      onFilters('pesquisa', event.target.value);
-    },
+    (event) => onFilters('pesquisa', event.target.value),
     [onFilters]
   );
 

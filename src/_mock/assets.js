@@ -263,7 +263,7 @@ export const _anos = [2024, 2023, 2022];
 
 export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
-export const habilidades_options = ['D', 'PD', 'ND'];
+export const habilidades_options = ['', 'D', 'PD', 'ND'];
 
 export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
@@ -407,6 +407,40 @@ export const _registrosAprendizagemFase = [
     bimestre: 1,
   },
 ];
+
+export const _alunos = [
+  {
+    id: '1',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+  {
+    id: '2',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+  {
+    id: '3',
+    nome: 'Annaliese',
+    matricula: 1,
+    turno: 'matutino',
+    data_nascimento: Date(),
+    created_at: Date(),
+    updated_at: Date(),
+    deleted_at: Date()
+  },
+]
+
 
 export const _registrosAprendizagemComponente = [
   {

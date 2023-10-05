@@ -5,14 +5,26 @@ export const EscolasContext = createContext();
 
 export const EscolasProvider = ({ children }) => {
   const [escolas, setEscolas] = useState([]);
+  let _consultaAtual;
 
   const buscaEscolas = async ({ force = false } = {}) => {
+    let returnData = escolas;
     if (force || escolas.length == 0) {
-      await escolaMethods.getAllEscolas().then((response) => {
-        if (response.data == '' || response.data === undefined) response.data = [];
-        setEscolas(response.data);
+      if (!_consultaAtual) {
+        _consultaAtual = escolaMethods.getAllEscolas().then((response) => {
+          if (response.data == '' || response.data === undefined) response.data = [];
+          setEscolas(response.data);
+          returnData = response.data;
+          return returnData;
+        });
+      }
+
+      await _consultaAtual.then((value) => {
+        returnData = value;
       });
     }
+    // console.log(returnData);
+    return returnData;
   };
 
   return (

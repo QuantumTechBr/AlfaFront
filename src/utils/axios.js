@@ -33,7 +33,7 @@ export const endpoints = {
   calendar: '/api/calendar',
   aluno: {
     list: '/api/v1/alunos/',
-    post: '/api/v1/alunos',
+    post: '/api/v1/alunos/',
     get_by_id: '/api/v1/alunos/',
     update: '/api/v1/alunos/',
     delete: '/api/v1/alunos/',
@@ -89,6 +89,15 @@ export const endpoints = {
     update: '/api/v1/cidades/',
     delete: '/api/v1/cidades/',
   },
+  dashboard: {
+    avaliacao_componente: '/api/v1/dashboards/avaliacao-componente',
+    avaliacao_diagnostico: '/api/v1/dashboards/avaliacao-diagnosticos',
+    desempenho_alunos: '/api/v1/dashboards/desempenho-alunos',
+    indice_fases: '/api/v1/dashboards/indice-fases',
+    total_alunos_ativos: '/api/v1/dashboards/total-alunos-ativos',
+    total_turmas_ativas: '/api/v1/dashboards/total-turmas-ativas',
+    total_usuarios_ativos: '/api/v1/dashboards/total-usuarios-ativos',
+  },
   disciplina: {
     list: '/api/v1/disciplinas/',
     post: '/api/v1/disciplinas',
@@ -98,7 +107,7 @@ export const endpoints = {
   },
   documento: {
     list: '/api/v1/documentos/',
-    post: '/api/v1/documentos',
+    post: '/api/v1/documentos/',
     get_by_id: '/api/v1/documentos/',
     update: '/api/v1/documentos/',
     delete: '/api/v1/documentos/',
@@ -184,6 +193,7 @@ export const endpoints = {
     fase: {
       post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       list: '/api/v1/registros-aprendizagens/avaliacao-fase',
+      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-fase/turmas-ids',
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
