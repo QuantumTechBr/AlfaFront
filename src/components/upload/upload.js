@@ -18,7 +18,7 @@ import SingleFilePreview from './preview-single-file';
 
 // ----------------------------------------------------------------------
 
-export default function MuiUpload({
+export default function Upload({
   disabled,
   multiple = false,
   error,
@@ -171,7 +171,7 @@ export default function MuiUpload({
   );
 }
 
-MuiUpload.propTypes = {
+Upload.propTypes = {
   disabled: PropTypes.object,
   error: PropTypes.bool,
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),

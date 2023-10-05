@@ -10,9 +10,8 @@ import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
 // components
 import Iconify from 'src/components/iconify';
-import { MuiUpload } from 'src/components/upload';
+import { Upload } from 'src/components/upload';
 import { S3Client, CreateMultipartUploadCommand } from '@aws-sdk/client-s3';
-import { Upload } from '@aws-sdk/lib-storage';
 
 import { AWS_S3 } from 'src/config-global';
 import { insertDocumento, getAllDocumentos  } from './documento-repository';
@@ -119,7 +118,7 @@ export default function FileManagerNewFolderDialog({
           />
         )}
 
-        <MuiUpload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
+        <Upload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
       </DialogContent>
 
       <DialogActions>
