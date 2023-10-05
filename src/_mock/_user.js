@@ -6,8 +6,8 @@ import { _mock } from './_mock';
 // ----------------------------------------------------------------------
 
 export const USER_STATUS_OPTIONS = [
-  { value: true, label: 'Ativo' },
-  { value: false, label: 'Inativo' },
+  { value: 'true', label: 'Ativo' },
+  { value: 'false', label: 'Inativo' },
 ];
 
 export const _userAbout = {

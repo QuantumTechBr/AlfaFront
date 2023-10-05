@@ -81,7 +81,12 @@ export default function TurmaListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    buscaTurmas({force:true}).then((_turmas) => setTableData(_turmas))
+    buscaTurmas({force:true}).then((_turmas) => {
+      _turmas.map((turma) => {
+        turma.status = turma.status.toString()
+      })
+      setTableData(_turmas);
+    });
     buscaEscolas();
     
   }, []);
@@ -219,21 +224,21 @@ export default function TurmaListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === true && 'success') ||
+                      (tab.value === 'true' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === false && 'error') ||
+                      (tab.value === 'false' && 'error') ||
                       'default'
                     }
                   >
-                    {tab.value === 'all' && turmas.length}
-                    {tab.value === true &&
-                      turmas.filter((user) => user.status === true).length}
+                    {tab.value === 'all' && tableData.length}
+                    {tab.value === 'true' &&
+                      tableData.filter((user) => user.status === 'true').length}
                     {tab.value === 'pending' &&
-                      turmas.filter((user) => user.status === 'pending').length}
-                    {tab.value === false &&
-                      turmas.filter((user) => user.status === false).length}
+                      tableData.filter((user) => user.status === 'pending').length}
+                    {tab.value === 'false' &&
+                      tableData.filter((user) => user.status === 'false').length}
                     {tab.value === 'rejected' &&
-                      turmas.filter((user) => user.status === 'rejected').length}
+                      tableData.filter((user) => user.status === 'rejected').length}
                   </Label>
                 }
               />
