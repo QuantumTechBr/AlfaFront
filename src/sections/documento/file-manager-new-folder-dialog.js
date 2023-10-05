@@ -10,12 +10,21 @@ import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
 // components
 import Iconify from 'src/components/iconify';
-import { Upload } from 'src/components/upload';
+import { MuiUpload } from 'src/components/upload';
+import { S3} from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 
+import { AWS_S3 } from 'src/config-global';
+import { insertDocumento, getAllDocumentos  } from './documento-repository';
 // ----------------------------------------------------------------------
 
+// Credencial AWS-S3
+const s3Client = new S3({ region: AWS_S3.region, credentials: { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey }});
+
+
+
 export default function FileManagerNewFolderDialog({
-  title = 'Upload Files',
+  title = 'Enviar arquivos',
   open,
   onClose,
   //
@@ -26,6 +35,7 @@ export default function FileManagerNewFolderDialog({
   onChangeFolderName,
   ...other
 }) {
+
   const [files, setFiles] = useState([]);
 
   useEffect(() => {
@@ -47,12 +57,46 @@ export default function FileManagerNewFolderDialog({
     [files]
   );
 
-  const handleUpload = () => {
-    onClose();
-    console.info('ON UPLOAD');
-  };
+  const handleUpload = async () => {
 
-  const handleRemoveFile = (inputFile) => {
+    onClose();
+    const file = files[0];
+    const reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+   
+    const upload = new Upload({  
+      client: s3Client, 
+      params: {
+        Bucket: AWS_S3.bucketName,
+        Key: file.name,
+        Body: file,
+        ContentType: file.type,
+        ContentLength: file.size,
+      }
+    });
+    
+    const novoDocumento = {
+      ano_id: 'e445d95b-e92c-4fe9-b6b2-10afc66178b9',  // Pegar o ano letivo current ver amanha com os meninos como pega o ano letivo current
+      destino: file.name,
+      link: AWS_S3.url + file.name,
+    }
+
+    try {
+      const result = await upload.done();
+      console.log('Upload successful:', result);
+    
+      try {
+        await insertDocumento(novoDocumento);
+      } catch (error) {
+        console.error(error);
+      }
+
+    } catch (error) {
+      console.error('Upload error:', error);
+    }
+  };
+    
+    const handleRemoveFile = (inputFile) => {
     const filtered = files.filter((file) => file !== inputFile);
     setFiles(filtered);
   };
@@ -69,14 +113,14 @@ export default function FileManagerNewFolderDialog({
         {(onCreate || onUpdate) && (
           <TextField
             fullWidth
-            label="Folder name"
+            label="Nome da pasta"
             value={folderName}
             onChange={onChangeFolderName}
             sx={{ mb: 3 }}
           />
         )}
 
-        <Upload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
+        <MuiUpload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
       </DialogContent>
 
       <DialogActions>
@@ -85,7 +129,7 @@ export default function FileManagerNewFolderDialog({
           startIcon={<Iconify icon="eva:cloud-upload-fill" />}
           onClick={handleUpload}
         >
-          Upload
+          Subir documento
         </Button>
 
         {!!files.length && (
