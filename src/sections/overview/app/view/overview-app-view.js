@@ -70,7 +70,7 @@ export default function OverviewAppView() {
 
     await Promise.all([
       dashboardsMethods
-        .getDashboardTotalUsuariosAtivos({ ...fullFilters.ddz, ...fullFilters.escola })
+        .getDashboardTotalUsuariosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
           console.table(response.data);
           setDados((prevState) => ({
@@ -79,7 +79,7 @@ export default function OverviewAppView() {
           }));
         }),
       dashboardsMethods
-        .getDashboardTotalAlunosAtivos({ ...fullFilters.ddz, ...fullFilters.escola })
+        .getDashboardTotalAlunosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
           console.table(response.data);
           setDados((prevState) => ({
