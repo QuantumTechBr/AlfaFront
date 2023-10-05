@@ -9,58 +9,192 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
+import { Box } from "@mui/material";
 // hooks
-import { useMockedUser } from 'src/hooks/use-mocked-user';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // _mock
-import { _appFeatured, _appAuthors, _appInstalled, _appRelated, _appInvoices } from 'src/_mock';
+import {  _appRelated, } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
+import { useBoolean } from 'src/hooks/use-boolean';
 // assets
 import { SeoIllustration } from 'src/assets/illustrations';
 //
-import AppWidget from '../app-widget';
-import AppWelcome from '../app-welcome';
-import AppFeatured from '../app-featured';
-import AppNewInvoice from '../app-new-invoice';
-import AppTopAuthors from '../app-top-authors';
-import AppTopRelated from '../app-top-related';
-import AppAreaInstalled from '../app-area-installed';
 import AppWidgetSummary from '../app-widget-summary';
 import AppCurrentDownload from '../app-current-download';
-import AppTopInstalledCountries from '../app-top-installed-countries';
-
-// ----------------------------------------------------------------------
-import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
-import { useBoolean } from 'src/hooks/use-boolean';
+import AppAreaInstalled from '../app-area-installed';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
 import OverviewTableToolbar from './overview-table-toolbar';
 
+// ----------------------------------------------------------------------
+import OverviewTableToolbar from './overview-table-toolbar';
+import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
+import dashboardsMethods from '../../dashboards-repository';
+
 export default function OverviewAppView() {
- // const { user } = useMockedUser();
-
-  const defaultFilters = {
-    nome: ''
-  };
-
-  const [filters, setFilters] = useState(defaultFilters);
-
-  const handleFilters = useCallback(
-    (nome, value) => {
-      setFilters((prevState) => ({
-        ...prevState,
-        [nome]: value,
-      }));
-    },
-    [setFilters]
-  );
-
   const theme = useTheme();
-
   const settings = useSettingsContext();
 
-  const novaAvaliacao = useBoolean();
+  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
+  const [_escolasFiltered, setEscolasFiltered] = useState([]);
+  const [_turmasFiltered, setTurmasFiltered] = useState([]);
+
+  const defaultFilters = {
+    zona: [],
+    escola: [],
+    turma: [],
+  };
+  
+  const [filters, setFilters] = useState(defaultFilters);
+  const [dados, setDados] = useState({
+    total_usuarios_ativos: {},
+    total_alunos_ativos: {},
+    total_turmas_ativas: {},
+    indice_fases: {},
+    desempenho_alunos: {},
+    avaliacao_diagnostico: {},
+    avaliacao_componente: {},
+  });
+
+  const preencheGraficos = async () => {
+    const fullFilters = {
+      ddz: filters.zona.map((item) => item.id),
+      escola: filters.escola.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
+    };
+
+    await Promise.all([
+      dashboardsMethods
+        .getDashboardTotalUsuariosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_usuarios_ativos: response.data,
+          }));
+        }),
+      dashboardsMethods
+        .getDashboardTotalAlunosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_alunos_ativos: response.data,
+          }));
+        }),
+      dashboardsMethods
+        .getDashboardTotalTurmasAtivas({ ...fullFilters.ddz, ...fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_turmas_ativas: response.data,
+          }));
+        }),
+
+      dashboardsMethods.getDashboardIndiceFases(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          indice_fases: response.data,
+        }));
+      }),
+      dashboardsMethods.getDashboardDesenpenhoAlunos(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          desempenho_alunos: response.data,
+        }));
+      }),
+
+      dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          avaliacao_diagnostico: response.data,
+        }));
+      }),
+      dashboardsMethods.getDashboardAvaliacaoComponente(fullFilters).then((response) => {
+        console.table(response.data);
+        // setDados((prevState) => ({
+        //   ...prevState,
+        //   avaliacao_componente: response.data,
+        // }));
+      }),
+    ]);
+  };
+
+  const handleFilters = useCallback(
+    (campo, value) => {
+      if (campo == 'zona') {
+        if (value.length == 0) {
+          setEscolasFiltered(escolas);
+        } else {
+          var filtered = escolas.filter((escola) =>
+            value.map((zona) => zona.id).includes(escola.zona.id)
+          );
+          setEscolasFiltered(filtered);
+        }
+        
+        setTurmasFiltered(turmas);
+        setFilters((prevState) => ({
+          ...prevState,
+          ['escola']: [],
+          ['turma']: [],
+          [campo]: value,
+        }));
+      }
+
+      else if (campo == 'escola') {
+        if (value.length == 0) {
+          setTurmasFiltered(turmas);
+        } else {
+          var filtered = turmas.filter((turma) =>
+            value.map((escola) => escola.id).includes(turma.escola.id)
+          );
+          setTurmasFiltered(filtered);
+        }
+        setFilters((prevState) => ({
+          ...prevState,
+          ['turma']: [],
+          [campo]: value,
+        }));
+      }else{
+        setFilters((prevState) => ({
+          ...prevState,
+          [campo]: value,
+        }));
+      }
+      
+    },
+    [setFilters, setEscolasFiltered, escolas, setTurmasFiltered, turmas]
+  );
+
+  const preparacaoInicial = async () => {
+    await Promise.all([
+      buscaZonas(),
+      buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
+      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
+    ]);
+
+    preencheGraficos();
+  };
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    // 
+  }, [zonas, escolas, turmas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  
+  const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno=null) => {
     novaAvaliacao.onFalse();
   }
@@ -70,7 +204,7 @@ export default function OverviewAppView() {
       <Grid container spacing={3}>
         {/* <Grid xs={12} md={8}>
           <AppWelcome
-            title={`Welcome back 👋 \n ${user?.displayName}`}
+            title={`Welcome back 👋 \n Nome`}
             description="If you are going to use a passage of Lorem Ipsum, you need to be sure there isn't anything."
             img={<SeoIllustration />}
             action={
@@ -85,39 +219,62 @@ export default function OverviewAppView() {
           <AppFeatured list={_appFeatured} />
         </Grid> */}
 
-        <Grid xs={12} md={10}>
-          <Typography variant="h3" paragraph>
-            Dashboard
-          </Typography>
-        </Grid>
+        <Stack
+          flexGrow={1}
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          width="100%"
+        >
+          <Grid xs={12} md>
+            <Typography variant="h3">
+              Dashboard
+            </Typography>
+          </Grid>
+          
+          <Grid xs={12} md="auto">
+            <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
+              Registro de Aprendizagem
+            </Button>
+          </Grid>
+        </Stack>
 
-        <Grid xs={12} md={8}>
+        <Stack
+          flexGrow={1}
+          direction="row"
+          alignItems="center"
+          justifyContent="start"
+          width="100%"
+        >
+
+        <Grid xs={12} md="auto">
 
           <OverviewTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            ddzOptions={[]}
-            escolaOptions={[]}
-            turmaOptions={[]}
+            zonaOptions={zonas}
+            escolaOptions={_escolasFiltered || escolas}
+            turmaOptions={_turmasFiltered  || turmas}
           />
-
         </Grid>
 
-        <Grid xs={12} md={2}>
-          <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
-            Registro de Aprendizagem
+        <Grid xs={12} md="auto">
+          <Button variant="contained" onClick={preencheGraficos}>
+            Aplicar filtro
           </Button>
         </Grid>
+
+        </Stack>
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Usuários Ativos"
-            percent={2.6}
-            total={18765}
+            percents={dados.total_usuarios_ativos.percent}
+            total={dados.total_usuarios_ativos.total}
             chart={{
-              series: [5, 18, 12, 51, 68, 11, 39, 37, 27, 20],
+              series: dados.total_usuarios_ativos.chart ?? [],
             }}
           />
         </Grid>
@@ -125,11 +282,11 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Alunos Cadastrados"
-            percent={0.2}
-            total={4876}
+            percent={dados.total_alunos_ativos.percent}
+            total={dados.total_alunos_ativos.total}
             chart={{
               colors: [theme.palette.info.light, theme.palette.info.main],
-              series: [20, 41, 63, 33, 28, 35, 50, 46, 11, 26],
+              series: dados.total_alunos_ativos.chart?.series ?? [],
             }}
           />
         </Grid>
@@ -137,11 +294,11 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Número de Turmas Ativas"
-            percent={-0.1}
-            total={678}
+            percent={dados.total_turmas_ativas.percent}
+            total={dados.total_turmas_ativas.total}
             chart={{
               colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: [8, 9, 31, 8, 16, 37, 8, 33, 46, 31],
+              series: dados.total_turmas_ativas.chart?.series ?? [],
             }}
           />
         </Grid>
@@ -149,119 +306,20 @@ export default function OverviewAppView() {
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
             title="Índice de Fases"
-            chart={{
-              series: [
-                { label: '', value: 12244 },
-                { label: '', value: 53345 },
-                { label: '', value: 44313 },
-              ],
-            }}
+            chart={dados.indice_fases.chart ?? {series:[]}}
           />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
             title="Desempenho dos Alunos"
-            subheader="(+43%) que o ano passado"
-            chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
-              series: [
-                {
-                  year: '2019',
-                  data: [
-                    {
-                      name: '',
-                      data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
-                    },
-                    {
-                      name: '',
-                      data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
-                    },
-                  ],
-                },
-                {
-                  year: '2020',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
-                    },
-                  ],
-                },
-              ],
-            }}
+            subheader={dados.desempenho_alunos.subheader}
+            chart={dados.desempenho_alunos.chart ?? {categories: [], series:[]}}
           />
         </Grid>
-        { /*      
-        <Grid xs={12} lg={8}>
-          <AppNewInvoice
-            title="New Invoice"
-            tableData={_appInvoices}
-            tableLabels={[
-              { id: 'id', label: 'Invoice ID' },
-              { id: 'category', label: 'Category' },
-              { id: 'price', label: 'Price' },
-              { id: 'status', label: 'Status' },
-              { id: '' },
-            ]}
-          />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopRelated title="Top Related Applications" list={_appRelated} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopInstalledCountries title="Top Installed Countries" list={_appInstalled} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppTopAuthors title="Top Authors" list={_appAuthors} />
-        </Grid>
-
-        <Grid xs={12} md={6} lg={4}>
-          <Stack spacing={3}>
-            <AppWidget
-              title="Conversion"
-              total={38566}
-              icon="solar:user-rounded-bold"
-              chart={{
-                series: 48,
-              }}
-            />
-
-            <AppWidget
-              title="Applications"
-              total={55566}
-              icon="fluent:mail-24-filled"
-              color="info"
-              chart={{
-                series: 75,
-              }}
-            />
-          </Stack>
-            </Grid> */ }
-
 
         <Grid xs={12} lg={6}>
-          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" subheader="" />
+          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" />
         </Grid>
 
         <Grid xs={12} md={6} lg={6}>

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -17,6 +17,10 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function AppAreaInstalled({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
+  if (chart === undefined) {
+    return <>Carregando...</>;
+  }
+
   const {
     colors = [
       [theme.palette.primary.light, theme.palette.primary.main],
@@ -29,7 +33,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState('2019');
+  const [seriesData, setSeriesData] = useState();
 
   const chartOptions = useChart({
     colors: colors.map((colr) => colr[1]),
@@ -55,6 +59,16 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
     },
     [popover]
   );
+
+  useEffect(() => {
+    if (series.length) {
+      setSeriesData(`${series[0]?.year}`);
+    }
+  }, [series]);
+
+  if (series.length == 0) {
+    return <>Sem dados para exibir.</>;
+  }
 
   return (
     <>

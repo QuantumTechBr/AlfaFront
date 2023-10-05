@@ -14,17 +14,6 @@ import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-co
 
 export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) {
 
-
-    const categorie =  [
-        'H1',
-        'H2',
-        'H3',
-        'H4',
-        'H5',
-        'H6',
-        'H7'
-    ]
-
     const chartOptions = useChart({
 
         chart: {
@@ -52,27 +41,21 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
         },
         stroke: {
             width: 1,
-            colors: ['#fff'],
-            show: true,
+            colors: ['#FFF'],
+            show: false,
         },
         xaxis: {
-            categories: categorie,
+            categories: list.categorie ?? [],
         }
         
     });
-
-
 
     return ( 
         <Card {...other}>
             <CardHeader title={title} subheader={subheader} />
             <Scrollbar>
                 <ChartColumnStacked 
-                    series={[
-                        { name: 'Desenvolvida', data: [3, 1, 2, 8, 1, 4, 5], stack: 'A', title: '',label: 'Desenvolvida' ,color: '#00E8B1', },
-                        { name: 'Parcialmente Desenvolvida', data: [0, 4, 1, 7, 8, 1, 2], stack: 'B', label: 'Parcialmente Desenvolvida', color: '#FFD100' },
-                        { name: 'Não Desenvolvida', data: [3, 4, 1, 7, 8, 1, 2], stack: 'C', label: 'Não Desenvolvida', color: '#FF1535' },
-                    ]} 
+                    series={list.series ?? []} 
                     options={chartOptions} 
                     width={86}
                     height={16}
