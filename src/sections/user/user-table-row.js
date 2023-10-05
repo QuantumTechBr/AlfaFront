@@ -36,6 +36,11 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
   const popover = usePopover();
 
+  const newDeleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  }
+
   const closeQuickEdit = (retorno=null) => {
     quickEdit.onFalse();
   }
@@ -57,13 +62,13 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           <Label
             variant="soft"
             color={
-              (status === true && 'success') ||
+              (status === 'true' && 'success') ||
               (status === 'pending' && 'warning') ||
-              (status === false && 'error') ||
+              (status === 'false' && 'error') ||
               'default'
             }
           >
-            {status? 'Ativo' : 'Inativo'}
+            {status == 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 
@@ -118,7 +123,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         title="Excluir Usuário"
         content="Tem certeza que deseja excluir o usuário?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={newDeleteRow}>
             Deletar
           </Button>
         }
