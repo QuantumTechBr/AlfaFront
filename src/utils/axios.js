@@ -107,7 +107,7 @@ export const endpoints = {
   },
   documento: {
     list: '/api/v1/documentos/',
-    post: '/api/v1/documentos',
+    post: '/api/v1/documentos/',
     get_by_id: '/api/v1/documentos/',
     update: '/api/v1/documentos/',
     delete: '/api/v1/documentos/',

@@ -33,3 +33,13 @@ export const MAPBOX_API = process.env.NEXT_PUBLIC_MAPBOX_API;
 
 // ROOT PATH AFTER LOGIN SUCCESSFUL
 export const PATH_AFTER_LOGIN = paths.dashboard.root; // as '/dashboard'
+
+export const AWS_S3 = {
+    bucketName: process.env.NEXT_PUBLIC_BUCKET_NAME,
+    dirName: process.env.NEXT_PUBLIC_BUCKET_NAME,
+    region: process.env.NEXT_PUBLIC_REGION,
+    accessKeyId: process.env.NEXT_PUBLIC_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEXT_PUBLIC_SECRET_ACCESS_KEY,
+    url: process.env.NEXT_PUBLIC_BUCKET_URL,
+};
+

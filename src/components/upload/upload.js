@@ -18,7 +18,7 @@ import SingleFilePreview from './preview-single-file';
 
 // ----------------------------------------------------------------------
 
-export default function Upload({
+export default function MuiUpload({
   disabled,
   multiple = false,
   error,
@@ -114,7 +114,7 @@ export default function Upload({
             onClick={onUpload}
             startIcon={<Iconify icon="eva:cloud-upload-fill" />}
           >
-            Upload
+            Subir documento
           </Button>
         )}
       </Stack>
@@ -171,7 +171,7 @@ export default function Upload({
   );
 }
 
-Upload.propTypes = {
+MuiUpload.propTypes = {
   disabled: PropTypes.object,
   error: PropTypes.bool,
   file: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
