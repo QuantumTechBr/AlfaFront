@@ -33,7 +33,7 @@ import FormProvider, {
   RHFAutocomplete,
 } from 'src/components/hook-form';
 // _mock
-import { _anosSerie, _turnos } from 'src/_mock';
+import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
@@ -52,6 +52,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
   useEffect(() => {
     buscaEscolas();
     buscaAnosLetivos();
+
   }, [])
 
   const NewTurmaSchema = Yup.object().shape({
@@ -69,7 +70,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       escola: currentTurma?.escola || '',
       escola_id: currentTurma?.escola?.id || '',
       turno: currentTurma?.turno?.toLowerCase() || '',
-      status: currentTurma?.status || ''
+      status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
     }),
     [currentTurma]
   );
@@ -100,7 +101,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
     
       novaTurma.escola_id = data.escola_id;
       novaTurma.ano_id = data.ano_id;
-      novaTurma.status = true;
+      novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
      
       if (currentTurma?.id) {
@@ -186,6 +187,14 @@ export default function TurmaNewEditForm({ currentTurma }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
+
+              <RHFSelect name="status" label="Status">
+              {USER_STATUS_OPTIONS.map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
+                </MenuItem>
+              ))}
+            </RHFSelect>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
