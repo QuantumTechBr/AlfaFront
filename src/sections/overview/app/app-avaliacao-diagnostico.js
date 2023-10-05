@@ -45,16 +45,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             show: false,
         },
         xaxis: {
-            categories: [
-                'H1',
-                'H2',
-                'H3',
-                'H4',
-                'H5',
-                'H6',
-                'H7',
-                'H8',
-            ],
+            categories: list.categorie ?? [],
         }
         
     });
@@ -64,11 +55,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             <CardHeader title={title} subheader={subheader} />
             <Scrollbar>
                 <ChartColumnStacked 
-                    series={[
-                        { name: 'Desenvolvida', data: [3, 1, 2, 8, 1, 4, 5, 5], label: 'Desenvolvida' ,color: '#00E8B1', },
-                        { name: 'Parcialmente Desenvolvida', data: [0, 4, 1, 7, 8, 1, 8, 5], label: 'Parcialmente Desenvolvida', color: '#FFD100' },
-                        { name: 'Não Desenvolvida', data: [3, 4, 1, 7, 8, 1, 2, 5], label: 'Não Desenvolvida', color: '#FF1535' },
-                    ]} 
+                    series={list.series ?? []} 
                     options={chartOptions} 
                     width={86}
                     height={16}

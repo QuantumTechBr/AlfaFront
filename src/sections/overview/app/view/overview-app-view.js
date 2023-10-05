@@ -51,18 +51,83 @@ export default function OverviewAppView() {
   };
   
   const [filters, setFilters] = useState(defaultFilters);
+  const [dados, setDados] = useState({
+    total_usuarios_ativos: {},
+    total_alunos_ativos: {},
+    total_turmas_ativas: {},
+    indice_fases: {},
+    desempenho_alunos: {},
+    avaliacao_diagnostico: {},
+    avaliacao_componente: {},
+  });
 
   const preencheGraficos = async () => {
-    const getObj = {escolaIds:filters.escola, turmaIds:filters.turma}
+    const fullFilters = {
+      ddz: filters.zona.map((item) => item.id),
+      escola: filters.escola.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
+    };
 
-    Promise.all([
-      dashboardsMethods.getDashboardAvaliacaoComponente(getObj).then((response) => { console.table(response.data); }),
-      dashboardsMethods.getDashboardIndiceFases(getObj).then((response) => { console.table(response.data); }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(getObj).then((response) => { console.table(response.data); }),
-      dashboardsMethods.getDashboardTotalTurmasAtivas(getObj).then((response) => { console.table(response.data); }),
-      dashboardsMethods.getDashboardTotalUsuariosAtivos(getObj).then((response) => { console.table(response.data); }),
+    await Promise.all([
+      dashboardsMethods
+        .getDashboardTotalUsuariosAtivos({ ...fullFilters.ddz, ...fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_usuarios_ativos: response.data,
+          }));
+        }),
+      dashboardsMethods
+        .getDashboardTotalAlunosAtivos({ ...fullFilters.ddz, ...fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_alunos_ativos: response.data,
+          }));
+        }),
+      dashboardsMethods
+        .getDashboardTotalTurmasAtivas({ ...fullFilters.ddz, ...fullFilters.escola })
+        .then((response) => {
+          console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            total_turmas_ativas: response.data,
+          }));
+        }),
+
+      dashboardsMethods.getDashboardIndiceFases(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          indice_fases: response.data,
+        }));
+      }),
+      dashboardsMethods.getDashboardDesenpenhoAlunos(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          desempenho_alunos: response.data,
+        }));
+      }),
+
+      dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
+        console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          avaliacao_diagnostico: response.data,
+        }));
+      }),
+      dashboardsMethods.getDashboardAvaliacaoComponente(fullFilters).then((response) => {
+        console.table(response.data);
+        // setDados((prevState) => ({
+        //   ...prevState,
+        //   avaliacao_componente: response.data,
+        // }));
+      }),
     ]);
-  }
+  };
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -205,10 +270,10 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Usuários Ativos"
-            percent={2.6}
-            total={18765}
+            percents={dados.total_usuarios_ativos.percent}
+            total={dados.total_usuarios_ativos.total}
             chart={{
-              series: [5, 18, 12, 51, 68, 11, 39, 37, 27, 20],
+              series: dados.total_usuarios_ativos.chart ?? [],
             }}
           />
         </Grid>
@@ -216,11 +281,11 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Alunos Cadastrados"
-            percent={0.2}
-            total={4876}
+            percent={dados.total_alunos_ativos.percent}
+            total={dados.total_alunos_ativos.total}
             chart={{
               colors: [theme.palette.info.light, theme.palette.info.main],
-              series: [20, 41, 63, 33, 28, 35, 50, 46, 11, 26],
+              series: dados.total_alunos_ativos.chart?.series ?? [],
             }}
           />
         </Grid>
@@ -228,11 +293,11 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Número de Turmas Ativas"
-            percent={-0.1}
-            total={678}
+            percent={dados.total_turmas_ativas.percent}
+            total={dados.total_turmas_ativas.total}
             chart={{
               colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: [8, 9, 31, 8, 16, 37, 8, 33, 46, 31],
+              series: dados.total_turmas_ativas.chart?.series ?? [],
             }}
           />
         </Grid>
@@ -240,69 +305,20 @@ export default function OverviewAppView() {
         <Grid xs={12} md={6} lg={4}>
           <AppCurrentDownload
             title="Índice de Fases"
-            chart={{
-              series: [
-                { label: '', value: 12244 },
-                { label: '', value: 53345 },
-                { label: '', value: 44313 },
-              ],
-            }}
+            chart={dados.indice_fases.chart ?? {series:[]}}
           />
         </Grid>
 
         <Grid xs={12} md={6} lg={8}>
           <AppAreaInstalled
             title="Desempenho dos Alunos"
-            subheader="(+43%) que o ano passado"
-            chart={{
-              categories: [
-                'Jan',
-                'Feb',
-                'Mar',
-                'Apr',
-                'May',
-                'Jun',
-                'Jul',
-                'Aug',
-                'Sep',
-                'Oct',
-                'Nov',
-                'Dec',
-              ],
-              series: [
-                {
-                  year: '2019',
-                  data: [
-                    {
-                      name: '',
-                      data: [10, 41, 35, 51, 49, 62, 69, 91, 148, 35, 51, 49],
-                    },
-                    {
-                      name: '',
-                      data: [10, 34, 13, 56, 77, 88, 99, 77, 45, 13, 56, 77],
-                    },
-                  ],
-                },
-                {
-                  year: '2020',
-                  data: [
-                    {
-                      name: 'Asia',
-                      data: [51, 35, 41, 10, 91, 69, 62, 148, 91, 69, 62, 49],
-                    },
-                    {
-                      name: 'America',
-                      data: [56, 13, 34, 10, 77, 99, 88, 45, 77, 99, 88, 77],
-                    },
-                  ],
-                },
-              ],
-            }}
+            subheader={dados.desempenho_alunos.subheader}
+            chart={dados.desempenho_alunos.chart ?? {categories: [], series:[]}}
           />
         </Grid>
 
         <Grid xs={12} lg={6}>
-          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" subheader="" />
+          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" />
         </Grid>
 
         <Grid xs={12} md={6} lg={6}>
