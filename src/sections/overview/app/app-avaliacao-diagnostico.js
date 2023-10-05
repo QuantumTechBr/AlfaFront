@@ -14,17 +14,6 @@ import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-co
 
 export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) {
 
-
-    const categorie =  [
-        'H1',
-        'H2',
-        'H3',
-        'H4',
-        'H5',
-        'H6',
-        'H7'
-    ]
-
     const chartOptions = useChart({
 
         chart: {
@@ -47,21 +36,28 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             bar: {
                 columnWidth: '100%',
                 horizontal: true,
-                
+
             },
         },
         stroke: {
             width: 1,
-            colors: ['#fff'],
-            show: true,
+            colors: ['#FFF'],
+            show: false,
         },
         xaxis: {
-            categories: categorie,
+            categories: [
+                'H1',
+                'H2',
+                'H3',
+                'H4',
+                'H5',
+                'H6',
+                'H7',
+                'H8',
+            ],
         }
         
     });
-
-
 
     return ( 
         <Card {...other}>
@@ -69,9 +65,9 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             <Scrollbar>
                 <ChartColumnStacked 
                     series={[
-                        { name: 'Desenvolvida', data: [3, 1, 2, 8, 1, 4, 5], stack: 'A', title: '',label: 'Desenvolvida' ,color: '#00E8B1', },
-                        { name: 'Parcialmente Desenvolvida', data: [0, 4, 1, 7, 8, 1, 2], stack: 'B', label: 'Parcialmente Desenvolvida', color: '#FFD100' },
-                        { name: 'Não Desenvolvida', data: [3, 4, 1, 7, 8, 1, 2], stack: 'C', label: 'Não Desenvolvida', color: '#FF1535' },
+                        { name: 'Desenvolvida', data: [3, 1, 2, 8, 1, 4, 5, 5], label: 'Desenvolvida' ,color: '#00E8B1', },
+                        { name: 'Parcialmente Desenvolvida', data: [0, 4, 1, 7, 8, 1, 8, 5], label: 'Parcialmente Desenvolvida', color: '#FFD100' },
+                        { name: 'Não Desenvolvida', data: [3, 4, 1, 7, 8, 1, 2, 5], label: 'Não Desenvolvida', color: '#FF1535' },
                     ]} 
                     options={chartOptions} 
                     width={86}
