@@ -133,7 +133,7 @@ export default function FileManagerNewFolderDialog({
 
         {!!files.length && (
           <Button variant="outlined" color="inherit" onClick={handleRemoveAllFiles}>
-            Remove all
+            Remover todos
           </Button>
         )}
 
