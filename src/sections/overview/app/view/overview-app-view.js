@@ -34,6 +34,7 @@ import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendiza
 import { useBoolean } from 'src/hooks/use-boolean';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
+import OverviewTableToolbar from './overview-table-toolbar';
 
 export default function OverviewAppView() {
  // const { user } = useMockedUser();

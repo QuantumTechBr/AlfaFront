@@ -151,6 +151,14 @@ export function useNavData() {
               { title: 'Lista de Escolas', path: paths.dashboard.blank },
             ],
           },
+
+          // FILE MANAGER
+          {
+            title: t('Documento'),
+            path: paths.dashboard.documento,
+            icon: ICONS.folder,
+          },
+
         ],
       },
 
