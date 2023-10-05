@@ -27,7 +27,6 @@ import AppCurrentDownload from '../app-current-download';
 import AppAreaInstalled from '../app-area-installed';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
-import OverviewTableToolbar from './overview-table-toolbar';
 
 // ----------------------------------------------------------------------
 import OverviewTableToolbar from './overview-table-toolbar';
