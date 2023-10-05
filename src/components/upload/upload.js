@@ -51,9 +51,9 @@ export default function MuiUpload({
     <Stack spacing={3} alignItems="center" justifyContent="center" flexWrap="wrap">
       <UploadIllustration sx={{ width: 1, maxWidth: 200 }} />
       <Stack spacing={1} sx={{ textAlign: 'center' }}>
-        <Typography variant="h6">Drop or Select file</Typography>
+        <Typography variant="h6">Soltar ou selecionar arquivo</Typography>
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          Drop files here or click
+          Solte os arquivos aqui ou clique
           <Box
             component="span"
             sx={{
@@ -62,9 +62,9 @@ export default function MuiUpload({
               textDecoration: 'underline',
             }}
           >
-            browse
+            navegar
           </Box>
-          thorough your machine
+          minuciosamente sua máquina
         </Typography>
       </Stack>
     </Stack>
@@ -103,7 +103,7 @@ export default function MuiUpload({
       <Stack direction="row" justifyContent="flex-end" spacing={1.5}>
         {onRemoveAll && (
           <Button color="inherit" variant="outlined" size="small" onClick={onRemoveAll}>
-            Remove All
+            Remover todos
           </Button>
         )}
 

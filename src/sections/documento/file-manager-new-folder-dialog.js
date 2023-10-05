@@ -21,8 +21,6 @@ import { insertDocumento, getAllDocumentos  } from './documento-repository';
 // Credencial AWS-S3
 const s3Client = new S3({ region: AWS_S3.region, credentials: { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey }});
 
-
-
 export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
   open,
@@ -134,7 +132,7 @@ export default function FileManagerNewFolderDialog({
 
         {!!files.length && (
           <Button variant="outlined" color="inherit" onClick={handleRemoveAllFiles}>
-            Remove all
+            Remover todos
           </Button>
         )}
 
