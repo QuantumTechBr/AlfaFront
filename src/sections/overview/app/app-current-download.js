@@ -90,6 +90,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
         series={chartSeries}
         options={chartOptions}
         height={280}
+        width='100%'
       />
     </Card>
   );

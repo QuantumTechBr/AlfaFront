@@ -14,14 +14,7 @@ import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-co
 export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) {
 
 
-    const categorie =  [
-        'Matemática',
-        'Português',
-        'Ciências',
-        'História',
-        'Geografia',
-    ]
-
+    
     const chartOptions = useChart({
 
         chart: {
@@ -53,7 +46,13 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             show: true,
         },
         xaxis: {
-            categories: categorie,
+            categories: [
+                'Matemática',
+                'Português',
+                'Ciências',
+                'História',
+                'Geografia',
+            ],
         }
         
     });
@@ -78,7 +77,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
 }
 
 AppAvaliacaoDiagnostico.propTypes = {
-    list: PropTypes.array,
+    list: PropTypes.object,
     subheader: PropTypes.string,
     title: PropTypes.string,
 };

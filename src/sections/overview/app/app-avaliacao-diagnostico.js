@@ -66,7 +66,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
 }
 
 AppAvaliacaoDiagnostico.propTypes = {
-    list: PropTypes.array,
+    list: PropTypes.object,
     subheader: PropTypes.string,
     title: PropTypes.string,
 };
