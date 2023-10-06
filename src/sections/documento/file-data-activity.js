@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
-import CardHeader from '@mui/material/CardHeader';
 import ButtonBase from '@mui/material/ButtonBase';
+import CardHeader from '@mui/material/CardHeader';
 import Card from '@mui/material/Card';
+// utils
+import { fData } from 'src/utils/format-number';
 // components
 import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
@@ -14,40 +15,37 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function AppAreaInstalled({ title, subheader, chart, ...other }) {
-  const theme = useTheme();
-
-  if (chart === undefined) {
-    return <>Carregando...</>;
-  }
-
-  const {
-    colors = [
-      [theme.palette.primary.light, theme.palette.primary.main],
-      [theme.palette.warning.light, theme.palette.warning.main],
-    ],
-    categories,
-    series,
-    options,
-  } = chart;
+export default function FileDataActivity({ title, subheader, chart, ...other }) {
+  const { labels, colors, series, options } = chart;
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState();
+  const [seriesData, setSeriesData] = useState('Week');
 
   const chartOptions = useChart({
-    colors: colors.map((colr) => colr[1]),
-    fill: {
-      type: 'gradient',
-      gradient: {
-        colorStops: colors.map((colr) => [
-          { offset: 0, color: colr[0] },
-          { offset: 100, color: colr[1] },
-        ]),
-      },
+    chart: {
+      stacked: true,
+    },
+    colors,
+    stroke: {
+      width: 0,
     },
     xaxis: {
-      categories,
+      categories:
+        (seriesData === 'Week' && labels.week) ||
+        (seriesData === 'Month' && labels.month) ||
+        labels.year,
+    },
+    tooltip: {
+      y: {
+        formatter: (value) => fData(value),
+      },
+    },
+    plotOptions: {
+      bar: {
+        borderRadius: (seriesData === 'Week' && 8) || (seriesData === 'Month' && 6) || 10,
+        columnWidth: '20%',
+      },
     },
     ...options,
   });
@@ -59,16 +57,6 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
     },
     [popover]
   );
-
-  useEffect(() => {
-    if (series.length) {
-      setSeriesData(`${series[0]?.year}`);
-    }
-  }, [series]);
-
-  if (series.length == 0) {
-    return <>Sem dados para exibir.</>;
-  }
 
   return (
     <>
@@ -100,9 +88,9 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
         />
 
         {series.map((item) => (
-          <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-            {item.year === seriesData && (
-              <Chart dir="ltr" type="line" series={item.data} options={chartOptions} height={364} />
+          <Box key={item.type} sx={{ mt: 3, mx: 3 }}>
+            {item.type === seriesData && (
+              <Chart dir="ltr" type="bar" series={item.data} options={chartOptions} height={364} />
             )}
           </Box>
         ))}
@@ -111,11 +99,11 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 140 }}>
         {series.map((option) => (
           <MenuItem
-            key={option.year}
-            selected={option.year === seriesData}
-            onClick={() => handleChangeSeries(option.year)}
+            key={option.type}
+            selected={option.type === seriesData}
+            onClick={() => handleChangeSeries(option.type)}
           >
-            {option.year}
+            {option.type}
           </MenuItem>
         ))}
       </CustomPopover>
@@ -123,7 +111,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
   );
 }
 
-AppAreaInstalled.propTypes = {
+FileDataActivity.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,

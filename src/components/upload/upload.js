@@ -114,7 +114,7 @@ export default function Upload({
             onClick={onUpload}
             startIcon={<Iconify icon="eva:cloud-upload-fill" />}
           >
-            Upload
+            Subir documento
           </Button>
         )}
       </Stack>

@@ -36,7 +36,6 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   useEffect(() => {
     buscaEscolas();
     buscaAnosLetivos();
-
   }, [])
 
   const NewTurmaSchema = Yup.object().shape({
@@ -49,12 +48,12 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     () => ({
       nome: currentTurma?.nome || '',
       ano: currentTurma?.ano || '',
-      anoId: currentTurma?.ano?.id || '',
+      ano_id: currentTurma?.ano?.id || '',
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
-      escolaId: currentTurma.escola.id || '',
+      escola_id: currentTurma.escola.id || '',
       turno: currentTurma.turno?.toLowerCase() || '',
-      status: currentTurma?.status || ''
+      status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
     }),
     [currentTurma]
   );
@@ -80,7 +79,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     
       novaTurma.escola_id = data.escola_id;
       novaTurma.ano_id = data.ano_id;
-      novaTurma.status = true;
+      novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
 
       await turmaMethods.updateTurmaById(currentTurma.id, novaTurma);
@@ -151,6 +150,14 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
               {escolas.map((escola) => (
                 <MenuItem key={escola.id} value={escola.id} >
                   {escola.nome}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFSelect name="status" label="Status">
+              {USER_STATUS_OPTIONS.map((status) => (
+                <MenuItem key={status.value} value={status.value}>
+                  {status.label}
                 </MenuItem>
               ))}
             </RHFSelect>

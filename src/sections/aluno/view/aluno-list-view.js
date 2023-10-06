@@ -1,11 +1,9 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+
 // @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -18,12 +16,11 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
-// _mock
-import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -40,57 +37,44 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import TurmaTableRow from '../turma-table-row';
-import TurmaTableToolbar from '../turma-table-toolbar';
-import TurmaTableFiltersResult from '../turma-table-filters-result';
-//
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import turmaMethods from 'src/sections/turma/turma-repository';
+import AlunoTableRow from '../aluno-table-row';
+import AlunoTableToolbar from '../aluno-table-toolbar';
+import AlunoTableFiltersResult from '../aluno-table-filters-result';
+import alunoMethods from '../aluno-repository';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'ano_serie', label: 'Ano', width: 300 },
-  { id: 'nome', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
-  { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'status', label: 'Status', width: 200 },
+  { id: 'nome', label: 'Aluno', width: 300 },
+  { id: 'matricula', label: 'Matrícula', width: 200 },
+  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
   { id: '', width: 88 },
 ];
 
 const anoAtual = new Date().getFullYear();
+
 const defaultFilters = {
   nome: '',
-  ano: anoAtual,
-  ddz: [],
-  escola: [],
-  status: 'all',
+  matricula: '',
+  data_nascimento: '',
 };
 
 // ----------------------------------------------------------------------
 
-export default function TurmaListView() {
+export default function AlunoListView() {
 
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-
-  const [tableData, setTableData] = useState([]);
-  const [filters, setFilters] = useState(defaultFilters);
+  const [_alunoList, setAlunoList] = useState([]);
 
   useEffect(() => {
-    buscaTurmas({force:true}).then((_turmas) => {
-      _turmas.map((turma) => {
-        turma.status = turma.status.toString()
-      })
-      setTableData(_turmas)
+    alunoMethods.getAllAlunos().then(alunos => {
+      setAlunoList(alunos.data);
+      setTableData(alunos.data);
     })
-    buscaEscolas();
-    
   }, []);
-  
+
+
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -99,6 +83,9 @@ export default function TurmaListView() {
 
   const confirm = useBoolean();
 
+  const [tableData, setTableData] = useState([]);
+
+  const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -131,7 +118,7 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      turmaMethods.deleteTurmaById(id);
+      alunoMethods.deleteAlunoById(id);
       setTableData(deleteRow);
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -143,7 +130,7 @@ export default function TurmaListView() {
     const remainingRows = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        turmaMethods.deleteTurmaById(row.id);
+        alunoMethods.deleteAlunoById(row.id);
       } else {
         remainingRows.push(row);
       }
@@ -159,16 +146,9 @@ export default function TurmaListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.turma.edit(id));
+      router.push(paths.dashboard.aluno.edit(id));
     },
     [router]
-  );
-
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
-    },
-    [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {
@@ -179,16 +159,16 @@ export default function TurmaListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Turmas"
+          heading="Listar"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Turmas', href: paths.dashboard.turma.root },
+            { name: 'Alunos', href: paths.dashboard.aluno.root },
             { name: 'Listar' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.turma.new}
+              href={paths.dashboard.aluno.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
@@ -204,62 +184,17 @@ export default function TurmaListView() {
         />
 
         <Card>
-        <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'true' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'false' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
 
-          <TurmaTableToolbar
+          <AlunoTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //roleOptions={_roles}
-            ddzOptions={_ddzs}
-            escolaOptions={escolas}
           />
 
           {canReset && (
-            <TurmaTableFiltersResult
+            <AlunoTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
               onResetFilters={handleResetFilters}
-              //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -309,7 +244,7 @@ export default function TurmaListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <TurmaTableRow
+                      <AlunoTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -348,7 +283,7 @@ export default function TurmaListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> turmas?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> alunos?
           </>
         }
         action={
@@ -371,8 +306,8 @@ export default function TurmaListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
-
+ 
+  const { nome, matricula, data_nascimento } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -380,21 +315,23 @@ function applyFilter({ inputData, comparator, filters }) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-
+  
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (nome) {
     inputData = inputData.filter(
-      (turma) => turma.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (aluno) => aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
-  if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
+  if (matricula) {
+    inputData = inputData.filter(
+      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
+    );
   }
 
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+  if (data_nascimento) {
+    inputData = inputData.filter((user) => data_nascimento.includes(user.data_nascimento));
   }
 
   return inputData;

@@ -24,6 +24,8 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, nome, ano_escolar, ano, turno, aluno_turma, media, status, created_at, updated_at, deleted_at } = row;
+  
+  const turnoRender = turno.toLowerCase();
 
   const confirm = useBoolean();
 
@@ -42,9 +44,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
-        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turnoRender}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
@@ -55,12 +55,14 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
             variant="soft"
             color={
               (status === 'true' && 'success') ||
+              (status === 'true' && 'success') ||
               (status === 'pending' && 'warning') ||
+              (status === 'false' && 'error') ||
               (status === 'false' && 'error') ||
               'default'
             }
           >
-            {status == 'true' ? 'Ativo' : 'Inativo'}
+            {status === 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 
