@@ -14,8 +14,7 @@ import { Box } from "@mui/material";
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-// _mock
-import {  _appRelated, } from 'src/_mock';
+
 // components
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -322,7 +321,7 @@ export default function OverviewAppView() {
         </Grid>
 
         <Grid xs={12} md={6} lg={6}>
-          <AppAvaliacaoComponente title="Avaliação por Componente" list={_appRelated} />
+          <AppAvaliacaoComponente title="Avaliação por Componente" list={{}} />
         </Grid>
         
       </Grid>

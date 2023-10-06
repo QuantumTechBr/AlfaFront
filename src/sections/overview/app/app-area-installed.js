@@ -34,7 +34,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
   const popover = usePopover();
 
   const [seriesData, setSeriesData] = useState();
-
+  
   const chartOptions = useChart({
     colors: colors.map((colr) => colr[1]),
     fill: {
@@ -102,7 +102,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
         {series.map((item) => (
           <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
             {item.year === seriesData && (
-              <Chart dir="ltr" type="line" series={item.data} options={chartOptions} height={364} />
+              <Chart dir="ltr" type="line" series={item.data} options={chartOptions} height={364} width='100%' />
             )}
           </Box>
         ))}
