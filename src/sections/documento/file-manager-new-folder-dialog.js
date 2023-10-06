@@ -36,26 +36,6 @@ const s3Client = new S3Client({
   credentials: { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey },
 });
 
-// Create the AWS Transcribe transcription job.
-const createTranscriptionJob = async (recording, jobName, bucket, key) => {
-  // Set the parameters for transcriptions job
-  const params = {
-    TranscriptionJobName: jobName + '-job',
-    LanguageCode: 'pt-BR', // For example, 'en-US',
-    OutputBucketName: bucket,
-    OutputKey: key,
-    Media: {
-      MediaFileUri: recording, // For example, "https://transcribe-demo.s3-REGION.amazonaws.com/hello_world.wav"
-    },
-  };
-  try {
-    // Start the transcription job.
-    const data = await s3Client.send(new StartTranscriptionJobCommand(params));
-    console.log('Success - transcription submitted', data);
-  } catch (err) {
-    console.log('Error', err);
-  }
-};
 
 export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
@@ -96,16 +76,6 @@ export default function FileManagerNewFolderDialog({
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
 
-    // const params = {
-    //   Bucket: AWS_S3.bucketName,
-    //   Key: file.name,
-    //   Body: file,
-    //   ContentType: file.type,
-    //   ContentLength: file.size,
-    // }
-
-    // let multipartUpload = new CreateMultipartUploadCommand(params);
-
     const Key = file.name;
     let signedUrl;
     let response;
@@ -133,8 +103,6 @@ export default function FileManagerNewFolderDialog({
         new PutObjectCommand({ Key, Bucket: AWS_S3.bucketName })
       );
 
-      const expire = new Date(Date.now() + 60 * 60 * 1000);
-
       const expiration = new Date(Date.now() + 60 * 60 * 1000);
       // Create and format the presigned URL.
       signedUrl = formatUrl(await signer.presign(request, expiration));
@@ -148,19 +116,12 @@ export default function FileManagerNewFolderDialog({
       response = await fetch(signedUrl, {
         method: 'PUT',
         headers: {
-          'content-type': file.type,
+          // 'content-type': file.type,
+          "content-type": "application/octet-stream",
         },
         body: file.body,
         
-      });
-      // Create the transcription job name. In this case, it's the current date and time.
-      const today = new Date();
-      const date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-      const time = today.getHours() + '-' + today.getMinutes() + '-' + today.getSeconds();
-      const jobName = date + '-time-' + time;
-
-      // Call the "createTranscriptionJob()" function.
-      createTranscriptionJob('s3://' + AWS_S3.bucketName + '/' + Key, jobName, AWS_S3.bucketName, Key);
+      });   
     } catch (err) {
       console.log('Error uploading object', err);
     }
