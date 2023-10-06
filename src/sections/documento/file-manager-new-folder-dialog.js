@@ -30,12 +30,30 @@ import {
 
 // ----------------------------------------------------------------------
 
+
+const credentials = { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey }
 // Credencial AWS-S3
 const s3Client = new S3Client({
   region: AWS_S3.region,
-  credentials: { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey },
+  credentials,
 });
 
+
+const getUrlAssigned = async (key) => {
+  const s3ObjectUrl = parseUrl(
+    `https://${AWS_S3.bucketName}.s3.${AWS_S3.region}.amazonaws.com/${key}`
+  );
+  const presigner = new S3RequestPresigner({
+    credentials,
+    region: AWS_S3.region,
+    // sha256: Hash.bind(null, 'sha256'), // In Node.js
+    sha256: Sha256 // In browsers
+    
+  });
+  // Create a GET request from S3 url.
+  const url = await presigner.presign(new HttpRequest(s3ObjectUrl));
+  console.log('PRESIGNED URL: ', formatUrl(url));
+}
 
 export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
@@ -111,6 +129,7 @@ export default function FileManagerNewFolderDialog({
       console.log('Error creating presigned URL', err);
     }
 
+    
     try {
       // Upload the object to the Amazon S3 bucket using a presigned URL.
       response = await fetch(signedUrl, {
@@ -122,6 +141,12 @@ export default function FileManagerNewFolderDialog({
         body: file.body,
         
       });   
+      console.log(signedUrl);
+
+
+      getUrlAssigned(Key);
+
+      console.log(response);
     } catch (err) {
       console.log('Error uploading object', err);
     }
