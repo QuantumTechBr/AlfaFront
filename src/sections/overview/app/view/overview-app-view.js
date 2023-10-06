@@ -103,7 +103,7 @@ export default function OverviewAppView() {
           indice_fases: response.data,
         }));
       }),
-      dashboardsMethods.getDashboardDesenpenhoAlunos(fullFilters).then((response) => {
+      dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
         console.table(response.data);
         setDados((prevState) => ({
           ...prevState,

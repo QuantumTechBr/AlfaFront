@@ -4,7 +4,7 @@ import axios, { endpoints } from 'src/utils/axios';
 
 export const getDashboardAvaliacaoComponente = payload => axios.post(endpoints.dashboard.avaliacao_componente, payload);
 export const getDashboardAvaliacaoDiagnostico = payload => axios.post(endpoints.dashboard.avaliacao_diagnostico, payload);
-export const getDashboardDesenpenhoAlunos = payload => axios.post(endpoints.dashboard.desempenho_alunos, payload);
+export const getDashboardDesempenhoAlunos = payload => axios.post(endpoints.dashboard.desempenho_alunos, payload);
 export const getDashboardIndiceFases = payload => axios.post(endpoints.dashboard.indice_fases, payload);
 export const getDashboardTotalAlunosAtivos = payload => axios.post(endpoints.dashboard.total_alunos_ativos, payload);
 export const getDashboardTotalTurmasAtivas = payload => axios.post(endpoints.dashboard.total_turmas_ativas, payload);
@@ -13,7 +13,7 @@ export const getDashboardTotalUsuariosAtivos = payload => axios.post(endpoints.d
 const dashboardsMethods = {
     getDashboardAvaliacaoComponente,
     getDashboardAvaliacaoDiagnostico,
-    getDashboardDesenpenhoAlunos,
+    getDashboardDesempenhoAlunos,
     getDashboardIndiceFases,
     getDashboardTotalAlunosAtivos,
     getDashboardTotalTurmasAtivas,
