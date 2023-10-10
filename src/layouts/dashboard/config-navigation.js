@@ -95,6 +95,13 @@ export function useNavData() {
             icon: ICONS.alfaStudent,
           },
 
+          // Profissionais
+          {
+            title: 'Lista de Profissionais',
+            path: paths.dashboard.profissional.list,
+            icon: ICONS.alfaStudent,
+          },
+
           // ANOS
           {
             title: 'Lista de Anos Letivos',
