@@ -19,11 +19,20 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import ProfissionalQuickEditForm from './profissional-quick-edit-form';
+import UserQuickEditForm from '../user/user-quick-edit-form';
 
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, profissional, email, funcao, escola, zona  } = row;
+
+  const user = {
+    nome: row.profissional,
+    email: row.email,
+    funcao: row.funcao,
+    escola: row.escola,
+    zona: row.zona,
+  }
   
   const profissionalRender = profissional.toLowerCase();
 
@@ -40,7 +49,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}° ano</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
@@ -49,20 +58,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona}</TableCell>
-
-        <TableCell>
-          <Label
-            variant="soft"
-            color={
-              (status === 'true' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'false' && 'error') ||
-              'default'
-            }
-          >
-            {status === 'true' ?  'Ativo' : 'Inativo'}
-          </Label>
-        </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
@@ -77,7 +72,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      <ProfissionalQuickEditForm currentProfissional={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <UserQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -85,7 +80,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             confirm.onTrue();
             popover.onClose();
@@ -94,7 +89,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {

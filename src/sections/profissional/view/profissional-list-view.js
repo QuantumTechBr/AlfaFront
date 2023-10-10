@@ -41,24 +41,23 @@ import ProfissionalTableRow from '../profissional-table-row';
 import ProfissionalTableToolbar from '../profissional-table-toolbar';
 import ProfissionalTableFiltersResult from '../profissional-table-filters-result';
 import profissionalMethods from '../profissional-repository';
-import { USER_STATUS_OPTIONS } from 'src/_mock';
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'profissional', label: 'Profissional', width: 300 },
-  { id: 'email', label: 'Matrícula', width: 200 },
-  { id: 'escola', label: 'Data de Nascimento', width: 100 },
+  { id: 'email', label: 'E-Mail', width: 200 },
+  { id: 'funcao', label: 'Função', width: 100 },
+  { id: 'escola', label: 'Escola', width: 100 },
+  { id: 'zona', label: 'DDZ', width: 100 },
   { id: '', width: 88 },
 ];
 
-const anoAtual = new Date().getFullYear();
-
 const defaultFilters = {
   nome: '',
-  matricula: '',
-  data_nascimento: '',
+  escola: '',
+  funcao: '',
+  zona: '',
 };
 
 // ----------------------------------------------------------------------
@@ -69,7 +68,7 @@ export default function ProfissionalListView() {
 
   useEffect(() => {
     profissionalMethods.getAllProfissionais().then(profissionais => {
-      console.log(profissionais.data);
+      console.log(profissionais)
       setProfissionalList(profissionais.data);
       setTableData(profissionais.data);
     })
@@ -147,7 +146,7 @@ export default function ProfissionalListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.aluno.edit(id));
+      router.push(paths.dashboard.user.edit(id));
     },
     [router]
   );
@@ -169,7 +168,7 @@ export default function ProfissionalListView() {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.aluno.new}
+              href={paths.dashboard.user.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
