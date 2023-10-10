@@ -55,9 +55,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
             variant="soft"
             color={
               (status === 'true' && 'success') ||
-              (status === 'true' && 'success') ||
               (status === 'pending' && 'warning') ||
-              (status === 'false' && 'error') ||
               (status === 'false' && 'error') ||
               'default'
             }
