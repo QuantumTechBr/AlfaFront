@@ -29,13 +29,11 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const user = {
     nome: row.profissional,
     email: row.email,
-    funcao_id: row.funcao.id,
-    funcao: row.funcao.nome,
-    escola_id: row.funcao.id,
-    escola: row.escola.nome,
-    zona: row.zona,
+    funcao: row.funcao.id,
+    escola: row.escola.id,
+    zona: row.zona?.id,
   }
-  
+
   const profissionalRender = profissional.toLowerCase();
 
   const confirm = useBoolean();
@@ -64,7 +62,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>

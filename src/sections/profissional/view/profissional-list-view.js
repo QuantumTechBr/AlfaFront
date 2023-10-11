@@ -320,7 +320,7 @@ export default function ProfissionalListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> alunos?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> profissionais?
           </>
         }
         action={
@@ -343,7 +343,6 @@ export default function ProfissionalListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-
   const { nome, role, escola } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -362,11 +361,11 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.funcao));
+    inputData = inputData.filter((user) => role.includes(user.funcao.id));
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+    inputData = inputData.filter((user) => escola.includes(user.escola.id));
   }
 
   return inputData;
