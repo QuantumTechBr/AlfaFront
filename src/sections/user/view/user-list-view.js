@@ -9,6 +9,7 @@ import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -73,6 +74,7 @@ const defaultFilters = {
 export default function UserListView() {
 
   const [_userList, setUserList] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -81,18 +83,29 @@ export default function UserListView() {
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
       const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
+      if (usuariosNaoDeletados.length == 0) {
+        setErrorMsg('A API retornou uma lista vazia de usuários');
+      }
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
           usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
           usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
         }
       }
+      usuariosNaoDeletados.map((usuario => {
+        usuario.status = usuario.status.toString()
+      }))
       setUserList(usuariosNaoDeletados);
       setTableData(usuariosNaoDeletados);
-    })
-
-    buscaEscolas();
-    buscaFuncoes();
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários');
+      })
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      });
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+    });
   }, []);
 
   const table = useTable();
@@ -138,8 +151,11 @@ export default function UserListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      userMethods.deleteUserById(id);
-      setTableData(deleteRow);
+      userMethods.deleteUserById(id).then(retorno => {
+        setTableData(deleteRow);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -148,14 +164,24 @@ export default function UserListView() {
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        userMethods.deleteUserById(row.id);
+        const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -210,6 +236,8 @@ export default function UserListView() {
           }}
         />
 
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+
         <Card>
           <Tabs
             value={filters.status}
@@ -231,21 +259,21 @@ export default function UserListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === true && 'success') ||
+                      (tab.value === 'true' && 'success') ||
                       (tab.value === 'pending' && 'warning') ||
-                      (tab.value === false && 'error') ||
+                      (tab.value === 'false' && 'error') ||
                       'default'
                     }
                   >
-                    {tab.value === 'all' && _userList.length}
-                    {tab.value === true &&
-                      _userList.filter((user) => user.status === true).length}
+                    {tab.value === 'all' && tableData.length}
+                    {tab.value === 'true' &&
+                      tableData.filter((user) => user.status === 'true').length}
                     {tab.value === 'pending' &&
-                      _userList.filter((user) => user.status === 'pending').length}
-                    {tab.value === false &&
-                      _userList.filter((user) => user.status === false).length}
+                      tableData.filter((user) => user.status === 'pending').length}
+                    {tab.value === 'false' &&
+                      tableData.filter((user) => user.status === 'false').length}
                     {tab.value === 'rejected' &&
-                      _userList.filter((user) => user.status === 'rejected').length}
+                      tableData.filter((user) => user.status === 'rejected').length}
                   </Label>
                 }
               />
@@ -256,7 +284,6 @@ export default function UserListView() {
             filters={filters}
             onFilters={handleFilters}
             roleOptions={funcoes}
-            ddzOptions={_ddzs}
             escolaOptions={escolas}
           />
 
@@ -267,7 +294,6 @@ export default function UserListView() {
               onResetFilters={handleResetFilters}
               results={dataFiltered.length}
               roleOptions={funcoes}
-              ddzOptions={_ddzs}
               escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
