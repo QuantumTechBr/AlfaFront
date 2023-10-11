@@ -1,12 +1,13 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -41,6 +42,10 @@ import ProfissionalTableRow from '../profissional-table-row';
 import ProfissionalTableToolbar from '../profissional-table-toolbar';
 import ProfissionalTableFiltersResult from '../profissional-table-filters-result';
 import profissionalMethods from '../profissional-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import userMethods from 'src/sections/user/user-repository';
+
 // ----------------------------------------------------------------------
 
 
@@ -55,9 +60,8 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   nome: '',
-  escola: '',
-  funcao: '',
-  zona: '',
+  escola: [],
+  role: [],
 };
 
 // ----------------------------------------------------------------------
@@ -65,13 +69,27 @@ const defaultFilters = {
 export default function ProfissionalListView() {
 
   const [_profissionalList, setProfissionalList] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
 
   useEffect(() => {
     profissionalMethods.getAllProfissionais().then(profissionais => {
-      console.log(profissionais)
+      if (profissionais.data.length == 0) {
+        setErrorMsg('A API retornou uma lista vazia de profissionais');
+      }
       setProfissionalList(profissionais.data);
-      setTableData(profissionais.data);
+      setTableData(profissionais.data);     
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de usuários');
     })
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+  });
   }, []);
 
 
@@ -118,8 +136,11 @@ export default function ProfissionalListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      alunoMethods.deleteAlunoById(id);
-      setTableData(deleteRow);
+      userMethods.deleteUserById(id).then(retorno => {
+        setTableData(deleteRow);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -128,14 +149,24 @@ export default function ProfissionalListView() {
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
-      if (table.selected.includes(row.id)) {
-        alunoMethods.deleteAlunoById(row.id);
+      if(table.selected.includes(row.id)) {
+        const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -182,12 +213,16 @@ export default function ProfissionalListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+        
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <Card>
 
           <ProfissionalTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            roleOptions={funcoes}
+            escolaOptions={escolas}
           />
 
           {canReset && (
@@ -196,6 +231,8 @@ export default function ProfissionalListView() {
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={dataFiltered.length}
+              roleOptions={funcoes}
+              escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -307,7 +344,7 @@ export default function ProfissionalListView() {
 
 function applyFilter({ inputData, comparator, filters }) {
 
-  const { nome, matricula, data_nascimento } = filters;
+  const { nome, role, escola } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -320,18 +357,16 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (aluno) => aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (user) => user.profissional.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
-  if (matricula) {
-    inputData = inputData.filter(
-      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
-    );
+  if (role.length) {
+    inputData = inputData.filter((user) => role.includes(user.funcao));
   }
 
-  if (data_nascimento) {
-    inputData = inputData.filter((user) => data_nascimento.includes(user.data_nascimento));
+  if (escola.length) {
+    inputData = inputData.filter((user) => escola.includes(user.escola));
   }
 
   return inputData;

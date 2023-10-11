@@ -29,14 +29,21 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const user = {
     nome: row.profissional,
     email: row.email,
-    funcao: row.funcao,
-    escola: row.escola,
+    funcao_id: row.funcao.id,
+    funcao: row.funcao.nome,
+    escola_id: row.funcao.id,
+    escola: row.escola.nome,
     zona: row.zona,
   }
   
   const profissionalRender = profissional.toLowerCase();
 
   const confirm = useBoolean();
+
+  const newDeleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  }
 
   const quickEdit = useBoolean();
 
@@ -53,9 +60,9 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcao}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcao.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona}</TableCell>
 
@@ -80,7 +87,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        {/* <MenuItem
+        <MenuItem
           onClick={() => {
             confirm.onTrue();
             popover.onClose();
@@ -89,7 +96,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem> */}
+        </MenuItem>
 
         <MenuItem
           onClick={() => {
@@ -108,7 +115,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         title="Excluir Profissional"
         content="Tem certeza que deseja excluir este profissional?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={newDeleteRow}>
             Deletar
           </Button>
         }

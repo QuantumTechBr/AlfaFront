@@ -20,7 +20,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function ProfissionalTableToolbar({
   filters,
   onFilters,
-  //roleOptions,
+  roleOptions,
   ddzOptions,
   escolaOptions,
 }) {
@@ -28,7 +28,7 @@ export default function ProfissionalTableToolbar({
 
   const handleFilterNome = useCallback(
     (event) => {
-      onFilters('profissional', event.target.value);
+      onFilters('nome', event.target.value);
     },
     [onFilters]
   );
@@ -37,6 +37,16 @@ export default function ProfissionalTableToolbar({
     (event) => {
       onFilters(
         'ddz',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterRole = useCallback(
+    (event) => {
+      onFilters(
+        'role',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -52,6 +62,11 @@ export default function ProfissionalTableToolbar({
     },
     [onFilters]
   );
+
+  const renderValueFuncao = (selected) =>
+    selected.map((funcaoId) => {
+      return roleOptions.find((option) => option.id == funcaoId)?.nome;
+    }).join(', ');
 
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
@@ -80,29 +95,27 @@ export default function ProfissionalTableToolbar({
             width: { xs: 1, md: 100 },
           }}
         >
-          <InputLabel>DDZ</InputLabel>
+          <InputLabel>Função</InputLabel>
 
-          {/*
           <Select
             multiple
-            value={filters.ddz}
-            onChange={handleFilterDdz}
+            value={filters.role}
+            onChange={handleFilterRole}
             input={<OutlinedInput label="Função" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueFuncao}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
+            {roleOptions.map((funcao) => (
+              <MenuItem key={funcao.id} value={funcao.id}>
+                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.id)} />
+                {funcao.nome}
               </MenuItem>
             ))}
           </Select>
-        */}
         </FormControl>
 
         <FormControl
@@ -137,7 +150,7 @@ export default function ProfissionalTableToolbar({
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
-            value={filters.profissional}
+            value={filters.nome}
             onChange={handleFilterNome}
             placeholder="Pesquisar..."
             InputProps={{
@@ -195,7 +208,7 @@ export default function ProfissionalTableToolbar({
 ProfissionalTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  // roleOptions: PropTypes.array,
+  roleOptions: PropTypes.array,
   ddzOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
 };

@@ -14,30 +14,37 @@ import Iconify from 'src/components/iconify';
 export default function ProfissionalTableFiltersResult({
   filters,
   onFilters,
-  //
   onResetFilters,
-  //
   results,
+  roleOptions,
+  escolaOptions,
   ...other
 }) {
-  // const handleRemoveStatus = () => {
-  //   onFilters('status', 'all');
-  // };
+
+  const funcoesSelecionadas = [];
+  const escolasSelecionadas = [];
+
+  roleOptions.map((funcao) => {
+    if(filters.role?.includes(funcao.id)) {
+      funcoesSelecionadas.push(funcao)
+    }
+  })
+
+  escolaOptions.map((escola) => {
+    if(filters.escola?.includes(escola.id)) {
+      escolasSelecionadas.push(escola)
+    }
+  })
 
   const handleRemoveProfissional = (inputValue) => {
-    onFilters('profissional', '');
+    onFilters('nome', '');
   };
 
-  // const handleRemoveRole = (inputValue) => {
-  //   const newValue = filters.role.filter((item) => item !== inputValue);
-  //   onFilters('role', newValue);
-  // };
-
-  const handleRemoveDdz = (inputValue) => {
-    const newValue = filters.ddz.filter((item) => item !== inputValue);
-    onFilters('ddz', newValue);
+  const handleRemoveRole = (inputValue) => {
+    const newValue = filters.role.filter((item) => item !== inputValue);
+    onFilters('role', newValue);
   };
-  
+
   const handleRemoveEscola = (inputValue) => {
     const newValue = filters.escola.filter((item) => item !== inputValue);
     onFilters('escola', newValue);
@@ -59,32 +66,32 @@ export default function ProfissionalTableFiltersResult({
           </Block>
         )} */}
 
-        {filters.profissional !== '' && (
+        {filters.nome !== '' && (
           <Block label="Nome:">
-            <Chip size="small" label={filters.profissional} onDelete={handleRemoveProfissional} />
+            <Chip size="small" label={filters.nome} onDelete={handleRemoveProfissional} />
           </Block>
         )}
 
-        {/* {!!filters.role.length && (
+        {!!funcoesSelecionadas.length && (
           <Block label="Função:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
+            {funcoesSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveRole(item.id)} />
             ))}
           </Block>
-        )} */}
+        )}
 
-        {!!filters.ddz.length && (
+        {/* {!!filters.ddz.length && (
           <Block label="DDZ:">
             {filters.ddz.map((item) => (
               <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
             ))}
           </Block>
-        )}
+        )} */}
 
-        {!!filters.escola.length && (
+          {!!filters.escola.length && (
           <Block label="Escola:">
-            {filters.escola.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
+            {escolasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
             ))}
           </Block>
         )}
