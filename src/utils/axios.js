@@ -220,6 +220,13 @@ export const endpoints = {
     update: '/api/v1/zonas/',
     delete: '/api/v1/zonas/',
   },
+  profissional: {
+    list: '/api/v1/profissionais/',
+    post: '/api/v1/profissionais',
+    get_by_id: '/api/v1/profissionais/',
+    update: '/api/v1/profissionais/',
+    delete: '/api/v1/profissionais/',
+  },
   /*mail: {
     list: '/api/mail/list',
     details: '/api/mail/details',
