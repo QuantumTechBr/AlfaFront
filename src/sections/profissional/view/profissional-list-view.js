@@ -177,7 +177,7 @@ export default function ProfissionalListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.user.edit(id));
+      router.push(paths.dashboard.profissional.edit(id));
     },
     [router]
   );
@@ -199,7 +199,7 @@ export default function ProfissionalListView() {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href={paths.dashboard.profissional.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{

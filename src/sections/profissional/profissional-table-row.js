@@ -19,7 +19,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import ProfissionalQuickEditForm from './profissional-quick-edit-form';
-import UserQuickEditForm from '../user/user-quick-edit-form';
+
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +27,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const { id, profissional, email, funcao, escola, zona  } = row;
 
   const user = {
+    id: row.id,
     nome: row.profissional,
     email: row.email,
     funcao: row.funcao.id,
@@ -77,7 +78,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      <UserQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
