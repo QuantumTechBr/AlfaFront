@@ -5,7 +5,7 @@ import { fetcher, endpoints } from 'src/utils/axios';
 
 // ----------------------------------------------------------------------
 
-const URL = endpoints.calendar;
+const endpointCalendario = endpoints.calendar;
 
 const options = {
   revalidateIfStale: false,
@@ -14,10 +14,10 @@ const options = {
 };
 
 export function useGetEvents() {
-  const { data, isLoading, error, isValidating } = useSWR(URL, fetcher, options);
+  const { data, isLoading, error, isValidating } = useSWR(endpointCalendario.list, fetcher, options);
 
   const memoizedValue = useMemo(() => {
-    const events = data?.events.map((event) => ({
+    const events = (data?? []).events?.map((event) => ({
       ...event,
       textColor: event.color,
     }));
@@ -27,7 +27,7 @@ export function useGetEvents() {
       eventsLoading: isLoading,
       eventsError: error,
       eventsValidating: isValidating,
-      eventsEmpty: !isLoading && !data?.events.length,
+      eventsEmpty: !isLoading && !data?.events?.length,
     };
   }, [data?.events, error, isLoading, isValidating]);
 
@@ -47,7 +47,7 @@ export async function createEvent(eventData) {
    * Work in local
    */
   mutate(
-    URL,
+    endpointCalendario.post,
     (currentData) => {
       const events = [...currentData.events, eventData];
 
@@ -73,7 +73,7 @@ export async function updateEvent(eventData) {
    * Work in local
    */
   mutate(
-    URL,
+    `${endpointCalendario.update}${eventId}`,
     (currentData) => {
       const events = currentData.events.map((event) =>
         event.id === eventData.id ? { ...event, ...eventData } : event
@@ -101,7 +101,7 @@ export async function deleteEvent(eventId) {
    * Work in local
    */
   mutate(
-    URL,
+    `${endpointCalendario.delete}${eventId}`,
     (currentData) => {
       const events = currentData.events.filter((event) => event.id !== eventId);
 

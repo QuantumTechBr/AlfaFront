@@ -1,6 +1,7 @@
 'use client';
 
 import Calendar from '@fullcalendar/react'; // => request placed at the top
+import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import interactionPlugin from '@fullcalendar/interaction';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -140,13 +141,13 @@ export default function CalendarView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Calendar</Typography>
+          <Typography variant="h4">Calendário</Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             onClick={onOpenForm}
           >
-            New Event
+            Novo evento
           </Button>
         </Stack>
 
@@ -170,6 +171,8 @@ export default function CalendarView() {
               editable
               droppable
               selectable
+              locales={[ptBrLocale]}
+              locale={'pt-br'}
               rerenderDelay={10}
               allDayMaintainDuration
               eventResizableFromStart
