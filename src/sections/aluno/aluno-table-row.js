@@ -23,9 +23,17 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+  const { id, ano, turma, turno, escola, fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
   let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
+
+  let ano_escolar = '';
+
+  if (ano === '') {
+    ano_escolar = ano;
+  } else {
+    ano_escolar = ano.concat('º ');
+  }
 
   const confirm = useBoolean();
 
@@ -41,18 +49,21 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
 
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma?.nome}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turno}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>Fase</TableCell>
+
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
-
-        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{created_at}</TableCell>*/}
-
-        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{updated_at}</TableCell>*/}
-
-        {/*<TableCell sx={{ whiteSpace: 'nowrap' }}>{deleted_at}</TableCell>*/}
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>

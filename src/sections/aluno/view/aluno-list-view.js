@@ -1,7 +1,7 @@
 'use client';
 
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
 import Card from '@mui/material/Card';
@@ -42,6 +42,9 @@ import AlunoTableToolbar from '../aluno-table-toolbar';
 import AlunoTableFiltersResult from '../aluno-table-filters-result';
 import alunoMethods from '../aluno-repository';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -49,6 +52,11 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
+  { id: 'ano', label: 'Ano', width: 200 },
+  { id: 'turma', label: 'Turma', width: 200 },
+  { id: 'turno', label: 'Turno', width: 200 },
+  { id: 'escola', label: 'Escola', width: 200 },
+  { id: 'fase', label: 'Fase', width: 200 },
   { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
   { id: '', width: 88 },
 ];
@@ -58,7 +66,8 @@ const anoAtual = new Date().getFullYear();
 const defaultFilters = {
   nome: '',
   matricula: '',
-  data_nascimento: '',
+  escola: [],
+  turma: [],
 };
 
 // ----------------------------------------------------------------------
@@ -66,14 +75,11 @@ const defaultFilters = {
 export default function AlunoListView() {
 
   const [_alunoList, setAlunoList] = useState([]);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
-  useEffect(() => {
-    alunoMethods.getAllAlunos().then(alunos => {
-      setAlunoList(alunos.data);
-      setTableData(alunos.data);
-    })
-  }, []);
-
+  const preparado = useBoolean(false);
 
   const table = useTable();
 
@@ -86,6 +92,68 @@ export default function AlunoListView() {
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  const preparacaoInicial = async () => {
+    preencheTabela();
+    await Promise.all([
+      buscaAnosLetivos(),
+      buscaEscolas(),
+      buscaTurmas(),
+      alunoMethods.getAllAlunos().then(alunos => {
+        setAlunoList(alunos.data);
+      }),
+    ]);
+  };
+
+  const preencheTabela = () => {
+    if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && _alunoList.length) {
+      let _alunosTableData = [];
+      const idAnoLetivoAtual = anosLetivos.map((ano) => {
+        if (ano.status === "NÃO FINALIZADO") {
+          return ano.id;
+        }
+      }).filter(Boolean)
+      _alunoList.forEach((aluno) => {
+        let alunoTurma = [];
+        aluno.alunosTurmas.forEach((turma_id) => {
+          alunoTurma  = turmas.map((turma) => {
+            if (turma.id === turma_id && turma.ano.status === "NÃO FINALIZADO") {
+              return turma;
+            }
+          }).filter(Boolean)          
+        })
+        
+        let alunoEscola = [];
+        aluno.alunoEscolas.forEach((aluno_escola) => {
+          alunoEscola = escolas.map((escola) => {
+            if (aluno_escola.ano === idAnoLetivoAtual[0] && escola.id === aluno_escola.escola) {
+              return escola;
+            }
+          }).filter(Boolean) 
+        })
+        _alunosTableData.push({
+          id: aluno?.id || '',
+          nome: aluno?.nome || '',
+          matricula: aluno?.matricula || '',
+          data_nascimento: aluno?.data_nascimento,
+          ano: alunoTurma[0]?.ano_escolar || '',
+          turma: alunoTurma[0] ? alunoTurma[0] : '',
+          turno: alunoTurma[0]?.turno.toLowerCase() || '',
+          escola: alunoEscola[0] ? alunoEscola[0] : '',
+          fase: '',
+        })  
+      })
+      setTableData(_alunosTableData);
+      preparado.onTrue();
+    }
+  };
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, [setTableData]); // CHAMADA UNICA AO ABRIR
+  useEffect(() => {
+    preencheTabela();
+  }, [anosLetivos, turmas, escolas, _alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -188,11 +256,15 @@ export default function AlunoListView() {
           <AlunoTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            escolaOptions={escolas}
+            turmaOptions={turmas}
           />
 
           {canReset && (
             <AlunoTableFiltersResult
               filters={filters}
+              escolaOptions={escolas}
+              turmaOptions={turmas}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={dataFiltered.length}
@@ -307,7 +379,7 @@ export default function AlunoListView() {
 
 function applyFilter({ inputData, comparator, filters }) {
  
-  const { nome, matricula, data_nascimento } = filters;
+  const { nome, matricula, escola, turma } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -330,8 +402,12 @@ function applyFilter({ inputData, comparator, filters }) {
     );
   }
 
-  if (data_nascimento) {
-    inputData = inputData.filter((user) => data_nascimento.includes(user.data_nascimento));
+  if (escola.length) {
+    inputData = inputData.filter((aluno) => escola.includes(aluno.escola.id));
+  }
+
+  if (turma.length) {
+    inputData = inputData.filter((aluno) => turma.includes(aluno.turma.id));
   }
 
   return inputData;

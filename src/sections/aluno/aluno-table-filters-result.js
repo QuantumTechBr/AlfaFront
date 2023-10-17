@@ -16,8 +16,25 @@ export default function AlunoTableFiltersResult({
   onFilters,
   onResetFilters,
   results,
+  escolaOptions,
+  turmaOptions,
   ...other
 }) {
+
+  const escolasSelecionadas = [];
+  const turmasSelecionadas = [];
+
+  escolaOptions.map((escola) => {
+    if(filters.escola?.includes(escola.id)) {
+      escolasSelecionadas.push(escola)
+    }
+  })
+
+  turmaOptions.map((turma) => {
+    if(filters.turma?.includes(turma.id)) {
+      turmasSelecionadas.push(turma)
+    }
+  })
 
   const handleRemoveNome = (inputValue) => {
     onFilters('nome');
@@ -27,9 +44,14 @@ export default function AlunoTableFiltersResult({
     onFilters('matricula');
   };
   
-  const handleRemoveDataNascimento = (inputValue) => {
-    const newValue = filters.data_nascimento.filter((item) => item !== inputValue);
-    onFilters('data_nascimento', newValue);
+  const handleRemoveEscola = (inputValue) => {
+    const newValue = filters.escola.filter((item) => item !== inputValue);
+    onFilters('escola', newValue);
+  };
+
+  const handleRemoveTurma = (inputValue) => {
+    const newValue = filters.turma.filter((item) => item !== inputValue);
+    onFilters('turma', newValue);
   };
 
   return (
@@ -55,9 +77,19 @@ export default function AlunoTableFiltersResult({
           </Block>
         )}
 
-        {filters.data_nascimento !== '' && (
-          <Block label="Data Nascimento:">
-            <Chip size="small" label={filters.data_nascimento} onDelete={handleRemoveDataNascimento} />
+        {!!filters.escola.length && (
+          <Block label="Escola:">
+            {escolasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
+            ))}
+          </Block>
+        )}
+
+        {!!filters.turma.length && (
+          <Block label="Turma:">
+            {turmasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.ano_escolar.concat('º ', item.nome)} size="small" onDelete={() => handleRemoveTurma(item.id)} />
+            ))}
           </Block>
         )}
 
