@@ -34,7 +34,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
   ) : <Box
       component="img"
       src="/assets/illustrations/escudo_prefeitura_manaus.png"
-      sx={{ width: 40, height: 60, objectFit: 'cover', objectPosition: 2, cursor: 'pointer', ...sx }}
+      sx={{ width: '32%', height: 'calc(13vw)', maxHeight:40, objectFit: 'cover', objectPosition: 2, cursor: 'pointer', ...sx }}
     />
   ;
 
