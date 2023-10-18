@@ -52,7 +52,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const popover = usePopover();
 
   let turmaRender = '';
-  turma.map((item) => {
+  turma?.map((item) => {
     turmaRender += " Turma " + item.nome;
   });
 
@@ -74,7 +74,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
 
         <Tooltip title={turmaRender} enterDelay={500} leaveDelay={200}>
-          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma?.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
         </Tooltip>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
