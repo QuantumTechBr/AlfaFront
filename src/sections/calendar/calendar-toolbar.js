@@ -21,7 +21,7 @@ const VIEW_OPTIONS = [
   { value: 'dayGridMonth', label: 'Mês', icon: 'mingcute:calendar-month-line' },
   // { value: 'timeGridWeek', label: 'Semana', icon: 'mingcute:calendar-week-line' },
   // { value: 'timeGridDay', label: 'Day', icon: 'mingcute:calendar-day-line' },
-  { value: 'listWeek', label: 'Agenda', icon: 'fluent:calendar-agenda-24-regular' },
+  { value: 'listMonth', label: 'Agenda', icon: 'fluent:calendar-agenda-24-regular' },
 ];
 
 // ----------------------------------------------------------------------
@@ -67,7 +67,7 @@ export default function CalendarToolbar({
             <Iconify icon="eva:arrow-ios-back-fill" />
           </IconButton>
 
-          <Typography variant="h6">{fDate(date, 'MMMM yyyy')}</Typography>
+          <Typography variant="h6">{view === 'multiMonthYear' ? fDate(date, 'yyyy') : fDate(date, 'MMMM yyyy')}</Typography>
 
           <IconButton onClick={onNextDate}>
             <Iconify icon="eva:arrow-ios-forward-fill" />
@@ -124,5 +124,5 @@ CalendarToolbar.propTypes = {
   onOpenFilters: PropTypes.func,
   onPrevDate: PropTypes.func,
   onToday: PropTypes.func,
-  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek']),
+  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek', 'listMonth']),
 };
