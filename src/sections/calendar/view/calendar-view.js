@@ -3,6 +3,7 @@
 import Calendar from '@fullcalendar/react'; // => request placed at the top
 import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import interactionPlugin from '@fullcalendar/interaction';
+import multiMonthPlugin from '@fullcalendar/multimonth';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -26,7 +27,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // _mock
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 // api
-import { useGetEvents, updateEvent } from 'src/api/calendar';
+import {  updateEvent } from 'src/api/calendar';
 // components
 import Iconify from 'src/components/iconify';
 import { useSettingsContext } from 'src/components/settings';
@@ -37,6 +38,7 @@ import CalendarForm from '../calendar-form';
 import CalendarToolbar from '../calendar-toolbar';
 import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
+import { getAllCalendarios } from 'src/sections/calendario/calendario-repository';
 
 // ----------------------------------------------------------------------
 
@@ -58,8 +60,10 @@ export default function CalendarView() {
   const openFilters = useBoolean();
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  const { events, eventsLoading } = useGetEvents();
+  
+  const [events, setEvents] = useState([]);
+  const [eventsLoading, setEventsLoading] = useState(true);
+  
 
   const dateError =
     filters.startDate && filters.endDate
@@ -92,11 +96,19 @@ export default function CalendarView() {
     onClickEventInFilters,
   } = useCalendar();
 
-  const currentEvent = useEvent(events, selectEventId, selectedRange, openForm);
+  const currentEvent = useEvent((events ?? []), selectEventId, selectedRange, openForm);
 
   useEffect(() => {
     onInitialView();
   }, [onInitialView]);
+  
+  useEffect(() => {
+    getAllCalendarios().then((response) => {
+      console.table(response);
+      setEvents(response.data);
+      setEventsLoading(false);
+    });
+  }, []);
 
   const handleFilters = useCallback((name, value) => {
     setFilters((prevState) => ({
@@ -168,9 +180,9 @@ export default function CalendarView() {
 
             <Calendar
               weekends
-              editable
-              droppable
-              selectable
+              editable="false"
+              droppable="false"
+              selectable="false"
               locales={[ptBrLocale]}
               locale={'pt-br'}
               rerenderDelay={10}
@@ -179,20 +191,23 @@ export default function CalendarView() {
               ref={calendarRef}
               initialDate={date}
               initialView={view}
-              dayMaxEventRows={3}
+              dayMaxEventRows={5}
               eventDisplay="block"
               events={dataFiltered}
               headerToolbar={false}
               select={onSelectRange}
               eventClick={onClickEvent}
-              height={smUp ? 720 : 'auto'}
+              height={smUp ? 'calc(100vh - 300px)' : 'auto'}
               eventDrop={(arg) => {
+                return false;
                 onDropEvent(arg, updateEvent);
               }}
               eventResize={(arg) => {
+                return false;
                 onResizeEvent(arg, updateEvent);
               }}
               plugins={[
+                multiMonthPlugin,
                 listPlugin,
                 dayGridPlugin,
                 timelinePlugin,
@@ -215,7 +230,7 @@ export default function CalendarView() {
         }}
       >
         <DialogTitle sx={{ minHeight: 76 }}>
-          {openForm && <> {currentEvent?.id ? 'Edit Event' : 'Add Event'}</>}
+          {openForm && <> {currentEvent?.id ? 'Editar evento' : 'Adicionar evento'}</>}
         </DialogTitle>
 
         <CalendarForm

@@ -17,10 +17,11 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 const VIEW_OPTIONS = [
+  { value: 'multiMonthYear', label: 'Ano', icon: 'mingcute:calendar-line' },
   { value: 'dayGridMonth', label: 'Mês', icon: 'mingcute:calendar-month-line' },
-  { value: 'timeGridWeek', label: 'Semana', icon: 'mingcute:calendar-week-line' },
+  // { value: 'timeGridWeek', label: 'Semana', icon: 'mingcute:calendar-week-line' },
   // { value: 'timeGridDay', label: 'Day', icon: 'mingcute:calendar-day-line' },
-  // { value: 'listWeek', label: 'Agenda', icon: 'fluent:calendar-agenda-24-regular' },
+  { value: 'listWeek', label: 'Agenda', icon: 'fluent:calendar-agenda-24-regular' },
 ];
 
 // ----------------------------------------------------------------------
@@ -123,5 +124,5 @@ CalendarToolbar.propTypes = {
   onOpenFilters: PropTypes.func,
   onPrevDate: PropTypes.func,
   onToday: PropTypes.func,
-  view: PropTypes.oneOf(['dayGridMonth', 'timeGridWeek', 'timeGridDay', 'listWeek']),
+  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek']),
 };

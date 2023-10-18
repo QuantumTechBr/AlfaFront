@@ -50,10 +50,12 @@ export default function Main({ children, sx, ...other }) {
         minHeight: 1,
         display: 'flex',
         flexDirection: 'column',
-        py: `${HEADER.H_MOBILE + SPACING}px`,
+        pt: `${HEADER.H_MOBILE + SPACING}px`,
+        pb: `${SPACING}px`,
         ...(lgUp && {
           px: 2,
-          py: `${HEADER.H_DESKTOP + SPACING}px`,
+          pt: `${HEADER.H_DESKTOP + SPACING}px`,
+          pb: `${SPACING}px`,
           width: `calc(100% - ${NAV.W_VERTICAL}px)`,
           ...(isNavMini && {
             width: `calc(100% - ${NAV.W_MINI}px)`,

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
+import { getAllCalendarios } from 'src/sections/calendario/calendario-repository';
 
 // ----------------------------------------------------------------------
 
@@ -13,26 +14,6 @@ const options = {
   revalidateOnReconnect: false,
 };
 
-export function useGetEvents() {
-  const { data, isLoading, error, isValidating } = useSWR(endpointCalendario.list, fetcher, options);
-
-  const memoizedValue = useMemo(() => {
-    const events = (data?? []).events?.map((event) => ({
-      ...event,
-      textColor: event.color,
-    }));
-
-    return {
-      events: events || [],
-      eventsLoading: isLoading,
-      eventsError: error,
-      eventsValidating: isValidating,
-      eventsEmpty: !isLoading && !data?.events?.length,
-    };
-  }, [data?.events, error, isLoading, isValidating]);
-
-  return memoizedValue;
-}
 
 // ----------------------------------------------------------------------
 
