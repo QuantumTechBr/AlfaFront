@@ -55,6 +55,7 @@ const TABLE_HEAD = [
   { id: 'funcao', label: 'Função', width: 100 },
   { id: 'escola', label: 'Escola', width: 100 },
   { id: 'zona', label: 'DDZ', width: 100 },
+  { id: 'turma', label: 'turma?', width: 100 },
   { id: '', width: 88 },
 ];
 

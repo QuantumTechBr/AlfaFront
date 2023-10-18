@@ -24,7 +24,8 @@ import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, profissional, email, funcao, escola, zona  } = row;
+  const { id, profissional, email, funcao, escola, zona , turma } = row;
+
 
   const user = {
     id: row.id,
@@ -33,7 +34,9 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     funcao: row.funcao.id,
     escola: row.escola.id,
     zona: row.zona?.id,
+    turma: row.turma,
   }
+
 
   const profissionalRender = profissional.toLowerCase();
 
@@ -47,6 +50,11 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  let turmaRender = '';
+  turma.map((item) => {
+    turmaRender += " Turma " + item.nome;
+  });
 
   return (
     <>
@@ -64,6 +72,10 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
+
+        <Tooltip title={turmaRender} enterDelay={500} leaveDelay={200}>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
+        </Tooltip>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
