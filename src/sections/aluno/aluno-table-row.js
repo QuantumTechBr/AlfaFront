@@ -61,7 +61,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>Fase</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{fase}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
 

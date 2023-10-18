@@ -45,6 +45,7 @@ import { USER_STATUS_OPTIONS } from 'src/_mock';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -94,18 +95,15 @@ export default function AlunoListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const preparacaoInicial = async () => {
-    preencheTabela();
-    await Promise.all([
-      buscaAnosLetivos(),
-      buscaEscolas(),
-      buscaTurmas(),
-      alunoMethods.getAllAlunos().then(alunos => {
+      await buscaAnosLetivos();
+      await buscaEscolas();
+      await buscaTurmas();
+      await alunoMethods.getAllAlunos().then(alunos => {
         setAlunoList(alunos.data);
-      }),
-    ]);
+      });
   };
 
-  const preencheTabela = () => {
+  const preencheTabela = async () => {
     if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && _alunoList.length) {
       let _alunosTableData = [];
       const idAnoLetivoAtual = anosLetivos.map((ano) => {
@@ -113,11 +111,31 @@ export default function AlunoListView() {
           return ano.id;
         }
       }).filter(Boolean)
-      _alunoList.forEach((aluno) => {
+      _alunoList.forEach( async (aluno) => {
+        if (aluno?.alunosTurmas.length) {
+          const alunoTurma = aluno.alunosTurmas.find((alunoTurma) => { 
+            const turmaEncontrada = turmas.find((turma) => {
+              return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
+            });
+            return turmaEncontrada ? true : false;
+          });
+          if(alunoTurma) {
+            let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id});
+            let indiceMaisNovo = 0;
+            let maiorBimestre = 0;
+            for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
+              if (registroFaseDoAluno.data[index].bimestre.ordinal > maiorBimestre) {
+                maiorBimestre = registroFaseDoAluno.data[index].bimestre.ordinal;
+                indiceMaisNovo = index;
+              }
+            }
+            aluno.fase = registroFaseDoAluno.data[indiceMaisNovo]?.resultado || ''
+          }
+        }
         let alunoTurma = [];
         aluno.alunosTurmas.forEach((turma_id) => {
           alunoTurma  = turmas.map((turma) => {
-            if (turma.id === turma_id && turma.ano.status === "NÃO FINALIZADO") {
+            if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
               return turma;
             }
           }).filter(Boolean)          
@@ -140,7 +158,7 @@ export default function AlunoListView() {
           turma: alunoTurma[0] ? alunoTurma[0] : '',
           turno: alunoTurma[0]?.turno.toLowerCase() || '',
           escola: alunoEscola[0] ? alunoEscola[0] : '',
-          fase: '',
+          fase: aluno?.fase || '',
         })  
       })
       setTableData(_alunosTableData);
@@ -150,7 +168,7 @@ export default function AlunoListView() {
 
   useEffect(() => {
     preparacaoInicial();
-  }, [setTableData]); // CHAMADA UNICA AO ABRIR
+  }, []); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
     preencheTabela();
   }, [anosLetivos, turmas, escolas, _alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
