@@ -9,7 +9,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import timelinePlugin from '@fullcalendar/timeline';
 //
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -38,6 +38,9 @@ import CalendarForm from '../calendar-form';
 import CalendarToolbar from '../calendar-toolbar';
 import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+
+
 
 // ----------------------------------------------------------------------
 
@@ -60,7 +63,56 @@ export default function CalendarView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { events, eventsLoading } = useGetEvents();
+  const { calendarEvents, eventsLoading } = useGetEvents();
+  const [events, setEvents] = useState([]);
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+
+  useEffect(() => {
+    let fullEvents = calendarEvents ?? [];
+
+    // ANOS
+    if(!!anosLetivos){
+      anosLetivos.forEach(anoLetivo => {
+        // console.table(anoLetivo);
+        fullEvents.push(
+          {
+            id: `anoLetivo_data_inicio_${anoLetivo.id}`,
+            editavel: false,
+            title: `Início do ano letivo ${anoLetivo.ano}`,
+            tipo: 'Ano letivo',
+            allDay: true,
+            start: new Date(anoLetivo.data_inicio),
+            end: new Date(anoLetivo.data_inicio),
+            description: '',
+            // COLOR
+            color: CALENDAR_COLOR_OPTIONS[3],
+            textColor: CALENDAR_COLOR_OPTIONS[3],
+
+          }
+        );
+        fullEvents.push(
+          {
+            id: `anoLetivo_data_fim_${anoLetivo.id}`,
+            editavel: false,
+            title: `Fim do ano letivo ${anoLetivo.ano}`,
+            tipo: 'Ano Letivo',
+            allDay: true,
+            start: new Date(anoLetivo.data_fim),
+            end: new Date(anoLetivo.data_fim),
+            description: '',
+            // COLOR
+            color: CALENDAR_COLOR_OPTIONS[3],
+            textColor: CALENDAR_COLOR_OPTIONS[3],
+          }
+        );
+      });
+    }
+    
+
+    console.table(fullEvents);
+    setEvents(fullEvents);
+  }, [calendarEvents, anosLetivos]);
 
   const dateError =
     filters.startDate && filters.endDate
@@ -100,14 +152,8 @@ export default function CalendarView() {
   }, [onInitialView]);
 
   useEffect(() => {
-    // console.log(methods);
-    // debugger;
-    // methods.getAllEventos().then((response) => {
-    //   console.table(response);
-    //   setEvents(response.data);
-    //   setEventsLoading(false);
-    // });
-  }, []);
+    buscaAnosLetivos();
+  }, [buscaAnosLetivos]);
 
   const handleFilters = useCallback((name, value) => {
     setFilters((prevState) => ({
@@ -143,25 +189,7 @@ export default function CalendarView() {
 
   return (
     <>
-      <Container maxWidth='none'>
-        {/* <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">Calendário</Typography>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={onOpenForm}
-          >
-            Novo evento
-          </Button>
-        </Stack> */}
-
+      <Container maxWidth="none">
         {canReset && renderResults}
 
         <Card>
@@ -217,7 +245,7 @@ export default function CalendarView() {
               views={{
                 multiTwoMonthYear: {
                   type: 'multiMonthYear',
-                  multiMonthMaxColumns:2,
+                  multiMonthMaxColumns: 2,
                 },
               }}
             />
@@ -239,10 +267,7 @@ export default function CalendarView() {
           {openForm && <> {currentEvent?.id ? 'Editar evento' : 'Adicionar evento'}</>}
         </DialogTitle>
 
-        <CalendarForm
-          currentEvent={currentEvent}
-          onClose={onCloseForm}
-        />
+        <CalendarForm currentEvent={currentEvent} onClose={onCloseForm} />
       </Dialog>
 
       <CalendarFilters

@@ -17,7 +17,7 @@ export function useGetEvents() {
   const { data, isLoading, error, isValidating } = useSWR(endpoints.calendar.list, fetcher, options);
 
   const memoizedValue = useMemo(() => {
-    console.table(data);
+    // console.table(data);
     const events = data?.map((event) => {
       console.table(event);
       
@@ -60,9 +60,10 @@ export async function createEvent(eventData) {
    * Work in local
    */
   mutate(
-    endpointCalendario.post,
+    endpoints.calendar.post,
     (currentData) => {
-      const events = [...currentData.events, eventData];
+      console.table(currentData);
+      const events = [...currentData, eventData];
 
       return {
         ...currentData,
@@ -86,8 +87,9 @@ export async function updateEvent(eventData) {
    * Work in local
    */
   mutate(
-    `${endpointCalendario.update}${eventId}`,
+    `${endpoints.calendar.update}${eventData.id}`,
     (currentData) => {
+      console.table(currentData);
       const events = currentData.events.map((event) =>
         event.id === eventData.id ? { ...event, ...eventData } : event
       );
@@ -114,7 +116,7 @@ export async function deleteEvent(eventId) {
    * Work in local
    */
   mutate(
-    `${endpointCalendario.delete}${eventId}`,
+    `${endpoints.calendar.delete}${eventId}`,
     (currentData) => {
       const events = currentData.events.filter((event) => event.id !== eventId);
 

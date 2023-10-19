@@ -82,9 +82,9 @@ export default function CalendarToolbar({
             Hoje
           </Button>
 
-          <IconButton onClick={onOpenFilters}>
+          {/* <IconButton onClick={onOpenFilters}>
             <Iconify icon="ic:round-filter-list" />
-          </IconButton>
+          </IconButton> */}
 
           <Button
             size="small"

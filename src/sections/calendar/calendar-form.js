@@ -32,7 +32,7 @@ import FormProvider, { RHFTextField, RHFSwitch } from 'src/components/hook-form'
 export default function CalendarForm({ currentEvent, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
-  console.table(currentEvent);
+  // console.table(currentEvent);
 
   const EventSchema = Yup.object().shape({
     title: Yup.string().max(255).required('Título é obrigatório'),
@@ -64,6 +64,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     const eventData = {
       id: currentEvent?.id ? currentEvent?.id : null, // uuidv4()
+      editavel: true,
       title: data?.title,
       tipo: data?.tipo,
       allDay: data?.allDay,
@@ -211,30 +212,32 @@ export default function CalendarForm({ currentEvent, onClose }) {
         <RHFTextField name="description" label="Descrição" multiline rows={4} />
       </Stack>
 
-      <DialogActions>
-        {!!currentEvent?.id && (
-          <Tooltip title="Apagar evento">
-            <IconButton onClick={onDelete}>
-              <Iconify icon="solar:trash-bin-trash-bold" />
-            </IconButton>
-          </Tooltip>
-        )}
+      {!!(currentEvent?.editavel ?? true) && (
+        <DialogActions>
+          {!!currentEvent?.id && (
+            <Tooltip title="Apagar evento">
+              <IconButton onClick={onDelete}>
+                <Iconify icon="solar:trash-bin-trash-bold" />
+              </IconButton>
+            </Tooltip>
+          )}
 
-        <Box sx={{ flexGrow: 1 }} />
+          <Box sx={{ flexGrow: 1 }} />
 
-        <Button variant="outlined" color="inherit" onClick={onClose}>
-          Cancelar
-        </Button>
+          <Button variant="outlined" color="inherit" onClick={onClose}>
+            Cancelar
+          </Button>
 
-        <LoadingButton
-          type="submit"
-          variant="contained"
-          loading={isSubmitting}
-          disabled={dateError}
-        >
-          Salvar
-        </LoadingButton>
-      </DialogActions>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            loading={isSubmitting}
+            disabled={dateError}
+          >
+            Salvar
+          </LoadingButton>
+        </DialogActions>
+      )}
     </FormProvider>
   );
 }

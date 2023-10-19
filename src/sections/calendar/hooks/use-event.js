@@ -11,6 +11,7 @@ export default function useEvent(events, selectEventId, selectedRange, openForm)
   const defaultValues = useMemo(
     () => ({
       id: '',
+      editavel: true,
       title: '',
       tipo: '',
       allDay: true,
