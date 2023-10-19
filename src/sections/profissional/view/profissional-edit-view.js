@@ -1,34 +1,33 @@
 'use client';
-import { useEffect, useState, useContext } from 'react';
 
 import PropTypes from 'prop-types';
 // @mui
 import Container from '@mui/material/Container';
 // routes
 import { paths } from 'src/routes/paths';
+// _mock
+import { _userList } from 'src/_mock';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import ProfissionalNewEditForm from '../profissional-new-edit-form';
-
-import { ProfissionalContext } from 'src/sections/profissional/context/profissional-context';
+import userMethods from 'src/sections/user/user-repository';
+import { useEffect, useState } from 'react';
 
 // ----------------------------------------------------------------------
 
 export default function ProfissionalEditView({ id }) {
   const settings = useSettingsContext();
 
-  
-  const { buscaProfissionalPorId } = useContext(ProfissionaisContext);
-
-  const [currentProfissional, setCurrentProfissional] = useState({});
-
+  const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
-    buscaProfissionalPorId({id}).then(profissional => setCurrentProfissional(profissional))
+    userMethods.getUserById(id).then(usuario => {
+      usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao.id : '';
+      usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola.id : '';
+      setCurrentUser(usuario.data);
+    })
   }, []);
-
-  const nomeBreadcrumbs = currentProfissional?.escola + '° ' + currentProfissional?.profissional;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -40,17 +39,17 @@ export default function ProfissionalEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'Profissionais',
-            href: paths.dashboard.profissional.root,
+            name: 'Profissioanis',
+            href: paths.dashboard.profissional.list,
           },
-          { name: nomeBreadcrumbs },
+          { name: currentUser?.nome },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },
         }}
       />
 
-      <ProfissionalNewEditForm currentProfissional={currentProfissional} />
+      <ProfissionalNewEditForm currentUser={currentUser} />
     </Container>
   );
 }

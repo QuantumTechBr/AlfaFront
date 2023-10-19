@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect } from 'react';
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState, useContext } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -13,50 +14,65 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+// _mock
+import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // assets
 import { countries } from 'src/assets/data';
-import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-
+import userMethods from '../user/user-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import profissionalMethods from '../profissional/profissional-repository';
+import permissaoMethods from '../permissao/permissao-repository';
+
 
 // ----------------------------------------------------------------------
 
-export default function ProfissionalQuickEditForm({ currentProfissional, open, onClose }) {
+export default function ProfissionalQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const [permissoes, setPermissoes] = useState([]);
 
   useEffect(() => {
+    buscaFuncoes();
     buscaEscolas();
-    buscaAnosLetivos();
-  }, [])
+    
+    permissaoMethods.getAllPermissoes().then(permissoes => {
+      setPermissoes(permissoes.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+  }, []);
 
-  const NewProfissionalSchema = Yup.object().shape({
+
+  const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    ano: Yup.string().required('Ano é obrigatório'),
-    escola: Yup.string().required('Escola é obrigatório')
+    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
+    senha: Yup.string(),
+    funcao_usuario: Yup.string(),
+    escola: Yup.string(),
   });
 
   const defaultValues = useMemo(
     () => ({
-      profissional: currentProfissional?.profissional || '',
-      email: currentProfissional?.email.ano || '',
-      funcao: currentProfissional?.funcao || '',
-      escola: currentProfissional?.escola || '',
-      zona: currentProfissional?.zona || ''
+      nome: currentUser?.nome || '',
+      email: currentUser?.email || '',
+      senha: currentUser?.senha || '',
+      funcao: currentUser?.funcao || '',
+      status: (currentUser?.status ? "true" : "false") || '',
+      ddz: currentUser?.ddz || '',
+      escola: currentUser?.escola || '',
     }),
-    [currentProfissional]
+    [currentUser]
   );
 
   const methods = useForm({
-    // resolver: yupResolver(NewProfissionalSchema),
+    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -67,22 +83,33 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
+    console.log(currentUser)
     try {
-      var novoProfissional = {
-        profissional:  data.profissional,
-        email: data.email,
-        escola: data.escola,
-        funcao: data.funcao,
-        zona: data.zona
+      var novoUsuario = {}
+      if (data.senha) {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          senha: data.senha, 
+          login: data.nome,
+          status: data.status,
+        }
+      } else {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          login: data.nome,
+          status: data.status,
+        }
       }
-    
-      novaProfissional.profissional = data.profissional;
-      novaProfissional.email = data.email;
-      novaProfissional.funcao = data.funcao;
-      novaProfissional.escola = data.escola;
-      novaProfissional.zona = data.zona;
-
-      await profissionalMethods.updateProfissionalById(currentProfissional.id, novoProfissional);
+      novoUsuario.funcao_usuario = [{
+        funcao_id: data.funcao,
+        escola_id: data.escola
+      }];
+      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      novoUsuario.permissao_usuario_id = [permissao.id]
+      await userMethods.updateUserById(currentUser.id, novoUsuario);   
       reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
@@ -93,8 +120,6 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
       console.error(error);
     }
   });
-
-
 
   return (
     <Dialog
@@ -108,9 +133,10 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Edição Rápida</DialogTitle>
+
         <DialogContent>
           <br></br>
-          <RHFTextField name="nome" label="Nome do Profissional" sx={{ mb: 3 }} />
+
           <Box
             rowGap={3}
             columnGap={2}
@@ -120,36 +146,14 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
               sm: 'repeat(2, 1fr)',
             }}
           >
+            <RHFTextField name="nome" label="Nome Completo" />
+            <RHFTextField name="email" label="Email" />
+            <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="ano_escolar" label="Ano Escolar">
-              {_anosSerie.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}°
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="turno" label="Turno">
-              {_turnos.map((turno) => (
-                <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
-                  {turno}
-                </MenuItem>
-
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="ano_id" label="Ano Letivo">
-              {anosLetivos.map((ano) => (
-                <MenuItem key={ano.id} value={ano.id}>
-                  {ano.ano}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="escola_id" label="Escola">
-              {escolas.map((escola) => (
-                <MenuItem key={escola.id} value={escola.id} >
-                  {escola.nome}
+            <RHFSelect name="funcao" label="Função">
+              {funcoes.map((_funcao) => (
+                <MenuItem key={_funcao.id} value={_funcao.id}>
+                  {_funcao.nome}
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -158,6 +162,14 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
               {USER_STATUS_OPTIONS.map((status) => (
                 <MenuItem key={status.value} value={status.value}>
                   {status.label}
+                </MenuItem>
+              ))}
+            </RHFSelect>
+
+            <RHFSelect name="escola" label="Escola">
+              {escolas.map((_escola) => (
+                <MenuItem key={_escola.id} value={_escola.id}>
+                  {_escola.nome}
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -180,7 +192,7 @@ export default function ProfissionalQuickEditForm({ currentProfissional, open, o
 }
 
 ProfissionalQuickEditForm.propTypes = {
-  currentProfissional: PropTypes.object,
+  currentUser: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };

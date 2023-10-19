@@ -1,6 +1,7 @@
+
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo, useContext, useEffect } from 'react';
+import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -32,54 +33,62 @@ import FormProvider, {
   RHFUploadAvatar,
   RHFAutocomplete,
 } from 'src/components/hook-form';
-// _mock
-import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
-
+import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
+import userMethods from '../user/user-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import  profissionalMethods from '../profissional/profissional-repository';
+import permissaoMethods from '../permissao/permissao-repository';
 
 // ----------------------------------------------------------------------
 
-export default function ProfessionalNewEditForm({ currentProfissional }) {
+export default function ProfissionalNewEditForm({ currentUser }) {
   const router = useRouter();
 
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
-
-  const { enqueueSnackbar } = useSnackbar();
+  const [permissoes, setPermissoes] = useState([]);
 
   useEffect(() => {
+    buscaFuncoes();
     buscaEscolas();
-    buscaAnosLetivos();
 
-  }, [])
+    permissaoMethods.getAllPermissoes().then(permissoes => {
+      setPermissoes(permissoes.data);
+    }).catch((erro) => {
+      console.log(erro);
+      throw(erro);
+    })
+  }, []);
 
-  const NewProfissionalSchema = Yup.object().shape({
+  const { enqueueSnackbar } = useSnackbar();
+  const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    email: Yup.string().required('Email é obrigatório'),
-    funcao: Yup.string().required('Função é obrigatório'),
-    escola: Yup.string().required('Escola é obrigatório'),
-    zona: Yup.string().required('Zona é obrigatório')
+    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
+    senha: Yup.string(),
+    funcao_usuario: Yup.string(),
   });
-
+  
   const defaultValues = useMemo(
     () => ({
-      nome: currentProfissional.nome || '',
-      email: currentProfissional?.email || '',
-      funcao: currentProfissional?.funcao || '',
-      escola: currentProfissional?.escola || '',
-      zona: currentProfissional?.zona || ''
+      nome: currentUser?.nome || '',
+      email: currentUser?.email || '',
+      senha: currentUser?.senha || '',
+      funcao: currentUser?.funcao || '',
+      status: (currentUser?.status ? "true" : "false") || '',
+      ddz: currentUser?.ddz || '',
+      escola: currentUser?.escola || '',
     }),
-    [currentProfissional]
+    [currentUser]
   );
 
   const methods = useForm({
-    // resolver: yupResolver(NewTurmaSchema),
+    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
+
   const {
+    register,
     reset,
     watch,
     control,
@@ -92,28 +101,38 @@ export default function ProfessionalNewEditForm({ currentProfissional }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novoProfissional = {
-        profissional:  data.profissional,
-        email: data.email,
-        funcao: data.funcao,
-        escola: data.escola,
-        zona: data.zona
+      var novoUsuario = {}
+      if (data.senha) {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          senha: data.senha, 
+          login: data.email,
+          status: data.status,
+        }
+      } else {
+        novoUsuario = {
+          nome:  data.nome,
+          email: data.email,
+          login: data.email,
+          status: data.status,
+        }
       }
-    
-      novoProfissional.profissional = data.profissional;
-      novoProfissional.email = data.email;
-      novoProfissional.funcao = data.funcao;
-      novoProfissional.escola = data.escola;
-      novoProfissional.zona = data.zona;
-     
-      if (currentProfissional?.id) {
-        await profissionalMethods.updateProfissionalById(currentProfissional.id, novoProfissional);
+      novoUsuario.funcao_usuario = [{
+        funcao_id: data.funcao,
+        escola_id: data.escola
+      }];
+      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      novoUsuario.permissao_usuario_id = [permissao.id]
+      if (currentUser) {
+        await userMethods.updateUserById(currentUser.id, novoUsuario);
         
       } else {
-        await profissionalMethods.insertTurma(novoProfissional);
+        await userMethods.insertUser(novoUsuario);
       }
       reset();
-      enqueueSnackbar(currentProfissional ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+      enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.profissional.list);
       console.info('DATA', data);
     } catch (error) {
@@ -121,32 +140,15 @@ export default function ProfessionalNewEditForm({ currentProfissional }) {
     }
   });
 
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-
-      if (file) {
-        setValue('avatarUrl', newFile, { shouldValidate: true });
-      }
-    },
-    [setValue]
-  );
-
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentProfissional]);
+  }, [currentUser]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-          <RHFTextField name="nome" label="Nome do Profissional" sx={{ mb: 3 }}/>
-
             <Box
               rowGap={3}
               columnGap={2}
@@ -155,45 +157,40 @@ export default function ProfessionalNewEditForm({ currentProfissional }) {
                 xs: 'repeat(1, 1fr)',
                 sm: 'repeat(2, 1fr)',
               }}
-
             >
-
-              <RHFSelect name="email" label="Email">
-                {_anosSerie.map((ano) => (
-                  <MenuItem key={ano} value={ano}>
-                    {ano}°
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+              <RHFTextField name="nome" label="Nome Completo" />
+              <RHFTextField name="email" label="Email" />
+              <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {_turnos.map((turno) => (
-                  <MenuItem key={turno} value={turno}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
+                {funcoes.map((funcao) => (
+                  <MenuItem key={funcao.id} value={funcao.id}>
+                    {funcao.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
 
-              <RHFSelect name="escola_id" label="Escola">
+              <RHFSelect name="status" label="Status">
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+              <RHFSelect name="escola" label="Escola">
                 {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id} >
+                  <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
 
-              <RHFSelect name="zona" label="Zona">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentTurma ? 'Criar Turma' : 'Atualizar Turma'}
+                {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
               </LoadingButton>
             </Stack>
           </Card>
@@ -203,7 +200,6 @@ export default function ProfessionalNewEditForm({ currentProfissional }) {
   );
 }
 
-
-ProfessionalNewEditForm.propTypes = {
-  currentProfissional: PropTypes.object,
+ProfissionalNewEditForm.propTypes = {
+  currentUser: PropTypes.object,
 };

@@ -55,6 +55,7 @@ const TABLE_HEAD = [
   { id: 'funcao', label: 'Função', width: 100 },
   { id: 'escola', label: 'Escola', width: 100 },
   { id: 'zona', label: 'DDZ', width: 100 },
+  { id: 'turma', label: 'turma?', width: 100 },
   { id: '', width: 88 },
 ];
 
@@ -177,7 +178,7 @@ export default function ProfissionalListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.user.edit(id));
+      router.push(paths.dashboard.profissional.edit(id));
     },
     [router]
   );
@@ -199,7 +200,7 @@ export default function ProfissionalListView() {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.user.new}
+              href={paths.dashboard.profissional.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
