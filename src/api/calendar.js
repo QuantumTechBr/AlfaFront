@@ -3,6 +3,8 @@ import useSWR, { mutate } from 'swr';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
+import calendarioMethods from 'src/sections/calendario/calendario-repository';
+import { formatISO } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
@@ -50,81 +52,89 @@ export function useGetEvents() {
 // ----------------------------------------------------------------------
 
 export async function createEvent(eventData) {
-  /**
-   * Work on server
-   */
-  // const data = { eventData };
-  // await axios.post(URL, data);
+  const data = {
+    titulo: eventData.title, 
+    tipo: eventData.tipo, 
+    data_inicio: formatISO(eventData.start), 
+    data_final: formatISO(eventData.end), 
+    descricao: eventData.description, 
+    ano_id: eventData.ano_id,
+  };
+  await calendarioMethods.insertCalendario(data);
 
   /**
    * Work in local
    */
-  mutate(
-    endpoints.calendar.post,
-    (currentData) => {
-      console.table(currentData);
-      const events = [...currentData, eventData];
+  // mutate(
+  //   endpoints.calendar.post,
+  //   (currentData) => {
+  //     console.table(currentData);
+  //     const events = [...currentData, eventData];
 
-      return {
-        ...currentData,
-        events,
-      };
-    },
-    false
-  );
+  //     return {
+  //       ...currentData,
+  //       events,
+  //     };
+  //   },
+
+  //   false
+  // );
 }
 
 // ----------------------------------------------------------------------
 
 export async function updateEvent(eventData) {
-  /**
-   * Work on server
-   */
-  // const data = { eventData };
+  const data = {
+    titulo: eventData.title, 
+    tipo: eventData.tipo, 
+    data_inicio: formatISO(eventData.start), 
+    data_final: formatISO(eventData.end), 
+    descricao: eventData.description, 
+    ano_id: eventData.ano_id,
+  };
+  await calendarioMethods.updateCalendarioById(eventData.id, data);
+
   // await axios.put(endpoints.calendar, data);
 
   /**
    * Work in local
    */
-  mutate(
-    `${endpoints.calendar.update}${eventData.id}`,
-    (currentData) => {
-      console.table(currentData);
-      const events = currentData.events.map((event) =>
-        event.id === eventData.id ? { ...event, ...eventData } : event
-      );
+//   mutate(
+//     `${endpoints.calendar.update}${eventData.id}`,
+//     (currentData) => {
+//       console.table(currentData);
+//       const events = currentData.events.map((event) =>
+//         event.id === eventData.id ? { ...event, ...eventData } : event
+//       );
 
-      return {
-        ...currentData,
-        events,
-      };
-    },
-    false
-  );
+//       return {
+//         ...currentData,
+//         events,
+//       };
+//     },
+//     false
+//   );
 }
 
 // ----------------------------------------------------------------------
 
 export async function deleteEvent(eventId) {
-  /**
-   * Work on server
-   */
-  // const data = { eventId };
-  // await axios.patch(endpoints.calendar, data);
+  
+  await calendarioMethods.deleteCalendarioById(eventId);
 
   /**
    * Work in local
    */
-  mutate(
-    `${endpoints.calendar.delete}${eventId}`,
-    (currentData) => {
-      const events = currentData.events.filter((event) => event.id !== eventId);
+  // mutate(
+  //   `${endpoints.calendar.delete}${eventId}`,
+  //   (currentData) => {
+  //     const events = currentData.events.filter((event) => event.id !== eventId);
 
-      return {
-        ...currentData,
-        events,
-      };
-    },
-    false
-  );
+  //     return {
+  //       ...currentData,
+  //       events,
+  //     };
+  //   },
+  //   false
+  // );
 }

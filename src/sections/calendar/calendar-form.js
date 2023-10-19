@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 import * as Yup from 'yup';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
@@ -27,10 +27,15 @@ import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFSwitch } from 'src/components/hook-form';
 
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+
+
 // ----------------------------------------------------------------------
 
 export default function CalendarForm({ currentEvent, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   // console.table(currentEvent);
 
@@ -62,8 +67,10 @@ export default function CalendarForm({ currentEvent, onClose }) {
   const dateError = values.start && values.end ? values.start > values.end : false;
 
   const onSubmit = handleSubmit(async (data) => {
+    let dateStart = new Date(data?.start);
+    let ano = anosLetivos.find((anoLetivo) => anoLetivo.ano === dateStart.getFullYear());
     const eventData = {
-      id: currentEvent?.id ? currentEvent?.id : null, // uuidv4()
+      ... (currentEvent?.id ? {id: currentEvent?.id } : {}), // uuidv4()
       editavel: true,
       title: data?.title,
       tipo: data?.tipo,
@@ -71,6 +78,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
       end: data?.end,
       start: data?.start,
       description: data?.description,
+      ano_id: ano?.id,
     };
 
     try {

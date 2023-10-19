@@ -83,7 +83,7 @@ export const endpoints = {
   },
   calendario: {
     list: '/api/v1/calendarios/',
-    post: '/api/v1/calendarios',
+    post: '/api/v1/calendarios/',
     get_by_id: '/api/v1/calendarios/',
     update: '/api/v1/calendarios/',
     delete: '/api/v1/calendarios/',

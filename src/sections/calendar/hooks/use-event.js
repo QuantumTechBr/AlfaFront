@@ -16,7 +16,7 @@ export default function useEvent(events, selectEventId, selectedRange, openForm)
       tipo: '',
       allDay: true,
       start: selectedRange ? selectedRange.start : new Date().getTime(),
-      end: selectedRange ? selectedRange.end : null, // new Date().getTime()
+      end: selectedRange ? selectedRange.end : new Date().getTime(),
       description: '',
       // COLOR
       color: CALENDAR_COLOR_OPTIONS[0],
