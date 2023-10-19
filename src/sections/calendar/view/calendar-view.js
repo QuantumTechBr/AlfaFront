@@ -143,7 +143,7 @@ export default function CalendarView() {
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'xl'}>
+      <Container maxWidth='none'>
         {/* <Stack
           direction="row"
           alignItems="center"
@@ -241,7 +241,6 @@ export default function CalendarView() {
 
         <CalendarForm
           currentEvent={currentEvent}
-          colorOptions={CALENDAR_COLOR_OPTIONS}
           onClose={onCloseForm}
         />
       </Dialog>

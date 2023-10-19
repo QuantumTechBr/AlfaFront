@@ -138,5 +138,5 @@ CalendarToolbar.propTypes = {
   onOpenFilters: PropTypes.func,
   onPrevDate: PropTypes.func,
   onToday: PropTypes.func,
-  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek', 'listMonth', 'multiTwoMonthYear']),
+  view: PropTypes.oneOf(['dayGridMonth', 'listMonth', 'multiTwoMonthYear']),
 };

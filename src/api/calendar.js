@@ -25,12 +25,12 @@ export function useGetEvents() {
         id: event.id,
         title: event.titulo ?? '_titulo_',
         tipo: event.tipo,
-        description: event.descricao,
-        color: CALENDAR_COLOR_OPTIONS[0],
         allDay: true,
         start: new Date(event.data_inicio),
         end: new Date(event.data_final),
-        // ...event,
+        description: event.descricao,
+        // COLOR
+        color: CALENDAR_COLOR_OPTIONS[0],
         textColor: CALENDAR_COLOR_OPTIONS[0],
       });
     });

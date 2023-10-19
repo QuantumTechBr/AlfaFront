@@ -25,24 +25,22 @@ import { createEvent, updateEvent, deleteEvent } from 'src/api/calendar';
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import { ColorPicker } from 'src/components/color-utils';
 import FormProvider, { RHFTextField, RHFSwitch } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
-export default function CalendarForm({ currentEvent, colorOptions, onClose }) {
+export default function CalendarForm({ currentEvent, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
   console.table(currentEvent);
 
   const EventSchema = Yup.object().shape({
     title: Yup.string().max(255).required('Título é obrigatório'),
-    description: Yup.string().max(5000, 'Description must be at most 5000 characters'),
-    // not required
-    color: Yup.string(),
+    tipo: Yup.string(),
     allDay: Yup.boolean(),
     start: Yup.mixed(),
     end: Yup.mixed(),
+    description: Yup.string().max(5000, 'Máximo de 5000 caracteres'),
   });
 
   const methods = useForm({
@@ -65,13 +63,13 @@ export default function CalendarForm({ currentEvent, colorOptions, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     const eventData = {
-      id: currentEvent?.id ? currentEvent?.id : uuidv4(),
-      color: data?.color,
+      id: currentEvent?.id ? currentEvent?.id : null, // uuidv4()
       title: data?.title,
+      tipo: data?.tipo,
       allDay: data?.allDay,
-      description: data?.description,
       end: data?.end,
       start: data?.start,
+      description: data?.description,
     };
 
     try {
@@ -107,120 +105,110 @@ export default function CalendarForm({ currentEvent, colorOptions, onClose }) {
         <RHFTextField name="title" label="Título" />
         <RHFTextField name="tipo" label="Tipo" />
 
-        {/* <RHFTextField name="description" label="Description" multiline rows={3} /> */}
-
         <RHFSwitch name="allDay" label="Dia todo" />
 
-        <Controller
-          name="start"
-          control={control}
-          render={({ field }) => (
-            <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-              {values.allDay && (
-                <MobileDatePicker
-                  {...field}
-                  value={new Date(field.value)}
-                  onChange={(newValue) => {
-                    console.log(newValue);
-                    if (newValue) {
-                      field.onChange(fTimestamp(newValue));
-                      if(!values.end) setValue('end', newValue);
-                    }
-                  }}
-                  label="Data de início"
-                  format="dd/MM/yyyy"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                    },
-                  }}
-                />
-              )}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Controller
+            name="start"
+            control={control}
+            render={({ field }) => (
+              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                {values.allDay && (
+                  <MobileDatePicker
+                    {...field}
+                    value={new Date(field.value)}
+                    onChange={(newValue) => {
+                      console.log(newValue);
+                      if (newValue) {
+                        field.onChange(fTimestamp(newValue));
+                        if (!values.end) setValue('end', newValue);
+                      }
+                    }}
+                    label="Data de início"
+                    format="dd/MM/yyyy"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
+                  />
+                )}
 
-              {!values.allDay && (
-                <MobileDateTimePicker
-                  {...field}
-                  value={new Date(field.value)}
-                  onChange={(newValue) => {
-                    if (newValue) {
-                      field.onChange(fTimestamp(newValue));
-                      if(!values.end) setValue('end', newValue);
-                    }
-                  }}
-                  label="Data e hora de início"
-                  format="dd/MM/yyyy HH:mm"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                    },
-                  }}
-                />
-              )}
-            </LocalizationProvider>
-          )}
-        />
+                {!values.allDay && (
+                  <MobileDateTimePicker
+                    {...field}
+                    value={new Date(field.value)}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        field.onChange(fTimestamp(newValue));
+                        if (!values.end) setValue('end', newValue);
+                      }
+                    }}
+                    label="Data e hora de início"
+                    format="dd/MM/yyyy HH:mm"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                      },
+                    }}
+                  />
+                )}
+              </LocalizationProvider>
+            )}
+          />
 
-        <Controller
-          name="end"
-          control={control}
-          render={({ field }) => (
-            <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-              {values.allDay && (
-                <MobileDatePicker
-                  {...field}
-                  value={new Date(field.value)}
-                  onChange={(newValue) => {
-                    if (newValue) {
-                      field.onChange(fTimestamp(newValue));
-                    }
-                  }}
-                  label="Data de término"
-                  format="dd/MM/yyyy"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                       error: dateError,
-                      helperText: dateError && 'Data de término deve ser após a data de início',
-                    },
-                  }}
-                />
-              )}
+          <Controller
+            name="end"
+            control={control}
+            render={({ field }) => (
+              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                {values.allDay && (
+                  <MobileDatePicker
+                    {...field}
+                    value={new Date(field.value)}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        field.onChange(fTimestamp(newValue));
+                      }
+                    }}
+                    label="Data de término"
+                    format="dd/MM/yyyy"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error: dateError,
+                        helperText: dateError && 'Data de término deve ser após a data de início',
+                      },
+                    }}
+                  />
+                )}
 
-              {!values.allDay && (
-                <MobileDateTimePicker
-                  {...field}
-                  value={new Date(field.value)}
-                  onChange={(newValue) => {
-                    if (newValue) {
-                      field.onChange(fTimestamp(newValue));
-                    }
-                  }}
-                  label="Data e hora de término"
-                  format="dd/MM/yyyy HH:mm"
-                  slotProps={{
-                    textField: {
-                      fullWidth: true,
-                      error: dateError,
-                      helperText: dateError && 'Data de término deve ser após a data de início',
-                    },
-                  }}
-                />
-              )}
-            </LocalizationProvider>
-          )}
-        />
+                {!values.allDay && (
+                  <MobileDateTimePicker
+                    {...field}
+                    value={new Date(field.value)}
+                    onChange={(newValue) => {
+                      if (newValue) {
+                        field.onChange(fTimestamp(newValue));
+                      }
+                    }}
+                    label="Data e hora de término"
+                    format="dd/MM/yyyy HH:mm"
+                    slotProps={{
+                      textField: {
+                        fullWidth: true,
+                        error: dateError,
+                        helperText: dateError && 'Data de término deve ser após a data de início',
+                      },
+                    }}
+                  />
+                )}
+              </LocalizationProvider>
+            )}
+          />
+        </Stack>
 
-        <Controller
-          name="color"
-          control={control}
-          render={({ field }) => (
-            <ColorPicker
-              selected={field.value}
-              onSelectColor={(color) => field.onChange(color)}
-              colors={colorOptions}
-            />
-          )}
-        />
+        <RHFTextField name="description" label="Descrição" multiline rows={4} />
       </Stack>
 
       <DialogActions>
@@ -252,7 +240,6 @@ export default function CalendarForm({ currentEvent, colorOptions, onClose }) {
 }
 
 CalendarForm.propTypes = {
-  colorOptions: PropTypes.arrayOf(PropTypes.string),
   currentEvent: PropTypes.object,
   onClose: PropTypes.func,
 };
