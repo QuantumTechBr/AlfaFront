@@ -27,7 +27,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // _mock
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 // api
-import {  updateEvent } from 'src/api/calendar';
+import { updateEvent, useGetEvents } from 'src/api/calendar';
 // components
 import Iconify from 'src/components/iconify';
 import { useSettingsContext } from 'src/components/settings';
@@ -38,7 +38,6 @@ import CalendarForm from '../calendar-form';
 import CalendarToolbar from '../calendar-toolbar';
 import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
-import { getAllCalendarios } from 'src/sections/calendario/calendario-repository';
 
 // ----------------------------------------------------------------------
 
@@ -60,10 +59,8 @@ export default function CalendarView() {
   const openFilters = useBoolean();
 
   const [filters, setFilters] = useState(defaultFilters);
-  
-  const [events, setEvents] = useState([]);
-  const [eventsLoading, setEventsLoading] = useState(true);
-  
+
+  const { events, eventsLoading } = useGetEvents();
 
   const dateError =
     filters.startDate && filters.endDate
@@ -96,18 +93,20 @@ export default function CalendarView() {
     onClickEventInFilters,
   } = useCalendar();
 
-  const currentEvent = useEvent((events ?? []), selectEventId, selectedRange, openForm);
+  const currentEvent = useEvent(events ?? [], selectEventId, selectedRange, openForm);
 
   useEffect(() => {
     onInitialView();
   }, [onInitialView]);
-  
+
   useEffect(() => {
-    getAllCalendarios().then((response) => {
-      console.table(response);
-      setEvents(response.data);
-      setEventsLoading(false);
-    });
+    // console.log(methods);
+    // debugger;
+    // methods.getAllEventos().then((response) => {
+    //   console.table(response);
+    //   setEvents(response.data);
+    //   setEventsLoading(false);
+    // });
   }, []);
 
   const handleFilters = useCallback((name, value) => {
@@ -145,7 +144,7 @@ export default function CalendarView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-        <Stack
+        {/* <Stack
           direction="row"
           alignItems="center"
           justifyContent="space-between"
@@ -161,7 +160,7 @@ export default function CalendarView() {
           >
             Novo evento
           </Button>
-        </Stack>
+        </Stack> */}
 
         {canReset && renderResults}
 
@@ -175,21 +174,22 @@ export default function CalendarView() {
               onPrevDate={onDatePrev}
               onToday={onDateToday}
               onChangeView={onChangeView}
+              onOpenForm={onOpenForm}
               onOpenFilters={openFilters.onTrue}
             />
 
             <Calendar
               weekends
-              editable="false"
-              droppable="false"
-              selectable="false"
+              editable={false}
+              droppable={false}
+              selectable={true}
               locales={[ptBrLocale]}
               locale={'pt-br'}
               rerenderDelay={10}
               allDayMaintainDuration
               eventResizableFromStart
               ref={calendarRef}
-              initialDate={date}
+              initialDate={new Date()}
               initialView={view}
               dayMaxEventRows={5}
               eventDisplay="block"
@@ -197,7 +197,7 @@ export default function CalendarView() {
               headerToolbar={false}
               select={onSelectRange}
               eventClick={onClickEvent}
-              height={smUp ? 'calc(100vh - 300px)' : 'auto'}
+              height={smUp ? 'calc(100vh - 175px)' : 'auto'}
               eventDrop={(arg) => {
                 return false;
                 onDropEvent(arg, updateEvent);
@@ -214,6 +214,12 @@ export default function CalendarView() {
                 timeGridPlugin,
                 interactionPlugin,
               ]}
+              views={{
+                multiTwoMonthYear: {
+                  type: 'multiMonthYear',
+                  multiMonthMaxColumns:2,
+                },
+              }}
             />
           </StyledCalendar>
         </Card>

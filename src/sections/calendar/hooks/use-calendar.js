@@ -21,7 +21,7 @@ export default function useCalendar() {
 
   const [selectedRange, setSelectedRange] = useState(null);
 
-  const [view, setView] = useState(smUp ? 'multiMonthYear' : 'dayGridMonth');
+  const [view, setView] = useState(smUp ? 'dayGridMonth' : 'listMonth');
 
   const onOpenForm = useCallback(() => {
     setOpenForm(true);
@@ -37,7 +37,7 @@ export default function useCalendar() {
     if (calendarEl) {
       const calendarApi = calendarEl.getApi();
 
-      const newView = smUp ? 'multiMonthYear' : 'dayGridMonth';
+      const newView = smUp ? 'dayGridMonth' : 'listMonth';
       calendarApi.changeView(newView);
       setView(newView);
     }

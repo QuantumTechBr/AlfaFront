@@ -17,11 +17,11 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 const VIEW_OPTIONS = [
-  { value: 'multiMonthYear', label: 'Ano', icon: 'mingcute:calendar-line' },
   { value: 'dayGridMonth', label: 'Mês', icon: 'mingcute:calendar-month-line' },
+  { value: 'listMonth', label: 'Agenda do mês', icon: 'fluent:calendar-agenda-24-regular' },
+  { value: 'multiTwoMonthYear', label: 'Ano', icon: 'mingcute:calendar-line' },
   // { value: 'timeGridWeek', label: 'Semana', icon: 'mingcute:calendar-week-line' },
   // { value: 'timeGridDay', label: 'Day', icon: 'mingcute:calendar-day-line' },
-  { value: 'listMonth', label: 'Agenda', icon: 'fluent:calendar-agenda-24-regular' },
 ];
 
 // ----------------------------------------------------------------------
@@ -34,6 +34,7 @@ export default function CalendarToolbar({
   onNextDate,
   onPrevDate,
   onChangeView,
+  onOpenForm,
   onOpenFilters,
 }) {
   const smUp = useResponsive('up', 'sm');
@@ -67,7 +68,9 @@ export default function CalendarToolbar({
             <Iconify icon="eva:arrow-ios-back-fill" />
           </IconButton>
 
-          <Typography variant="h6">{view === 'multiMonthYear' ? fDate(date, 'yyyy') : fDate(date, 'MMMM yyyy')}</Typography>
+          <Typography variant="h6">
+            {view === 'multiTwoMonthYear' ? fDate(date, 'yyyy') : fDate(date, 'MMMM yyyy')}
+          </Typography>
 
           <IconButton onClick={onNextDate}>
             <Iconify icon="eva:arrow-ios-forward-fill" />
@@ -82,6 +85,16 @@ export default function CalendarToolbar({
           <IconButton onClick={onOpenFilters}>
             <Iconify icon="ic:round-filter-list" />
           </IconButton>
+
+          <Button
+            size="small"
+            color="primary"
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            onClick={onOpenForm}
+          >
+            Novo evento
+          </Button>
         </Stack>
 
         {loading && (
@@ -120,9 +133,10 @@ CalendarToolbar.propTypes = {
   date: PropTypes.object,
   loading: PropTypes.bool,
   onChangeView: PropTypes.func,
+  onOpenForm: PropTypes.func,
   onNextDate: PropTypes.func,
   onOpenFilters: PropTypes.func,
   onPrevDate: PropTypes.func,
   onToday: PropTypes.func,
-  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek', 'listMonth']),
+  view: PropTypes.oneOf(['multiMonthYear', 'dayGridMonth', 'listWeek', 'listMonth', 'multiTwoMonthYear']),
 };

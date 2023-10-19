@@ -12,11 +12,12 @@ export default function useEvent(events, selectEventId, selectedRange, openForm)
     () => ({
       id: '',
       title: '',
+      tipo: '',
       description: '',
-      color: CALENDAR_COLOR_OPTIONS[1],
-      allDay: false,
+      color: CALENDAR_COLOR_OPTIONS[0],
+      allDay: true,
       start: selectedRange ? selectedRange.start : new Date().getTime(),
-      end: selectedRange ? selectedRange.end : new Date().getTime(),
+      end: selectedRange ? selectedRange.end : null, // new Date().getTime()
     }),
     [selectedRange]
   );
