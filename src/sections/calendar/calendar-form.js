@@ -100,13 +100,15 @@ export default function CalendarForm({ currentEvent, onClose }) {
     }
   }, [currentEvent?.id, enqueueSnackbar, onClose]);
 
+  const isEditavel = currentEvent?.editavel ?? true;
+
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       <Stack spacing={3} sx={{ px: 3 }}>
-        <RHFTextField name="title" label="Título" />
-        <RHFTextField name="tipo" label="Tipo" />
+        <RHFTextField name="title" label="Título" disabled={!isEditavel} />
+        <RHFTextField name="tipo" label="Tipo" disabled={!isEditavel} />
 
-        <RHFSwitch name="allDay" label="Dia todo" />
+        <RHFSwitch name="allDay" label="Dia todo" disabled={!isEditavel} />
 
         <Stack direction="row" alignItems="center" spacing={1}>
           <Controller
@@ -118,6 +120,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
                   <MobileDatePicker
                     {...field}
                     value={new Date(field.value)}
+                    disabled={!isEditavel}
                     onChange={(newValue) => {
                       console.log(newValue);
                       if (newValue) {
@@ -139,6 +142,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
                   <MobileDateTimePicker
                     {...field}
                     value={new Date(field.value)}
+                    disabled={!isEditavel}
                     onChange={(newValue) => {
                       if (newValue) {
                         field.onChange(fTimestamp(newValue));
@@ -167,6 +171,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
                   <MobileDatePicker
                     {...field}
                     value={new Date(field.value)}
+                    disabled={!isEditavel}
                     onChange={(newValue) => {
                       if (newValue) {
                         field.onChange(fTimestamp(newValue));
@@ -188,6 +193,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
                   <MobileDateTimePicker
                     {...field}
                     value={new Date(field.value)}
+                    disabled={!isEditavel}
                     onChange={(newValue) => {
                       if (newValue) {
                         field.onChange(fTimestamp(newValue));
@@ -209,11 +215,11 @@ export default function CalendarForm({ currentEvent, onClose }) {
           />
         </Stack>
 
-        <RHFTextField name="description" label="Descrição" multiline rows={4} />
+        <RHFTextField name="description" label="Descrição" multiline rows={4} sx={{ mb: 3 }} disabled={!isEditavel} />
       </Stack>
 
-      {!!(currentEvent?.editavel ?? true) && (
-        <DialogActions>
+      {!!isEditavel && (
+        <DialogActions sx={{ pt: 0 }}>
           {!!currentEvent?.id && (
             <Tooltip title="Apagar evento">
               <IconButton onClick={onDelete}>

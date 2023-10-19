@@ -39,8 +39,7 @@ import CalendarToolbar from '../calendar-toolbar';
 import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-
-
+import { addDays, setHours } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
@@ -72,43 +71,37 @@ export default function CalendarView() {
     let fullEvents = calendarEvents ?? [];
 
     // ANOS
-    if(!!anosLetivos){
-      anosLetivos.forEach(anoLetivo => {
+    if (!!anosLetivos) {
+      anosLetivos.forEach((anoLetivo) => {
         // console.table(anoLetivo);
-        fullEvents.push(
-          {
-            id: `anoLetivo_data_inicio_${anoLetivo.id}`,
-            editavel: false,
-            title: `Início do ano letivo ${anoLetivo.ano}`,
-            tipo: 'Ano letivo',
-            allDay: true,
-            start: new Date(anoLetivo.data_inicio),
-            end: new Date(anoLetivo.data_inicio),
-            description: '',
-            // COLOR
-            color: CALENDAR_COLOR_OPTIONS[3],
-            textColor: CALENDAR_COLOR_OPTIONS[3],
-
-          }
-        );
-        fullEvents.push(
-          {
-            id: `anoLetivo_data_fim_${anoLetivo.id}`,
-            editavel: false,
-            title: `Fim do ano letivo ${anoLetivo.ano}`,
-            tipo: 'Ano Letivo',
-            allDay: true,
-            start: new Date(anoLetivo.data_fim),
-            end: new Date(anoLetivo.data_fim),
-            description: '',
-            // COLOR
-            color: CALENDAR_COLOR_OPTIONS[3],
-            textColor: CALENDAR_COLOR_OPTIONS[3],
-          }
-        );
+        fullEvents.push({
+          id: `anoLetivo_data_inicio_${anoLetivo.id}`,
+          editavel: false,
+          title: `Início do ano letivo ${anoLetivo.ano}`,
+          tipo: 'Ano letivo',
+          allDay: true,
+          start: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
+          end: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
+          description: '',
+          // COLOR
+          color: CALENDAR_COLOR_OPTIONS[3],
+          textColor: CALENDAR_COLOR_OPTIONS[3],
+        });
+        fullEvents.push({
+          id: `anoLetivo_data_fim_${anoLetivo.id}`,
+          editavel: false,
+          title: `Fim do ano letivo ${anoLetivo.ano}`,
+          tipo: 'Ano Letivo',
+          allDay: true,
+          start: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
+          end: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
+          description: '',
+          // COLOR
+          color: CALENDAR_COLOR_OPTIONS[3],
+          textColor: CALENDAR_COLOR_OPTIONS[3],
+        });
       });
     }
-    
 
     console.table(fullEvents);
     setEvents(fullEvents);
