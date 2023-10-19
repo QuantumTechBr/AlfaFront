@@ -8,7 +8,6 @@ import { formatISO } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
-
 const options = {
   revalidateIfStale: false,
   revalidateOnFocus: false,
@@ -16,25 +15,20 @@ const options = {
 };
 
 export function useGetEvents() {
-  const { data, isLoading, error, isValidating } = useSWR(endpoints.calendar.list, fetcher, options);
+  const { data, isLoading, error, isValidating } = useSWR(
+    endpoints.calendar.list,
+    fetcher,
+    options
+  );
 
   const memoizedValue = useMemo(() => {
     // console.table(data);
-    const events = data?.map((event) => {
-      // console.table(event);
-      
-      return ({
-        id: event.id,
-        title: event.titulo ?? '_titulo_',
-        tipo: event.tipo,
-        allDay: true,
-        start: new Date(event.data_inicio),
-        end: new Date(event.data_final),
-        description: event.descricao,
-        // COLOR
-        color: CALENDAR_COLOR_OPTIONS[0],
-        textColor: CALENDAR_COLOR_OPTIONS[0],
-      });
+    const events = (data?.events ?? data)?.map((event) => {
+      if (event.ano) {
+        // console.table(event);
+        return convertToEvent(event);
+      }
+      return event;
     });
 
     return {
@@ -49,92 +43,103 @@ export function useGetEvents() {
   return memoizedValue;
 }
 
+function convertToEvent(event) {
+  return {
+    id: event.id,
+    title: event.titulo ?? '_titulo_',
+    tipo: event.tipo,
+    allDay: true,
+    start: new Date(event.data_inicio),
+    end: new Date(event.data_final),
+    description: event.descricao,
+    // COLOR
+    color: CALENDAR_COLOR_OPTIONS[0],
+    textColor: CALENDAR_COLOR_OPTIONS[0],
+  };
+}
+
 // ----------------------------------------------------------------------
 
 export async function createEvent(eventData) {
-  const data = {
-    titulo: eventData.title, 
-    tipo: eventData.tipo, 
-    data_inicio: formatISO(eventData.start), 
-    data_final: formatISO(eventData.end), 
-    descricao: eventData.description, 
+  const payload = {
+    titulo: eventData.title,
+    tipo: eventData.tipo,
+    data_inicio: formatISO(eventData.start),
+    data_final: formatISO(eventData.end),
+    descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
-  await calendarioMethods.insertCalendario(data);
+  let response = await calendarioMethods.insertCalendario(payload);
 
   /**
    * Work in local
    */
-  // mutate(
-  //   endpoints.calendar.post,
-  //   (currentData) => {
-  //     console.table(currentData);
-  //     const events = [...currentData, eventData];
+  mutate(
+    endpoints.calendar.list,
+    (currentData) => {
+      console.table(currentData);
+      const events = [...currentData, convertToEvent(response.data)];
 
-  //     return {
-  //       ...currentData,
-  //       events,
-  //     };
-  //   },
+      return {
+        ...currentData,
+        events,
+      };
+    },
 
-  //   false
-  // );
+    false
+  );
 }
 
 // ----------------------------------------------------------------------
 
 export async function updateEvent(eventData) {
-  const data = {
-    titulo: eventData.title, 
-    tipo: eventData.tipo, 
-    data_inicio: formatISO(eventData.start), 
-    data_final: formatISO(eventData.end), 
-    descricao: eventData.description, 
+  const payload = {
+    titulo: eventData.title,
+    tipo: eventData.tipo,
+    data_inicio: formatISO(eventData.start),
+    data_final: formatISO(eventData.end),
+    descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
-  await calendarioMethods.updateCalendarioById(eventData.id, data);
-
-  // await axios.put(endpoints.calendar, data);
+  await calendarioMethods.updateCalendarioById(eventData.id, payload);
 
   /**
    * Work in local
    */
-//   mutate(
-//     `${endpoints.calendar.update}${eventData.id}`,
-//     (currentData) => {
-//       console.table(currentData);
-//       const events = currentData.events.map((event) =>
-//         event.id === eventData.id ? { ...event, ...eventData } : event
-//       );
+  mutate(
+    endpoints.calendar.list,
+    (currentData) => {
+      const events = currentData.events.map((event) =>
+        event.id === eventData.id ? { ...event, ...eventData } : event
+      );
 
-//       return {
-//         ...currentData,
-//         events,
-//       };
-//     },
-//     false
-//   );
+      return {
+        ...currentData,
+        events,
+      };
+    },
+    false
+  );
 }
 
 // ----------------------------------------------------------------------
 
 export async function deleteEvent(eventId) {
-  
   await calendarioMethods.deleteCalendarioById(eventId);
 
   /**
    * Work in local
    */
-  // mutate(
-  //   `${endpoints.calendar.delete}${eventId}`,
-  //   (currentData) => {
-  //     const events = currentData.events.filter((event) => event.id !== eventId);
+  mutate(
+    endpoints.calendar.list,
+    (currentData) => {
+      const events = currentData.events.filter((event) => event.id !== eventId);
 
-  //     return {
-  //       ...currentData,
-  //       events,
-  //     };
-  //   },
-  //   false
-  // );
+      return {
+        ...currentData,
+        events,
+      };
+    },
+    false
+  );
 }
