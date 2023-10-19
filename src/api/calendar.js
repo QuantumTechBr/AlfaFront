@@ -19,7 +19,7 @@ export function useGetEvents() {
   const memoizedValue = useMemo(() => {
     // console.table(data);
     const events = data?.map((event) => {
-      console.table(event);
+      // console.table(event);
       
       return ({
         id: event.id,

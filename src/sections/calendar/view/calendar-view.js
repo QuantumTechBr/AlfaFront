@@ -62,7 +62,7 @@ export default function CalendarView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { calendarEvents, eventsLoading } = useGetEvents();
+  const { events: calendarEvents, eventsLoading } = useGetEvents();
   const [events, setEvents] = useState([]);
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -70,6 +70,8 @@ export default function CalendarView() {
 
   useEffect(() => {
     let fullEvents = calendarEvents ?? [];
+    // console.warn('calendarEvents');
+    // console.table(calendarEvents);
 
     // ANOS LETIVOS
     const colorAnoLetivo = CALENDAR_COLOR_OPTIONS[3];
@@ -109,7 +111,7 @@ export default function CalendarView() {
     const colorBimestreFim = CALENDAR_COLOR_OPTIONS[6];
     if (!!bimestres) {
       bimestres.forEach((bimestre) => {
-        console.table(bimestre);
+        // console.table(bimestre);
         fullEvents.push({
           id: `bimestre_data_inicio_${bimestre.id}`,
           editavel: false,
@@ -139,7 +141,7 @@ export default function CalendarView() {
       });
     }
 
-    console.table(fullEvents);
+    // console.table(fullEvents);
     setEvents(fullEvents);
   }, [calendarEvents, anosLetivos, bimestres]);
 
