@@ -18,8 +18,9 @@ export const StyledCalendar = styled('div')(({ theme }) => ({
     // '--fc-highlight-color': theme.palette.action.hover,
   },
 
-  '& .fc .fc-day.fc-day-sat:not(.fc-col-header-cell), & .fc .fc-day.fc-day-sun:not(.fc-col-header-cell)':
-    { backgroundColor: theme.palette.background.neutral },
+  '& .fc .fc-day.fc-day-sat, & .fc .fc-day.fc-day-sun': {
+    ':not(.fc-col-header-cell)': { backgroundColor: theme.palette.background.neutral },
+  },
 
   '& .fc .fc-license-message': { display: 'none' },
   '& .fc a': { color: theme.palette.text.primary },
