@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback, useContext } from 'react';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -37,50 +38,61 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import AlunoTableRow from '../aluno-table-row';
-import AlunoTableToolbar from '../aluno-table-toolbar';
-import AlunoTableFiltersResult from '../aluno-table-filters-result';
-import alunoMethods from '../aluno-repository';
-import { USER_STATUS_OPTIONS } from 'src/_mock';
+import ProfissionalTableRow from '../profissional-table-row';
+import ProfissionalTableToolbar from '../profissional-table-toolbar';
+import ProfissionalTableFiltersResult from '../profissional-table-filters-result';
+import profissionalMethods from '../profissional-repository';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import userMethods from 'src/sections/user/user-repository';
+
 // ----------------------------------------------------------------------
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Aluno', width: 300 },
-  { id: 'matricula', label: 'Matrícula', width: 200 },
-  { id: 'ano', label: 'Ano', width: 200 },
-  { id: 'turma', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'escola', label: 'Escola', width: 200 },
-  { id: 'fase', label: 'Fase', width: 200 },
-  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
+  { id: 'profissional', label: 'Profissional', width: 300 },
+  { id: 'email', label: 'E-Mail', width: 200 },
+  { id: 'funcao', label: 'Função', width: 100 },
+  { id: 'escola', label: 'Escola', width: 100 },
+  { id: 'zona', label: 'DDZ', width: 100 },
+  { id: 'turma', label: 'turma?', width: 100 },
   { id: '', width: 88 },
 ];
 
-const anoAtual = new Date().getFullYear();
-
 const defaultFilters = {
   nome: '',
-  matricula: '',
   escola: [],
-  turma: [],
+  role: [],
 };
 
 // ----------------------------------------------------------------------
 
-export default function AlunoListView() {
+export default function ProfissionalListView() {
 
-  const [_alunoList, setAlunoList] = useState([]);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const [_profissionalList, setProfissionalList] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
-  const preparado = useBoolean(false);
+  useEffect(() => {
+    profissionalMethods.getAllProfissionais().then(profissionais => {
+      if (profissionais.data.length == 0) {
+        setErrorMsg('A API retornou uma lista vazia de profissionais');
+      }
+      setProfissionalList(profissionais.data);
+      setTableData(profissionais.data);     
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de usuários');
+    })
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+  });
+  }, []);
+
 
   const table = useTable();
 
@@ -93,85 +105,6 @@ export default function AlunoListView() {
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
-
-  const preparacaoInicial = async () => {
-      await buscaAnosLetivos();
-      await buscaEscolas();
-      await buscaTurmas();
-      await alunoMethods.getAllAlunos().then(alunos => {
-        setAlunoList(alunos.data);
-      });
-  };
-
-  const preencheTabela = async () => {
-    if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && _alunoList.length) {
-      let _alunosTableData = [];
-      const idAnoLetivoAtual = anosLetivos.map((ano) => {
-        if (ano.status === "NÃO FINALIZADO") {
-          return ano.id;
-        }
-      }).filter(Boolean)
-      _alunoList.forEach( async (aluno) => {
-        if (aluno?.alunosTurmas.length) {
-          const alunoTurma = aluno.alunosTurmas.find((alunoTurma) => { 
-            const turmaEncontrada = turmas.find((turma) => {
-              return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
-            });
-            return turmaEncontrada ? true : false;
-          });
-          if(alunoTurma) {
-            let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id});
-            let indiceMaisNovo = 0;
-            let maiorBimestre = 0;
-            for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
-              if (registroFaseDoAluno.data[index].bimestre.ordinal > maiorBimestre) {
-                maiorBimestre = registroFaseDoAluno.data[index].bimestre.ordinal;
-                indiceMaisNovo = index;
-              }
-            }
-            aluno.fase = registroFaseDoAluno.data[indiceMaisNovo]?.resultado || ''
-          }
-        }
-        let alunoTurma = [];
-        aluno.alunosTurmas.forEach((turma_id) => {
-          alunoTurma  = turmas.map((turma) => {
-            if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
-              return turma;
-            }
-          }).filter(Boolean)          
-        })
-        
-        let alunoEscola = [];
-        aluno.alunoEscolas.forEach((aluno_escola) => {
-          alunoEscola = escolas.map((escola) => {
-            if (aluno_escola.ano === idAnoLetivoAtual[0] && escola.id === aluno_escola.escola) {
-              return escola;
-            }
-          }).filter(Boolean) 
-        })
-        _alunosTableData.push({
-          id: aluno?.id || '',
-          nome: aluno?.nome || '',
-          matricula: aluno?.matricula || '',
-          data_nascimento: aluno?.data_nascimento,
-          ano: alunoTurma[0]?.ano_escolar || '',
-          turma: alunoTurma[0] ? alunoTurma[0] : '',
-          turno: alunoTurma[0]?.turno.toLowerCase() || '',
-          escola: alunoEscola[0] ? alunoEscola[0] : '',
-          fase: aluno?.fase || '',
-        })  
-      })
-      setTableData(_alunosTableData);
-      preparado.onTrue();
-    }
-  };
-
-  useEffect(() => {
-    preparacaoInicial();
-  }, []); // CHAMADA UNICA AO ABRIR
-  useEffect(() => {
-    preencheTabela();
-  }, [anosLetivos, turmas, escolas, _alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -204,8 +137,11 @@ export default function AlunoListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      alunoMethods.deleteAlunoById(id);
-      setTableData(deleteRow);
+      userMethods.deleteUserById(id).then(retorno => {
+        setTableData(deleteRow);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -214,14 +150,24 @@ export default function AlunoListView() {
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        alunoMethods.deleteAlunoById(row.id);
+        const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -232,7 +178,7 @@ export default function AlunoListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.aluno.edit(id));
+      router.push(paths.dashboard.profissional.edit(id));
     },
     [router]
   );
@@ -248,13 +194,13 @@ export default function AlunoListView() {
           heading="Listar"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Alunos', href: paths.dashboard.aluno.root },
+            { name: 'Profissionais', href: paths.dashboard.profissional.root },
             { name: 'Listar' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.aluno.new}
+              href={paths.dashboard.profissional.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
@@ -268,24 +214,26 @@ export default function AlunoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+        
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <Card>
 
-          <AlunoTableToolbar
+          <ProfissionalTableToolbar
             filters={filters}
             onFilters={handleFilters}
+            roleOptions={funcoes}
             escolaOptions={escolas}
-            turmaOptions={turmas}
           />
 
           {canReset && (
-            <AlunoTableFiltersResult
+            <ProfissionalTableFiltersResult
               filters={filters}
-              escolaOptions={escolas}
-              turmaOptions={turmas}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={dataFiltered.length}
+              roleOptions={funcoes}
+              escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -334,7 +282,7 @@ export default function AlunoListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <AlunoTableRow
+                      <ProfissionalTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -373,7 +321,7 @@ export default function AlunoListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> alunos?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> profissionais?
           </>
         }
         action={
@@ -396,8 +344,7 @@ export default function AlunoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
- 
-  const { nome, matricula, escola, turma } = filters;
+  const { nome, role, escola } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -405,27 +352,21 @@ function applyFilter({ inputData, comparator, filters }) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  
+
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (nome) {
     inputData = inputData.filter(
-      (aluno) => aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (user) => user.profissional.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
-  if (matricula) {
-    inputData = inputData.filter(
-      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
-    );
+  if (role.length) {
+    inputData = inputData.filter((user) => role.includes(user.funcao.id));
   }
 
   if (escola.length) {
-    inputData = inputData.filter((aluno) => escola.includes(aluno.escola.id));
-  }
-
-  if (turma.length) {
-    inputData = inputData.filter((aluno) => turma.includes(aluno.turma.id));
+    inputData = inputData.filter((user) => escola.includes(user.escola.id));
   }
 
   return inputData;

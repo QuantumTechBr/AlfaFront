@@ -1,46 +1,60 @@
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
+import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-
+import ListItemText from '@mui/material/ListItemText';
+import Box from '@mui/material/Box';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-
 // components
+import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
-import AlunoQuickEditForm from './aluno-quick-edit-form';
-import parse from 'date-fns/parse';
+import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano, turma, turno, escola, fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { id, profissional, email, funcao, escola, zona , turma } = row;
 
-  let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
 
-  let ano_escolar = '';
-
-  if (ano === '') {
-    ano_escolar = ano;
-  } else {
-    ano_escolar = ano.concat('º ');
+  const user = {
+    id: row.id,
+    nome: row.profissional,
+    email: row.email,
+    funcao: row.funcao.id,
+    escola: row.escola.id,
+    zona: row.zona?.id,
+    turma: row.turma,
   }
 
+
+  const profissionalRender = profissional.toLowerCase();
+
   const confirm = useBoolean();
+
+  const newDeleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  }
 
   const quickEdit = useBoolean();
 
   const popover = usePopover();
 
+  let turmaRender = '';
+  turma?.map((item) => {
+    turmaRender += " Turma " + item.nome;
+  });
 
   return (
     <>
@@ -49,24 +63,22 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcao.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma?.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turno}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{fase}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
+        <Tooltip title={turmaRender} enterDelay={500} leaveDelay={200}>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma?.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
+        </Tooltip>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Edição Rápida" placement="top" arrow>
+          <Tooltip title="Quick Edit" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
@@ -78,7 +90,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
       </TableRow>
 
-      <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -111,10 +123,10 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Aluno"
-        content="Tem certeza que deseja excluir o aluno?"
+        title="Excluir Profissional"
+        content="Tem certeza que deseja excluir este profissional?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={newDeleteRow}>
             Deletar
           </Button>
         }
@@ -123,7 +135,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
   );
 }
 
-AlunoTableRow.propTypes = {
+ProfissionalTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,

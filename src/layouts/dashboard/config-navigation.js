@@ -84,7 +84,7 @@ export function useNavData() {
           // PROFISSIONAIS
           {
             title: 'Profissionais da Educação',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.profissional.list,
             icon: ICONS.alfaClipboardAccount,
           },
 

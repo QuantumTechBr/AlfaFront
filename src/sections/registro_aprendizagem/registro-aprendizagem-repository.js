@@ -15,7 +15,7 @@ export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.
 export const getListIdTurmaRegistroAprendizagemDiagnostico = ({turmaId='', periodo=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.idsTurmaList.concat(`/?turma=${turmaId}&periodo=${periodo}`))
 
 export const insertRegistroAprendizagemFase = payload => axios.post(endpoints.registro_aprendizagem.fase.post, payload);
-export const getAllRegistrosAprendizagemFase = ({turmaId='', bimestreId=''}) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?turma=${turmaId}&bimestre=${bimestreId}`));
+export const getAllRegistrosAprendizagemFase = ({turmaId='', bimestreId='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?turma=${turmaId}&bimestre=${bimestreId}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemFaseById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.fase.update.concat(id), payload);
 export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.registro_aprendizagem.fase.get_by_id.concat(id));
 export const getListIdTurmaRegistroAprendizagemFase = ({turmaId='', bimestreId=''}) => axios.get(endpoints.registro_aprendizagem.fase.idsTurmaList.concat(`/?turma=${turmaId}&bimestre=${bimestreId}`))

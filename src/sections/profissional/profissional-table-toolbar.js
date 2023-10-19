@@ -3,25 +3,26 @@ import { useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
+import TextField from '@mui/material/TextField';
+import InputLabel from '@mui/material/InputLabel';
+import IconButton from '@mui/material/IconButton';
+import FormControl from '@mui/material/FormControl';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputAdornment from '@mui/material/InputAdornment';
+import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTableToolbar({
+export default function ProfissionalTableToolbar({
   filters,
   onFilters,
+  roleOptions,
+  ddzOptions,
   escolaOptions,
-  turmaOptions,
 }) {
   const popover = usePopover();
 
@@ -32,9 +33,22 @@ export default function AlunoTableToolbar({
     [onFilters]
   );
 
-  const handleFilterMatricula = useCallback(
+  const handleFilterDdz = useCallback(
     (event) => {
-      onFilters('matricula', event.target.value);
+      onFilters(
+        'ddz',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterRole = useCallback(
+    (event) => {
+      onFilters(
+        'role',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
     },
     [onFilters]
   );
@@ -49,27 +63,16 @@ export default function AlunoTableToolbar({
     [onFilters]
   );
 
-  const handleFilterTurma = useCallback(
-    (event) => {
-      onFilters(
-        'turma',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
+  const renderValueFuncao = (selected) =>
+    selected.map((funcaoId) => {
+      return roleOptions.find((option) => option.id == funcaoId)?.nome;
+    }).join(', ');
 
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
       return escolaOptions.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
 
-  const renderValueTurma = (selected) => 
-    selected.map((turmaId) => {
-      let turma = turmaOptions.find((option) => option.id == turmaId);
-      return turma?.ano_escolar.concat('º ', turma?.nome);
-    }).join(', ');  
-    
   return (
     <>
       <Stack
@@ -84,34 +87,36 @@ export default function AlunoTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Nome..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
+
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 100 },
+          }}
+        >
+          <InputLabel>Função</InputLabel>
+
+          <Select
+            multiple
+            value={filters.role}
+            onChange={handleFilterRole}
+            input={<OutlinedInput label="Função" />}
+            renderValue={renderValueFuncao}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
             }}
-          />
-          <TextField
-            fullWidth
-            value={filters.matricula}
-            onChange={handleFilterMatricula}
-            placeholder="Matrícula..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          >
+            {roleOptions.map((funcao) => (
+              <MenuItem key={funcao.id} value={funcao.id}>
+                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.id)} />
+                {funcao.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <FormControl
           sx={{
@@ -133,7 +138,7 @@ export default function AlunoTableToolbar({
               },
             }}
           >
-            {escolaOptions?.map((escola) => (
+           {escolaOptions?.map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
                 <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
                 {escola.nome}
@@ -142,34 +147,20 @@ export default function AlunoTableToolbar({
           </Select>
         </FormControl>
 
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Turma</InputLabel>
-
-          <Select
-            multiple
-            value={filters.turma}
-            onChange={handleFilterTurma}
-            input={<OutlinedInput label="Turma" />}
-            renderValue={renderValueTurma}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+          <TextField
+            fullWidth
+            value={filters.nome}
+            onChange={handleFilterNome}
+            placeholder="Pesquisar..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
             }}
-          >
-            {turmaOptions?.map((turma) => (
-              <MenuItem key={turma.id} value={turma.id}>
-                <Checkbox disableRipple size="small" checked={filters.turma.includes(turma.id)} />
-                {turma.ano_escolar}º {turma.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          />
 
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -214,7 +205,10 @@ export default function AlunoTableToolbar({
   );
 }
 
-AlunoTableToolbar.propTypes = {
+ProfissionalTableToolbar.propTypes = {
   filters: PropTypes.object,
-  onFilters: PropTypes.func
+  onFilters: PropTypes.func,
+  roleOptions: PropTypes.array,
+  ddzOptions: PropTypes.array,
+  escolaOptions: PropTypes.array,
 };

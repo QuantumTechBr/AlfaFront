@@ -11,18 +11,24 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTableFiltersResult({
+export default function ProfissionalTableFiltersResult({
   filters,
   onFilters,
   onResetFilters,
   results,
+  roleOptions,
   escolaOptions,
-  turmaOptions,
   ...other
 }) {
 
+  const funcoesSelecionadas = [];
   const escolasSelecionadas = [];
-  const turmasSelecionadas = [];
+
+  roleOptions.map((funcao) => {
+    if(filters.role?.includes(funcao.id)) {
+      funcoesSelecionadas.push(funcao)
+    }
+  })
 
   escolaOptions.map((escola) => {
     if(filters.escola?.includes(escola.id)) {
@@ -30,28 +36,18 @@ export default function AlunoTableFiltersResult({
     }
   })
 
-  turmaOptions.map((turma) => {
-    if(filters.turma?.includes(turma.id)) {
-      turmasSelecionadas.push(turma)
-    }
-  })
-
-  const handleRemoveNome = (inputValue) => {
-    onFilters('nome');
+  const handleRemoveProfissional = (inputValue) => {
+    onFilters('nome', '');
   };
 
-  const handleRemoveMatricula = (inputValue) => {
-    onFilters('matricula');
+  const handleRemoveRole = (inputValue) => {
+    const newValue = filters.role.filter((item) => item !== inputValue);
+    onFilters('role', newValue);
   };
-  
+
   const handleRemoveEscola = (inputValue) => {
     const newValue = filters.escola.filter((item) => item !== inputValue);
     onFilters('escola', newValue);
-  };
-
-  const handleRemoveTurma = (inputValue) => {
-    const newValue = filters.turma.filter((item) => item !== inputValue);
-    onFilters('turma', newValue);
   };
 
   return (
@@ -64,31 +60,38 @@ export default function AlunoTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
+        {/* {filters.status !== 'all' && (
+          <Block label="Status:">
+            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+          </Block>
+        )} */}
 
         {filters.nome !== '' && (
           <Block label="Nome:">
-            <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
-          </Block>
-        )}
-        
-        {filters.matricula !== '' && (
-          <Block label="Matrícula:">
-            <Chip size="small" label={filters.matricula} onDelete={handleRemoveMatricula} />
+            <Chip size="small" label={filters.nome} onDelete={handleRemoveProfissional} />
           </Block>
         )}
 
-        {!!filters.escola.length && (
-          <Block label="Escola:">
-            {escolasSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
+        {!!funcoesSelecionadas.length && (
+          <Block label="Função:">
+            {funcoesSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveRole(item.id)} />
             ))}
           </Block>
         )}
 
-        {!!filters.turma.length && (
-          <Block label="Turma:">
-            {turmasSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.ano_escolar.concat('º ', item.nome)} size="small" onDelete={() => handleRemoveTurma(item.id)} />
+        {/* {!!filters.ddz.length && (
+          <Block label="DDZ:">
+            {filters.ddz.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
+            ))}
+          </Block>
+        )} */}
+
+          {!!filters.escola.length && (
+          <Block label="Escola:">
+            {escolasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
             ))}
           </Block>
         )}
@@ -105,7 +108,7 @@ export default function AlunoTableFiltersResult({
   );
 }
 
-AlunoTableFiltersResult.propTypes = {
+ProfissionalTableFiltersResult.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   onResetFilters: PropTypes.func,
