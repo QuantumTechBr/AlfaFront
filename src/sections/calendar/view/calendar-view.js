@@ -40,7 +40,7 @@ import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { addDays, setHours } from 'date-fns';
-
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -66,46 +66,82 @@ export default function CalendarView() {
   const [events, setEvents] = useState([]);
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
     let fullEvents = calendarEvents ?? [];
 
-    // ANOS
+    // ANOS LETIVOS
+    const colorAnoLetivo = CALENDAR_COLOR_OPTIONS[3];
     if (!!anosLetivos) {
       anosLetivos.forEach((anoLetivo) => {
-        // console.table(anoLetivo);
         fullEvents.push({
           id: `anoLetivo_data_inicio_${anoLetivo.id}`,
           editavel: false,
-          title: `Início do ano letivo ${anoLetivo.ano}`,
-          tipo: 'Ano letivo',
+          title: `${anoLetivo.ano} início`,
+          tipo: 'Início do ano letivo',
           allDay: true,
           start: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
           end: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
           description: '',
           // COLOR
-          color: CALENDAR_COLOR_OPTIONS[3],
-          textColor: CALENDAR_COLOR_OPTIONS[3],
+          color: colorAnoLetivo,
+          textColor: colorAnoLetivo,
         });
         fullEvents.push({
           id: `anoLetivo_data_fim_${anoLetivo.id}`,
           editavel: false,
-          title: `Fim do ano letivo ${anoLetivo.ano}`,
-          tipo: 'Ano Letivo',
+          title: `${anoLetivo.ano} fim`,
+          tipo: 'Fim do ano letivo',
           allDay: true,
           start: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
           end: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
           description: '',
           // COLOR
-          color: CALENDAR_COLOR_OPTIONS[3],
-          textColor: CALENDAR_COLOR_OPTIONS[3],
+          color: colorAnoLetivo,
+          textColor: colorAnoLetivo,
+        });
+      });
+    }
+
+    // BIMESTRES
+    const colorBimestreInicio = CALENDAR_COLOR_OPTIONS[4];
+    const colorBimestreFim = CALENDAR_COLOR_OPTIONS[6];
+    if (!!bimestres) {
+      bimestres.forEach((bimestre) => {
+        console.table(bimestre);
+        fullEvents.push({
+          id: `bimestre_data_inicio_${bimestre.id}`,
+          editavel: false,
+          title: `${bimestre.ordinal}º bimestre`,
+          tipo: 'Início do bimestre',
+          allDay: true,
+          start: setHours(addDays(new Date(bimestre.data_inicio), 1), 8),
+          end: setHours(addDays(new Date(bimestre.data_inicio), 1), 8),
+          description: '',
+          // COLOR
+          color: colorBimestreInicio,
+          textColor: colorBimestreInicio,
+        });
+        fullEvents.push({
+          id: `bimestre_data_fim_${bimestre.id}`,
+          editavel: false,
+          title: `${bimestre.ordinal}º bimestre`,
+          tipo: 'Fim do bimestre',
+          allDay: true,
+          start: setHours(addDays(new Date(bimestre.data_fim), 1), 8),
+          end: setHours(addDays(new Date(bimestre.data_fim), 1), 8),
+          description: '',
+          // COLOR
+          color: colorBimestreFim,
+          textColor: colorBimestreFim,
         });
       });
     }
 
     console.table(fullEvents);
     setEvents(fullEvents);
-  }, [calendarEvents, anosLetivos]);
+  }, [calendarEvents, anosLetivos, bimestres]);
 
   const dateError =
     filters.startDate && filters.endDate
@@ -146,7 +182,8 @@ export default function CalendarView() {
 
   useEffect(() => {
     buscaAnosLetivos();
-  }, [buscaAnosLetivos]);
+    buscaBimestres();
+  }, [buscaAnosLetivos, buscaBimestres]);
 
   const handleFilters = useCallback((name, value) => {
     setFilters((prevState) => ({
