@@ -41,11 +41,11 @@ export default function CalendarForm({ currentEvent, onClose }) {
 
   const EventSchema = Yup.object().shape({
     title: Yup.string().max(255).required('Título é obrigatório'),
-    tipo: Yup.string(),
+    tipo: Yup.string().max(255).required('Tipo é obrigatório'),
     allDay: Yup.boolean(),
     start: Yup.mixed(),
     end: Yup.mixed(),
-    description: Yup.string().max(5000, 'Máximo de 5000 caracteres'),
+    description: Yup.string().required('Descrição é obrigatória').max(5000, 'Máximo de 5000 caracteres'),
   });
 
   const methods = useForm({

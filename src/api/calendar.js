@@ -78,7 +78,7 @@ export async function createEvent(eventData) {
     endpoints.calendar.list,
     (currentData) => {
       console.table(currentData);
-      const events = [...currentData, convertToEvent(response.data)];
+      const events = [...(currentData.events ?? currentData), convertToEvent(response.data)];
 
       return {
         ...currentData,
@@ -109,7 +109,7 @@ export async function updateEvent(eventData) {
   mutate(
     endpoints.calendar.list,
     (currentData) => {
-      const events = currentData.events.map((event) =>
+      const events = (currentData.events ?? currentData).map((event) =>
         event.id === eventData.id ? { ...event, ...eventData } : event
       );
 
@@ -133,7 +133,7 @@ export async function deleteEvent(eventId) {
   mutate(
     endpoints.calendar.list,
     (currentData) => {
-      const events = currentData.events.filter((event) => event.id !== eventId);
+      const events = (currentData.events ?? currentData).filter((event) => event.id !== eventId);
 
       return {
         ...currentData,
