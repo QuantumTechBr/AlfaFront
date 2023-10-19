@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -27,6 +27,7 @@ import FileManagerFilters from '../file-manager-filters';
 import FileManagerGridView from '../file-manager-grid-view';
 import FileManagerFiltersResult from '../file-manager-filters-result';
 import FileManagerNewFolderDialog from '../file-manager-new-folder-dialog';
+import documentoMethods from 'src/sections/file-manager/documento-repository';
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +53,9 @@ export default function FileManagerView() {
 
   const [view, setView] = useState('list');
 
-  const [tableData, setTableData] = useState(_allFiles);
+  const [documentos, setDocumentos] = useState([]);
+
+  const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -77,6 +80,34 @@ export default function FileManagerView() {
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
+
+  useEffect(() => {
+    buscaDocumentos({force:true}).then(retorno => setTableData(retorno));
+  }, []);
+
+  const buscaDocumentos = async ({ force = false } = {}) => {
+    let returnData = documentos;
+    if (force || documentos.length == 0) {
+      // console.log('_consultaAtual');
+      // console.log(_consultaAtual);
+
+
+      const consultaAtual = documentoMethods.getAllDocumentos().then((response) => {
+        if (response.data == '' || response.data === undefined) response.data = [];
+
+        setDocumentos(response.data);
+        returnData = response.data;
+        return returnData;
+      });
+
+      await consultaAtual.then((value) => {
+        returnData = value;
+      });
+    }
+
+    return returnData;
+  };
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {

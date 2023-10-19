@@ -26,10 +26,10 @@ import FileManagerTableRow from './file-manager-table-row';
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Nome' },
-  { id: 'size', label: 'Tamanho', width: 120 },
+  // { id: 'size', label: 'Tamanho', width: 120 },
   { id: 'type', label: 'Tipo', width: 120 },
   { id: 'modifiedAt', label: 'Modificado', width: 140 },
-  { id: 'shared', label: 'Compartilhar', align: 'right', width: 140 },
+  // { id: 'shared', label: 'Compartilhar', align: 'right', width: 140 },
   { id: '', width: 88 },
 ];
 

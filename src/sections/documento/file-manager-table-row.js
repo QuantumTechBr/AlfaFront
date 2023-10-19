@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
 import { useState, useCallback } from 'react';
+
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -31,12 +32,36 @@ import FileThumbnail from 'src/components/file-thumbnail';
 import FileManagerShareDialog from './file-manager-share-dialog';
 import FileManagerFileDetails from './file-manager-file-details';
 
+
 // ----------------------------------------------------------------------
 
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { name, size, type, modifiedAt, shared, isFavorited } = row;
+  const { ano, arquivo, criado_por, updated_at, created_at, destino, id } = row;
+
+  const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
+  const nomeArquivo = arquivo.match(regex)[0];
+  const type = nomeArquivo ? `${nomeArquivo.split('.').pop()}` : ''
+
+  let tamanho = 0;
+
+  // function get_filesize(url, callback) {
+  //   var xhr = new XMLHttpRequest();
+  //   xhr.open("HEAD", url, true); // Notice "HEAD" instead of "GET",
+  //                                //  to get only the header
+  //   xhr.onreadystatechange = function() {
+  //       if (this.readyState == this.DONE) {
+  //           callback(xhr.getResponseHeader("Content-Length"));
+  //       }
+  //   };
+  //   xhr.send();
+  // }
+
+  // tamanho = get_filesize(arquivo, function(size) {
+  //     console.log("The size of " + nomeArquivo + " is: " + size + " bytes.");
+  //     return size;
+  // });
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -44,7 +69,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
 
   const [inviteEmail, setInviteEmail] = useState('');
 
-  const favorite = useBoolean(isFavorited);
+  // const favorite = useBoolean(isFavorited);
 
   const details = useBoolean();
 
@@ -62,13 +87,13 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
     click: () => {
       details.onTrue();
     },
-    doubleClick: () => console.info('DOUBLE CLICK'),
+    doubleClick: () => console.info('CLICK DUPLO'),
   });
 
   const handleCopy = useCallback(() => {
-    enqueueSnackbar('Copied!');
-    copy(row.url);
-  }, [copy, enqueueSnackbar, row.url]);
+    enqueueSnackbar('Copiado!');
+    copy(row.arquivo);
+  }, [copy, enqueueSnackbar, row.arquivo]);
 
   const defaultStyles = {
     borderTop: `solid 1px ${alpha(theme.palette.grey[500], 0.16)}`,
@@ -133,14 +158,14 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
                 ...(details.value && { fontWeight: 'fontWeightBold' }),
               }}
             >
-              {name}
+              {nomeArquivo}
             </Typography>
           </Stack>
         </TableCell>
 
-        <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          {fData(size)}
-        </TableCell>
+        {/* <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
+          {tamanho}
+        </TableCell> */}
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
           {type}
@@ -148,8 +173,8 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
           <ListItemText
-            primary={format(new Date(modifiedAt), 'dd MMM yyyy')}
-            secondary={format(new Date(modifiedAt), 'p')}
+            primary={format(new Date(updated_at), 'dd MMM yyyy')}
+            secondary={format(new Date(updated_at), 'p')}
             primaryTypographyProps={{ typography: 'body2' }}
             secondaryTypographyProps={{
               mt: 0.5,
@@ -159,7 +184,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           />
         </TableCell>
 
-        <TableCell align="right" onClick={handleClick}>
+        {/* <TableCell align="right" onClick={handleClick}>
           <AvatarGroup
             max={4}
             sx={{
@@ -178,7 +203,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
                 <Avatar key={person.id} alt={person.name} src={person.avatarUrl} />
               ))}
           </AvatarGroup>
-        </TableCell>
+        </TableCell> */}
 
         <TableCell
           align="right"
@@ -187,14 +212,14 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
             whiteSpace: 'nowrap',
           }}
         >
-          <Checkbox
+          {/* <Checkbox
             color="warning"
             icon={<Iconify icon="eva:star-outline" />}
             checkedIcon={<Iconify icon="eva:star-fill" />}
             checked={favorite.value}
             onChange={favorite.onToggle}
             sx={{ p: 0.75 }}
-          />
+          /> */}
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -242,19 +267,19 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         </MenuItem>
       </CustomPopover>
 
-      <FileManagerFileDetails
+      {/* <FileManagerFileDetails
         item={row}
-        favorited={favorite.value}
-        onFavorite={favorite.onToggle}
+        // favorited={favorite.value}
+        // onFavorite={favorite.onToggle}
         onCopyLink={handleCopy}
         open={details.value}
         onClose={details.onFalse}
         onDelete={onDeleteRow}
-      />
+      /> */}
 
       <FileManagerShareDialog
         open={share.value}
-        shared={shared}
+        // shared={shared}
         inviteEmail={inviteEmail}
         onChangeInvite={handleChangeInvite}
         onCopyLink={handleCopy}
