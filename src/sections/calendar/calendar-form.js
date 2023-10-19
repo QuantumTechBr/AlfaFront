@@ -28,6 +28,7 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField, RHFSwitch } from 'src/components/hook-form';
 
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { setHours } from 'date-fns';
 
 
 // ----------------------------------------------------------------------
@@ -75,8 +76,8 @@ export default function CalendarForm({ currentEvent, onClose }) {
       title: data?.title,
       tipo: data?.tipo,
       allDay: data?.allDay,
-      end: data?.end,
-      start: data?.start,
+      end: data?.allDay ?  setHours(data?.end, 3) : data?.end,
+      start: data?.allDay ? setHours(data?.start, 3) : data?.start,
       description: data?.description,
       ano_id: ano?.id,
     };

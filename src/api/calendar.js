@@ -44,13 +44,16 @@ export function useGetEvents() {
 }
 
 function convertToEvent(event) {
+  let data_inicio = new Date(event.data_inicio);
+  let data_final = new Date(event.data_final);
+  let itsAllDay = data_inicio.getHours() == 3;
   return {
     id: event.id,
     title: event.titulo ?? '_titulo_',
     tipo: event.tipo,
-    allDay: true,
-    start: new Date(event.data_inicio),
-    end: new Date(event.data_final),
+    allDay: itsAllDay,
+    start: data_inicio,
+    end: data_final,
     description: event.descricao,
     // COLOR
     color: CALENDAR_COLOR_OPTIONS[0],
