@@ -85,6 +85,7 @@ export default function TurmaListView() {
       _turmas.map((turma) => {
         turma.status = turma.status.toString()
       })
+      console.log(_turmas)
       setTableData(_turmas);
     });
     buscaEscolas();

@@ -46,6 +46,8 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import { Box, CircularProgress } from '@mui/material';
+import Label from 'src/components/label';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -62,18 +64,20 @@ const TABLE_HEAD = [
   { id: '', width: 88 },
 ];
 
-const anoAtual = new Date().getFullYear();
-
-const defaultFilters = {
-  nome: '',
-  matricula: '',
-  escola: [],
-  turma: [],
-};
 
 // ----------------------------------------------------------------------
 
 export default function AlunoListView() {
+
+  let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
+
+
+  const defaultFilters = {
+    nome: '',
+    matricula: '',
+    escola: [],
+    turma: turmaFiltro,
+  };
 
   const [_alunoList, setAlunoList] = useState([]);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -159,10 +163,9 @@ export default function AlunoListView() {
           turno: alunoTurma[0]?.turno.toLowerCase() || '',
           escola: alunoEscola[0] ? alunoEscola[0] : '',
           fase: aluno?.fase || '',
-        })  
+        })
       })
       setTableData(_alunosTableData);
-      preparado.onTrue();
     }
   };
 
@@ -172,6 +175,7 @@ export default function AlunoListView() {
   useEffect(() => {
     preencheTabela();
   }, [anosLetivos, turmas, escolas, _alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -238,9 +242,29 @@ export default function AlunoListView() {
   );
 
   const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
+    const resetFilters = {
+      nome: '',
+      matricula: '',
+      escola: [],
+      turma: [],
+    };
+    setFilters(resetFilters);
   }, []);
 
+  useEffect(() => {
+    if (dataFiltered.length === _alunoList.length && _alunoList.length != 0) {
+      setTableData(tableData);
+      preparado.onTrue()
+    }
+    if (turmaFiltro.length != 0) {
+      if (dataFiltered.length != 0) {
+        setTableData(tableData);
+        preparado.onTrue()
+        sessionStorage.setItem('filtroTurmaId', [])
+      }
+    }
+  }, [dataFiltered])
+  
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -311,6 +335,23 @@ export default function AlunoListView() {
             />
 
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -326,32 +367,32 @@ export default function AlunoListView() {
                     )
                   }
                 />
-
+                
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <AlunoTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                      />
-                    ))}
+                {dataFiltered
+                  .slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
+                  .map((row) => (
+                    <AlunoTableRow
+                      key={row.id}
+                      row={row}
+                      selected={table.selected.includes(row.id)}
+                      onSelectRow={() => table.onSelectRow(row.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id)}
+                      onEditRow={() => handleEditRow(row.id)}
+                    />
+                  ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
+                <TableEmptyRows
+                  height={denseHeight}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                />
+                
+                <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 
@@ -424,7 +465,7 @@ function applyFilter({ inputData, comparator, filters }) {
     inputData = inputData.filter((aluno) => escola.includes(aluno.escola.id));
   }
 
-  if (turma.length) {
+  if (turma?.length) {
     inputData = inputData.filter((aluno) => turma.includes(aluno.turma.id));
   }
 
