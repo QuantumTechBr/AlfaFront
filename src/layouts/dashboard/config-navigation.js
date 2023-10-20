@@ -101,7 +101,7 @@ export function useNavData() {
             path: paths.dashboard.blank,
             icon: ICONS.alfaCalendar,
             children: [
-              { title: t('calendário'), path: paths.dashboard.blank },
+              { title: t('calendário'), path: paths.dashboard.calendar },
               { title: t('gerar relatório'), path: paths.dashboard.blank },
               { title: t('documentos administrativos'), path: paths.dashboard.blank },
             ],

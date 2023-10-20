@@ -10,11 +10,16 @@ export const StyledCalendar = styled('div')(({ theme }) => ({
   '& .fc': {
     '--fc-border-color': alpha(theme.palette.grey[500], 0.16),
     '--fc-now-indicator-color': theme.palette.error.main,
-    '--fc-today-bg-color': alpha(theme.palette.grey[500], 0.08),
+    // '--fc-today-bg-color': alpha(theme.palette.grey[500], 0.45),
+    '--fc-today-bg-color': theme.palette.error.main,
     '--fc-page-bg-color': theme.palette.background.default,
     '--fc-neutral-bg-color': theme.palette.background.neutral,
     '--fc-list-event-hover-bg-color': theme.palette.action.hover,
-    '--fc-highlight-color': theme.palette.action.hover,
+    // '--fc-highlight-color': theme.palette.action.hover,
+  },
+
+  '& .fc .fc-day.fc-day-sat, & .fc .fc-day.fc-day-sun': {
+    ':not(.fc-col-header-cell)': { backgroundColor: theme.palette.background.neutral },
   },
 
   '& .fc .fc-license-message': { display: 'none' },

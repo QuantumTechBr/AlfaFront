@@ -1,13 +1,15 @@
 'use client';
 
 import Calendar from '@fullcalendar/react'; // => request placed at the top
+import ptBrLocale from '@fullcalendar/core/locales/pt-br';
 import interactionPlugin from '@fullcalendar/interaction';
+import multiMonthPlugin from '@fullcalendar/multimonth';
 import listPlugin from '@fullcalendar/list';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import timelinePlugin from '@fullcalendar/timeline';
 //
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useContext } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -25,7 +27,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 // _mock
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 // api
-import { useGetEvents, updateEvent } from 'src/api/calendar';
+import { updateEvent, useGetEvents } from 'src/api/calendar';
 // components
 import Iconify from 'src/components/iconify';
 import { useSettingsContext } from 'src/components/settings';
@@ -36,7 +38,9 @@ import CalendarForm from '../calendar-form';
 import CalendarToolbar from '../calendar-toolbar';
 import CalendarFilters from '../calendar-filters';
 import CalendarFiltersResult from '../calendar-filters-result';
-
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { addDays, setHours } from 'date-fns';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -58,7 +62,88 @@ export default function CalendarView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const { events, eventsLoading } = useGetEvents();
+  const { events: calendarEvents, eventsLoading } = useGetEvents();
+  const [events, setEvents] = useState([]);
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
+
+  useEffect(() => {
+    let fullEvents = calendarEvents ?? [];
+    // console.warn('calendarEvents');
+    // console.table(calendarEvents);
+
+    // ANOS LETIVOS
+    const colorAnoLetivo = CALENDAR_COLOR_OPTIONS[3];
+    if (!!anosLetivos) {
+      anosLetivos.forEach((anoLetivo) => {
+        fullEvents.push({
+          id: `anoLetivo_data_inicio_${anoLetivo.id}`,
+          editavel: false,
+          title: `${anoLetivo.ano} início`,
+          tipo: 'Início do ano letivo',
+          allDay: true,
+          start: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
+          end: setHours(addDays(new Date(anoLetivo.data_inicio), 1), 8),
+          description: '',
+          // COLOR
+          color: colorAnoLetivo,
+          textColor: colorAnoLetivo,
+        });
+        fullEvents.push({
+          id: `anoLetivo_data_fim_${anoLetivo.id}`,
+          editavel: false,
+          title: `${anoLetivo.ano} fim`,
+          tipo: 'Fim do ano letivo',
+          allDay: true,
+          start: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
+          end: setHours(addDays(new Date(anoLetivo.data_fim), 1), 8),
+          description: '',
+          // COLOR
+          color: colorAnoLetivo,
+          textColor: colorAnoLetivo,
+        });
+      });
+    }
+
+    // BIMESTRES
+    const colorBimestreInicio = CALENDAR_COLOR_OPTIONS[4];
+    const colorBimestreFim = CALENDAR_COLOR_OPTIONS[6];
+    if (!!bimestres) {
+      bimestres.forEach((bimestre) => {
+        // console.table(bimestre);
+        fullEvents.push({
+          id: `bimestre_data_inicio_${bimestre.id}`,
+          editavel: false,
+          title: `${bimestre.ordinal}º bimestre`,
+          tipo: 'Início do bimestre',
+          allDay: true,
+          start: setHours(addDays(new Date(bimestre.data_inicio), 1), 8),
+          end: setHours(addDays(new Date(bimestre.data_inicio), 1), 8),
+          description: '',
+          // COLOR
+          color: colorBimestreInicio,
+          textColor: colorBimestreInicio,
+        });
+        fullEvents.push({
+          id: `bimestre_data_fim_${bimestre.id}`,
+          editavel: false,
+          title: `${bimestre.ordinal}º bimestre`,
+          tipo: 'Fim do bimestre',
+          allDay: true,
+          start: setHours(addDays(new Date(bimestre.data_fim), 1), 8),
+          end: setHours(addDays(new Date(bimestre.data_fim), 1), 8),
+          description: '',
+          // COLOR
+          color: colorBimestreFim,
+          textColor: colorBimestreFim,
+        });
+      });
+    }
+
+    // console.table(fullEvents);
+    setEvents(fullEvents);
+  }, [calendarEvents, anosLetivos, bimestres]);
 
   const dateError =
     filters.startDate && filters.endDate
@@ -91,11 +176,16 @@ export default function CalendarView() {
     onClickEventInFilters,
   } = useCalendar();
 
-  const currentEvent = useEvent(events, selectEventId, selectedRange, openForm);
+  const currentEvent = useEvent(events ?? [], selectEventId, selectedRange, openForm);
 
   useEffect(() => {
     onInitialView();
   }, [onInitialView]);
+
+  useEffect(() => {
+    buscaAnosLetivos();
+    buscaBimestres();
+  }, [buscaAnosLetivos, buscaBimestres]);
 
   const handleFilters = useCallback((name, value) => {
     setFilters((prevState) => ({
@@ -131,25 +221,7 @@ export default function CalendarView() {
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'xl'}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">Calendar</Typography>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            onClick={onOpenForm}
-          >
-            New Event
-          </Button>
-        </Stack>
-
+      <Container maxWidth="none">
         {canReset && renderResults}
 
         <Card>
@@ -162,40 +234,52 @@ export default function CalendarView() {
               onPrevDate={onDatePrev}
               onToday={onDateToday}
               onChangeView={onChangeView}
+              onOpenForm={onOpenForm}
               onOpenFilters={openFilters.onTrue}
             />
 
             <Calendar
               weekends
-              editable
-              droppable
-              selectable
+              editable={false}
+              droppable={false}
+              selectable={true}
+              locales={[ptBrLocale]}
+              locale={'pt-br'}
               rerenderDelay={10}
               allDayMaintainDuration
               eventResizableFromStart
               ref={calendarRef}
-              initialDate={date}
+              initialDate={new Date()}
               initialView={view}
-              dayMaxEventRows={3}
+              dayMaxEventRows={5}
               eventDisplay="block"
               events={dataFiltered}
               headerToolbar={false}
               select={onSelectRange}
               eventClick={onClickEvent}
-              height={smUp ? 720 : 'auto'}
+              height={smUp ? 'calc(100vh - 175px)' : 'auto'}
               eventDrop={(arg) => {
+                return false;
                 onDropEvent(arg, updateEvent);
               }}
               eventResize={(arg) => {
+                return false;
                 onResizeEvent(arg, updateEvent);
               }}
               plugins={[
+                multiMonthPlugin,
                 listPlugin,
                 dayGridPlugin,
                 timelinePlugin,
                 timeGridPlugin,
                 interactionPlugin,
               ]}
+              views={{
+                multiTwoMonthYear: {
+                  type: 'multiMonthYear',
+                  multiMonthMaxColumns: 2,
+                },
+              }}
             />
           </StyledCalendar>
         </Card>
@@ -212,14 +296,10 @@ export default function CalendarView() {
         }}
       >
         <DialogTitle sx={{ minHeight: 76 }}>
-          {openForm && <> {currentEvent?.id ? 'Edit Event' : 'Add Event'}</>}
+          {openForm && <> {currentEvent?.id ? 'Editar evento' : 'Adicionar evento'}</>}
         </DialogTitle>
 
-        <CalendarForm
-          currentEvent={currentEvent}
-          colorOptions={CALENDAR_COLOR_OPTIONS}
-          onClose={onCloseForm}
-        />
+        <CalendarForm currentEvent={currentEvent} onClose={onCloseForm} />
       </Dialog>
 
       <CalendarFilters
