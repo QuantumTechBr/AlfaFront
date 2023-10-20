@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback, useContext } from 'react';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -83,6 +84,7 @@ export default function AlunoListView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const preparado = useBoolean(false);
 
@@ -99,11 +101,22 @@ export default function AlunoListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const preparacaoInicial = async () => {
-      await buscaAnosLetivos();
-      await buscaEscolas();
-      await buscaTurmas();
+      await buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
+      });
+      await buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      });
+      await buscaTurmas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas');
+      });
       await alunoMethods.getAllAlunos().then(alunos => {
+        if (alunos.data.length == 0) {
+          setErrorMsg('A API retornou uma lista vazia de alunos');
+        }
         setAlunoList(alunos.data);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de alunos');
       });
   };
 
@@ -124,7 +137,9 @@ export default function AlunoListView() {
             return turmaEncontrada ? true : false;
           });
           if(alunoTurma) {
-            let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id});
+            let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
+              setErrorMsg('Erro de comunicação com a API de Registros Aprendizagem Fase');
+            });
             let indiceMaisNovo = 0;
             let maiorBimestre = 0;
             for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
@@ -208,8 +223,11 @@ export default function AlunoListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      alunoMethods.deleteAlunoById(id);
-      setTableData(deleteRow);
+      alunoMethods.deleteAlunoById(id).then(retorno => {
+        setTableData(deleteRow);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -218,14 +236,24 @@ export default function AlunoListView() {
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        alunoMethods.deleteAlunoById(row.id);
+        const newPromise = alunoMethods.deleteAlunoById(row.id).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -292,6 +320,8 @@ export default function AlunoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <Card>
 

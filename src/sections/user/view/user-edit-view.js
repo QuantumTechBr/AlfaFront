@@ -14,18 +14,24 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import UserNewEditForm from '../user-new-edit-form';
 import userMethods from '../user-repository';
 import { useEffect, useState } from 'react';
-
+import Alert from '@mui/material/Alert';
 // ----------------------------------------------------------------------
 
 export default function UserEditView({ id }) {
   const settings = useSettingsContext();
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
       usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao.id : '';
       usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola.id : '';
+      if (usuario.data.length === 0) {
+        setErrorMsg('A API retornou uma lista vazia de usuários');
+      }
       setCurrentUser(usuario.data);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de usuários');
     })
   }, []);
 
@@ -49,6 +55,7 @@ export default function UserEditView({ id }) {
         }}
       />
 
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <UserNewEditForm currentUser={currentUser} />
     </Container>
   );

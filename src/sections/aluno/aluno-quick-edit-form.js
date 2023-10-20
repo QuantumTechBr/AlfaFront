@@ -8,6 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
@@ -26,10 +27,12 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import parseISO from 'date-fns/parseISO';
 import ptBR from 'date-fns/locale/pt-BR';
+import { useEffect, useState, useContext } from 'react';
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
+export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
+  const [errorMsg, setErrorMsg] = useState('');
 
   let alunoNascimento = parseISO(currentAluno.data_nascimento);
 
@@ -65,13 +68,16 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
     try {
       let nascimento = new Date(data.data_nascimento)
       data.data_nascimento = nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate()
-      await alunoMethods.updateAlunoById(currentAluno.id, data);
+      await alunoMethods.updateAlunoById(currentAluno.id, data).catch((error) => {
+        throw error;
+      });
       reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
+      setErrorMsg('Tentativa de atualização do aluno falhou');
       console.error(error);
     }
   });
@@ -91,6 +97,7 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         <br></br>
           <Box
             rowGap={3}
@@ -133,7 +140,7 @@ export default function TurmaQuickEditForm({ currentAluno, open, onClose }) {
   );
 }
 
-TurmaQuickEditForm.propTypes = {
+AlunoQuickEditForm.propTypes = {
   currentAluno: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,

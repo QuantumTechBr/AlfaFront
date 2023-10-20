@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect } from 'react';
+import { useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -33,9 +33,15 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   useEffect(() => {
-    buscaEscolas();
-    buscaAnosLetivos();
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de Anos Letivos');
+    });
   }, [])
 
   const NewTurmaSchema = Yup.object().shape({
@@ -82,14 +88,16 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
 
-      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma);
+      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
+        throw error;
+      });
       reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
-
       console.info('DATA', data);
     } catch (error) {
+      setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
     }
   });
@@ -109,6 +117,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Edição Rápida</DialogTitle>
         <DialogContent>
+          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
           <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
           <Box

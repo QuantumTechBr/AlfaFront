@@ -37,6 +37,7 @@ import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import permissaoMethods from '../permissao/permissao-repository';
+import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
@@ -47,15 +48,20 @@ export default function UserNewEditForm({ currentUser }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [permissoes, setPermissoes] = useState([]);
 
-  useEffect(() => {
-    buscaFuncoes();
-    buscaEscolas();
+  const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+    });
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    
     permissaoMethods.getAllPermissoes().then(permissoes => {
       setPermissoes(permissoes.data);
-    }).catch((erro) => {
-      console.log(erro);
-      throw(erro);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
 
@@ -125,16 +131,21 @@ export default function UserNewEditForm({ currentUser }) {
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
-        await userMethods.updateUserById(currentUser.id, novoUsuario);
+        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+          throw error;
+        });
         
       } else {
-        await userMethods.insertUser(novoUsuario);
+        await userMethods.insertUser(novoUsuario).catch((error) => {
+          throw error;
+        });
       }
       reset();
       enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
+      currentUser ? setErrorMsg('Tentativa de atualização do usuário falhou') : setErrorMsg('Tentativa de criação do usuário falhou');
       console.error(error);
     }
   });
@@ -145,6 +156,7 @@ export default function UserNewEditForm({ currentUser }) {
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>

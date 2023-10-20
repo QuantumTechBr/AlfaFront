@@ -9,6 +9,7 @@ import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -76,19 +77,26 @@ export default function TurmaListView() {
 
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
     buscaTurmas({force:true}).then((_turmas) => {
+      if (_turmas.length == 0) {
+        setErrorMsg('A API retornou uma lista vazia de turmas');
+      }
       _turmas.map((turma) => {
         turma.status = turma.status.toString()
       })
-      console.log(_turmas)
       setTableData(_turmas);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
     });
-    buscaEscolas();
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
     
   }, []);
   
@@ -132,8 +140,11 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      turmaMethods.deleteTurmaById(id);
-      setTableData(deleteRow);
+      turmaMethods.deleteTurmaById(id).then(retorno => {
+        setTableData(deleteRow);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -142,14 +153,24 @@ export default function TurmaListView() {
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        turmaMethods.deleteTurmaById(row.id);
+        const newPromise = turmaMethods.deleteTurmaById(row.id).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -203,6 +224,8 @@ export default function TurmaListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <Card>
         <Tabs

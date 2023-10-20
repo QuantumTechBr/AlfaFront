@@ -13,19 +13,28 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import TurmaNewEditForm from '../turma-new-edit-form';
 
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
 export default function TurmaEditView({ id }) {
   const settings = useSettingsContext();
 
+  const [errorMsg, setErrorMsg] = useState('');
   
   const { buscaTurmaPorId } = useContext(TurmasContext);
 
   const [currentTurma, setCurrentTurma] = useState({});
 
   useEffect(()  => {
-    buscaTurmaPorId({id}).then(turma => setCurrentTurma(turma))
+    buscaTurmaPorId({id}).then((turma) => {
+      if (turma.lenght == 0) {
+        setErrorMsg('A API retornou uma lista vazia de turmas');
+      }
+      setCurrentTurma(turma)
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+    })
   }, []);
 
   const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
@@ -50,6 +59,7 @@ export default function TurmaEditView({ id }) {
         }}
       />
 
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}  
       <TurmaNewEditForm currentTurma={currentTurma} />
     </Container>
   );
