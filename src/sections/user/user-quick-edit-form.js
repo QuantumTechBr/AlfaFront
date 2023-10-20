@@ -37,15 +37,20 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [permissoes, setPermissoes] = useState([]);
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   useEffect(() => {
-    buscaFuncoes();
-    buscaEscolas();
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+    });
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
     
     permissaoMethods.getAllPermissoes().then(permissoes => {
       setPermissoes(permissoes.data);
-    }).catch((erro) => {
-      console.log(erro);
-      throw(erro);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
 
@@ -108,14 +113,16 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
-      await userMethods.updateUserById(currentUser.id, novoUsuario);   
+      await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+        throw error;
+      });   
       reset() 
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
-
       console.info('DATA', data);
     } catch (error) {
+      setErrorMsg('Tentativa de atualização do usuário falhou');
       console.error(error);
     }
   });
@@ -134,8 +141,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         <DialogTitle>Edição Rápida</DialogTitle>
 
         <DialogContent>
+          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
-
           <Box
             rowGap={3}
             columnGap={2}
