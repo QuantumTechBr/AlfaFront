@@ -41,7 +41,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
   const { ano, arquivo, criado_por, updated_at, created_at, destino, id } = row;
 
   const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
-  const nomeArquivo = arquivo.match(regex)[0];
+  const nomeArquivo = arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nomeArquivo ? `${nomeArquivo.split('.').pop()}` : ''
 
   let tamanho = 0;
