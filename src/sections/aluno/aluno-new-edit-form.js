@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -25,11 +25,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import alunoMethods from './aluno-repository';
 import parseISO from 'date-fns/parseISO';
 import ptBR from 'date-fns/locale/pt-BR';
+import Alert from '@mui/material/Alert';
 
 
 // ----------------------------------------------------------------------
 
 export default function AlunoNewEditForm({ currentAluno }) {
+
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   let alunoNascimento = new Date('01-01-2000');
@@ -74,15 +77,20 @@ export default function AlunoNewEditForm({ currentAluno }) {
       let nascimento = new Date(data.data_nascimento)
       data.data_nascimento = nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate()
       if (currentAluno) {
-        await alunoMethods.updateAlunoById(currentAluno.id, data);
+        await alunoMethods.updateAlunoById(currentAluno.id, data).catch((error) => {
+          throw error;
+        });
         
       } else {
-        await alunoMethods.insertAluno(data);
+        await alunoMethods.insertAluno(data).catch((error) => {
+          throw error;
+        });
       }
       reset();
       enqueueSnackbar(currentAluno ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.aluno.list);
     } catch (error) {
+      currentAluno ? setErrorMsg('Tentativa de atualização do aluno falhou') : setErrorMsg('Tentativa de criação do aluno falhou');
       console.error(error);
     }
   });
@@ -93,6 +101,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>

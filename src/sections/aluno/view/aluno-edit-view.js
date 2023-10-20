@@ -13,18 +13,25 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import AlunoNewEditForm from '../aluno-new-edit-form';
 import { useState, useEffect } from 'react';
 import alunoMethods from '../aluno-repository';
+import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
 export default function AlunoEditView({ id }) {
   const settings = useSettingsContext();
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [currentAluno, setCurrentAluno] = useState({});
 
   useEffect(()  => {
     alunoMethods.getAlunoById(id).then(aluno => {
+      if (aluno.data.length === 0) {
+        setErrorMsg('A API retornou uma lista vazia de alunos');
+      }
       setCurrentAluno(aluno.data);
-    })
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de alunos');
+    });
   }, []);
 
   return (
@@ -46,7 +53,8 @@ export default function AlunoEditView({ id }) {
           mb: { xs: 3, md: 5 },
         }}
       />
-
+      
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <AlunoNewEditForm currentAluno={currentAluno} />
     </Container>
   );
