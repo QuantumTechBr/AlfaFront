@@ -112,7 +112,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
               const retorno = { ...turma };
               retorno.periodo = 'Inicial';
-              retorno.alunos = turma.aluno_turma.length;
+              retorno.alunos = turma.alunosTurmas.length;
               retorno.escola_nome = turma.escola.nome;
               retorno.ano_letivo = turma.ano.ano;
               return retorno;
@@ -129,7 +129,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
               const retorno = { ...turma };
               retorno.periodo = 'Final';
-              retorno.alunos = turma.aluno_turma.length;
+              retorno.alunos = turma.alunosTurmas.length;
               retorno.escola_nome = turma.escola.nome;
               retorno.ano_letivo = turma.ano.ano;
               return retorno;

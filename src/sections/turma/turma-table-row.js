@@ -19,11 +19,16 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import TurmaQuickEditForm from './turma-quick-edit-form';
+import { useRouter } from 'src/routes/hook';
+import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, ano_escolar, ano, turno, aluno_turma, media, status, created_at, updated_at, deleted_at } = row;
+  const { id, nome, ano_escolar, ano, turno, alunosTurmas, media, status, created_at, updated_at, deleted_at } = row;
+
+  // console.log(row)
   
   const turnoRender = turno.toLowerCase();
 
@@ -31,7 +36,15 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
 
   const quickEdit = useBoolean();
 
+  const router = useRouter();
+
   const popover = usePopover();
+
+  const listarAlunosTurma = () => {
+    const turmaId = id
+    sessionStorage.setItem('filtroTurmaId', turmaId);
+    router.push(paths.dashboard.aluno.list);
+  }
 
   return (
     <>
@@ -48,7 +61,21 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma?.length > 0 ? aluno_turma.length : 0}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {alunosTurmas?.length > 0 ? alunosTurmas.length : 0}
+          <Button
+              onClick={listarAlunosTurma}
+              variant="contained"
+              sx={{
+                margin: 1,
+                bgcolor: "#00A5AD",
+                minWidth: 40,
+                width: 40,
+              }}
+            >
+            <Iconify icon="carbon:user-filled" />
+            </Button>
+        </TableCell>
 
         <TableCell>
           <Label

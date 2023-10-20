@@ -24,7 +24,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano, nome, turno, aluno_turma, periodo, escola, created_at, updated_at, deleted_at } = row;
+  const { id, ano_escolar, ano, nome, turno, alunosTurmas, periodo, escola, created_at, updated_at, deleted_at } = row;
 
   const router = useRouter();
 
@@ -59,7 +59,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{aluno_turma.length}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunosTurmas.length}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodo}</TableCell>
 
