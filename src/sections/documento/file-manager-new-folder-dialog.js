@@ -15,45 +15,20 @@ import { Upload } from 'src/components/upload';
 import { AWS_S3 } from 'src/config-global';
 import { insertDocumento, getAllDocumentos } from './documento-repository';
 
+// utils
+import axios, { endpoints } from 'src/utils/axios';
+
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
 import { parseUrl } from '@aws-sdk/url-parser';
 import { Sha256 } from '@aws-crypto/sha256-browser';
 import { Hash } from '@aws-sdk/hash-node';
 import { formatUrl } from '@aws-sdk/util-format-url';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { createRequest } from '@aws-sdk/util-create-request';
 import {
   TranscribeClient,
   StartTranscriptionJobCommand,
 } from "@aws-sdk/client-transcribe";
-
-// ----------------------------------------------------------------------
-
-
-const credentials = { accessKeyId: AWS_S3.accessKeyId, secretAccessKey: AWS_S3.secretAccessKey }
-// Credencial AWS-S3
-const s3Client = new S3Client({
-  region: AWS_S3.region,
-  credentials,
-});
-
-
-const getUrlAssigned = async (key) => {
-  const s3ObjectUrl = parseUrl(
-    `https://${AWS_S3.bucketName}.s3.${AWS_S3.region}.amazonaws.com/${key}`
-  );
-  const presigner = new S3RequestPresigner({
-    credentials,
-    region: AWS_S3.region,
-    // sha256: Hash.bind(null, 'sha256'), // In Node.js
-    sha256: Sha256 // In browsers
-    
-  });
-  // Create a GET request from S3 url.
-  const url = await presigner.presign(new HttpRequest(s3ObjectUrl));
-  console.log('PRESIGNED URL: ', formatUrl(url));
-}
 
 export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
@@ -91,67 +66,43 @@ export default function FileManagerNewFolderDialog({
   const handleUpload = async () => {
     onClose();
     const file = files[0];
-    const reader = new FileReader();
-    reader.readAsArrayBuffer(file);
-
-    const Key = file.name;
-    let signedUrl;
     let response;
 
-    //   const params = {
-    //     Bucket: AWS_S3.bucketName,
-    //     Key: file.name,
-    //     Body: file,
-    //     ContentType: file.type,
-    //     ContentLength: file.size,
-    //  }
 
     const novoDocumento = {
-      ano_id: 'e445d95b-e92c-4fe9-b6b2-10afc66178b9', // Pegar o ano letivo current ver amanha com os meninos como pega o ano letivo current
-      destino: Key,
-      link: AWS_S3.url + Key,
+      ano_id: 'e445d95b-e92c-4fe9-b6b2-10afc66178b9', // Pegar o ano letivo atual
+      destino: "teste",
+      arquivo: file,
     };
-
-    try {
-      const signer = new S3RequestPresigner({ ...s3Client.config });
-
-      // creating file upload request
-      const request = await createRequest(
-        s3Client,
-        new PutObjectCommand({ Key, Bucket: AWS_S3.bucketName })
-      );
-
-      const expiration = new Date(Date.now() + 60 * 60 * 1000);
-      // Create and format the presigned URL.
-      signedUrl = formatUrl(await signer.presign(request, expiration));
-      console.log(`\nPutting "${Key}"`);
-    } catch (err) {
-      console.log('Error creating presigned URL', err);
-    }
-
     
     try {
-      // Upload the object to the Amazon S3 bucket using a presigned URL.
-      response = await fetch(signedUrl, {
-        method: 'PUT',
+
+      let formData = new FormData();
+
+      formData.append('ano_id', novoDocumento.ano_id);
+      formData.append('destino', novoDocumento.destino);
+      formData.append('arquivo', file)
+
+      const config = {
         headers: {
-          // 'content-type': file.type,
-          "content-type": "application/octet-stream",
-        },
-        body: file.body,
-        
-      });   
-      console.log(signedUrl);
+          'content-type': 'multipart/form-data'
+        }
+      }
 
+      const response = await insertDocumento(formData).catch(erro => {
+        console.log("upload erro");
+        logout();
+        throw erro;
+      });
 
-      getUrlAssigned(Key);
+      // getUrlAssigned(Key);
 
       console.log(response);
     } catch (err) {
       console.log('Error uploading object', err);
     }
 
-    await insertDocumento(novoDocumento);
+    // await insertDocumento(novoDocumento);
   };
 
   const handleRemoveFile = (inputFile) => {
