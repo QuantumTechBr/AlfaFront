@@ -83,7 +83,7 @@ export default function ProfissionalListView() {
       setProfissionalList(profissionais.data);
       setTableData(profissionais.data);     
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de usuários');
+      setErrorMsg('Erro de comunicação com a API de profissionais');
     })
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
@@ -140,7 +140,7 @@ export default function ProfissionalListView() {
       userMethods.deleteUserById(id).then(retorno => {
         setTableData(deleteRow);
       }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do profissional');
       });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -155,7 +155,7 @@ export default function ProfissionalListView() {
       if(table.selected.includes(row.id)) {
         const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
           remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do usuário');
+          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do profissional');
           throw error;
         });
         promises.push(newPromise)
