@@ -11,12 +11,15 @@ export default function useEvent(events, selectEventId, selectedRange, openForm)
   const defaultValues = useMemo(
     () => ({
       id: '',
+      editavel: true,
       title: '',
-      description: '',
-      color: CALENDAR_COLOR_OPTIONS[1],
-      allDay: false,
+      tipo: '',
+      allDay: true,
       start: selectedRange ? selectedRange.start : new Date().getTime(),
       end: selectedRange ? selectedRange.end : new Date().getTime(),
+      description: '',
+      // COLOR
+      color: CALENDAR_COLOR_OPTIONS[0],
     }),
     [selectedRange]
   );

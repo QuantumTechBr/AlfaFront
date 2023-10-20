@@ -15,6 +15,10 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemButton from '@mui/material/ListItemButton';
 // utils
 import { fDateTime } from 'src/utils/format-time';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import parseISO from 'date-fns/parseISO';
+import ptBR from 'date-fns/locale/pt-BR';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -86,7 +90,7 @@ export default function CalendarFilters({
 
   const renderColors = (
     <Stack spacing={1} sx={{ my: 3, px: 2.5 }}>
-      <Typography variant="subtitle2">Colors</Typography>
+      <Typography variant="subtitle2">Tipo</Typography>
       <ColorPicker
         colors={colorOptions}
         selected={filters.colors}
@@ -97,22 +101,28 @@ export default function CalendarFilters({
 
   const renderDateRange = (
     <Stack spacing={1.5} sx={{ mb: 3, px: 2.5 }}>
-      <Typography variant="subtitle2">Range</Typography>
+      <Typography variant="subtitle2">Entre datas</Typography>
 
       <Stack spacing={2}>
-        <DatePicker label="Start date" value={filters.startDate} onChange={handleFilterStartDate} />
+        <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+          <DatePicker
+            label="Data inicial"
+            value={filters.startDate}
+            onChange={handleFilterStartDate}
+          />
 
-        <DatePicker
-          label="End date"
-          value={filters.endDate}
-          onChange={handleFilterEndDate}
-          slotProps={{
-            textField: {
-              error: dateError,
-              helperText: dateError && 'End date must be later than start date',
-            },
-          }}
-        />
+          <DatePicker
+            label="Data final"
+            value={filters.endDate}
+            onChange={handleFilterEndDate}
+            slotProps={{
+              textField: {
+                error: dateError,
+                helperText: dateError && 'Data final deve ser após a data inicial',
+              },
+            }}
+          />
+        </LocalizationProvider>
       </Stack>
     </Stack>
   );
@@ -120,7 +130,7 @@ export default function CalendarFilters({
   const renderEvents = (
     <>
       <Typography variant="subtitle2" sx={{ px: 2.5, mb: 1 }}>
-        Events ({events.length})
+        Eventos ({events.length})
       </Typography>
 
       <Scrollbar sx={{ height: 1 }}>
@@ -193,7 +203,7 @@ export default function CalendarFilters({
 
       {renderColors}
 
-      {renderDateRange}
+      {/* {renderDateRange} */}
 
       {renderEvents}
     </Drawer>
