@@ -24,11 +24,11 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
       let habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
       setHabilidades(habilidade_turma);
-      if(_turma.aluno_turma){
+      if(_turma.alunosTurmas){
         registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo: periodo}).then(registros => {
           const registrosAprendizagemTurma = registros.data;
           if (registrosAprendizagemTurma) {
-            const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
+            const alunosTurma = (_turma.alunosTurmas == undefined) ? [] : _turma.alunosTurmas;
             registrosAprendizagemTurma.forEach(registro => {
               let mapHabilidades = [];
               let idHabilidadesRegistroAprendizagem = [];
@@ -41,7 +41,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                   idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
                 }
               })
-              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
+              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
               alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
               alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
               alunosTurma[searchIndex].id_registro = registro.id;
@@ -49,7 +49,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
             });
             setAlunosTurma(alunosTurma);
           } else {
-            const alunosTurma = (_turma.aluno_turma == undefined) ? [] : _turma.aluno_turma;
+            const alunosTurma = (_turma.alunosTurmas == undefined) ? [] : _turma.alunosTurmas;
             let mapHabilidades = [];
             for (var i = 0; i < habilidadesRetorno.data.length; i++) {
               mapHabilidades[habilidadesRetorno.data[i].id] = '';
@@ -70,11 +70,11 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     const novaTodasHabilidades = await habilidadeMethods.getAllHabilidades();
     let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
-    if(novaTurma.aluno_turma){
+    if(novaTurma.alunosTurmas){
       registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId: novaTurma.id, periodo: periodo}).then(registros => {
         const novoRegistrosAprendizagemTurma = registros.data;
         if (novoRegistrosAprendizagemTurma) {
-          const alunosTurma = (novaTurma.aluno_turma == undefined) ? [] : novaTurma.aluno_turma;
+          const alunosTurma = (novaTurma.alunosTurmas == undefined) ? [] : novaTurma.alunosTurmas;
           novoRegistrosAprendizagemTurma.forEach(registro => {
             let mapHabilidades = [];
             let idHabilidadesRegistroAprendizagem = [];
@@ -87,7 +87,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
               }
             })
-            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
+            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
             alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
             alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
             alunosTurma[searchIndex].id_registro = registro.id;
@@ -95,7 +95,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           });
           setAlunosTurma(alunosTurma);
         } else {
-          const alunosTurma = (novaTurma.aluno_turma == undefined) ? [] : novaTurma.aluno_turma;
+          const alunosTurma = (novaTurma.alunosTurmas == undefined) ? [] : novaTurma.alunosTurmas;
           let mapHabilidades = [];
           for (var i = 0; i < habilidade_turma.length; i++) {
             mapHabilidades[habilidade_turma[i].id] = '';

@@ -295,7 +295,7 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (name) {
     inputData = inputData.filter(
-      (file) => file.name.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (file) => file.arquivo.toLowerCase().indexOf(name.toLowerCase()) !== -1
     );
   }
 
