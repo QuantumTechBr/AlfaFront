@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo, useContext, useEffect } from 'react';
+import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -38,7 +38,7 @@ import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import turmaMethods from '../turma/turma-repository';
-
+import Alert from '@mui/material/Alert';
 // ----------------------------------------------------------------------
 
 export default function TurmaNewEditForm({ currentTurma }) {
@@ -47,11 +47,17 @@ export default function TurmaNewEditForm({ currentTurma }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
+  const [errorMsg, setErrorMsg] = useState('');
+
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    buscaEscolas();
-    buscaAnosLetivos();
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de Anos Letivos');
+    });
 
   }, [])
 
@@ -105,16 +111,21 @@ export default function TurmaNewEditForm({ currentTurma }) {
       novaTurma.ano_escolar = data.ano_escolar;
      
       if (currentTurma?.id) {
-        await turmaMethods.updateTurmaById(currentTurma.id, novaTurma);
+        await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
+          throw error;
+        });
         
       } else {
-        await turmaMethods.insertTurma(novaTurma);
+        await turmaMethods.insertTurma(novaTurma).catch((error) => {
+          throw error;
+        });
       }
       reset();
       enqueueSnackbar(currentTurma ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.turma.list);
       console.info('DATA', data);
     } catch (error) {
+      currentTurma ? setErrorMsg('Tentativa de atualização da turma falhou') : setErrorMsg('Tentativa de criação da turma falhou');
       console.error(error);
     }
   });
@@ -140,6 +151,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
