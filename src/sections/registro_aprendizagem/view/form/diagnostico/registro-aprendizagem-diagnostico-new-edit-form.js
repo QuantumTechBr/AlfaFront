@@ -12,14 +12,17 @@ import { useRouter } from 'src/routes/hook';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider from 'src/components/hook-form';
 import { _habilidades, _roles, _ddzs, _escolas } from 'src/_mock';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import Alert from '@mui/material/Alert';
 
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, periodo, handleTurma, habilidades, alunosTurma }) {
+export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, periodo, handleTurma, habilidades, alunosTurma, prep }) {
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -114,18 +117,21 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       }
     });
     try {
-      await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem);
+      await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
+        throw error;
+      });
       reset();
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
     } catch (error) {
-      enqueueSnackbar('Erro ao Salvar!');
+      setErrorMsg('Erro ao Salvar o Registro de Aprendizagem de Diagnóstico')
     }
   });
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
-      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} />
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
       <Stack alignItems="flex-end" sx={{ mt: 3 }}>
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar
@@ -141,4 +147,5 @@ RegistroAprendizagemDiagnosticoNewEditForm.propTypes = {
   handleTurma: PropTypes.func,
   habilidades: PropTypes.array,
   alunosTurma: PropTypes.array,
+  prep: PropTypes.bool,
 };

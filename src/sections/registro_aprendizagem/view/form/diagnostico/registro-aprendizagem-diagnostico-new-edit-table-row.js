@@ -14,7 +14,7 @@ import { _habilidades, habilidades_options, promo_options } from 'src/_mock';
 import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
-import { FormControl } from '@mui/material';
+import { FormControl, Tooltip } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, onEditRow, onSelectRow, onDeleteRow }) {
@@ -74,16 +74,20 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               <RHFSelect name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
                 {habilidades_options.map((hab) => (
                   <MenuItem key={id + '_hab_' + hab} value={hab} sx={{ height: '34px' }}>
-                    <Label
-                      variant="soft"
-                      color={(hab === 'D' && 'success') ||
-                        (hab === 'PD' && 'warning') ||
-                        (hab === 'ND' && 'error') ||
-                        'default'}
-                    >
-                      {hab}
-                    </Label>
-                  </MenuItem>
+                      <Tooltip title={(hab === 'D' && 'Domina') ||
+                          (hab === 'PD' && 'Parcialmente Domina') ||
+                          (hab === 'ND' && 'Não Domina')}>
+                      <Label
+                        variant="soft"
+                        color={(hab === 'D' && 'success') ||
+                          (hab === 'PD' && 'warning') ||
+                          (hab === 'ND' && 'error') ||
+                          'default'}
+                      >
+                        {hab}
+                      </Label>
+                  </Tooltip>
+                    </MenuItem>
                 ))}
               </RHFSelect>
             </TableCell>
