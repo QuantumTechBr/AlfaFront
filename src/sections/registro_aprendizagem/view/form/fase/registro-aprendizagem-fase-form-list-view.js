@@ -151,9 +151,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         // resetField('registros');
         let _newRegistros = [];
 
-        _turma.aluno_turma.forEach((alunoTurmaItem) => {
+        _turma.alunosTurmas.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
-            registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
+            registrosDaTurmaBimestre.data.filter((reg) => reg.alunosTurmas.id == alunoTurmaItem.id)
           );
 
           _newRegistros[alunoTurmaItem.id] = {
@@ -166,7 +166,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         });
         setValue('registros', _newRegistros);
 
-        setTableData(_turma.aluno_turma);
+        setTableData(_turma.alunosTurmas);
       });
     }
   };

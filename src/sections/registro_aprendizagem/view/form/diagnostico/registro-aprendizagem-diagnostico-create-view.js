@@ -46,7 +46,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                   idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
                 }
               })
-              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
+              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
               alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
               alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
               alunosTurma[searchIndex].id_registro = registro.id;
@@ -93,7 +93,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
     });
     let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
-    if(novaTurma.alunosTurmas.length){
+    if(novaTurma.alunosTurmas){
       registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId: novaTurma.id, periodo: periodo}).then(registros => {
         const novoRegistrosAprendizagemTurma = registros.data;
         if (novoRegistrosAprendizagemTurma) {
@@ -110,7 +110,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
               }
             })
-            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
+            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
             alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
             alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
             alunosTurma[searchIndex].id_registro = registro.id;
