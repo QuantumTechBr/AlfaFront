@@ -147,5 +147,5 @@ RegistroAprendizagemDiagnosticoNewEditForm.propTypes = {
   handleTurma: PropTypes.func,
   habilidades: PropTypes.array,
   alunosTurma: PropTypes.array,
-  prep: PropTypes.bool,
+  prep: PropTypes.object,
 };

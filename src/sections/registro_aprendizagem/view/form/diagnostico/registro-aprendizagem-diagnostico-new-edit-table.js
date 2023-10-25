@@ -215,7 +215,7 @@ RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
   alunosTurma: PropTypes.array,
   habilidades: PropTypes.array,
   handleTurma: PropTypes.func,
-  prep: PropTypes.bool,
+  prep: PropTypes.object,
 };
 
 // ----------------------------------------------------------------------
