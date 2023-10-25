@@ -127,18 +127,36 @@ export default function FileManagerView() {
   );
 
   const handleDeleteItem = useCallback(
-    (id) => {
-      const deleteRow = tableData.filter((row) => row.id !== id);
-      setTableData(deleteRow);
+    async (id) => {
+      const retorno = await documentoMethods.deleteDocumentoById(id);
+      if (retorno.status == 204) {
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
+        const remainingRows = tableData.filter((row) => row.id !== id);
+        setTableData(remainingRows);
+        
+        table.onUpdatePageDeleteRow(dataInPage.length);
+      } else {
+        console.log("Response status: ", retorno.status);
+        console.log("Erro: ", retorno.data);
+        throw new Error("Erro ao deletar arquivo: " + row.arquivo);
+      }
     },
     [dataInPage.length, table, tableData]
   );
 
   const handleDeleteItems = useCallback(() => {
-    const deleteRows = tableData.filter((row) => !table.selected.includes(row.id));
-    setTableData(deleteRows);
+    const remainingRows = tableData.filter((row) => !table.selected.includes(row.id));
+    const deleteRows = tableData.filter((row) => table.selected.includes(row.id));
+
+    deleteRows.forEach(async row => {
+      const retorno = await documentoMethods.deleteDocumentoById(row.id);
+      if (retorno.status != 204) {
+        console.log("Response status: ", retorno.status);
+        console.log("Erro: ", retorno.data);
+        throw new Error("Erro ao deletar arquivo: " + row.arquivo);
+      }
+    });
+    setTableData(remainingRows);
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -150,6 +168,15 @@ export default function FileManagerView() {
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
   }, []);
+
+  const handleUploadClose = useCallback((event) => {
+    console.log(event);
+    if(event?.data?.id) {
+      buscaDocumentos({force:true}).then(retorno => setTableData(retorno));
+    }
+    
+    upload.onFalse();
+  }, [])
 
   const renderFilters = (
     <Stack
@@ -250,7 +277,7 @@ export default function FileManagerView() {
         )}
       </Container>
 
-      <FileManagerNewFolderDialog open={upload.value} onClose={upload.onFalse} />
+      <FileManagerNewFolderDialog open={upload.value} onClose={handleUploadClose} />
 
       <ConfirmDialog
         open={confirm.value}
@@ -295,7 +322,13 @@ function applyFilter({ inputData, comparator, filters, dateError }) {
 
   if (name) {
     inputData = inputData.filter(
-      (file) => file.arquivo.toLowerCase().indexOf(name.toLowerCase()) !== -1
+      (file) => {
+        if(file.nomeArquivo) {
+          return file.nomeArquivo.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        } else {
+          return file.arquivo.toLowerCase().indexOf(name.toLowerCase()) !== -1
+        }
+      }
     );
   }
 
