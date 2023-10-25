@@ -89,8 +89,6 @@ export default function FileManagerView() {
   const buscaDocumentos = async ({ force = false } = {}) => {
     let returnData = documentos;
     if (force || documentos.length == 0) {
-      // console.log('_consultaAtual');
-      // console.log(_consultaAtual);
 
 
       const consultaAtual = documentoMethods.getAllDocumentos().then((response) => {
@@ -285,7 +283,7 @@ export default function FileManagerView() {
         title="Delete"
         content={
           <>
-            Are you sure want to delete <strong> {table.selected.length} </strong> items?
+            Tem certeza que deseja deletar permanentemente <strong> {table.selected.length} </strong> itens?
           </>
         }
         action={
@@ -297,7 +295,7 @@ export default function FileManagerView() {
               confirm.onFalse();
             }}
           >
-            Delete
+            Deletar
           </Button>
         }
       />

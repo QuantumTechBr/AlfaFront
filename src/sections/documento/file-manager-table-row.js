@@ -223,7 +223,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           }}
         >
           <Iconify icon="eva:link-2-fill" />
-          Copy Link
+          Copiar Link
         </MenuItem>
 
         <MenuItem
@@ -233,7 +233,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           }}
         >
           <Iconify icon="solar:share-bold" />
-          Share
+          Disponibilizar
         </MenuItem>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -246,7 +246,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Deletar
         </MenuItem>
       </CustomPopover>
 
@@ -279,7 +279,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         content="Are you sure want to delete?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
+            Deletar
           </Button>
         }
       />

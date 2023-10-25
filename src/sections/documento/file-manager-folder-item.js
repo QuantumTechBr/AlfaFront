@@ -215,7 +215,7 @@ export default function FileManagerFolderItem({
           }}
         >
           <Iconify icon="solar:share-bold" />
-          Share
+          Disponibilizar
         </MenuItem>
 
         <MenuItem
@@ -225,7 +225,7 @@ export default function FileManagerFolderItem({
           }}
         >
           <Iconify icon="solar:pen-bold" />
-          Edit
+          Editar
         </MenuItem>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -238,7 +238,7 @@ export default function FileManagerFolderItem({
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Deletar
         </MenuItem>
       </CustomPopover>
 
@@ -283,11 +283,11 @@ export default function FileManagerFolderItem({
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Delete"
-        content="Are you sure want to delete?"
+        title="Deletar"
+        content="Tem certeza que deseja deletar permanentemente esse arquivo?"
         action={
           <Button variant="contained" color="error" onClick={onDelete}>
-            Delete
+            Deletar
           </Button>
         }
       />
