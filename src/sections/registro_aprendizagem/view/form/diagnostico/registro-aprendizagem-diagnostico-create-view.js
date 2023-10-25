@@ -46,7 +46,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                   idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
                 }
               })
-              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
+              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
               alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
               alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
               alunosTurma[searchIndex].id_registro = registro.id;
@@ -110,7 +110,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
               }
             })
-            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
+            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
             alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
             alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
             alunosTurma[searchIndex].id_registro = registro.id;
