@@ -1,5 +1,8 @@
 import PropTypes from 'prop-types';
 import { useEffect, useState, useCallback } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
@@ -8,15 +11,22 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Dialog from '@mui/material/Dialog';
+
 // components
 import Iconify from 'src/components/iconify';
 import { Upload } from 'src/components/upload';
 
-import { AWS_S3 } from 'src/config-global';
-import { insertDocumento, getAllDocumentos } from './documento-repository';
 
 // utils
 import axios, { endpoints } from 'src/utils/axios';
+
+
+// hooks
+import { useBoolean } from 'src/hooks/use-boolean';
+
+
+import { AWS_S3 } from 'src/config-global';
+import { insertDocumento, getAllDocumentos } from './documento-repository';
 
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
@@ -43,6 +53,8 @@ export default function FileManagerNewFolderDialog({
   ...other
 }) {
   const [files, setFiles] = useState([]);
+  
+  const uploading = useBoolean(false); 
 
   useEffect(() => {
     if (!open) {
@@ -64,7 +76,6 @@ export default function FileManagerNewFolderDialog({
   );
 
   const handleUpload = async () => {
-    onClose();
     const file = files[0];
     let response;
 
@@ -95,14 +106,15 @@ export default function FileManagerNewFolderDialog({
         throw erro;
       });
 
-      // getUrlAssigned(Key);
 
-      console.log(response);
+      onClose(response);
+      
     } catch (err) {
       console.log('Error uploading object', err);
+    } finally {
+      uploading.onFalse();
     }
-
-    // await insertDocumento(novoDocumento);
+    
   };
 
   const handleRemoveFile = (inputFile) => {
@@ -118,7 +130,7 @@ export default function FileManagerNewFolderDialog({
     <Dialog fullWidth maxWidth="sm" open={open} onClose={onClose} {...other}>
       <DialogTitle sx={{ p: (theme) => theme.spacing(3, 3, 2, 3) }}> {title} </DialogTitle>
 
-      <DialogContent dividers sx={{ pt: 1, pb: 0, border: 'none' }}>
+      <DialogContent dividers sx={{ pt: 1, pb: 0, border: 'none'}}>
         {(onCreate || onUpdate) && (
           <TextField
             fullWidth
@@ -128,15 +140,21 @@ export default function FileManagerNewFolderDialog({
             sx={{ mb: 3 }}
           />
         )}
+        {uploading.value ? 
+          <Box sx={{ display: 'flex', minHeight: '100px', alignItems: 'center', justifyContent: 'center', gap: '1em' }}>
+            <CircularProgress />
+            Enviando...
+          </Box> :
+          <Upload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
+        }
 
-        <Upload multiple files={files} onDrop={handleDrop} onRemove={handleRemoveFile} />
       </DialogContent>
 
       <DialogActions>
         <Button
           variant="contained"
           startIcon={<Iconify icon="eva:cloud-upload-fill" />}
-          onClick={handleUpload}
+          onClick={() => {uploading.onTrue(); handleUpload();}}
         >
           Subir documento
         </Button>

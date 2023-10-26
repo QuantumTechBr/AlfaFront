@@ -103,7 +103,7 @@ export default function FileManagerFileDetails({
               />
             ))
           }
-          renderInput={(params) => <TextField {...params} placeholder="#Add a tags" />}
+          renderInput={(params) => <TextField {...params} placeholder="#Adicionar Tags" />}
         />
       )}
     </Stack>
@@ -155,7 +155,7 @@ export default function FileManagerFileDetails({
   const renderShared = (
     <>
       <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 2.5 }}>
-        <Typography variant="subtitle2"> File Share With </Typography>
+        <Typography variant="subtitle2"> Arquivo disponível para </Typography>
 
         <IconButton
           size="small"
@@ -250,7 +250,7 @@ export default function FileManagerFileDetails({
             startIcon={<Iconify icon="solar:trash-bin-trash-bold" />}
             onClick={onDelete}
           >
-            Delete
+            Deletar
           </Button>
         </Box>
       </Drawer>

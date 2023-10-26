@@ -195,7 +195,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
           }}
         >
           <Iconify icon="eva:link-2-fill" />
-          Copy Link
+          Copiar Link
         </MenuItem>
 
         <MenuItem
@@ -205,7 +205,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
           }}
         >
           <Iconify icon="solar:share-bold" />
-          Share
+          Disponibilizar
         </MenuItem>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -218,7 +218,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Deletar
         </MenuItem>
       </CustomPopover>
 
@@ -254,7 +254,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
         content="Certeza que deseja deletar?"
         action={
           <Button variant="contained" color="error" onClick={onDelete}>
-            Delete
+            Deletar
           </Button>
         }
       />

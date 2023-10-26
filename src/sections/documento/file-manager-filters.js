@@ -145,11 +145,11 @@ export default function FileManagerFilters({
 
           <Stack spacing={1.5} direction="row" alignItems="center" justifyContent="flex-end">
             <Button variant="outlined" color="inherit" onClick={handleResetType}>
-              Clear
+              Limpar
             </Button>
 
             <Button variant="contained" onClick={popover.onClose}>
-              Apply
+              Aplicar
             </Button>
           </Stack>
         </Stack>
