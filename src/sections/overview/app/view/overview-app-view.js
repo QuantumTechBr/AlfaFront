@@ -71,7 +71,7 @@ export default function OverviewAppView() {
       dashboardsMethods
         .getDashboardTotalUsuariosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
-          console.table(response.data);
+          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             total_usuarios_ativos: response.data,
@@ -80,7 +80,7 @@ export default function OverviewAppView() {
       dashboardsMethods
         .getDashboardTotalAlunosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
-          console.table(response.data);
+          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             total_alunos_ativos: response.data,
@@ -89,7 +89,7 @@ export default function OverviewAppView() {
       dashboardsMethods
         .getDashboardTotalTurmasAtivas({ ...fullFilters.ddz, ...fullFilters.escola })
         .then((response) => {
-          console.table(response.data);
+          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             total_turmas_ativas: response.data,
@@ -97,14 +97,14 @@ export default function OverviewAppView() {
         }),
 
       dashboardsMethods.getDashboardIndiceFases(fullFilters).then((response) => {
-        console.table(response.data);
+        // console.table(response.data);
         setDados((prevState) => ({
           ...prevState,
           indice_fases: response.data,
         }));
       }),
       dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
-        console.table(response.data);
+        // console.table(response.data);
         setDados((prevState) => ({
           ...prevState,
           desempenho_alunos: response.data,
@@ -112,14 +112,14 @@ export default function OverviewAppView() {
       }),
 
       dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
-        console.table(response.data);
+        // console.table(response.data);
         setDados((prevState) => ({
           ...prevState,
           avaliacao_diagnostico: response.data,
         }));
       }),
       dashboardsMethods.getDashboardAvaliacaoComponente(fullFilters).then((response) => {
-        console.table(response.data);
+        // console.table(response.data);
         // setDados((prevState) => ({
         //   ...prevState,
         //   avaliacao_componente: response.data,

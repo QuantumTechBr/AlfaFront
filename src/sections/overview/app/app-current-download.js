@@ -33,47 +33,77 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
 
   const { colors, series, options } = chart;
 
-  const chartSeries = series.map((i) => i.value);
+  const totalItems = series.reduce((total, item) => total + item.value, 0);
+  series.forEach((element) => {
+    element.porcentagem = Math.round((element.value / totalItems) * 100);
+  });
+
+
+
+  const chartSeries = [
+    {
+      name: '',
+      data: series.map((element) => element.porcentagem),
+    },
+  ];
 
   const chartOptions = useChart({
-    chart: {
-      sparkline: {
-        enabled: true,
-      },
-    },
-    colors,
-    labels: series.map((i) => i.label),
-    stroke: { colors: [theme.palette.background.paper] },
     legend: {
-      offsetY: 0,
-      floating: true,
-      position: 'bottom',
-      horizontalAlign: 'center',
+      show: false,
     },
-    tooltip: {
-      fillSeriesColor: false,
-      y: {
-        formatter: (value) => fNumber(value),
-        title: {
-          formatter: (seriesName) => `${seriesName}`,
+    plotOptions: {
+      bar: {
+        columnWidth: '100%',
+        distributed: true, // CORES AUTOMATICAS E BOLINHAS
+        borderRadius: 0,
+        dataLabels: {
+          position: 'top', // top, center, bottom
         },
       },
     },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: '90%',
-          labels: {
-            value: {
-              formatter: (value) => fNumber(value),
-            },
-            total: {
-              formatter: (w) => {
-                const sum = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                return fNumber(sum);
-              },
-            },
-          },
+    colors: ['#006abc', '#ffbb00', '#d11400', '#009a50', '#f17105'],
+
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return `${val}%`;
+      },
+      dropShadow: {
+        enabled: true,
+      },
+      offsetY: 0,
+      style: {
+        fontSize: '13px',
+        // fontWeight: `bold`,
+        colors: ['#fff'],
+      },
+    },
+    xaxis: {
+      categories: series.map((i) => i.label),
+      labels: {
+        show: true,
+      },
+    },
+    yaxis: {
+      labels: {
+        show: false,
+      },
+    },
+
+    tooltip: {
+      enabled: true,
+      followCursor: true,
+      onDatasetHover: {
+        highlightDataSeries: true,
+      },
+      y: {
+        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
+          return series[dataPointIndex].value;
+          // return series[dataPointIndex].value;
+          // console.log(value, series, seriesIndex, dataPointIndex, w);
+        },
+        title: {
+          formatter: (s) => 'Quantidade: ',
         },
       },
     },
@@ -82,15 +112,15 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
 
   return (
     <Card {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 5 }} />
+      <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
 
-      <StyledChart
+      <Chart
         dir="ltr"
-        type="donut"
+        width={'100%'}
+        type="bar"
         series={chartSeries}
         options={chartOptions}
-        height={280}
-        width='100%'
+        height={350}
       />
     </Card>
   );
