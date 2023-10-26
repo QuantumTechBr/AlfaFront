@@ -85,6 +85,7 @@ export default function AlunoListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const preparado = useBoolean(false);
 
@@ -103,20 +104,26 @@ export default function AlunoListView() {
   const preparacaoInicial = async () => {
       await buscaAnosLetivos().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
+        preparado.onTrue();
       });
       await buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue();
       });
       await buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
+        preparado.onTrue();
       });
       await alunoMethods.getAllAlunos().then(alunos => {
         if (alunos.data.length == 0) {
-          setErrorMsg('A API retornou uma lista vazia de alunos');
+          setWarningMsg('A API retornou uma lista vazia de alunos')
+          setAlunoList([]);
+          preparado.onTrue();
         }
         setAlunoList(alunos.data);
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de alunos');
+        preparado.onTrue();
       });
   };
 
@@ -139,6 +146,7 @@ export default function AlunoListView() {
           if(alunoTurma) {
             let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
               setErrorMsg('Erro de comunicação com a API de Registros Aprendizagem Fase');
+              preparado.onTrue();
             });
             let indiceMaisNovo = 0;
             let maiorBimestre = 0;
@@ -322,6 +330,7 @@ export default function AlunoListView() {
         />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
 

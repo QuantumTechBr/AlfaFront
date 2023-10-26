@@ -31,8 +31,10 @@ import RegistroAprendizagemDiagnosticoNewEditTableToolbar from './registro-apren
 import InfoIcon from '@mui/icons-material/Info';
 import { Box } from '@mui/material';
 import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro-aprendizagem-diagnostico-new-edit-table-filters-result';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { CircularProgress } from '@mui/material';
 // ----------------------------------------------------------------------
-export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma, prep }) {
   const defaultFilters = {
     nome: '',
     promo_ano_anterior: [],
@@ -40,6 +42,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
 
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
+  const preparado = prep;
 
   const labelHabilidade = (habilidade) => {
     const { nome, descricao } = habilidade;
@@ -138,6 +141,23 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -169,7 +189,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 
@@ -195,6 +215,7 @@ RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
   alunosTurma: PropTypes.array,
   habilidades: PropTypes.array,
   handleTurma: PropTypes.func,
+  prep: PropTypes.object,
 };
 
 // ----------------------------------------------------------------------

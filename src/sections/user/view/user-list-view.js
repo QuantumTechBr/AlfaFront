@@ -48,6 +48,7 @@ import UserTableFiltersResult from '../user-table-filters-result';
 import userMethods from '../user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { Box, CircularProgress } from '@mui/material';
 // ----------------------------------------------------------------------
 
 
@@ -75,16 +76,19 @@ export default function UserListView() {
 
   const [_userList, setUserList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-
+  const preparado = useBoolean(false);
 
   useEffect(() => {
     userMethods.getAllUsers().then(usuarios => {
       const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
       if (usuariosNaoDeletados.length == 0) {
-        setErrorMsg('A API retornou uma lista vazia de usuários');
+        setWarningMsg('A API retornou uma lista vazia de usuários');
+        setUserList([]);
+        preparado.onTrue();
       }
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
@@ -97,14 +101,18 @@ export default function UserListView() {
       }))
       setUserList(usuariosNaoDeletados);
       setTableData(usuariosNaoDeletados);
+      preparado.onTrue();
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de usuários');
+        preparado.onTrue();
       })
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue();
       });
       buscaFuncoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de funções');
+        preparado.onTrue();
     });
   }, []);
 
@@ -237,6 +245,7 @@ export default function UserListView() {
         />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
           <Tabs
@@ -320,6 +329,23 @@ export default function UserListView() {
             />
 
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -360,7 +386,7 @@ export default function UserListView() {
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 

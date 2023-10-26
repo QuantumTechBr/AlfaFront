@@ -20,6 +20,7 @@ import Alert from '@mui/material/Alert';
 export default function UserEditView({ id }) {
   const settings = useSettingsContext();
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
@@ -27,7 +28,7 @@ export default function UserEditView({ id }) {
       usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao.id : '';
       usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola.id : '';
       if (usuario.data.length === 0) {
-        setErrorMsg('A API retornou uma lista vazia de usuários');
+        setWarningMsg('A API retornou uma lista vazia de usuário');
       }
       setCurrentUser(usuario.data);
     }).catch((error) => {
@@ -56,6 +57,7 @@ export default function UserEditView({ id }) {
       />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
       <UserNewEditForm currentUser={currentUser} />
     </Container>
   );

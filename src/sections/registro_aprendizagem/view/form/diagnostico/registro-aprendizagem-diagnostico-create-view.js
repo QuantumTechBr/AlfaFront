@@ -12,6 +12,8 @@ import RegistroAprendizagemDiagnosticoNewEditForm from '../../form/diagnostico/r
 import { useState, useEffect, useCallback } from 'react';
 import habilidadeMethods from '../../../../habilidade/habilidade-repository';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import Alert from '@mui/material/Alert';
+import { useBoolean } from 'src/hooks/use-boolean';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoCreateView({ turma, periodo }) {
@@ -19,6 +21,9 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   const [_turma, setTurma] = useState(turma);
   const [alunosTurma, setAlunosTurma] = useState([]);
   const [habilidades, setHabilidades] = useState([]);
+  const prep = useBoolean(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
@@ -41,13 +46,14 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                   idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
                 }
               })
-              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
+              const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
               alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
               alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
               alunosTurma[searchIndex].id_registro = registro.id;
               alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
             });
             setAlunosTurma(alunosTurma);
+            prep.onTrue();
           } else {
             const alunosTurma = (_turma.alunosTurmas == undefined) ? [] : _turma.alunosTurmas;
             let mapHabilidades = [];
@@ -58,16 +64,33 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
               alunoTurma.mapHabilidades = mapHabilidades;
             });
             setAlunosTurma(alunosTurma);
+            prep.onTrue();
           }
-        })
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de registro aprendizagem diagnostico');
+          prep.onTrue();
+        });
+      } else {
+        setWarningMsg('As informações da turma veio sem alunos')
+        setAlunosTurma([]);
+        prep.onTrue();
       }
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de habilidades');
+      prep.onTrue();
     });
   }, []);
 
   const handleTurma = useCallback(async (event) => {
     const novaTurma = event.target.value;
+    setErrorMsg('');
+    setWarningMsg('');
+    prep.onFalse();
     setTurma(event.target.value);
-    const novaTodasHabilidades = await habilidadeMethods.getAllHabilidades();
+    const novaTodasHabilidades = await habilidadeMethods.getAllHabilidades().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de habilidades');
+      prep.onTrue();
+    });
     let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
     if(novaTurma.alunosTurmas){
@@ -87,13 +110,14 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
               }
             })
-            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.alunosTurmas.id);
+            const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
             alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
             alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
             alunosTurma[searchIndex].id_registro = registro.id;
             alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
           });
           setAlunosTurma(alunosTurma);
+          prep.onTrue();
         } else {
           const alunosTurma = (novaTurma.alunosTurmas == undefined) ? [] : novaTurma.alunosTurmas;
           let mapHabilidades = [];
@@ -104,8 +128,16 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
             alunoTurma.mapHabilidades = mapHabilidades;
           });
           setAlunosTurma(alunosTurma);
+          prep.onTrue();
         }
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de registro aprendizagem diagnostico');
+        prep.onTrue();
       })
+    } else {
+      setWarningMsg('As informações da turma veio sem alunos')
+      setAlunosTurma([]);
+      prep.onTrue();
     }
 
   }, [_turma])
@@ -129,7 +161,10 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           mb: { xs: 3, md: 5 },
         }}
       />
-      <RegistroAprendizagemDiagnosticoNewEditForm turma={_turma} periodo={periodo} handleTurma={handleTurma} habilidades={habilidades} alunosTurma={alunosTurma} />
+
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}    
+      <RegistroAprendizagemDiagnosticoNewEditForm turma={_turma} periodo={periodo} handleTurma={handleTurma} habilidades={habilidades} alunosTurma={alunosTurma} prep={prep}/>
     </Container>
   );
 }

@@ -20,13 +20,14 @@ import Alert from '@mui/material/Alert';
 export default function AlunoEditView({ id }) {
   const settings = useSettingsContext();
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const [currentAluno, setCurrentAluno] = useState({});
 
   useEffect(()  => {
     alunoMethods.getAlunoById(id).then(aluno => {
       if (aluno.data.length === 0) {
-        setErrorMsg('A API retornou uma lista vazia de alunos');
+        setWarningMsg('A API retornou uma lista vazia de alunos')
       }
       setCurrentAluno(aluno.data);
     }).catch((error) => {
@@ -55,6 +56,7 @@ export default function AlunoEditView({ id }) {
       />
       
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
       <AlunoNewEditForm currentAluno={currentAluno} />
     </Container>
   );

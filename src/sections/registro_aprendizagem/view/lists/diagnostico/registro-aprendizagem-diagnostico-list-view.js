@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -46,6 +47,7 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
+import { Box, CircularProgress } from '@mui/material';
 //
 
 // ----------------------------------------------------------------------
@@ -75,6 +77,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
+  const preparado = useBoolean(false);
 
   const [turmasComRegistro, setTurmasComRegistro] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
@@ -88,7 +93,20 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const preparacaoInicial = async () => {
     preencheTabela();
-    await Promise.all([buscaAnosLetivos(), buscaEscolas(), buscaTurmas()]);
+    await Promise.all([
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
+        preparado.onTrue();
+      }), 
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue();
+      }), 
+      buscaTurmas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas');
+        preparado.onTrue();
+      }),
+    ]);
   };
   useEffect(() => {
     preparacaoInicial();
@@ -119,6 +137,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
           }
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          preparado.onTrue();
         });
       promisesList.push(buscaPeriodoInicial);
       const buscaPeriodoFinal = registroAprendizagemMethods
@@ -136,11 +157,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
           }
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          preparado.onTrue();
         });
       promisesList.push(buscaPeriodoFinal);
       Promise.all(promisesList).then(() => {
         setTurmasComRegistro(turmasComRegistroNovo);
         setTableData(turmasComRegistroNovo);
+        preparado.onTrue();
         setTurmasFiltered(turmasComRegistroNovo);
       });
     }
@@ -194,32 +219,41 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     (id, periodo) => {
       const deleteRow = tableData.find((row) => (row.id == id && row.periodo == periodo));
       if(!deleteRow){
-        console.log("Linha a ser deletada não encontrada.")
+        setErrorMsg('Linha a ser deletada não encontrada.');
         return;
-      } else {
-        console.log("Linha a ser deletada: ", deleteRow);
-      }
+      } 
       const remainingRows = tableData.filter((row) => (row.id !== id || row.periodo !== periodo));
-      setTableData(remainingRows);
+      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:id, periodo:periodo}).then(retorno => {
+        setTableData(remainingRows);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de registros aprendizagem no momento da exclusão do registro');
+      });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
-      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:id, periodo:periodo})
-
     },
     [dataInPage.length, table, tableData]
   );
 
   const handleDeleteRows = useCallback(() => {
     const remainingRows = [];
+    const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(`${row.id}_${row.periodo}`)) {
-        registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:row.id, periodo:row.periodo});
+        const newPromise = registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({tipo:'diagnóstico', turmaId:row.id, periodo:row.periodo}).catch((error) => {
+          remainingRows.push(row);
+          setErrorMsg('Erro de comunicação com a API de registros no momento da exclusão do registro');
+          throw error;
+        });
+        promises.push(newPromise)
       } else {
         remainingRows.push(row);
       }
     });
-    setTableData(remainingRows);
-
+    Promise.all(promises).then(
+      retorno => {
+        setTableData(remainingRows);
+      }
+    );
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -273,6 +307,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+
         <Card>
           <RegistroAprendizagemTableToolbar
             filters={filters}
@@ -313,6 +349,23 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             />
 
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -353,7 +406,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 
