@@ -38,30 +38,13 @@ import FileManagerFileDetails from './file-manager-file-details';
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { ano, arquivo, criado_por, updated_at, created_at, destino, id } = row;
+  const { ano, arquivo, criado_por, updated_at, created_at, destino, id, nomeArquivo, tamanho } = row;
 
   const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
-  const nomeArquivo = arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
-  const type = nomeArquivo ? `${nomeArquivo.split('.').pop()}` : ''
+  const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
+  const type = nome ? `${nome.split('.').pop()}` : ''
 
-  let tamanho = 0;
-
-  // function get_filesize(url, callback) {
-  //   var xhr = new XMLHttpRequest();
-  //   xhr.open("HEAD", url, true); // Notice "HEAD" instead of "GET",
-  //                                //  to get only the header
-  //   xhr.onreadystatechange = function() {
-  //       if (this.readyState == this.DONE) {
-  //           callback(xhr.getResponseHeader("Content-Length"));
-  //       }
-  //   };
-  //   xhr.send();
-  // }
-
-  // tamanho = get_filesize(arquivo, function(size) {
-  //     console.log("The size of " + nomeArquivo + " is: " + size + " bytes.");
-  //     return size;
-  // });
+  let tamanhoString = tamanho ? String(tamanho) : '0';
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -158,14 +141,14 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
                 ...(details.value && { fontWeight: 'fontWeightBold' }),
               }}
             >
-              {nomeArquivo}
+              {nome}
             </Typography>
           </Stack>
         </TableCell>
 
-        {/* <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          {tamanho}
-        </TableCell> */}
+        <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
+          {tamanhoString}
+        </TableCell>
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
           {type}
@@ -240,7 +223,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           }}
         >
           <Iconify icon="eva:link-2-fill" />
-          Copy Link
+          Copiar Link
         </MenuItem>
 
         <MenuItem
@@ -250,7 +233,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           }}
         >
           <Iconify icon="solar:share-bold" />
-          Share
+          Disponibilizar
         </MenuItem>
 
         <Divider sx={{ borderStyle: 'dashed' }} />
@@ -263,7 +246,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           sx={{ color: 'error.main' }}
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
-          Delete
+          Deletar
         </MenuItem>
       </CustomPopover>
 
@@ -296,7 +279,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         content="Are you sure want to delete?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
-            Delete
+            Deletar
           </Button>
         }
       />
