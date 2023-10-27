@@ -22,10 +22,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   }
 
   const {
-    colors = [
-      [theme.palette.primary.light, theme.palette.primary.main],
-      [theme.palette.warning.light, theme.palette.warning.main],
-    ],
+    colors = ['#ffbb00', '#f17105', '#006abc', '#d11400', '#009a50'],
     categories,
     series,
     options,
@@ -34,18 +31,9 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   const popover = usePopover();
 
   const [seriesData, setSeriesData] = useState();
-  
+
   const chartOptions = useChart({
-    colors: colors.map((colr) => colr[1]),
-    fill: {
-      type: 'gradient',
-      gradient: {
-        colorStops: colors.map((colr) => [
-          { offset: 0, color: colr[0] },
-          { offset: 100, color: colr[1] },
-        ]),
-      },
-    },
+    colors: colors,
     xaxis: {
       categories,
     },
@@ -102,13 +90,20 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
         {series.map((item) => (
           <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
             {item.year === seriesData && (
-              <Chart dir="ltr" type="line" series={item.data} options={chartOptions} height={364} width='100%' />
+              <Chart
+                dir="ltr"
+                type="line"
+                series={item.data}
+                options={chartOptions}
+                height={364}
+                width="100%"
+              />
             )}
           </Box>
         ))}
       </Card>
 
-      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 140 }}>
+      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
         {series.map((option) => (
           <MenuItem
             key={option.year}

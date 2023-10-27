@@ -68,27 +68,17 @@ export default function OverviewAppView() {
     avaliacao_componente: {},
   });
 
+  const getTurmasPorAnoEscolar = (anoEscolar) =>
+    _turmasFiltered.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    
   const preencheGraficos = async () => {
-    console.warn('PREENCHEGRAFICO');
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       // turma: filters.turma.map((item) => item.id),
     };
 
-    let _turmas1 = _turmasFiltered
-      .filter((turma) => turma.ano_escolar == 1)
-      .map((turma) => turma.id);
-    let _turmas2 = _turmasFiltered
-      .filter((turma) => turma.ano_escolar == 2)
-      .map((turma) => turma.id);
-    let _turmas3 = _turmasFiltered
-      .filter((turma) => turma.ano_escolar == 3)
-      .map((turma) => turma.id);
-
-    console.table(_turmas1);
-    console.table(_turmas2);
-    console.table(_turmas3);
+   
 
     await Promise.all([
       dashboardsMethods
@@ -123,7 +113,7 @@ export default function OverviewAppView() {
 
       // 1 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas1, bimestre: null })
+        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(1), bimestre: null })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -134,7 +124,7 @@ export default function OverviewAppView() {
 
       // 2 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas2, bimestre: null })
+        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(2), bimestre: null })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -145,7 +135,7 @@ export default function OverviewAppView() {
 
       // 3 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas3, bimestre: null })
+        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(3), bimestre: null })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -293,7 +283,12 @@ export default function OverviewAppView() {
           </Grid>
 
           <Grid xs={12} md="auto">
-            <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue} startIcon={<Iconify icon="mingcute:add-line" />}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={novaAvaliacao.onTrue}
+              startIcon={<Iconify icon="mingcute:add-line" />}
+            >
               Registro de Aprendizagem
             </Button>
           </Grid>
@@ -407,7 +402,7 @@ export default function OverviewAppView() {
           {/* <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" /> */}
           <Button
             variant="contained"
-            color='info'
+            color="info"
             onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_diagnostico)}
             sx={{ mr: 3 }}
           >
@@ -415,7 +410,7 @@ export default function OverviewAppView() {
           </Button>
           <Button
             variant="contained"
-            color='info'
+            color="info"
             onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_componente)}
             sx={{ mr: 3 }}
           >
