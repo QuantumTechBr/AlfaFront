@@ -120,7 +120,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
         type="bar"
         series={chartSeries}
         options={chartOptions}
-        height={350}
+        height={290}
       />
     </Card>
   );

@@ -70,15 +70,13 @@ export default function OverviewAppView() {
 
   const getTurmasPorAnoEscolar = (anoEscolar) =>
     _turmasFiltered.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-    
+
   const preencheGraficos = async () => {
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       // turma: filters.turma.map((item) => item.id),
     };
-
-   
 
     await Promise.all([
       dashboardsMethods
@@ -113,7 +111,11 @@ export default function OverviewAppView() {
 
       // 1 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(1), bimestre: null })
+        .getDashboardIndiceFases({
+          ...fullFilters,
+          turma: getTurmasPorAnoEscolar(1),
+          bimestre: null,
+        })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -124,7 +126,11 @@ export default function OverviewAppView() {
 
       // 2 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(2), bimestre: null })
+        .getDashboardIndiceFases({
+          ...fullFilters,
+          turma: getTurmasPorAnoEscolar(2),
+          bimestre: null,
+        })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -135,7 +141,11 @@ export default function OverviewAppView() {
 
       // 3 ANO
       dashboardsMethods
-        .getDashboardIndiceFases({ ...fullFilters, turma: getTurmasPorAnoEscolar(3), bimestre: null })
+        .getDashboardIndiceFases({
+          ...fullFilters,
+          turma: getTurmasPorAnoEscolar(3),
+          bimestre: null,
+        })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -270,7 +280,6 @@ export default function OverviewAppView() {
         <Grid xs={12} md={4}>
           <AppFeatured list={_appFeatured} />
         </Grid> */}
-
         <Stack
           flexGrow={1}
           direction="row"
@@ -293,7 +302,6 @@ export default function OverviewAppView() {
             </Button>
           </Grid>
         </Stack>
-
         <Stack flexGrow={1} direction="row" alignItems="center" justifyContent="start" width="100%">
           <Grid xs={12} md="auto">
             <OverviewTableToolbar
@@ -311,9 +319,7 @@ export default function OverviewAppView() {
             </Button>
           </Grid>
         </Stack>
-
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
-
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Usuários Ativos"
@@ -324,7 +330,6 @@ export default function OverviewAppView() {
             }}
           />
         </Grid>
-
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Total de Alunos Cadastrados"
@@ -336,7 +341,6 @@ export default function OverviewAppView() {
             }}
           />
         </Grid>
-
         <Grid xs={12} md={4}>
           <AppWidgetSummary
             title="Número de Turmas Ativas"
@@ -348,7 +352,54 @@ export default function OverviewAppView() {
             }}
           />
         </Grid>
-
+        {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+          <Stack
+            flexGrow={1}
+            direction="row"
+            alignItems="flex-start"
+            justifyContent="space-between"
+            width="100%"
+          >
+            <Grid xs={12} md={6} lg={5}>
+              <AppIndiceFases
+                title="Índice de Fases - 1º Ano"
+                chart={dados.indice_fases_1_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          </Stack>
+        )}
+        {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
+          <Stack
+            flexGrow={1}
+            direction="row"
+            alignItems="flex-start"
+            justifyContent="space-between"
+            width="100%"
+          >
+            <Grid xs={12} md={6} lg={5}>
+              <AppIndiceFases
+                title="Índice de Fases - 2º Ano"
+                chart={dados.indice_fases_2_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          </Stack>
+        )}
+        {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
+          <Stack
+            flexGrow={1}
+            direction="row"
+            alignItems="flex-start"
+            justifyContent="space-between"
+            width="100%"
+          >
+            <Grid xs={12} md={6} lg={5}>
+              <AppIndiceFases
+                title="Índice de Fases - 3º Ano"
+                chart={dados.indice_fases_3_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          </Stack>
+        )}
         <Stack
           flexGrow={1}
           direction="row"
@@ -356,40 +407,14 @@ export default function OverviewAppView() {
           justifyContent="space-between"
           width="100%"
         >
-          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-            <Grid xs={12} md={6} lg={4}>
-              <AppIndiceFases
-                title="Índice de Fases - 1º Ano"
-                chart={dados.indice_fases_1_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-          )}
-          {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-            <Grid xs={12} md={6} lg={4}>
-              <AppIndiceFases
-                title="Índice de Fases - 2º Ano"
-                chart={dados.indice_fases_2_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-          )}
-
-          {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-            <Grid xs={12} md={6} lg={4}>
-              <AppIndiceFases
-                title="Índice de Fases - 3º Ano"
-                chart={dados.indice_fases_3_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-          )}
+          <Grid xs={12} md={6} lg={5}>
+            <AppIndiceFases
+              title="Índice de Fases - Geral"
+              chart={dados.indice_fases_geral.chart ?? { series: [] }}
+            />
+          </Grid>
         </Stack>
-
-        <Grid xs={12} md={6} lg={4}>
-          <AppIndiceFases
-            title="Índice de Fases - Geral"
-            chart={dados.indice_fases_geral.chart ?? { series: [] }}
-          />
-        </Grid>
-
+        
         <Grid xs={12}>
           <AppDesempenhoAlunos
             title="Desempenho dos Alunos"
@@ -397,7 +422,6 @@ export default function OverviewAppView() {
             chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
           />
         </Grid>
-
         <Grid xs={12} lg={6} sx={{ my: 3 }}>
           {/* <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" /> */}
           <Button
@@ -417,7 +441,6 @@ export default function OverviewAppView() {
             Ir para Avaliação por Componente
           </Button>
         </Grid>
-
         <Grid xs={12} md={6} lg={6}>
           {/* <AppAvaliacaoComponente title="Avaliação por Componente" list={{}} /> */}
         </Grid>
