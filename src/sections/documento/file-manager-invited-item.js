@@ -77,7 +77,7 @@ export default function FileManagerInvitedItem({ person }) {
             }}
           >
             <Iconify icon="solar:eye-bold" />
-            Can view
+            Pode visualizar
           </MenuItem>
 
           <MenuItem
@@ -88,7 +88,7 @@ export default function FileManagerInvitedItem({ person }) {
             }}
           >
             <Iconify icon="solar:pen-bold" />
-            Can edit
+            Pode editar
           </MenuItem>
 
           <Divider sx={{ borderStyle: 'dashed' }} />
@@ -100,7 +100,7 @@ export default function FileManagerInvitedItem({ person }) {
             sx={{ color: 'error.main' }}
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
-            Remove
+            Remover
           </MenuItem>
         </>
       </CustomPopover>

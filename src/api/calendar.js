@@ -4,7 +4,7 @@ import useSWR, { mutate } from 'swr';
 import { fetcher, endpoints } from 'src/utils/axios';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 import calendarioMethods from 'src/sections/calendario/calendario-repository';
-import { formatISO } from 'date-fns';
+import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
 
@@ -67,8 +67,8 @@ export async function createEvent(eventData) {
   const payload = {
     titulo: eventData.title,
     tipo: eventData.tipo,
-    data_inicio: formatISO(eventData.start),
-    data_final: formatISO(eventData.end),
+    data_inicio: format(new Date(eventData.start), 'yyyy-MM-dd HH:mm'),
+    data_final: format(new Date(eventData.end), 'yyyy-MM-dd HH:mm'),
     descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
@@ -80,7 +80,7 @@ export async function createEvent(eventData) {
   mutate(
     endpoints.calendar.list,
     (currentData) => {
-      console.table(currentData);
+      // console.table(currentData);
       const events = [...(currentData.events ?? currentData), convertToEvent(response.data)];
 
       return {
@@ -99,8 +99,8 @@ export async function updateEvent(eventData) {
   const payload = {
     titulo: eventData.title,
     tipo: eventData.tipo,
-    data_inicio: formatISO(eventData.start),
-    data_final: formatISO(eventData.end),
+    data_inicio: format(new Date(eventData.start), 'yyyy-MM-dd HH:mm'),
+    data_final: format(new Date(eventData.end), 'yyyy-MM-dd HH:mm'),
     descricao: eventData.description,
     ano_id: eventData.ano_id,
   };

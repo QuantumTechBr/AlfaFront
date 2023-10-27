@@ -146,7 +146,7 @@ export default function FileManagerGridView({
                   onClick={onOpenConfirm}
                   sx={{ mr: 1 }}
                 >
-                  Delete
+                  Deletar
                 </Button>
 
                 <Button
@@ -156,7 +156,7 @@ export default function FileManagerGridView({
                   startIcon={<Iconify icon="solar:share-bold" />}
                   onClick={share.onTrue}
                 >
-                  Share
+                  Disponibilizar
                 </Button>
               </>
             }
