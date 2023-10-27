@@ -28,17 +28,16 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function AppIndiceFases({ title, subheader, chart, ...other }) {
+export default function AppIndiceAprovacao({ title, subheader, series, options, ...other }) {
   const theme = useTheme();
 
-  const { colors, series, options } = chart;
-
-  const totalItems = series.reduce((total, item) => total + item.value, 0);
+  const totalItems = series.reduce((total, item) => total + item.amount, 0);
   series.forEach((element) => {
-    element.porcentagem = Math.round((element.value / totalItems) * 100);
+    element.porcentagem = Math.round((element.amount / totalItems) * 100);
   });
 
-
+//   console.table(totalItems);
+//   console.table(series);
 
   const chartSeries = [
     {
@@ -61,7 +60,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
         },
       },
     },
-    colors: ['#006abc', '#ffbb00', '#d11400', '#009a50', '#f17105'],
+    colors: ['#009a50', '#d11400', '#006abc'],
 
     dataLabels: {
       enabled: true,
@@ -79,7 +78,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
       },
     },
     xaxis: {
-      categories: series.map((i) => i.label),
+      categories: series.map((i) => i.name),
       labels: {
         show: true,
       },
@@ -98,7 +97,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
       },
       y: {
         formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return series[dataPointIndex]?.value ?? '-';
+          return series[dataPointIndex]?.amount ?? '-';
         },
         title: {
           formatter: (s) => 'Quantidade: ',
@@ -111,7 +110,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
-      
+
       <Chart
         dir="ltr"
         width={'100%'}
@@ -124,8 +123,8 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   );
 }
 
-AppIndiceFases.propTypes = {
-  chart: PropTypes.object,
+AppIndiceAprovacao.propTypes = {
+  series: PropTypes.array,
   subheader: PropTypes.string,
   title: PropTypes.string,
 };

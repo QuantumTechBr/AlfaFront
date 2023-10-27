@@ -100,6 +100,7 @@ export const endpoints = {
     avaliacao_diagnostico: '/api/v1/dashboards/avaliacao-diagnosticos',
     desempenho_alunos: '/api/v1/dashboards/desempenho-alunos',
     indice_fases: '/api/v1/dashboards/indice-fases',
+    indice_aprovacao: '/api/v1/dashboards/indice-aprovacao-redes',
     total_alunos_ativos: '/api/v1/dashboards/total-alunos-ativos',
     total_turmas_ativas: '/api/v1/dashboards/total-turmas-ativas',
     total_usuarios_ativos: '/api/v1/dashboards/total-usuarios-ativos',
