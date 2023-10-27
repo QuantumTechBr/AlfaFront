@@ -14,7 +14,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function AppAreaInstalled({ title, subheader, chart, ...other }) {
+export default function AppDesempenhoAlunos({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
   if (chart === undefined) {
@@ -123,7 +123,7 @@ export default function AppAreaInstalled({ title, subheader, chart, ...other }) 
   );
 }
 
-AppAreaInstalled.propTypes = {
+AppDesempenhoAlunos.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,

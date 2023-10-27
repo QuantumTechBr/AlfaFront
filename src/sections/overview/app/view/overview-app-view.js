@@ -9,12 +9,14 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-import { Box } from "@mui/material";
+import { Box } from '@mui/material';
 // hooks
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
 // components
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -22,8 +24,8 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { SeoIllustration } from 'src/assets/illustrations';
 //
 import AppWidgetSummary from '../app-widget-summary';
-import AppCurrentDownload from '../app-current-download';
-import AppAreaInstalled from '../app-area-installed';
+import AppIndiceFases from '../app-indice-fases';
+import AppDesempenhoAlunos from '../app-desempenho-alunos';
 import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
 import AppAvaliacaoComponente from '../app-avaliacao-componente';
 
@@ -31,10 +33,12 @@ import AppAvaliacaoComponente from '../app-avaliacao-componente';
 import OverviewTableToolbar from './overview-table-toolbar';
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from '../../dashboards-repository';
+import Iconify from 'src/components/iconify';
 
 export default function OverviewAppView() {
   const theme = useTheme();
   const settings = useSettingsContext();
+  const router = useRouter();
 
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -46,30 +50,49 @@ export default function OverviewAppView() {
   const defaultFilters = {
     zona: [],
     escola: [],
-    turma: [],
+    // turma: [],
   };
-  
+
   const [filters, setFilters] = useState(defaultFilters);
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
     total_turmas_ativas: {},
-    indice_fases: {},
+    indice_fases_geral: {},
+    indice_fases_1_ano: {},
+    indice_fases_2_ano: {},
+    indice_fases_3_ano: {},
+    indice_fases_: {},
     desempenho_alunos: {},
     avaliacao_diagnostico: {},
     avaliacao_componente: {},
   });
 
   const preencheGraficos = async () => {
+    console.warn('PREENCHEGRAFICO');
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
-      turma: filters.turma.map((item) => item.id),
+      // turma: filters.turma.map((item) => item.id),
     };
+
+    let _turmas1 = _turmasFiltered
+      .filter((turma) => turma.ano_escolar == 1)
+      .map((turma) => turma.id);
+    let _turmas2 = _turmasFiltered
+      .filter((turma) => turma.ano_escolar == 2)
+      .map((turma) => turma.id);
+    let _turmas3 = _turmasFiltered
+      .filter((turma) => turma.ano_escolar == 3)
+      .map((turma) => turma.id);
+
+    console.table(_turmas1);
+    console.table(_turmas2);
+    console.table(_turmas3);
 
     await Promise.all([
       dashboardsMethods
-        .getDashboardTotalUsuariosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
+        .getDashboardTotalUsuariosAtivos({ ddz: fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -78,7 +101,7 @@ export default function OverviewAppView() {
           }));
         }),
       dashboardsMethods
-        .getDashboardTotalAlunosAtivos({ ddz:fullFilters.ddz, escola: fullFilters.escola })
+        .getDashboardTotalAlunosAtivos({ ddz: fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -96,13 +119,54 @@ export default function OverviewAppView() {
           }));
         }),
 
-      dashboardsMethods.getDashboardIndiceFases(fullFilters).then((response) => {
-        // console.table(response.data);
-        setDados((prevState) => ({
-          ...prevState,
-          indice_fases: response.data,
-        }));
-      }),
+      // ## FASES
+
+      // 1 ANO
+      dashboardsMethods
+        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas1, bimestre: null })
+        .then((response) => {
+          // console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            indice_fases_1_ano: response.data,
+          }));
+        }),
+
+      // 2 ANO
+      dashboardsMethods
+        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas2, bimestre: null })
+        .then((response) => {
+          // console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            indice_fases_2_ano: response.data,
+          }));
+        }),
+
+      // 3 ANO
+      dashboardsMethods
+        .getDashboardIndiceFases({ ...fullFilters, turma: _turmas3, bimestre: null })
+        .then((response) => {
+          // console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            indice_fases_3_ano: response.data,
+          }));
+        }),
+
+      // GERAL
+      dashboardsMethods
+        .getDashboardIndiceFases({ ...fullFilters, bimestre: null })
+        .then((response) => {
+          // console.table(response.data);
+          setDados((prevState) => ({
+            ...prevState,
+            indice_fases_geral: response.data,
+          }));
+        }),
+
+      // ## DESEMPENHO ALUNO
+
       dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
         // console.table(response.data);
         setDados((prevState) => ({
@@ -139,37 +203,34 @@ export default function OverviewAppView() {
           );
           setEscolasFiltered(filtered);
         }
-        
-        setTurmasFiltered(turmas);
+
+        // setTurmasFiltered(turmas);
         setFilters((prevState) => ({
           ...prevState,
           ['escola']: [],
-          ['turma']: [],
+          // ['turma']: [],
           [campo]: value,
         }));
-      }
-
-      else if (campo == 'escola') {
+      } else if (campo == 'escola') {
         if (value.length == 0) {
-          setTurmasFiltered(turmas);
+          // setTurmasFiltered(turmas);
         } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
+          // var filtered = turmas.filter((turma) =>
+          //   value.map((escola) => escola.id).includes(turma.escola.id)
+          // );
+          // setTurmasFiltered(filtered);
         }
         setFilters((prevState) => ({
           ...prevState,
-          ['turma']: [],
+          // ['turma']: [],
           [campo]: value,
         }));
-      }else{
+      } else {
         setFilters((prevState) => ({
           ...prevState,
           [campo]: value,
         }));
       }
-      
     },
     [setFilters, setEscolasFiltered, escolas, setTurmasFiltered, turmas]
   );
@@ -181,7 +242,7 @@ export default function OverviewAppView() {
       buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
     ]);
 
-    preencheGraficos();
+    // preencheGraficos();
   };
 
   useEffect(() => {
@@ -189,13 +250,16 @@ export default function OverviewAppView() {
   }, []); // CHAMADA UNICA AO ABRIR
 
   useEffect(() => {
-    // 
+    if (escolas.length && turmas.length) {
+      preencheGraficos();
+    }
+    //
   }, [zonas, escolas, turmas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
-  
+
   const novaAvaliacao = useBoolean();
-  const closeNovaAvaliacao = (retorno=null) => {
+  const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
-  }
+  };
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -225,43 +289,32 @@ export default function OverviewAppView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">
-              Dashboard
-            </Typography>
+            <Typography variant="h3">Dashboard</Typography>
           </Grid>
-          
+
           <Grid xs={12} md="auto">
-            <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue}>
+            <Button variant="contained" color="primary" onClick={novaAvaliacao.onTrue} startIcon={<Iconify icon="mingcute:add-line" />}>
               Registro de Aprendizagem
             </Button>
           </Grid>
         </Stack>
 
-        <Stack
-          flexGrow={1}
-          direction="row"
-          alignItems="center"
-          justifyContent="start"
-          width="100%"
-        >
+        <Stack flexGrow={1} direction="row" alignItems="center" justifyContent="start" width="100%">
+          <Grid xs={12} md="auto">
+            <OverviewTableToolbar
+              filters={filters}
+              onFilters={handleFilters}
+              zonaOptions={zonas}
+              escolaOptions={_escolasFiltered || escolas}
+              // turmaOptions={_turmasFiltered || turmas}
+            />
+          </Grid>
 
-        <Grid xs={12} md="auto">
-
-          <OverviewTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            zonaOptions={zonas}
-            escolaOptions={_escolasFiltered || escolas}
-            turmaOptions={_turmasFiltered  || turmas}
-          />
-        </Grid>
-
-        <Grid xs={12} md="auto">
-          <Button variant="contained" onClick={preencheGraficos}>
-            Aplicar filtro
-          </Button>
-        </Grid>
-
+          <Grid xs={12} md="auto">
+            <Button variant="contained" onClick={preencheGraficos}>
+              Aplicar filtro
+            </Button>
+          </Grid>
         </Stack>
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
@@ -301,29 +354,78 @@ export default function OverviewAppView() {
           />
         </Grid>
 
+        <Stack
+          flexGrow={1}
+          direction="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          width="100%"
+        >
+          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+            <Grid xs={12} md={6} lg={4}>
+              <AppIndiceFases
+                title="Índice de Fases - 1º Ano"
+                chart={dados.indice_fases_1_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          )}
+          {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
+            <Grid xs={12} md={6} lg={4}>
+              <AppIndiceFases
+                title="Índice de Fases - 2º Ano"
+                chart={dados.indice_fases_2_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          )}
+
+          {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
+            <Grid xs={12} md={6} lg={4}>
+              <AppIndiceFases
+                title="Índice de Fases - 3º Ano"
+                chart={dados.indice_fases_3_ano.chart ?? { series: [] }}
+              />
+            </Grid>
+          )}
+        </Stack>
+
         <Grid xs={12} md={6} lg={4}>
-          <AppCurrentDownload
-            title="Índice de Fases"
-            chart={dados.indice_fases.chart ?? {series:[]}}
+          <AppIndiceFases
+            title="Índice de Fases - Geral"
+            chart={dados.indice_fases_geral.chart ?? { series: [] }}
           />
         </Grid>
 
-        <Grid xs={12} md={6} lg={8}>
-          <AppAreaInstalled
+        <Grid xs={12}>
+          <AppDesempenhoAlunos
             title="Desempenho dos Alunos"
             subheader={dados.desempenho_alunos.subheader}
-            chart={dados.desempenho_alunos.chart ?? {categories: [], series:[]}}
+            chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
           />
         </Grid>
 
-        <Grid xs={12} lg={6}>
-          <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" />
+        <Grid xs={12} lg={6} sx={{ my: 3 }}>
+          {/* <AppAvaliacaoDiagnostico title="Avaliação Diagnóstica" list={dados.avaliacao_diagnostico} subheader="" /> */}
+          <Button
+            variant="contained"
+            color='info'
+            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_diagnostico)}
+            sx={{ mr: 3 }}
+          >
+            Ir para Avaliação Diagnóstica
+          </Button>
+          <Button
+            variant="contained"
+            color='info'
+            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_componente)}
+            sx={{ mr: 3 }}
+          >
+            Ir para Avaliação por Componente
+          </Button>
         </Grid>
 
         <Grid xs={12} md={6} lg={6}>
-          <AppAvaliacaoComponente title="Avaliação por Componente" list={{}} />
+          {/* <AppAvaliacaoComponente title="Avaliação por Componente" list={{}} /> */}
         </Grid>
-        
       </Grid>
     </Container>
   );

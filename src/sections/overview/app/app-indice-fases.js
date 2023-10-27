@@ -28,7 +28,7 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-export default function AppCurrentDownload({ title, subheader, chart, ...other }) {
+export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
   const { colors, series, options } = chart;
@@ -98,7 +98,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
       },
       y: {
         formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return series[dataPointIndex].value;
+          return series[dataPointIndex]?.value ?? '-*';
           // return series[dataPointIndex].value;
           // console.log(value, series, seriesIndex, dataPointIndex, w);
         },
@@ -113,7 +113,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
-
+      
       <Chart
         dir="ltr"
         width={'100%'}
@@ -126,7 +126,7 @@ export default function AppCurrentDownload({ title, subheader, chart, ...other }
   );
 }
 
-AppCurrentDownload.propTypes = {
+AppIndiceFases.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
