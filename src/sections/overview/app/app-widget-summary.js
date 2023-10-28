@@ -62,7 +62,7 @@ export default function AppWidgetSummary({ title, percent, total, chart, sx, ...
       <Box sx={{ flexGrow: 1 }}>
         <Typography variant="subtitle2">{title}</Typography>
 
-        <Stack direction="row" alignItems="center" sx={{ mt: 2, mb: 1 }}>
+        <Stack direction="row" alignItems="center" sx={{ mt: 2, mb: 1, visibility: series.length > 1 ? 'visible' : `hidden` }}>
           <Iconify
             width={24}
             icon={
@@ -89,7 +89,7 @@ export default function AppWidgetSummary({ title, percent, total, chart, sx, ...
         <Typography variant="h3">{fNumber(total)}</Typography>
       </Box>
 
-      <Chart type="bar" series={[{ data: series }]} options={chartOptions} width={60} height={36} />
+      {series.length > 1 && <Chart type="bar" series={[{ data: series }]} options={chartOptions} width={60} height={36} />}
     </Card>
   );
 }

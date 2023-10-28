@@ -46,6 +46,7 @@ import RegistroAprendizagemComponenteTableRow from './registro-aprendizagem-comp
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 // ----------------------------------------------------------------------
+import AppAvaliacaoComponente from 'src/sections/overview/app/app-avaliacao-componente.js';
 
 const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
@@ -217,6 +218,8 @@ export default function RegistroAprendizagemComponenteListView() {
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
+
+          <AppAvaliacaoComponente title="Gráfico por Componente" list={{}} />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
