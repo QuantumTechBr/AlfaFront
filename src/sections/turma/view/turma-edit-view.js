@@ -21,6 +21,7 @@ export default function TurmaEditView({ id }) {
   const settings = useSettingsContext();
 
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
   
   const { buscaTurmaPorId } = useContext(TurmasContext);
 
@@ -29,7 +30,7 @@ export default function TurmaEditView({ id }) {
   useEffect(()  => {
     buscaTurmaPorId({id}).then((turma) => {
       if (turma.lenght == 0) {
-        setErrorMsg('A API retornou uma lista vazia de turmas');
+        setWarningMsg('A API retornou uma lista vazia de turmas');
       }
       setCurrentTurma(turma)
     }).catch((error) => {
@@ -60,6 +61,7 @@ export default function TurmaEditView({ id }) {
       />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}  
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
       <TurmaNewEditForm currentTurma={currentTurma} />
     </Container>
   );

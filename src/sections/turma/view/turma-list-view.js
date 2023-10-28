@@ -78,6 +78,7 @@ export default function TurmaListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
@@ -85,7 +86,7 @@ export default function TurmaListView() {
   useEffect(() => {
     buscaTurmas({force:true}).then((_turmas) => {
       if (_turmas.length == 0) {
-        setErrorMsg('A API retornou uma lista vazia de turmas');
+        setWarningMsg('A API retornou uma lista vazia de turmas');
       }
       _turmas.map((turma) => {
         turma.status = turma.status.toString()
@@ -226,6 +227,7 @@ export default function TurmaListView() {
         />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
         <Tabs

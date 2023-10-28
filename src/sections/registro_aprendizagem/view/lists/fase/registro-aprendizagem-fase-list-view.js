@@ -42,6 +42,8 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import Alert from '@mui/material/Alert';
+import { Box, CircularProgress } from '@mui/material';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -73,6 +75,9 @@ export default function RegistroAprendizagemFaseListView() {
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
   const preparado = useBoolean(false);
+  const prep = useBoolean(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const table = useTable();
   const settings = useSettingsContext();
@@ -83,10 +88,22 @@ export default function RegistroAprendizagemFaseListView() {
   const preparacaoInicial = async () => {
     preencheTabela();
     await Promise.all([
-      buscaAnosLetivos(),
-      buscaEscolas(),
-      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
-      buscaBimestres(),
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
+        prep.onTrue();
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+        prep.onTrue();
+      }),
+      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas');
+        prep.onTrue();
+      }),
+      buscaBimestres().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de bimestres');
+        prep.onTrue();
+      }),
     ]);
   };
 
@@ -94,7 +111,10 @@ export default function RegistroAprendizagemFaseListView() {
     if (!preparado.value && anosLetivos.length && turmas.length && bimestres.length) {
       let _registrosAprendizagemFase = [];
 
-      const _turmasComRegistros = await registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({});
+      const _turmasComRegistros = await registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({}).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+        prep.onTrue();
+      });
 
       turmas
         .filter((_turma) => _turmasComRegistros.data.includes(_turma.id))
@@ -114,6 +134,7 @@ export default function RegistroAprendizagemFaseListView() {
         });
 
       setTableData(_registrosAprendizagemFase);
+      prep.onTrue();
       preparado.onTrue();
     }
   };
@@ -122,6 +143,7 @@ export default function RegistroAprendizagemFaseListView() {
     preparacaoInicial();
   }, [setTableData]); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
+    prep.onFalse();
     preencheTabela();
   }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
@@ -172,6 +194,7 @@ export default function RegistroAprendizagemFaseListView() {
     (turmaId, bimestreId) => {
       const deleteRow = tableData.find((row) => row.id == turmaId && row.bimestre.id == bimestreId);
       if (!deleteRow) {
+        setWarningMsg('Linha a ser deletada não encontrada');
         // console.log('Linha a ser deletada não encontrada.');
         return;
       } else {
@@ -180,14 +203,17 @@ export default function RegistroAprendizagemFaseListView() {
       const remainingRows = tableData.filter(
         (row) => row.id !== turmaId || row.bimestre.id !== bimestreId
       );
-      setTableData(remainingRows);
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
       registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({
         tipo: 'fase',
         turmaId: turmaId,
         bimestreId: bimestreId,
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
+        throw error;
       });
+      table.onUpdatePageDeleteRow(dataInPage.length)
+      setTableData(remainingRows);
+
     },
     [dataInPage.length, table, tableData]
   );
@@ -230,6 +256,9 @@ export default function RegistroAprendizagemFaseListView() {
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+
         <Card>
           <RegistroAprendizagemTableToolbar
             filters={filters}
@@ -254,6 +283,23 @@ export default function RegistroAprendizagemFaseListView() {
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
+            {!prep.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -285,7 +331,7 @@ export default function RegistroAprendizagemFaseListView() {
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 

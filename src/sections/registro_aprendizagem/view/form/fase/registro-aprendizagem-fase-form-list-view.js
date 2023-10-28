@@ -9,6 +9,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
@@ -52,7 +53,8 @@ import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-f
 import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
 import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-
+import Alert from '@mui/material/Alert';
+import { Box, CircularProgress } from '@mui/material';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -70,10 +72,12 @@ const defaultFilters = {};
 export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
-
+  const prep = useBoolean(false);
   const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const [tableData, setTableData] = useState([]);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
 
   const initialFormValues = {
     turma: '',
@@ -145,15 +149,18 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaToGetRegistros.id,
           bimestreId: bimestreToGetRegistros.id,
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          prep.onTrue();
         });
 
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
         let _newRegistros = [];
-
+        console.log(registrosDaTurmaBimestre.data)
         _turma.alunosTurmas.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
-            registrosDaTurmaBimestre.data.filter((reg) => reg.alunosTurmas.id == alunoTurmaItem.id)
+            registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
           );
 
           _newRegistros[alunoTurmaItem.id] = {
@@ -167,12 +174,17 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         setValue('registros', _newRegistros);
 
         setTableData(_turma.alunosTurmas);
+        prep.onTrue();
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turma');
+        prep.onTrue();
       });
     }
   };
 
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
+      prep.onFalse();
       if (type == 'change' && ['turma', 'bimestre'].includes(name)) {
         getRegistros(values.turma, values.bimestre);
       }
@@ -196,17 +208,22 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     });
 
     try {
-      await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend);
+      await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
+        throw error;
+      });
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_fase);
     } catch (error) {
-      console.log('Erro ao Salvar');
-      console.error(error);
+      setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro');
     }
   });
 
   useEffect(() => {
-    buscaBimestres();
+    prep.onFalse();
+    buscaBimestres().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de bimestres');
+      prep.onTrue();
+    });
     buscaTurmas().then((_turmas) => {
       if (!!turmaInicial) {
         if (!!_turmas) {
@@ -229,6 +246,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       }
 
       if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+      prep.onTrue();
     });
   }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
@@ -254,6 +274,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         />
 
         <FormProvider methods={methods} onSubmit={onSubmit}>
+          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+          {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
           <Card>
             <RegistroAprendizagemFaseFormTableToolbar
               filters={filters}
@@ -274,6 +296,23 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar>
+              {!prep.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
@@ -300,7 +339,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
                     <TableNoData notFound={notFound} />
                   </TableBody>
-                </Table>
+                </Table> )}
               </Scrollbar>
             </TableContainer>
 
