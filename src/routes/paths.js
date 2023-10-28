@@ -76,6 +76,7 @@ export const paths = {
       login: `${ROOTS.AUTH}/alfa/login`,
       forgotPassword: `${ROOTS.AUTH}/alfa/forgot-password`,
       register: `${ROOTS.AUTH}/alfa/register`,
+      newPassword: `${ROOTS.AUTH}/alfa/new-password`,
     }
   },
   authDemo: {

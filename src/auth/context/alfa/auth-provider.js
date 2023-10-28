@@ -157,7 +157,11 @@ export function AuthProvider({ children }) {
 
   // FORGOT PASSWORD
   const forgotPassword = useCallback(async (email) => {
-    await Auth.forgotPassword(email);
+    const response = await axios.post(endpoints.auth.reset_password, {email}).catch(erro => {
+      console.log("forgot password erro");
+      throw erro;
+    });
+    console.log(response);
   }, []);  
 
   // ----------------------------------------------------------------------
