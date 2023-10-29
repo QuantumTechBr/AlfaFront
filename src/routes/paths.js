@@ -77,6 +77,7 @@ export const paths = {
       forgotPassword: `${ROOTS.AUTH}/alfa/forgot-password`,
       register: `${ROOTS.AUTH}/alfa/register`,
       newPassword: `${ROOTS.AUTH}/alfa/new-password`,
+      linkSent: `${ROOTS.AUTH}/alfa/link-sent`,
     }
   },
   authDemo: {

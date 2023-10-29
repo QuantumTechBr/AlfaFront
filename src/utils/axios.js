@@ -71,7 +71,7 @@ export const endpoints = {
     logout: '/api/v1/auth/logout',
     register: '/api/auth/register',
     reset_password: '/api/v1/password_reset/reset',
-    confirm_password: '/api/v1/password_reset/confirm',
+    reset_confirm: '/api/v1/password_reset/confirm',
     validate_token: '/api/v1/password_reset/validate_token',
   },
   bimestre: {

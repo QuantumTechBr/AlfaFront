@@ -1,8 +1,11 @@
 'use client';
 
 import * as Yup from 'yup';
+import { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import Alert from '@mui/material/Alert';
+import { useState } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Link from '@mui/material/Link';
@@ -12,34 +15,51 @@ import Typography from '@mui/material/Typography';
 import InputAdornment from '@mui/material/InputAdornment';
 // routes
 import { paths } from 'src/routes/paths';
+import { RouterLink } from 'src/routes/components';
+import { useRouter, useSearchParams } from 'src/routes/hook';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-// components
-import Iconify from 'src/components/iconify';
-import { RouterLink } from 'src/routes/components';
-import FormProvider, { RHFTextField, RHFCode } from 'src/components/hook-form';
+import { useCountdownSeconds } from 'src/hooks/use-countdown';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // assets
 import { SentIcon } from 'src/assets/icons';
+// components
+import Iconify from 'src/components/iconify';
+import FormProvider, { RHFTextField } from 'src/components/hook-form';
 
 // ----------------------------------------------------------------------
 
 export default function AlfaNewPasswordView() {
+  const { confirmResetPassword } = useAuthContext();
+
+  const router = useRouter();
+
+  const searchParams = useSearchParams();
+
+  const email = searchParams.get('email');
+
+  const secret = searchParams.get('secret');
+
   const password = useBoolean();
 
+  const [success, setSuccess] = useState(false);
+  
+  const [errorMsg, setErrorMsg] = useState('');
+
   const NewPasswordSchema = Yup.object().shape({
-    code: Yup.string().min(6, 'Code must be at least 6 characters').required('Code is required'),
-    email: Yup.string().required('Email is required').email('Email must be a valid email address'),
     password: Yup.string()
-      .min(6, 'Password must be at least 6 characters')
-      .required('Password is required'),
+      .min(8, 'Senha deve ter pelo menos 8 caracteres')
+      .matches(/[a-z]/, 'Senha deve ter pelo menos 1 letra minúscula')
+      .matches(/[A-Z]/, 'Senha deve ter pelo menos 1 letra maiúscula')
+      .matches(/(?=.*\d)/, 'Senha deve ter pelo menos 1 número')
+      .required('Digite a senha'),
     confirmPassword: Yup.string()
-      .required('Confirm password is required')
-      .oneOf([Yup.ref('password')], 'Passwords must match'),
+      .required('Confirme sua senha digitando novamente')
+      .oneOf([Yup.ref('password')], 'Senha e confirmação devem ser iguais'),
   });
 
   const defaultValues = {
-    code: '',
-    email: '',
     password: '',
     confirmPassword: '',
   };
@@ -57,27 +77,30 @@ export default function AlfaNewPasswordView() {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      console.info('DATA', data);
+      // await new Promise((resolve) => setTimeout(resolve, 500));
+      const retorno = await confirmResetPassword?.(data.password, secret).catch(erro => {throw erro});
+      console.info('confirm', retorno);
+      if(retorno.status) {
+        setSuccess(true)
+      }
     } catch (error) {
       console.error(error);
+      setErrorMsg('Não foi possível recuperar a senha. Tente novamente com o link enviado para seu email ou entre em contato com o suporte.');
     }
   });
 
   const renderForm = (
     <Stack spacing={3} alignItems="center">
-      <RHFTextField
-        name="email"
-        label="Email"
-        placeholder="example@gmail.com"
-        InputLabelProps={{ shrink: true }}
-      />
 
-      <RHFCode name="code" />
+      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        Por favor digite sua nova senha para o email:
+      </Typography>
+      {email}
+
 
       <RHFTextField
         name="password"
-        label="Password"
+        label="Senha"
         type={password.value ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -92,7 +115,7 @@ export default function AlfaNewPasswordView() {
 
       <RHFTextField
         name="confirmPassword"
-        label="Confirm New Password"
+        label="Confirmar Senha"
         type={password.value ? 'text' : 'password'}
         InputProps={{
           endAdornment: (
@@ -105,6 +128,9 @@ export default function AlfaNewPasswordView() {
         }}
       />
 
+      
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+
       <LoadingButton
         fullWidth
         size="large"
@@ -112,34 +138,10 @@ export default function AlfaNewPasswordView() {
         variant="contained"
         loading={isSubmitting}
       >
-        Update Password
+        Atualizar Senha
       </LoadingButton>
 
-      <Typography variant="body2">
-        {`Don’t have a code? `}
-        <Link
-          variant="subtitle2"
-          sx={{
-            cursor: 'pointer',
-          }}
-        >
-          Resend code
-        </Link>
-      </Typography>
-
-      <Link
-        component={RouterLink}
-        href={paths.authDemo.classic.login}
-        color="inherit"
-        variant="subtitle2"
-        sx={{
-          alignItems: 'center',
-          display: 'inline-flex',
-        }}
-      >
-        <Iconify icon="eva:arrow-ios-back-fill" width={16} />
-        Return to sign in
-      </Link>
+      
     </Stack>
   );
 
@@ -147,23 +149,57 @@ export default function AlfaNewPasswordView() {
     <>
       <SentIcon sx={{ height: 96 }} />
 
-      <Stack spacing={1} sx={{ my: 5 }}>
-        <Typography variant="h3">Request sent successfully!</Typography>
+      <Stack spacing={1} sx={{ mt: 5 }}>
+        <Typography variant="h3">Recuperação de senha!</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          We&apos;ve sent a 6-digit confirmation email to your email.
-          <br />
-          Please enter the code in below box to verify your email.
-        </Typography>
+
       </Stack>
     </>
   );
+
+  const msgNoSecret = (
+    <>
+      <Typography variant="body2" sx={{ my: 5 }}>
+        Link incorreto. 
+        <br/>
+        Tente novamente o link enviado para o seu email.
+        <br/>
+        Se não funcionar, entre em contato com o suporte.
+      </Typography>
+    </>
+  )
+
+  const msgSuccess = (
+    <>
+      <Typography variant="body2" sx={{ my: 5 }}>
+        Senha alterada com sucesso.
+      </Typography>
+    </>
+  )
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {renderHead}
 
-      {renderForm}
+
+      {(!!secret && !success) && (renderForm)}
+      {success && msgSuccess}
+      {!secret && (msgNoSecret)}
+
+      <Link 
+        component={RouterLink}
+        href={paths.auth.alfa.login}
+        color="inherit"
+        variant="subtitle2"
+        sx={{
+          alignItems: 'center',
+          display: 'inline-flex',
+          my: 2
+        }}
+      >
+        <Iconify icon="eva:arrow-ios-back-fill" width={16} />
+        Voltar para o login
+      </Link>
     </FormProvider>
   );
 }

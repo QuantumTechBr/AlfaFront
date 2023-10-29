@@ -162,7 +162,16 @@ export function AuthProvider({ children }) {
       throw erro;
     });
     console.log(response);
-  }, []);  
+  }, []); 
+
+  const confirmResetPassword = useCallback(async (senha, token) => {
+    const response = await axios.post(endpoints.auth.reset_confirm, {senha, token}).catch(erro => {
+      console.log("confirm reset password erro");
+      throw erro;
+    });
+    console.log(response);
+    return response;
+  }, [])
 
   // ----------------------------------------------------------------------
 
@@ -182,6 +191,7 @@ export function AuthProvider({ children }) {
       register,
       logout,
       forgotPassword,
+      confirmResetPassword
     }),
     [login, logout, register, forgotPassword, state.user, status]
   );
