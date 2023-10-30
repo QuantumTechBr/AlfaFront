@@ -23,6 +23,7 @@ import { RouterLink } from 'src/routes/components';
 import { _anos } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useDebounce } from 'src/hooks/use-debounce';
 import { useContext } from 'react';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -94,6 +95,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
+  const debouncedFilters = useDebounce(filters, 1000);
+
   const preparacaoInicial = async () => {
     preencheTabela();
     await Promise.all([
@@ -117,8 +120,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   }, [setTableData]);
 
   useEffect(() => {
+    console.log(`debouncedFilters call`);
     preencheGraficos();
-  }, [filters]);
+  }, [debouncedFilters]);
 
   const preencheTabela = () => {
     const promisesList = [];
@@ -296,7 +300,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
-    preencheGraficos();
   }, []);
 
   const novaAvaliacao = useBoolean();
@@ -305,7 +308,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     novaAvaliacao.onFalse();
   };
 
-  const [dados, setDados] = useState({
+  const [dadosGrafico, setDadosGrafico] = useState({
     avaliacao_diagnostico: {},
   });
 
@@ -329,7 +332,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       await Promise.all([
         dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
           console.log(response.data);
-          setDados((prevState) => ({
+          setDadosGrafico((prevState) => ({
             ...prevState,
             avaliacao_diagnostico: response.data,
           }));
@@ -337,8 +340,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       ]);
     }
   };
-
-
 
   return (
     <>
@@ -392,7 +393,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
           <AppAvaliacaoDiagnostico
             title="Gráfico Diagnóstico"
-            list={dados.avaliacao_diagnostico}
+            list={dadosGrafico.avaliacao_diagnostico}
             subheader=""
           />
         </Card>
