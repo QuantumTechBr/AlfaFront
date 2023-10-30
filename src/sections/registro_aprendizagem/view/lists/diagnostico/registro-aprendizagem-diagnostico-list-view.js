@@ -324,7 +324,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     ) {
       const fullFilters = {
         // ddz: filters.zona.map((item) => item.id),
-        ano_escolar: filters.anoLetivo != `` ? [filters.anoLetivo.ano] : null,
+        ano_letivo: filters.anoLetivo != `` ? [filters.anoLetivo.id] : null,
         escola: filters.escola.map((item) => item.id),
         turma: filters.turma.map((item) => item.id),
       };
