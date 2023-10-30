@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import Grid from '@mui/material/Unstable_Grid2';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -48,6 +49,8 @@ import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-tab
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import { Box, CircularProgress } from '@mui/material';
+import AppAvaliacaoDiagnostico from 'src/sections/overview/app/app-avaliacao-diagnostico.js';
+import dashboardsMethods from 'src/sections/overview/dashboards-repository.js';
 //
 
 // ----------------------------------------------------------------------
@@ -108,6 +111,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       }),
     ]);
   };
+
+
   useEffect(() => {
     preparacaoInicial();
   }, [setTableData]);
@@ -172,6 +177,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   };
 
   useEffect(() => {
+    preparacaoInicial();
     preencheTabela();
   }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered]);
 
@@ -280,6 +286,29 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
   };
+  
+  const [dados, setDados] = useState({
+    avaliacao_diagnostico: {}
+  });
+
+  const preencheGraficos = async () => {
+    const fullFilters = {
+     // ddz: filters.zona.map((item) => item.id),
+      ano_escolar: filters.anoLetivo != `` ? [filters.anoLetivo.ano] : null,
+      escola: filters.escola.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
+    };
+
+    await Promise.all([
+      dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
+        console.log(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          avaliacao_diagnostico: response.data,
+        }));
+      })
+    ]);
+  };
 
   return (
     <>
@@ -328,6 +357,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             />
           )}
 
+          <Button variant="contained" onClick={preencheGraficos}>Aplicar filtro ao gráfico</Button>
+
+          <AppAvaliacaoDiagnostico title="Gráfico Diagnóstico" list={dados.avaliacao_diagnostico} subheader="" />
+          
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
               dense={table.dense}

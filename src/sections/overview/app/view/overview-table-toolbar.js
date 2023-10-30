@@ -180,7 +180,6 @@ OverviewTableToolbar.propTypes = {
     filters: PropTypes.object,
     onFilters: PropTypes.func,
     zonaOptions: PropTypes.array,
-    turmaOptions: PropTypes.array,
     escolaOptions: PropTypes.array,
     turmaOptions: PropTypes.array,
 };

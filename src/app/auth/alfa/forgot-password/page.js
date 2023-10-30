@@ -4,7 +4,7 @@ import { AlfaForgotPasswordView } from 'src/sections/auth/alfa';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Alfa: Forgot Password',
+  title: 'Esqueci a senha',
 };
 
 export default function ForgotPasswordPage() {
