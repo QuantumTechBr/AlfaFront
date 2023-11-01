@@ -48,6 +48,7 @@ import TurmaTableFiltersResult from '../turma-table-filters-result';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
+import { Box, CircularProgress } from '@mui/material';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -79,6 +80,7 @@ export default function TurmaListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  const preparado = useBoolean(false);
 
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
@@ -92,11 +94,14 @@ export default function TurmaListView() {
         turma.status = turma.status.toString()
       })
       setTableData(_turmas);
+      preparado.onTrue();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
+      preparado.onTrue();
     });
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
+      preparado.onTrue();
     });
     
   }, []);
@@ -312,6 +317,23 @@ export default function TurmaListView() {
             />
 
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -352,7 +374,7 @@ export default function TurmaListView() {
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table>)}
             </Scrollbar>
           </TableContainer>
 
