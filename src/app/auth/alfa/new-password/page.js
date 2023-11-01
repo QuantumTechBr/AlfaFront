@@ -11,7 +11,7 @@ export const metadata = {
 
 export default function NewPasswordPage() {
 
-  return <AlfaForgotNewView email={email} secret={secret}/>;
+  return <AlfaForgotNewView/>;
 }
 
 NewPasswordPage.propTypes = {

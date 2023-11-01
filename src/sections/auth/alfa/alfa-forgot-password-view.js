@@ -51,7 +51,7 @@ export default function AlfaForgotPasswordView() {
 
       const searchParams = new URLSearchParams({ email: data.email }).toString();
 
-      const href = `${paths.auth.alfa.newPassword}?${searchParams}`;
+      const href = `${paths.auth.alfa.linkSent}?${searchParams}`;
       router.push(href);
     } catch (error) {
       console.error(error);
