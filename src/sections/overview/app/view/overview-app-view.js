@@ -14,6 +14,8 @@ import { Box } from '@mui/material';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -21,20 +23,18 @@ import { useRouter } from 'src/routes/hook';
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
 // assets
-import { SeoIllustration } from 'src/assets/illustrations';
+import { RegistroAprendizagemFases } from 'src/_mock';
 //
 import AppWidgetSummary from '../app-widget-summary';
-import AppIndiceFases from '../app-indice-fases';
-import AppIndiceAprovacao from '../app-indice-aprovacao';
 import AppDesempenhoAlunos from '../app-desempenho-alunos';
-import AppAvaliacaoDiagnostico from '../app-avaliacao-diagnostico';
-import AppAvaliacaoComponente from '../app-avaliacao-componente';
+
 
 // ----------------------------------------------------------------------
 import OverviewTableToolbar from './overview-table-toolbar';
 import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from '../../dashboards-repository';
 import Iconify from 'src/components/iconify';
+import IndicesComponent from './components/indices-component';
 
 export default function OverviewAppView() {
   const theme = useTheme();
@@ -44,9 +44,13 @@ export default function OverviewAppView() {
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   const [_escolasFiltered, setEscolasFiltered] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
+
+  const contextReady = useBoolean(false);
+  const preparacaoInicialRunned = useBoolean(false);
 
   const defaultFilters = {
     zona: [],
@@ -72,11 +76,30 @@ export default function OverviewAppView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = (anoEscolar) =>
-    // _turmasFiltered.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-    filters.turma.map((item) => item.id);
+  const getFormattedSeries = (series) => {
+    let formattedSeries = [];
+    for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
+      formattedSeries.push({
+        label: value,
+        value: series.find((item) => item.label == value)?.value ?? 0,
+      });
+    }
+    return formattedSeries;
+  };
+
+  const getTurmasPorAnoEscolar = (anoEscolar) => {
+    let _turmas;
+    if (filters.turma.length) {
+      _turmas = filters.turma;
+    } else {
+      _turmas = _turmasFiltered;
+    }
+
+    return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+  };
 
   const preencheGraficos = async () => {
+    console.log('preencheGraficos');
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
@@ -93,17 +116,15 @@ export default function OverviewAppView() {
             total_usuarios_ativos: response.data,
           }));
         }),
+      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
+        // console.table(response.data);
+        setDados((prevState) => ({
+          ...prevState,
+          total_alunos_ativos: response.data,
+        }));
+      }),
       dashboardsMethods
-        .getDashboardTotalAlunosAtivos({ ddz: fullFilters.ddz, escola: fullFilters.escola })
-        .then((response) => {
-          // console.table(response.data);
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
-      dashboardsMethods
-        .getDashboardTotalTurmasAtivas({ ...fullFilters.ddz, ...fullFilters.escola })
+        .getDashboardTotalTurmasAtivas({ ddz: fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
           // console.table(response.data);
           setDados((prevState) => ({
@@ -123,6 +144,10 @@ export default function OverviewAppView() {
         })
         .then((response) => {
           // console.table(response.data);
+          if (response.data.chart?.series) {
+            response.data.chart.series = getFormattedSeries(response.data.chart.series);
+          }
+
           setDados((prevState) => ({
             ...prevState,
             indice_fases_1_ano: response.data,
@@ -138,7 +163,10 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_1_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
+            indice_aprovacao_1_ano: {
+              ...response.data,
+              hasSeries: (response.data.categories ?? []).length > 0,
+            },
           }));
         }),
 
@@ -151,6 +179,9 @@ export default function OverviewAppView() {
         })
         .then((response) => {
           // console.table(response.data);
+          if (response.data.chart?.series) {
+            response.data.chart.series = getFormattedSeries(response.data.chart.series);
+          }
           setDados((prevState) => ({
             ...prevState,
             indice_fases_2_ano: response.data,
@@ -166,7 +197,10 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_2_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
+            indice_aprovacao_2_ano: {
+              ...response.data,
+              hasSeries: (response.data.categories ?? []).length > 0,
+            },
           }));
         }),
 
@@ -179,6 +213,9 @@ export default function OverviewAppView() {
         })
         .then((response) => {
           // console.table(response.data);
+          if (response.data.chart?.series) {
+            response.data.chart.series = getFormattedSeries(response.data.chart.series);
+          }
           setDados((prevState) => ({
             ...prevState,
             indice_fases_3_ano: response.data,
@@ -194,7 +231,10 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_3_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
+            indice_aprovacao_3_ano: {
+              ...response.data,
+              hasSeries: (response.data.categories ?? []).length > 0,
+            },
           }));
         }),
 
@@ -203,6 +243,9 @@ export default function OverviewAppView() {
         .getDashboardIndiceFases({ ...fullFilters, bimestre: null })
         .then((response) => {
           // console.table(response.data);
+          if (response.data.chart?.series) {
+            response.data.chart.series = getFormattedSeries(response.data.chart.series);
+          }
           setDados((prevState) => ({
             ...prevState,
             indice_fases_geral: response.data,
@@ -214,7 +257,10 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_geral: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
+            indice_aprovacao_geral: {
+              ...response.data,
+              hasSeries: (response.data.categories ?? []).length > 0,
+            },
           }));
         }),
 
@@ -227,7 +273,6 @@ export default function OverviewAppView() {
           desempenho_alunos: response.data,
         }));
       }),
-
     ]);
   };
 
@@ -275,25 +320,28 @@ export default function OverviewAppView() {
   );
 
   const preparacaoInicial = async () => {
-    await Promise.all([
-      buscaZonas(),
-      buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
-      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
-    ]);
+    if (preparacaoInicialRunned.value === false) {
+      preparacaoInicialRunned.onTrue();
+      console.log('preparacaoInicial');
+      await Promise.all([
+        buscaZonas(),
+        buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
+        buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
+        buscaBimestres(),
+      ]);
 
-    // preencheGraficos();
+      contextReady.onTrue();
+    }
   };
 
-  useEffect(() => {
-    preparacaoInicial();
-  }, []); // CHAMADA UNICA AO ABRIR
+  preparacaoInicial(); // chamada unica
 
   useEffect(() => {
-    if (escolas.length && turmas.length) {
+    if (contextReady.value) {
       preencheGraficos();
     }
     //
-  }, [zonas, escolas, turmas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
@@ -392,91 +440,39 @@ export default function OverviewAppView() {
           />
         </Grid>
         {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-          <Stack
-            flexGrow={1}
-            direction="row"
-            alignItems="flex-start"
-            justifyContent="space-between"
-            width="100%"
-          >
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceFases
-                title="Índice de Fases - 1º Ano"
-                chart={dados.indice_fases_1_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceAprovacao
-                title="Índice de aprovação - 1º Ano"
-                series={ dados.indice_aprovacao_1_ano.hasSeries ? (dados.indice_aprovacao_1_ano.categories ?? [{ series: [] }])[0].series : []}
-              />
-            </Grid>
-          </Stack>
+          <IndicesComponent
+            title_indice_fases="Índice de Fases - 1º Ano"
+            title_indice_aprovacao="Índice de aprovação - 1º Ano"
+            indice_fases={dados.indice_fases_1_ano}
+            indice_aprovacao={dados.indice_aprovacao_1_ano}
+          />
         )}
         {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-          <Stack
-            flexGrow={1}
-            direction="row"
-            alignItems="flex-start"
-            justifyContent="space-between"
-            width="100%"
-          >
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceFases
-                title="Índice de Fases - 2º Ano"
-                chart={dados.indice_fases_2_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceAprovacao
-                title="Índice de aprovação - 2º Ano"
-                series={dados.indice_aprovacao_2_ano.hasSeries ? (dados.indice_aprovacao_2_ano.categories ?? [{ series: [] }])[0].series : []}
-              />
-            </Grid>
-          </Stack>
+          <IndicesComponent
+            title_indice_fases="Índice de Fases - 2º Ano"
+            title_indice_aprovacao="Índice de aprovação - 2º Ano"
+            indice_fases={dados.indice_fases_2_ano}
+            indice_aprovacao={dados.indice_aprovacao_2_ano}
+          />
         )}
         {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-          <Stack
-            flexGrow={1}
-            direction="row"
-            alignItems="flex-start"
-            justifyContent="space-between"
-            width="100%"
-          >
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceFases
-                title="Índice de Fases - 3º Ano"
-                chart={dados.indice_fases_3_ano.chart ?? { series: [] }}
-              />
-            </Grid>
-            <Grid xs={12} md={6} lg={6}>
-              <AppIndiceAprovacao
-                title="Índice de aprovação - 3º Ano"
-                series={dados.indice_aprovacao_3_ano.hasSeries ? (dados.indice_aprovacao_3_ano.categories ?? [{ series: [] }])[0].series : []}
-              />
-            </Grid>
-          </Stack>
+          <IndicesComponent
+            title_indice_fases="Índice de Fases - 3º Ano"
+            title_indice_aprovacao="Índice de aprovação - 3º Ano"
+            indice_fases={dados.indice_fases_3_ano}
+            indice_aprovacao={dados.indice_aprovacao_3_ano}
+          />
         )}
-        <Stack
-          flexGrow={1}
-          direction="row"
-          alignItems="flex-start"
-          justifyContent="space-between"
-          width="100%"
-        >
-          <Grid xs={12} md={6} lg={6}>
-            <AppIndiceFases
-              title="Índice de Fases - Geral"
-              chart={dados.indice_fases_geral.chart ?? { series: [] }}
-            />
-          </Grid>
-          <Grid xs={12} md={6} lg={6}>
-            <AppIndiceAprovacao
-              title="Índice de aprovação - Geral"
-              series={dados.indice_aprovacao_geral.hasSeries ? (dados.indice_aprovacao_geral.categories ?? [{series:[]}])[0].series : []}
-            />
-          </Grid>
-        </Stack>
+        {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+          <IndicesComponent
+            title_indice_fases="Índice de Fases - Geral"
+            title_indice_aprovacao="Índice de aprovação - Geral"
+            indice_fases={dados.indice_fases_geral}
+            indice_aprovacao={dados.indice_aprovacao_geral}
+          />
+        )}
+
+
 
         <Grid xs={12}>
           <AppDesempenhoAlunos
