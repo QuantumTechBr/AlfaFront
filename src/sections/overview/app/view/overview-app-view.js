@@ -51,7 +51,7 @@ export default function OverviewAppView() {
   const defaultFilters = {
     zona: [],
     escola: [],
-    // turma: [],
+    turma: [],
   };
 
   const [filters, setFilters] = useState(defaultFilters);
@@ -70,18 +70,17 @@ export default function OverviewAppView() {
     indice_aprovacao_geral: {},
 
     desempenho_alunos: {},
-    // avaliacao_diagnostico: {},
-    // avaliacao_componente: {},
   });
 
   const getTurmasPorAnoEscolar = (anoEscolar) =>
-    _turmasFiltered.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    // _turmasFiltered.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    filters.turma.map((item) => item.id);
 
   const preencheGraficos = async () => {
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
-      // turma: filters.turma.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
     };
 
     await Promise.all([
@@ -139,7 +138,7 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_1_ano: response.data,
+            indice_aprovacao_1_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
           }));
         }),
 
@@ -167,7 +166,7 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_2_ano: response.data,
+            indice_aprovacao_2_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
           }));
         }),
 
@@ -195,7 +194,7 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_3_ano: response.data,
+            indice_aprovacao_3_ano: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
           }));
         }),
 
@@ -215,7 +214,7 @@ export default function OverviewAppView() {
           // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
-            indice_aprovacao_geral: response.data,
+            indice_aprovacao_geral: {...response.data, hasSeries: (response.data.categories ?? []).length > 0},
           }));
         }),
 
@@ -229,20 +228,6 @@ export default function OverviewAppView() {
         }));
       }),
 
-      // dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
-      //   // console.table(response.data);
-      //   setDados((prevState) => ({
-      //     ...prevState,
-      //     avaliacao_diagnostico: response.data,
-      //   }));
-      // }),
-      // dashboardsMethods.getDashboardAvaliacaoComponente(fullFilters).then((response) => {
-      //   // console.table(response.data);
-      //   // setDados((prevState) => ({
-      //   //   ...prevState,
-      //   //   avaliacao_componente: response.data,
-      //   // }));
-      // }),
     ]);
   };
 
@@ -258,25 +243,25 @@ export default function OverviewAppView() {
           setEscolasFiltered(filtered);
         }
 
-        // setTurmasFiltered(turmas);
+        setTurmasFiltered(turmas);
         setFilters((prevState) => ({
           ...prevState,
           ['escola']: [],
-          // ['turma']: [],
+          ['turma']: [],
           [campo]: value,
         }));
       } else if (campo == 'escola') {
         if (value.length == 0) {
-          // setTurmasFiltered(turmas);
+          setTurmasFiltered(turmas);
         } else {
-          // var filtered = turmas.filter((turma) =>
-          //   value.map((escola) => escola.id).includes(turma.escola.id)
-          // );
-          // setTurmasFiltered(filtered);
+          var filtered = turmas.filter((turma) =>
+            value.map((escola) => escola.id).includes(turma.escola.id)
+          );
+          setTurmasFiltered(filtered);
         }
         setFilters((prevState) => ({
           ...prevState,
-          // ['turma']: [],
+          ['turma']: [],
           [campo]: value,
         }));
       } else {
@@ -363,7 +348,7 @@ export default function OverviewAppView() {
               onFilters={handleFilters}
               zonaOptions={zonas}
               escolaOptions={_escolasFiltered || escolas}
-              // turmaOptions={_turmasFiltered || turmas}
+              turmaOptions={_turmasFiltered || turmas}
             />
           </Grid>
 
@@ -423,7 +408,7 @@ export default function OverviewAppView() {
             <Grid xs={12} md={6} lg={6}>
               <AppIndiceAprovacao
                 title="Índice de aprovação - 1º Ano"
-                series={(dados.indice_aprovacao_1_ano.categories ?? [{ series: [] }])[0].series}
+                series={ dados.indice_aprovacao_1_ano.hasSeries ? (dados.indice_aprovacao_1_ano.categories ?? [{ series: [] }])[0].series : []}
               />
             </Grid>
           </Stack>
@@ -445,7 +430,7 @@ export default function OverviewAppView() {
             <Grid xs={12} md={6} lg={6}>
               <AppIndiceAprovacao
                 title="Índice de aprovação - 2º Ano"
-                series={(dados.indice_aprovacao_2_ano.categories ?? [{ series: [] }])[0].series}
+                series={dados.indice_aprovacao_2_ano.hasSeries ? (dados.indice_aprovacao_2_ano.categories ?? [{ series: [] }])[0].series : []}
               />
             </Grid>
           </Stack>
@@ -467,7 +452,7 @@ export default function OverviewAppView() {
             <Grid xs={12} md={6} lg={6}>
               <AppIndiceAprovacao
                 title="Índice de aprovação - 3º Ano"
-                series={(dados.indice_aprovacao_3_ano.categories ?? [{ series: [] }])[0].series}
+                series={dados.indice_aprovacao_3_ano.hasSeries ? (dados.indice_aprovacao_3_ano.categories ?? [{ series: [] }])[0].series : []}
               />
             </Grid>
           </Stack>
@@ -488,7 +473,7 @@ export default function OverviewAppView() {
           <Grid xs={12} md={6} lg={6}>
             <AppIndiceAprovacao
               title="Índice de aprovação - Geral"
-              series={(dados.indice_aprovacao_geral.categories ?? [{series:[]}])[0].series}
+              series={dados.indice_aprovacao_geral.hasSeries ? (dados.indice_aprovacao_geral.categories ?? [{series:[]}])[0].series : []}
             />
           </Grid>
         </Stack>
