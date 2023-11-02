@@ -441,32 +441,28 @@ export default function OverviewAppView() {
         </Grid>
         {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            title_indice_fases="Índice de Fases - 1º Ano"
-            title_indice_aprovacao="Índice de aprovação - 1º Ano"
+            ano_ensino="1º Ano"
             indice_fases={dados.indice_fases_1_ano}
             indice_aprovacao={dados.indice_aprovacao_1_ano}
           />
         )}
         {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            title_indice_fases="Índice de Fases - 2º Ano"
-            title_indice_aprovacao="Índice de aprovação - 2º Ano"
+            ano_ensino="2º Ano"
             indice_fases={dados.indice_fases_2_ano}
             indice_aprovacao={dados.indice_aprovacao_2_ano}
           />
         )}
         {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            title_indice_fases="Índice de Fases - 3º Ano"
-            title_indice_aprovacao="Índice de aprovação - 3º Ano"
+            ano_ensino="3º Ano"
             indice_fases={dados.indice_fases_3_ano}
             indice_aprovacao={dados.indice_aprovacao_3_ano}
           />
         )}
         {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            title_indice_fases="Índice de Fases - Geral"
-            title_indice_aprovacao="Índice de aprovação - Geral"
+            ano_ensino="Geral"
             indice_fases={dados.indice_fases_geral}
             indice_aprovacao={dados.indice_aprovacao_geral}
           />
