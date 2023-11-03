@@ -8,6 +8,7 @@ import AppIndiceFases from '../../app-indice-fases';
 import { Box } from '@mui/system';
 import Typography from '@mui/material/Typography';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
+import { slugify } from 'src/utils/functions';
 
 export default function IndicesComponent({
   ano_escolar,
@@ -27,7 +28,10 @@ export default function IndicesComponent({
   const getFasesEmLinha = () => {
     return Object.entries(RegistroAprendizagemFases).map(([key, value]) => {
       return (
-        <Grid flexGrow={1}>
+        <Grid
+          key={`indice_fases_container_item_${slugify(title_indice_aprovacao)}_${key}`}
+          flexGrow={1}
+        >
           <Box
             px={1.5}
             py={0.5}
@@ -60,10 +64,15 @@ export default function IndicesComponent({
         width="100%"
       >
         <Grid xs={12} md={6} lg={7}>
-          <AppIndiceFases title={title_indice_fases} chart={indice_fases.chart ?? { series: [] }} />
+          <AppIndiceFases
+            key={`indice_fases_${slugify(title_indice_fases)}`}
+            title={title_indice_fases}
+            chart={indice_fases.chart ?? { series: [] }}
+          />
         </Grid>
         <Grid xs={12} md={6} lg={5}>
           <AppIndiceAprovacao
+            key={`indice_fases_${slugify(title_indice_aprovacao)}`}
             title={title_indice_aprovacao}
             series={
               indice_aprovacao.hasSeries
@@ -75,6 +84,7 @@ export default function IndicesComponent({
       </Stack>
 
       <Grid
+        key={`indice_fases_container_row_grid_${slugify(title_indice_aprovacao)}`}
         container
         mx={3}
         mb={2}

@@ -89,13 +89,7 @@ export default function OverviewAppView() {
   };
 
   const getTurmasPorAnoEscolar = (anoEscolar) => {
-    let _turmas;
-    if (filters.turma.length) {
-      _turmas = filters.turma;
-    } else {
-      _turmas = _turmasFiltered;
-    }
-
+    const _turmas = filters.turma.length ? filters.turma : _turmasFiltered;
     return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
   };
 
@@ -103,7 +97,6 @@ export default function OverviewAppView() {
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
-      // turma: filters.turma.map((item) => item.id),
       bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
     };
 
@@ -113,7 +106,6 @@ export default function OverviewAppView() {
         turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
       })
       .then((response) => {
-        // console.table(response.data);
         if (response.data.chart?.series) {
           response.data.chart.series = getFormattedSeries(response.data.chart.series);
         }
@@ -129,7 +121,6 @@ export default function OverviewAppView() {
           turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
         })
         .then((response) => {
-          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
@@ -152,14 +143,12 @@ export default function OverviewAppView() {
       dashboardsMethods
         .getDashboardTotalUsuariosAtivos({ ddz: fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
-          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             total_usuarios_ativos: response.data,
           }));
         }),
       dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        // console.table(response.data);
         setDados((prevState) => ({
           ...prevState,
           total_alunos_ativos: response.data,
@@ -168,7 +157,6 @@ export default function OverviewAppView() {
       dashboardsMethods
         .getDashboardTotalTurmasAtivas({ ddz: fullFilters.ddz, escola: fullFilters.escola })
         .then((response) => {
-          // console.table(response.data);
           setDados((prevState) => ({
             ...prevState,
             total_turmas_ativas: response.data,
@@ -183,7 +171,6 @@ export default function OverviewAppView() {
 
       // ## DESEMPENHO ALUNO
       dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
-        // console.table(response.data);
         setDados((prevState) => ({
           ...prevState,
           desempenho_alunos: response.data,
@@ -246,12 +233,6 @@ export default function OverviewAppView() {
         buscaBimestres(),
       ]);
 
-
-      // setFilters((prevState) => ({
-      //   ...prevState,
-      //   'bimestre': last(bimestres),
-      // }));
-
       contextReady.onTrue();
     }
   };
@@ -261,9 +242,17 @@ export default function OverviewAppView() {
   useEffect(() => {
     if (contextReady.value) {
       preencheGraficos();
+
+      if (bimestres && bimestres.length) {
+        setFilters((prevState) => ({
+          ...prevState,
+          bimestre: last(bimestres),
+        }));
+      }
     }
-    //
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+
+  useEffect(() => {}, [contextReady.value]);
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
@@ -348,7 +337,7 @@ export default function OverviewAppView() {
         </Grid>
         {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            key={'indices_component_1_ano'}
+            key="indices_component_1_ano"
             ano_escolar={1}
             indice_fases={dados.indice_fases_1_ano}
             indice_aprovacao={dados.indice_aprovacao_1_ano}
@@ -356,7 +345,7 @@ export default function OverviewAppView() {
         )}
         {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            key={'indices_component_2_ano'}
+            key="indices_component_2_ano"
             ano_escolar={2}
             indice_fases={dados.indice_fases_2_ano}
             indice_aprovacao={dados.indice_aprovacao_2_ano}
@@ -364,7 +353,7 @@ export default function OverviewAppView() {
         )}
         {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            key={'indices_component_3_ano'}
+            key="indices_component_3_ano"
             ano_escolar={3}
             indice_fases={dados.indice_fases_3_ano}
             indice_aprovacao={dados.indice_aprovacao_3_ano}
@@ -372,7 +361,7 @@ export default function OverviewAppView() {
         )}
         {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
           <IndicesComponent
-            key={'indices_component_geral'}
+            key="indices_component_geral"
             ano_escolar="Geral"
             indice_fases={dados.indice_fases_geral}
             indice_aprovacao={dados.indice_aprovacao_geral}

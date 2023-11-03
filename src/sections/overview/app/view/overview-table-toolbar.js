@@ -47,22 +47,19 @@ export default function OverviewTableToolbar({
     [onFilters]
   );
 
-  const handleFilterBimestre = useCallback(
-    (event) => {
-      onFilters(
-        'bimestre',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
-
   const handleFilterTurma = useCallback(
     (event) => {
       onFilters(
         'turma',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
+    },
+    [onFilters]
+  );
+
+  const handleFilterBimestre = useCallback(
+    (event) => {
+      onFilters('bimestre', event.target.value);
     },
     [onFilters]
   );
