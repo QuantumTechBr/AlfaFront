@@ -287,6 +287,13 @@ export const RegistroAprendizagemFases = {
   alfabetica_consolidada: 'Alfabética Consolidada',
   nao_avaliado: 'Não Avaliado',
 };
+export const RegistroAprendizagemFasesColors = {
+  pre_alfabetica: '#d11400',
+  alfabetica_parcial: '#f17105',
+  alfabetica_completa: '#ffbb00',
+  alfabetica_consolidada: '#009a50',
+  nao_avaliado: '#006abc',
+};
 
 export const _registrosAprendizagemDiagnostico = [
   {

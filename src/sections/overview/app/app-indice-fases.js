@@ -7,6 +7,7 @@ import Card from '@mui/material/Card';
 import { fNumber } from 'src/utils/format-number';
 // components
 import Chart, { useChart } from 'src/components/chart';
+import { RegistroAprendizagemFasesColors } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -31,14 +32,12 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
-  const { colors, series, options } = chart;
+  const { series, options } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {
     element.porcentagem = Math.round((element.value / totalItems) * 100);
   });
-
-
 
   const chartSeries = [
     {
@@ -61,7 +60,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
         },
       },
     },
-    colors: ['#006abc', '#ffbb00', '#d11400', '#009a50', '#f17105'],
+    colors: Object.values(RegistroAprendizagemFasesColors),
 
     dataLabels: {
       enabled: true,
@@ -69,19 +68,19 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
         return `${val}%`;
       },
       dropShadow: {
-        enabled: true,
+        enabled: false,
       },
       offsetY: 0,
       style: {
         fontSize: '13px',
         // fontWeight: `bold`,
-        colors: ['#fff'],
+        colors: ['#000'],
       },
     },
     xaxis: {
       categories: series.map((i) => i.label),
       labels: {
-        show: true,
+        show: false, // LEGENDA EIXO X
       },
     },
     yaxis: {
@@ -111,7 +110,7 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
-      
+
       <Chart
         dir="ltr"
         width={'100%'}
