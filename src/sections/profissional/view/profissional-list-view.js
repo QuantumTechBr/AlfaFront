@@ -45,6 +45,7 @@ import profissionalMethods from '../profissional-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import userMethods from 'src/sections/user/user-repository';
+import { Box, CircularProgress } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -71,25 +72,31 @@ export default function ProfissionalListView() {
 
   const [_profissionalList, setProfissionalList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
-
+  const [warningMsg, setWarningMsg] = useState('');
+  const preparado = useBoolean(false);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
 
   useEffect(() => {
     profissionalMethods.getAllProfissionais().then(profissionais => {
       if (profissionais.data.length == 0) {
-        setErrorMsg('A API retornou uma lista vazia de profissionais');
+        setWarningMsg('A API retornou uma lista vazia de profissionais');
+        preparado.onTrue(); 
       }
       setProfissionalList(profissionais.data);
-      setTableData(profissionais.data);     
+      setTableData(profissionais.data);   
+      preparado.onTrue();  
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de profissionais');
+      preparado.onTrue(); 
     })
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
+      preparado.onTrue(); 
     });
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
+      preparado.onTrue(); 
   });
   }, []);
 
@@ -216,6 +223,7 @@ export default function ProfissionalListView() {
         />
         
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
 
@@ -259,6 +267,23 @@ export default function ProfissionalListView() {
             />
 
             <Scrollbar>
+            {!preparado.value ? (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -299,7 +324,7 @@ export default function ProfissionalListView() {
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table>
+              </Table> )}
             </Scrollbar>
           </TableContainer>
 

@@ -76,8 +76,8 @@ export default function CalendarForm({ currentEvent, onClose }) {
       title: data?.title,
       tipo: data?.tipo,
       allDay: data?.allDay,
-      end: data?.allDay ?  setHours(data?.end, 3) : data?.end,
-      start: data?.allDay ? setHours(data?.start, 3) : data?.start,
+      end: data?.end,
+      start: data?.start,
       description: data?.description,
       ano_id: ano?.id,
     };
