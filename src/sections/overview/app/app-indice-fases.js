@@ -32,7 +32,7 @@ const StyledChart = styled(Chart)(({ theme }) => ({
 export default function AppIndiceFases({ title, subheader, chart, ...other }) {
   const theme = useTheme();
 
-  const { colors, series, options } = chart;
+  const { series, options } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {
