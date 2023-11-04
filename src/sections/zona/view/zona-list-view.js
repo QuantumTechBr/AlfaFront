@@ -41,9 +41,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-// import TurmaTableRow from '../turma-table-row';
-// import TurmaTableToolbar from '../turma-table-toolbar';
-// import TurmaTableFiltersResult from '../turma-table-filters-result';
+// import ZonaTableRow from '../zona-table-row';
+// import ZonaTableToolbar from '../zona-table-toolbar';
+// import ZonaTableFiltersResult from '../zona-table-filters-result';
 import ZonaTableRow from '../zona-table-row';
 //
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -72,7 +72,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function TurmaListView() {
+export default function ZonaListView() {
 
   const [_zonaList, setZonaList] = useState([]);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -141,10 +141,10 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      turmaMethods.deleteTurmaById(id).then(retorno => {
+      zonaMethods.deleteZonaById(id).then(retorno => {
         setTableData(deleteRow);
       }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+        setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
       });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -157,9 +157,9 @@ export default function TurmaListView() {
     const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        const newPromise = turmaMethods.deleteTurmaById(row.id).catch((error) => {
+        const newPromise = zonaMethods.deleteZonaById(row.id).catch((error) => {
           remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+          setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
           throw error;
         });
         promises.push(newPromise)
@@ -182,7 +182,7 @@ export default function TurmaListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.turma.edit(id));
+      router.push(paths.dashboard.zona.edit(id));
     },
     [router]
   );
@@ -211,7 +211,7 @@ export default function TurmaListView() {
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.turma.new}
+              href={paths.dashboard.zona.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
@@ -271,7 +271,7 @@ export default function TurmaListView() {
             ))}
           </Tabs> */}
 
-          {/* <TurmaTableToolbar
+          {/* <ZonaTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //roleOptions={_roles}
@@ -280,7 +280,7 @@ export default function TurmaListView() {
           /> */}
 
           {/* {canReset && (
-            <TurmaTableFiltersResult
+            <ZonaTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               //
@@ -391,7 +391,7 @@ export default function TurmaListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> turmas?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> zonas?
           </>
         }
         action={
