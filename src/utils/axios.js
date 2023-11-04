@@ -222,7 +222,7 @@ export const endpoints = {
   },
   zona: {
     list: '/api/v1/zonas/',
-    post: '/api/v1/zonas',
+    post: '/api/v1/zonas/',
     get_by_id: '/api/v1/zonas/',
     update: '/api/v1/zonas/',
     delete: '/api/v1/zonas/',

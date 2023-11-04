@@ -10,35 +10,33 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-import TurmaNewEditForm from '../turma-new-edit-form';
+import ZonaNewEditForm from '../zona-new-edit-form';
 
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import Alert from '@mui/material/Alert';
+import zonaMethods from '../zona-repository';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaEditView({ id }) {
+export default function ZonaEditView({ id }) {
   const settings = useSettingsContext();
 
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   
-  const { buscaTurmaPorId } = useContext(TurmasContext);
 
-  const [currentTurma, setCurrentTurma] = useState({});
+  const [currentZona, setCurrentZona] = useState({});
 
   useEffect(()  => {
-    buscaTurmaPorId({id}).then((turma) => {
-      if (turma.lenght == 0) {
-        setWarningMsg('A API retornou uma lista vazia de turmas');
-      }
-      setCurrentTurma(turma)
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
+    zonaMethods.getZonaById(id).then(zona => {
+      setCurrentZona(zona.data);
+    })
+   .catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
     })
   }, []);
 
-  const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
+  const nomeBreadcrumbs = currentZona?.nome;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -50,8 +48,8 @@ export default function TurmaEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'Turmas',
-            href: paths.dashboard.turma.root,
+            name: 'Zonas',
+            href: paths.dashboard.zona.root,
           },
           { name: nomeBreadcrumbs },
         ]}
@@ -62,11 +60,11 @@ export default function TurmaEditView({ id }) {
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}  
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-      <TurmaNewEditForm currentTurma={currentTurma} />
+      <ZonaNewEditForm currentZona={currentZona} />
     </Container>
   );
 }
 
-TurmaEditView.propTypes = {
+ZonaEditView.propTypes = {
   id: PropTypes.string,
 };
