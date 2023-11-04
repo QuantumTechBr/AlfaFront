@@ -30,8 +30,7 @@ export default function ZonaEditView({ id }) {
   useEffect(()  => {
     zonaMethods.getZonaById(id).then(zona => {
       setCurrentZona(zona.data);
-    })
-   .catch((error) => {
+    }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     })
   }, []);

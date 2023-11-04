@@ -18,7 +18,7 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
-// import TurmaQuickEditForm from './turma-quick-edit-form';
+import ZonaQuickEditForm from './zona-quick-edit-form';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
@@ -66,7 +66,7 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      {/* <ZonaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
+      <ZonaQuickEditForm currentZona={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -99,8 +99,8 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Turma"
-        content="Tem certeza que deseja excluir a turma?"
+        title="Excluir Zona"
+        content="Tem certeza que deseja excluir a zona?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar

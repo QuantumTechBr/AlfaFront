@@ -230,47 +230,6 @@ export default function ZonaListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-        {/* <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'true' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'false' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs> */}
-
           {/* <ZonaTableToolbar
             filters={filters}
             onFilters={handleFilters}

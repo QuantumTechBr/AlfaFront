@@ -10,35 +10,30 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-// import TurmaNewEditForm from '../turma-new-edit-form';
+import EscolaNewEditForm from '../escola-new-edit-form';
 
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import Alert from '@mui/material/Alert';
+import escolaMethods from '../escola-repository';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaEditView({ id }) {
+export default function EscolaEditView({ id }) {
   const settings = useSettingsContext();
 
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   
-  const { buscaTurmaPorId } = useContext(TurmasContext);
 
-  const [currentTurma, setCurrentTurma] = useState({});
+  const [currentEscola, setCurrentEscola] = useState({});
 
   useEffect(()  => {
-    buscaTurmaPorId({id}).then((turma) => {
-      if (turma.lenght == 0) {
-        setWarningMsg('A API retornou uma lista vazia de turmas');
-      }
-      setCurrentTurma(turma)
+    escolaMethods.getEscolaById(id).then(escola => {
+      setCurrentEscola(escola.data);
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
-    })
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
   }, []);
-
-  const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -50,10 +45,10 @@ export default function TurmaEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'Turmas',
-            href: paths.dashboard.turma.root,
+            name: 'Escolas',
+            href: paths.dashboard.escola.root,
           },
-          { name: nomeBreadcrumbs },
+          { name: currentEscola?.nome },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },
@@ -62,11 +57,11 @@ export default function TurmaEditView({ id }) {
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}  
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-      <TurmaNewEditForm currentTurma={currentTurma} />
+      <EscolaNewEditForm currentEscola={currentEscola} />
     </Container>
   );
 }
 
-TurmaEditView.propTypes = {
+EscolaEditView.propTypes = {
   id: PropTypes.string,
 };

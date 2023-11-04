@@ -97,8 +97,8 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Turma"
-        content="Tem certeza que deseja excluir a turma?"
+        title="Excluir Escola"
+        content="Tem certeza que deseja excluir a Escola?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar

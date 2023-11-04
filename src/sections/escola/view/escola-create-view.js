@@ -8,34 +8,34 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
-// import TurmaNewEditForm from '../turma-new-edit-form';
+import EscolaNewEditForm from '../escola-new-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaCreateView() {
+export default function EscolaCreateView() {
   const settings = useSettingsContext();
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Criar nova turma"
+        heading="Criar nova escola"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Turmas',
-            href: paths.dashboard.turma.root,
+            name: 'Escolas',
+            href: paths.dashboard.escola.root,
           },
-          { name: 'Nova turma' },
+          { name: 'Nova escola' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },
         }}
       />
 
-      <TurmaNewEditForm />
+      <EscolaNewEditForm />
     </Container>
   );
 }

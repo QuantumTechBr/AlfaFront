@@ -34,44 +34,45 @@ import FormProvider, {
 } from 'src/components/hook-form';
 // _mock
 import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
-
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { ZonasContext } from '../zona/context/zona-context';
 import Alert from '@mui/material/Alert';
-import zonaMethods from './zona-repository';
+import escolaMethods from './escola-repository';
 // ----------------------------------------------------------------------
 
-export default function ZonaNewEditForm({ currentZona }) {
+export default function EscolaNewEditForm({ currentEscola }) {
   const router = useRouter();
 
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+
+  const { zonas, buscaZonas } = useContext(ZonasContext);
 
   const [errorMsg, setErrorMsg] = useState('');
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const NewZonaSchema = Yup.object().shape({
+  useEffect(() => {
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
+    });
+  }, [])
+
+  const NewEscolaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    nome_responsavel: Yup.string().required('Nome do responsável é obrigatório'),
-    fone_responsavel: Yup.string().required('Fone do responsável é obrigatório'),
-    email_responsavel: Yup.string().required('E-Mail do responsável é obrigatório'),
+    endereço: Yup.string().required('Endereço é obrigatório'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      nome: currentZona?.nome || '',
-      nome_responsavel: currentZona?.nome_responsavel || '',
-      fone_responsavel: currentZona?.fone_responsavel || '',
-      email_responsavel: currentZona?.email_responsavel || '',
-      cidade: currentZona?.cidade?.nome || 'Manaus',
+      nome: currentEscola?.nome || '',
+      endereco: currentEscola?.endereco || '',
+      zona: currentEscola?.zona?.id || '',
+      cidade: currentEscola?.cidade?.nome || 'Manaus',
 
     }),
-    [currentZona]
+    [currentEscola]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewZonaSchema),
+    resolver: yupResolver(NewEscolaSchema),
     defaultValues,
   });
 
@@ -88,37 +89,36 @@ export default function ZonaNewEditForm({ currentZona }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novaZona = {
+      var novaEscola = {
         nome:  data.nome,
-        nome_responsavel: data.nome_responsavel,
-        fone_responsavel: data.fone_responsavel,
-        email_responsavel: data.email_responsavel,
+        endereco: data.endereco,
+        zona_id: data.zona,
         cidade_id: "4a12c279-f19a-fae9-9c97-9b503e4bbc2c",
       }
     
-      if (currentZona?.id) {
-        await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
+      if (currentEscola?.id) {
+        await escolaMethods.updateEscolaById(currentEscola.id, novaEscola).catch((error) => {
           throw error;
         });
         
       } else {
-        await zonaMethods.insertZona(novaZona).catch((error) => {
+        await escolaMethods.insertEscola(novaEscola).catch((error) => {
           throw error;
         });
       }
       reset();
-      enqueueSnackbar(currentZona ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      router.push(paths.dashboard.zona.list);
+      enqueueSnackbar(currentEscola ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+      router.push(paths.dashboard.escola.list);
       console.info('DATA', data);
     } catch (error) {
-      currentZona ? setErrorMsg('Tentativa de atualização da zona falhou') : setErrorMsg('Tentativa de criação da zona falhou');
+      currentEscola ? setErrorMsg('Tentativa de atualização da escola falhou') : setErrorMsg('Tentativa de criação da escola falhou');
       console.error(error);
     }
   });
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentZona]);
+  }, [currentEscola]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -127,7 +127,7 @@ export default function ZonaNewEditForm({ currentZona }) {
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
           <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
-
+          <RHFTextField name="endereco" label="Endereço" sx={{ mb: 3 }}/>
             <Box
               rowGap={3}
               columnGap={2}
@@ -138,16 +138,20 @@ export default function ZonaNewEditForm({ currentZona }) {
               }}
 
             >
-              <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }}/>
-              <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }}/>
-              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }}/>
+              <RHFSelect name="zona" label="DDZ">
+                {zonas.map((zona) => (
+                  <MenuItem key={zona.id} value={zona.id}>
+                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+                  </MenuItem>
+                ))}
+              </RHFSelect>
               <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
               
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentZona ? 'Criar Zona' : 'Atualizar Zona'}
+                {!currentEscola ? 'Criar Escola' : 'Atualizar Escola'}
               </LoadingButton>
             </Stack>
           </Card>
@@ -157,6 +161,6 @@ export default function ZonaNewEditForm({ currentZona }) {
   );
 }
 
-ZonaNewEditForm.propTypes = {
-  currentZona: PropTypes.object,
+EscolaNewEditForm.propTypes = {
+  currentEscola: PropTypes.object,
 };

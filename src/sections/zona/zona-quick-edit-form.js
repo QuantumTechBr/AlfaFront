@@ -23,49 +23,38 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import turmaMethods from '../turma/turma-repository';
+import zonaMethods from './zona-repository';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
+export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   const [errorMsg, setErrorMsg] = useState('');
 
-  useEffect(() => {
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaAnosLetivos().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de Anos Letivos');
-    });
-  }, [])
 
-  const NewTurmaSchema = Yup.object().shape({
+  const NewZonaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    ano: Yup.string().required('Ano é obrigatório'),
-    escola: Yup.string().required('Escola é obrigatório')
+    nome_responsavel: Yup.string().required('Nome do responsável é obrigatório'),
+    fone_responsavel: Yup.string().required('Fone do responsável é obrigatório'),
+    email_responsavel: Yup.string().required('E-Mail do responsável é obrigatório'),
   });
 
   const defaultValues = useMemo(
     () => ({
-      nome: currentTurma?.nome || '',
-      ano: currentTurma?.ano || '',
-      ano_id: currentTurma?.ano?.id || '',
-      ano_escolar: currentTurma?.ano_escolar || '',
-      escola: currentTurma?.escola || '',
-      escola_id: currentTurma.escola.id || '',
-      turno: currentTurma.turno?.toLowerCase() || '',
-      status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
+      nome: currentZona?.nome || '',
+      nome_responsavel: currentZona?.nome_responsavel || '',
+      fone_responsavel: currentZona?.fone_responsavel || '',
+      email_responsavel: currentZona?.email_responsavel || '',
+      cidade: currentZona?.cidade?.nome || 'Manaus',
+
     }),
-    [currentTurma]
+    [currentZona]
   );
 
   const methods = useForm({
-    // resolver: yupResolver(NewTurmaSchema),
+    resolver: yupResolver(NewZonaSchema),
     defaultValues,
   });
 
@@ -77,18 +66,15 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novaTurma = {
+      var novaZona = {
         nome:  data.nome,
-        turno: data.turno,
-        ano_letivo: data.ano_letivo
+        nome_responsavel: data.nome_responsavel,
+        fone_responsavel: data.fone_responsavel,
+        email_responsavel: data.email_responsavel,
+        cidade_id: "4a12c279-f19a-fae9-9c97-9b503e4bbc2c",
       }
-    
-      novaTurma.escola_id = data.escola_id;
-      novaTurma.ano_id = data.ano_id;
-      novaTurma.status = data.status;
-      novaTurma.ano_escolar = data.ano_escolar;
 
-      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
+      await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
         throw error;
       });
       reset() 
@@ -97,7 +83,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      setErrorMsg('Tentativa de atualização da turma falhou');
+      setErrorMsg('Tentativa de atualização da zona falhou');
       console.error(error);
     }
   });
@@ -119,57 +105,22 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
         <DialogContent>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
-          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
+          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
 
-            <RHFSelect name="ano_escolar" label="Ano Escolar">
-              {_anosSerie.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}°
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
 
-            <RHFSelect name="turno" label="Turno">
-              {_turnos.map((turno) => (
-                <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
-                  {turno}
-                </MenuItem>
-
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="ano_id" label="Ano Letivo">
-              {anosLetivos.map((ano) => (
-                <MenuItem key={ano.id} value={ano.id}>
-                  {ano.ano}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="escola_id" label="Escola">
-              {escolas.map((escola) => (
-                <MenuItem key={escola.id} value={escola.id} >
-                  {escola.nome}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            >
+              <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }}/>
+              <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }}/>
+              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }}/>
+              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
 
           </Box>
         </DialogContent>
@@ -188,8 +139,8 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   );
 }
 
-TurmaQuickEditForm.propTypes = {
-  currentTurma: PropTypes.object,
+ZonaQuickEditForm.propTypes = {
+  currentZona: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };
