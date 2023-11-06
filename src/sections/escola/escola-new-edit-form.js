@@ -89,6 +89,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      console.log('tchau');
       var novaEscola = {
         nome:  data.nome,
         endereco: data.endereco,
