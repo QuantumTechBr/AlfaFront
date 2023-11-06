@@ -20,7 +20,7 @@ DEV {
 }
 
 ## CONFIG WORKFlOW
-    Checa atualização.
+    Atualização.
     Realiza sincronismo.
    
 
