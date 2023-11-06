@@ -18,10 +18,10 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
-// import TurmaQuickEditForm from './turma-quick-edit-form';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import EscolaQuickEditForm from './escola-quick-edit-form';
 
 // ----------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
         </TableCell>
       </TableRow>
 
-      {/* <ZonaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
+      <EscolaQuickEditForm currentEscola={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}

@@ -34,16 +34,20 @@ import FormProvider, {
 } from 'src/components/hook-form';
 // _mock
 import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
-import { ZonasContext } from '../zona/context/zona-context';
+
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import Alert from '@mui/material/Alert';
 import escolaMethods from './escola-repository';
+import { ZonasContext } from '../zona/context/zona-context';
 // ----------------------------------------------------------------------
 
 export default function EscolaNewEditForm({ currentEscola }) {
   const router = useRouter();
 
-
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -57,7 +61,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
 
   const NewEscolaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    endereço: Yup.string().required('Endereço é obrigatório'),
+    endereco: Yup.string().required('Endereço é obrigatório'),
   });
 
   const defaultValues = useMemo(
@@ -66,13 +70,12 @@ export default function EscolaNewEditForm({ currentEscola }) {
       endereco: currentEscola?.endereco || '',
       zona: currentEscola?.zona?.id || '',
       cidade: currentEscola?.cidade?.nome || 'Manaus',
-
     }),
     [currentEscola]
   );
 
   const methods = useForm({
-    resolver: yupResolver(NewEscolaSchema),
+    // resolver: yupResolver(NewEscolaSchema),
     defaultValues,
   });
 
@@ -89,12 +92,12 @@ export default function EscolaNewEditForm({ currentEscola }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log('tchau');
       var novaEscola = {
         nome:  data.nome,
         endereco: data.endereco,
         zona_id: data.zona,
         cidade_id: "4a12c279-f19a-fae9-9c97-9b503e4bbc2c",
+        aluno_escola: []
       }
     
       if (currentEscola?.id) {
@@ -110,9 +113,8 @@ export default function EscolaNewEditForm({ currentEscola }) {
       reset();
       enqueueSnackbar(currentEscola ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.escola.list);
-      console.info('DATA', data);
     } catch (error) {
-      currentEscola ? setErrorMsg('Tentativa de atualização da escola falhou') : setErrorMsg('Tentativa de criação da escola falhou');
+      currentEscola ? setErrorMsg('Tentativa de atualização da Escola falhou') : setErrorMsg('Tentativa de criação da Escola falhou');
       console.error(error);
     }
   });
@@ -129,6 +131,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
           <Card sx={{ p: 3 }}>
           <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
           <RHFTextField name="endereco" label="Endereço" sx={{ mb: 3 }}/>
+
             <Box
               rowGap={3}
               columnGap={2}
