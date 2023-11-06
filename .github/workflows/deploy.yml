@@ -17,7 +17,7 @@ jobs:
       uses: actions/checkout@v2
     
     - name: ssh deploy
-      uses: easingthemes/ssh-deploy@v2.2.11
+      uses: easingthemes/ssh-deploy@main
       env:
         SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
         REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
