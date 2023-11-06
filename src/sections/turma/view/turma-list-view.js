@@ -288,7 +288,7 @@ export default function TurmaListView() {
             <TurmaTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
+              escolaOptions={escolas}
               onResetFilters={handleResetFilters}
               //
               results={dataFiltered.length}
@@ -442,7 +442,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+    inputData = inputData.filter((user) => escola.includes(user.escola.id));
   }
 
   return inputData;
