@@ -106,7 +106,7 @@ export default function OverviewAppView() {
         turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
       })
       .then((response) => {
-        if (response.data.chart?.series) {
+        if (response.data.chart?.series && response.data.chart?.series.length > 0) {
           response.data.chart.series = getFormattedSeries(response.data.chart.series);
         }
 

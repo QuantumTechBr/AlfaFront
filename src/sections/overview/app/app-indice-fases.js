@@ -67,14 +67,14 @@ export default function AppIndiceFases({ title, subheader, chart, ...other }) {
       formatter: function (val) {
         return `${val}%`;
       },
-      dropShadow: {
-        enabled: false,
-      },
       offsetY: 0,
+      dropShadow: {
+        enabled: true,
+        color: ['#000']
+      },
       style: {
-        fontSize: '13px',
-        // fontWeight: `bold`,
-        colors: ['#000'],
+        fontSize: '14px',
+        colors: ['#fff'],
       },
     },
     xaxis: {

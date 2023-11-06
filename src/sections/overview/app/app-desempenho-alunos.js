@@ -11,6 +11,7 @@ import Card from '@mui/material/Card';
 import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -21,21 +22,59 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     return <>Carregando...</>;
   }
 
-  const {
-    colors = ['#ffbb00', '#f17105', '#006abc', '#d11400', '#009a50'],
-    categories,
-    series,
-    options,
-  } = chart;
+  const colors = Object.values(RegistroAprendizagemFasesColors);
+
+  const { categories: bimestres, series, options } = chart;
 
   const popover = usePopover();
 
-  const [seriesData, setSeriesData] = useState();
+  const [seriesYearData, setSeriesYearData] = useState();
 
   const chartOptions = useChart({
-    colors: colors,
+    colors: [
+      theme.palette.grey[500],
+      theme.palette.grey[600],
+      theme.palette.grey[700],
+      theme.palette.grey[800],
+    ],
     xaxis: {
-      categories,
+      categories: Object.values(RegistroAprendizagemFases),
+      labels: {
+        style: {
+          fontSize: '14px',
+          fontWeigth: 'bold',
+          colors: colors,
+        },
+      },
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        dataLabels: {
+          position: 'top',
+        },
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      offsetY: 0,
+      dropShadow: {
+        enabled: true,
+      },
+      style: {
+        fontSize: '14px',
+        colors: ['#fff'],
+      },
+    },
+    stroke: {
+      show: true,
+      width: 1,
+      colors: ['#fff'],
+    },
+    tooltip: {
+      enabled: true,
+      shared: true,
+      intersect: false,
     },
     ...options,
   });
@@ -43,16 +82,37 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   const handleChangeSeries = useCallback(
     (newValue) => {
       popover.onClose();
-      setSeriesData(newValue);
+      setSeriesYearData(newValue);
     },
     [popover]
   );
 
   useEffect(() => {
     if (series.length) {
-      setSeriesData(`${series[0]?.year}`);
+      setSeriesYearData(`${series[0]?.year}`);
     }
   }, [series]);
+
+  const prepareData = (originalData) => {
+    const newData = [];
+    for (const [indexBimestre, bimestre] of Object.entries(bimestres)) {
+      let dataForBimestre = [];
+
+      for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
+        let searchAllValuesBimestre = originalData.find((item) => item.name == value);
+        if (searchAllValuesBimestre?.data) {
+          dataForBimestre.push(searchAllValuesBimestre.data[indexBimestre]);
+        }
+      }
+
+      newData.push({
+        name: bimestre.replace(`-`, `º `),
+        data: dataForBimestre,
+      });
+    }
+
+    return newData;
+  };
 
   if (series.length == 0) {
     return <>Sem dados para exibir.</>;
@@ -76,7 +136,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
                 bgcolor: 'background.neutral',
               }}
             >
-              {seriesData}
+              {seriesYearData}
 
               <Iconify
                 width={16}
@@ -89,13 +149,13 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
 
         {series.map((item) => (
           <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-            {item.year === seriesData && (
+            {item.year === seriesYearData && (
               <Chart
                 dir="ltr"
-                type="line"
-                series={item.data}
-                options={chartOptions}
+                type="bar"
                 height={364}
+                series={prepareData(item.data)}
+                options={chartOptions}
                 width="100%"
               />
             )}
@@ -107,7 +167,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
         {series.map((option) => (
           <MenuItem
             key={option.year}
-            selected={option.year === seriesData}
+            selected={option.year === seriesYearData}
             onClick={() => handleChangeSeries(option.year)}
           >
             {option.year}
