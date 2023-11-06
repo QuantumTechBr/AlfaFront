@@ -14,7 +14,7 @@ jobs:
     - run: ssh -i ~/.ssh/private.key -o "StrictHostKeyChecking no" ec2-user@ec2-35-173-140-221.compute-1.amazonaws.com -p 22
     
     - name: Checkout the files
-       uses: actions/checkout@v2
+       uses: "actions/checkout@v2"
       
     - name: ssh deploy
         uses: easingthemes/ssh-deploy@v2.2.11
@@ -22,4 +22,4 @@ jobs:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: /home/${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_USER }}
