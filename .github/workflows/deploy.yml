@@ -12,12 +12,10 @@ jobs:
     - run: echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/private.key
     - run: chmod 600 ~/.ssh/private.key
     - run: ssh -i ~/.ssh/private.key -o "StrictHostKeyChecking no" ec2-user@ec2-35-173-140-221.compute-1.amazonaws.com -p 22
-
     - name: Checkout the files
       uses: actions/checkout@v2
-      
     - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@v2.2.11
+        uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           REMOTE_HOST: ${{ secrets.HOST_DNS }}
