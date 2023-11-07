@@ -13,24 +13,11 @@ jobs:
     - run: chmod 600 ~/.ssh/private.key
     - run: ssh -i ~/.ssh/private.key -o "StrictHostKeyChecking no" ec2-user@ec2-35-173-140-221.compute-1.amazonaws.com -p 22
 
-    - name: E2E Test Specific - Create ssh keys
-      run: |
-        echo $HOME
-        ls -la $HOME
-        ssh-keygen -m PEM -t rsa -b 4096 -f "$HOME/.ssh/id_rsa" -N ""
-        eval `ssh-agent -s`
-        ssh-add "$HOME/.ssh/id_rsa"
-        ssh-add -l
-        echo "SSH_PRIVATE_KEY<<EOF" >> $GITHUB_ENV
-        cat $HOME/.ssh/id_rsa >> $GITHUB_ENV
-        echo "EOF" >> $GITHUB_ENV
-
-    
     - name: Checkout the files
       uses: actions/checkout@v2
     
     - name: ssh deploy
-      uses: easingthemes/ssh-deploy@main
+      uses: easingthemes/ssh-deploy@v3
       with:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           ARGS: "-rlgoDzvc -i --delete"
