@@ -22,5 +22,5 @@ DEV {
 ## CONFIG WORKFlOW
     Atualização.
     Realiza sincronismo.
-   
+    Merge.
 
