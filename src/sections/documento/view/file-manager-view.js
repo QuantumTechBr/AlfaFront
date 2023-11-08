@@ -28,6 +28,8 @@ import FileManagerGridView from '../file-manager-grid-view';
 import FileManagerFiltersResult from '../file-manager-filters-result';
 import FileManagerNewFolderDialog from '../file-manager-new-folder-dialog';
 import documentoMethods from 'src/sections/file-manager/documento-repository';
+import { Box, CircularProgress } from '@mui/material';
+import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
 
@@ -41,6 +43,8 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function FileManagerView() {
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
   const table = useTable({ defaultRowsPerPage: 10 });
 
   const settings = useSettingsContext();
@@ -83,7 +87,12 @@ export default function FileManagerView() {
 
 
   useEffect(() => {
-    buscaDocumentos({force:true}).then(retorno => setTableData(retorno));
+    buscaDocumentos({force:true}).then(retorno => {
+      if (retorno.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de documentos');
+      }
+      setTableData(retorno);
+    });
   }, []);
 
   const buscaDocumentos = async ({ force = false } = {}) => {
@@ -97,6 +106,8 @@ export default function FileManagerView() {
         setDocumentos(response.data);
         returnData = response.data;
         return returnData;
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de documentos');
       });
 
       await consultaAtual.then((value) => {
@@ -126,7 +137,9 @@ export default function FileManagerView() {
 
   const handleDeleteItem = useCallback(
     async (id) => {
-      const retorno = await documentoMethods.deleteDocumentoById(id);
+      const retorno = await documentoMethods.deleteDocumentoById(id).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
+      });
       if (retorno.status == 204) {
 
         const remainingRows = tableData.filter((row) => row.id !== id);
@@ -147,7 +160,9 @@ export default function FileManagerView() {
     const deleteRows = tableData.filter((row) => table.selected.includes(row.id));
 
     deleteRows.forEach(async row => {
-      const retorno = await documentoMethods.deleteDocumentoById(row.id);
+      const retorno = await documentoMethods.deleteDocumentoById(row.id).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
+      });
       if (retorno.status != 204) {
         console.log("Response status: ", retorno.status);
         console.log("Erro: ", retorno.data);
@@ -232,6 +247,9 @@ export default function FileManagerView() {
           </Button>
         </Stack>
 
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+
         <Stack
           spacing={2.5}
           sx={{
@@ -244,14 +262,22 @@ export default function FileManagerView() {
         </Stack>
 
         {notFound ? (
-          <EmptyContent
-            filled
-            title="No Data"
-            sx={{
-              py: 10,
-            }}
-          />
-        ) : (
+                <Box sx={{
+                  height: 100,
+                  textAlign: "center",
+                }}>
+                  <Button
+                    disabled
+                    variant="outlined"
+                    startIcon={<CircularProgress />}
+                    sx={{
+                      bgcolor: "white",
+                    }}
+                  >
+                    Carregando
+                  </Button>
+                  
+                </Box>) : (
           <>
             {view === 'list' ? (
               <FileManagerTable

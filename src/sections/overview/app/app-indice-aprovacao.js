@@ -36,9 +36,10 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
   });
 
-//   console.table(totalItems);
-//   console.table(series);
+  //   console.table(totalItems);
+  //   console.table(series);
 
+  const colors = ['#009a50', '#d11400', '#006abc'];
   const chartSeries = [
     {
       name: '',
@@ -60,7 +61,7 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
         },
       },
     },
-    colors: ['#009a50', '#d11400', '#006abc'],
+    colors: colors,
 
     dataLabels: {
       enabled: true,
@@ -72,8 +73,7 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
       },
       offsetY: 0,
       style: {
-        fontSize: '13px',
-        // fontWeight: `bold`,
+        fontSize: '14px',
         colors: ['#fff'],
       },
     },
@@ -81,6 +81,11 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
       categories: series.map((i) => i.name),
       labels: {
         show: true,
+        style: {
+          fontSize: '13px',
+          fontWeigth: 'bold',
+          colors: colors,
+        },
       },
     },
     yaxis: {

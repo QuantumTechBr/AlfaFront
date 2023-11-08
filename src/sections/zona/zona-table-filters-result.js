@@ -14,7 +14,7 @@ import Iconify from 'src/components/iconify';
 export default function TurmaTableFiltersResult({
   filters,
   onFilters,
-  escolaOptions,
+  //
   onResetFilters,
   //
   results,
@@ -23,15 +23,6 @@ export default function TurmaTableFiltersResult({
   // const handleRemoveStatus = () => {
   //   onFilters('status', 'all');
   // };
-
-  const escolasSelecionadas = [];
-
-  escolaOptions.map((escola) => {
-    if(filters.escola?.includes(escola.id)) {
-      escolasSelecionadas.push(escola)
-    }
-  })
-
 
   const handleRemoveNome = (inputValue) => {
     onFilters('nome', '');
@@ -92,8 +83,8 @@ export default function TurmaTableFiltersResult({
 
         {!!filters.escola.length && (
           <Block label="Escola:">
-            {escolasSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveEscola(item.id)} />
+            {filters.escola.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveEscola(item)} />
             ))}
           </Block>
         )}

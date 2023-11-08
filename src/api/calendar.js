@@ -46,7 +46,7 @@ export function useGetEvents() {
 function convertToEvent(event) {
   let data_inicio = new Date(event.data_inicio);
   let data_final = new Date(event.data_final);
-  let itsAllDay = data_inicio.getHours() == 3;
+  let itsAllDay = event.dia_todo ?? false;
   return {
     id: event.id,
     title: event.titulo ?? '_titulo_',
@@ -67,6 +67,7 @@ export async function createEvent(eventData) {
   const payload = {
     titulo: eventData.title,
     tipo: eventData.tipo,
+    dia_todo: eventData.allDay,
     data_inicio: format(new Date(eventData.start), 'yyyy-MM-dd HH:mm'),
     data_final: format(new Date(eventData.end), 'yyyy-MM-dd HH:mm'),
     descricao: eventData.description,
@@ -99,6 +100,7 @@ export async function updateEvent(eventData) {
   const payload = {
     titulo: eventData.title,
     tipo: eventData.tipo,
+    dia_todo: eventData.allDay,
     data_inicio: format(new Date(eventData.start), 'yyyy-MM-dd HH:mm'),
     data_final: format(new Date(eventData.end), 'yyyy-MM-dd HH:mm'),
     descricao: eventData.description,
