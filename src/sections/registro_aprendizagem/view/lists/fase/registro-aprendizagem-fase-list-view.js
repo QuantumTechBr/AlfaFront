@@ -126,7 +126,7 @@ export default function RegistroAprendizagemFaseListView() {
               ano_escolar: _turma.ano_escolar,
               nome: _turma.nome,
               turno: _turma.turno,
-              alunos: _turma.alunosTurmas.length,
+              alunos: _turma.turmas_alunos.length,
               bimestre: _bimestre,
               escola: _turma.escola.nome,
             });
