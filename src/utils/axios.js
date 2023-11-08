@@ -121,7 +121,7 @@ export const endpoints = {
   },
   escola: {
     list: '/api/v1/escolas/',
-    post: '/api/v1/escolas',
+    post: '/api/v1/escolas/',
     get_by_id: '/api/v1/escolas/',
     update: '/api/v1/escolas/',
     delete: '/api/v1/escolas/',
@@ -222,7 +222,7 @@ export const endpoints = {
   },
   zona: {
     list: '/api/v1/zonas/',
-    post: '/api/v1/zonas',
+    post: '/api/v1/zonas/',
     get_by_id: '/api/v1/zonas/',
     update: '/api/v1/zonas/',
     delete: '/api/v1/zonas/',

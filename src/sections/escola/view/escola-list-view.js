@@ -41,32 +41,28 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import TurmaTableRow from '../turma-table-row';
-import TurmaTableToolbar from '../turma-table-toolbar';
-import TurmaTableFiltersResult from '../turma-table-filters-result';
+import EscolaTableRow from '../escola-table-row';
+// import EscolaTableToolbar from '../escola-table-toolbar';
+// import EscolaTableFiltersResult from '../escola-table-filters-result';
 //
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import turmaMethods from 'src/sections/turma/turma-repository';
 import { Box, CircularProgress } from '@mui/material';
+import escolaMethods from '../escola-repository';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'ano_serie', label: 'Ano', width: 300 },
-  { id: 'nome', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
-  { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'status', label: 'Status', width: 200 },
+  { id: 'nome', label: 'Nome', width: 300 },
+  { id: 'endereco', label: 'Endereço', width: 200 },
+  { id: 'zona', label: 'DDZ', width: 100 },
+  { id: 'cidade', label: 'Cidade', width: 100 },
   { id: '', width: 88 },
 ];
 
-const anoAtual = new Date().getFullYear();
 const defaultFilters = {
   nome: '',
-  ano: anoAtual,
   ddz: [],
   escola: [],
   status: 'all',
@@ -74,10 +70,11 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function TurmaListView() {
+export default function EscolaListView() {
 
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const [_escolaList, setEscolaList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const preparado = useBoolean(false);
@@ -86,23 +83,14 @@ export default function TurmaListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    buscaTurmas({force:true}).then((_turmas) => {
-      if (_turmas.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de turmas');
-      }
-      _turmas.map((turma) => {
-        turma.status = turma.status.toString()
-      })
-      setTableData(_turmas);
+    escolaMethods.getAllEscolas().then(_escolas => {
+      setTableData(_escolas.data);
       preparado.onTrue();
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
-      preparado.onTrue();
-    });
-    buscaEscolas().catch((error) => {
+      console.log(error)
       setErrorMsg('Erro de comunicação com a API de escolas');
       preparado.onTrue();
-    });
+    })
     
   }, []);
   
@@ -146,10 +134,10 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      turmaMethods.deleteTurmaById(id).then(retorno => {
+      escolaMethods.deleteEscolaById(id).then(retorno => {
         setTableData(deleteRow);
       }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+        setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
       });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -162,9 +150,9 @@ export default function TurmaListView() {
     const promises = [];
     tableData.map((row) => {
       if(table.selected.includes(row.id)) {
-        const newPromise = turmaMethods.deleteTurmaById(row.id).catch((error) => {
+        const newPromise = escolaMethods.deleteEscolaById(row.id).catch((error) => {
           remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+          setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
           throw error;
         });
         promises.push(newPromise)
@@ -187,7 +175,7 @@ export default function TurmaListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.turma.edit(id));
+      router.push(paths.dashboard.escola.edit(id));
     },
     [router]
   );
@@ -207,16 +195,16 @@ export default function TurmaListView() {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
-          heading="Turmas"
+          heading="Escolas"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Turmas', href: paths.dashboard.turma.root },
+            { name: 'Escolas', href: paths.dashboard.escola.root },
             { name: 'Listar' },
           ]}
           action={
             <Button
               component={RouterLink}
-              href={paths.dashboard.turma.new}
+              href={paths.dashboard.escola.new}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
@@ -235,66 +223,25 @@ export default function TurmaListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-        <Tabs
-            value={filters.status}
-            onChange={handleFilterStatus}
-            sx={{
-              px: 2.5,
-              boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
-            }}
-          >
-            {STATUS_OPTIONS.map((tab) => (
-              <Tab
-                key={tab.value}
-                iconPosition="end"
-                value={tab.value}
-                label={tab.label}
-                icon={
-                  <Label
-                    variant={
-                      ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
-                    }
-                    color={
-                      (tab.value === 'true' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'false' && 'error') ||
-                      'default'
-                    }
-                  >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
-                  </Label>
-                }
-              />
-            ))}
-          </Tabs>
-
-          <TurmaTableToolbar
+          {/* <EscolaTableToolbar
             filters={filters}
             onFilters={handleFilters}
             //roleOptions={_roles}
             ddzOptions={_ddzs}
             escolaOptions={escolas}
-          />
+          /> */}
 
-          {canReset && (
-            <TurmaTableFiltersResult
+          {/* {canReset && (
+            <EscolaTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              escolaOptions={escolas}
+              //
               onResetFilters={handleResetFilters}
               //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )}
+          )} */}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
@@ -357,7 +304,7 @@ export default function TurmaListView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                     .map((row) => (
-                      <TurmaTableRow
+                      <EscolaTableRow
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
@@ -387,7 +334,7 @@ export default function TurmaListView() {
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
-        </Card>
+          </Card> 
       </Container>
 
       <ConfirmDialog
@@ -396,7 +343,7 @@ export default function TurmaListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> turmas?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> escolas?
           </>
         }
         action={
@@ -442,7 +389,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola.id));
+    inputData = inputData.filter((user) => escola.includes(user.escola));
   }
 
   return inputData;

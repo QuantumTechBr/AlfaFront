@@ -147,8 +147,8 @@ export function useNavData() {
             path: paths.dashboard.blank,
             icon: ICONS.alfaBuilding,
             children: [
-              { title: 'Lista de DDZ', path: paths.dashboard.blank },
-              { title: 'Lista de Escolas', path: paths.dashboard.blank },
+              { title: 'Lista de DDZ', path: paths.dashboard.zona.list },
+              { title: 'Lista de Escolas', path: paths.dashboard.escola.list },
             ],
           },
 

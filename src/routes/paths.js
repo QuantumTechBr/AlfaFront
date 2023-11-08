@@ -174,6 +174,18 @@ export const paths = {
       edit_componente: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/${id}/edit`,
       
     },
+    zona: {
+      root: `${ROOTS.DASHBOARD}/zona/list`,
+      new: `${ROOTS.DASHBOARD}/zona/new`,
+      list: `${ROOTS.DASHBOARD}/zona/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/zona/${id}/edit`,
+    },
+    escola: {
+      root: `${ROOTS.DASHBOARD}/escola/list`,
+      new: `${ROOTS.DASHBOARD}/escola/new`,
+      list: `${ROOTS.DASHBOARD}/escola/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/escola/${id}/edit`,
+    },
     product: {
       root: `${ROOTS.DASHBOARD}/product`,
       new: `${ROOTS.DASHBOARD}/product/new`,
