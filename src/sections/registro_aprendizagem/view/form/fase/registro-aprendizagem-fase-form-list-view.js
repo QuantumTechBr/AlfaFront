@@ -184,9 +184,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
-      prep.onFalse();
       if (type == 'change' && ['turma', 'bimestre'].includes(name)) {
         getRegistros(values.turma, values.bimestre);
+        prep.onFalse();
       }
     });
 
