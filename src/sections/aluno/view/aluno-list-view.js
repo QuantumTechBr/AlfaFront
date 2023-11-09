@@ -136,8 +136,8 @@ export default function AlunoListView() {
         }
       }).filter(Boolean)
       _alunoList.forEach( async (aluno) => {
-        if (aluno?.alunosTurmas.length) {
-          const alunoTurma = aluno.alunosTurmas.find((alunoTurma) => { 
+        if (aluno?.alunos_turmas.length) {
+          const alunoTurma = aluno.alunos_turmas.find((alunoTurma) => { 
             const turmaEncontrada = turmas.find((turma) => {
               return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
             });
@@ -160,7 +160,7 @@ export default function AlunoListView() {
           }
         }
         let alunoTurma = [];
-        aluno.alunosTurmas.forEach((turma_id) => {
+        aluno.alunos_turmas.forEach((turma_id) => {
           alunoTurma  = turmas.map((turma) => {
             if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
               return turma;
