@@ -17,12 +17,10 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableToolbar({
+export default function EscolaTableToolbar({
   filters,
   onFilters,
-  //roleOptions,
   ddzOptions,
-  escolaOptions,
 }) {
   const popover = usePopover();
 
@@ -43,19 +41,10 @@ export default function TurmaTableToolbar({
     [onFilters]
   );
 
-  const handleFilterEscola = useCallback(
-    (event) => {
-      onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
 
-  const renderValueEscola = (selected) => 
-    selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
+  const renderValueDDZ = (selected) => 
+    selected.map((ddzId) => {
+      return ddzOptions.find((option) => option.id == ddzId)?.nome;
     }).join(', ');
 
   return (
@@ -73,8 +62,7 @@ export default function TurmaTableToolbar({
         }}
       >
 
-
-        <FormControl
+       <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 100 },
@@ -87,7 +75,7 @@ export default function TurmaTableToolbar({
             value={filters.ddz}
             onChange={handleFilterDdz}
             input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueDDZ}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -95,15 +83,15 @@ export default function TurmaTableToolbar({
             }}
           >
             {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
+              <MenuItem key={option.id} value={option.id}>
+                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option.id)} />
+                {option.nome}
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+            </FormControl>
 
-        <FormControl
+        {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 300 },
@@ -123,14 +111,14 @@ export default function TurmaTableToolbar({
               },
             }}
           >
-           {escolaOptions?.map((escola) => (
+            {escolaOptions?.map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
                 <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
                 {escola.nome}
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
@@ -190,10 +178,8 @@ export default function TurmaTableToolbar({
   );
 }
 
-TurmaTableToolbar.propTypes = {
+EscolaTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  // roleOptions: PropTypes.array,
   ddzOptions: PropTypes.array,
-  escolaOptions: PropTypes.array,
 };
