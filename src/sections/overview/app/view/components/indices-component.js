@@ -14,6 +14,9 @@ export default function IndicesComponent({
   ano_escolar,
   indice_fases,
   indice_aprovacao,
+  bimestres,
+  selectedBimestre,
+  onChangeBimestre,
   ...other
 }) {
   let titulo_completo = ano_escolar;
@@ -68,6 +71,9 @@ export default function IndicesComponent({
             key={`indice_fases_${slugify(title_indice_fases)}`}
             title={title_indice_fases}
             chart={indice_fases.chart ?? { series: [] }}
+            bimestres={bimestres}
+            selectedBimestre={selectedBimestre}
+            onChangeBimestre={onChangeBimestre}
           />
         </Grid>
         <Grid xs={12} md={6} lg={5}>

@@ -259,6 +259,15 @@ export default function OverviewAppView() {
     novaAvaliacao.onFalse();
   };
 
+  const handleChangeBimestreFn = (value) => {
+    setFilters((prevState) => ({
+      ...prevState,
+      bimestre: value,
+    }));
+
+    preencheGraficos();
+  };
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -341,6 +350,9 @@ export default function OverviewAppView() {
             ano_escolar={1}
             indice_fases={dados.indice_fases_1_ano}
             indice_aprovacao={dados.indice_aprovacao_1_ano}
+            bimestres={bimestres}
+            selectedBimestre={filters.bimestre}
+            onChangeBimestre={handleChangeBimestreFn}
           />
         )}
         {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
@@ -349,6 +361,9 @@ export default function OverviewAppView() {
             ano_escolar={2}
             indice_fases={dados.indice_fases_2_ano}
             indice_aprovacao={dados.indice_aprovacao_2_ano}
+            bimestres={bimestres}
+            selectedBimestre={filters.bimestre}
+            onChangeBimestre={handleChangeBimestreFn}
           />
         )}
         {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
@@ -357,6 +372,9 @@ export default function OverviewAppView() {
             ano_escolar={3}
             indice_fases={dados.indice_fases_3_ano}
             indice_aprovacao={dados.indice_aprovacao_3_ano}
+            bimestres={bimestres}
+            selectedBimestre={filters.bimestre}
+            onChangeBimestre={handleChangeBimestreFn}
           />
         )}
         {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
@@ -365,6 +383,9 @@ export default function OverviewAppView() {
             ano_escolar="Geral"
             indice_fases={dados.indice_fases_geral}
             indice_aprovacao={dados.indice_aprovacao_geral}
+            bimestres={bimestres}
+            selectedBimestre={filters.bimestre}
+            onChangeBimestre={handleChangeBimestreFn}
           />
         )}
 

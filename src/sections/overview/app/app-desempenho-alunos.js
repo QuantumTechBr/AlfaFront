@@ -12,6 +12,7 @@ import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
+import last from 'lodash/last';
 
 // ----------------------------------------------------------------------
 
@@ -89,7 +90,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
 
   useEffect(() => {
     if (series.length) {
-      setSeriesYearData(`${series[0]?.year}`);
+      setSeriesYearData(`${last(series)?.year}`);
     }
   }, [series]);
 
