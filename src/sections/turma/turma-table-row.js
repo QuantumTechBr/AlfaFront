@@ -26,7 +26,7 @@ import { RouterLink } from 'src/routes/components';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, ano_escolar, ano, turno, alunosTurmas, media, status, created_at, updated_at, deleted_at } = row;
+  const { id, nome, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
 
   // console.log(row)
   
@@ -62,7 +62,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {alunosTurmas?.length > 0 ? alunosTurmas.length : 0}
+          {turmas_alunos?.length > 0 ? turmas_alunos.length : 0}
           <Button
               onClick={listarAlunosTurma}
               variant="contained"
