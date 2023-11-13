@@ -32,19 +32,13 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   const [seriesYearData, setSeriesYearData] = useState();
 
   const chartOptions = useChart({
-    colors: [
-      theme.palette.grey[500],
-      theme.palette.grey[600],
-      theme.palette.grey[700],
-      theme.palette.grey[800],
-    ],
+    colors: colors,
     xaxis: {
-      categories: Object.values(RegistroAprendizagemFases),
+      categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
       labels: {
         style: {
           fontSize: '14px',
           fontWeigth: 'bold',
-          colors: colors,
         },
       },
     },
@@ -94,27 +88,6 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     }
   }, [series]);
 
-  const prepareData = (originalData) => {
-    const newData = [];
-    for (const [indexBimestre, bimestre] of Object.entries(bimestres)) {
-      let dataForBimestre = [];
-
-      for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
-        let searchAllValuesBimestre = originalData.find((item) => item.name == value);
-        if (searchAllValuesBimestre?.data) {
-          dataForBimestre.push(searchAllValuesBimestre.data[indexBimestre]);
-        }
-      }
-
-      newData.push({
-        name: bimestre.replace(`-`, `º `),
-        data: dataForBimestre,
-      });
-    }
-
-    return newData;
-  };
-
   if (series.length == 0) {
     return <>Sem dados para exibir.</>;
   }
@@ -155,7 +128,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
                 dir="ltr"
                 type="bar"
                 height={364}
-                series={prepareData(item.data)}
+                series={item.data}
                 options={chartOptions}
                 width="100%"
               />

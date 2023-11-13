@@ -34,20 +34,23 @@ export default function IndicesComponent({
         <Grid
           key={`indice_fases_container_item_${slugify(title_indice_aprovacao)}_${key}`}
           flexGrow={1}
+          flexBasis={0}
         >
           <Box
-            px={1.5}
-            py={0.5}
+            minHeight={52}
+            display={'flex'}
+            justifyContent={"center"}
+            alignItems={"center"}
             sx={{
               bgcolor: RegistroAprendizagemFasesColors[key],
             }}
             textAlign={'center'}
           >
-            <Typography variant="subtitle2" color={`white`}>
+            <Typography px={0.5} py={0.5} variant="subtitle2" color="white">
               {value}
             </Typography>
           </Box>
-          <Box px={2} py={0.5} textAlign={'center'}>
+          <Box px={0} py={0.5} textAlign={'center'}>
             <Typography variant="body2">
               {indice_fases.chart.series.find((item) => item.label == value).value}
             </Typography>
@@ -57,16 +60,61 @@ export default function IndicesComponent({
     });
   };
 
+  const visaoGeral = (
+    <Grid
+      key={`indice_fases_container_row_grid_${slugify(title_indice_aprovacao)}`}
+      container
+      mx={0}
+      mb={2}
+      mt={-2}
+      pt={4}
+      flexGrow={1}
+      flexWrap="nowrap"
+      spacing={0}
+      sx={{
+        bgcolor: 'grey.200',
+        borderRadius: 1,
+        overflow: 'hidden',
+      }}
+    >
+      <Grid
+        flexBasis={0}
+        flexGrow={1}
+      >
+        <Box textAlign={'center'}>
+          <Typography px={0} py={0.5} variant="subtitle2">
+            ANO DE <br />
+            ENSINO
+          </Typography>
+        </Box>
+        <Box px={2} py={0.5} textAlign={'center'}>
+          <Typography variant="body2">{titulo_completo}</Typography>
+        </Box>
+      </Grid>
+      <Grid
+        flexGrow={1}
+        flexBasis={0}
+      >
+        <Box textAlign={'center'}>
+          <Typography px={0} py={0.5} variant="subtitle2">
+            TOTAL DE <br />
+            ESTUDANTES
+          </Typography>
+        </Box>
+        <Box px={2} py={0.5} textAlign={'center'}>
+          <Typography variant="body2">{total_estudantes}</Typography>
+        </Box>
+      </Grid>
+
+      {getFasesEmLinha()}
+    </Grid>
+  );
   return (
     <Box width="100%" mb={7}>
       <Stack
-        flexGrow={1}
         direction="row"
-        alignItems="flex-start"
-        justifyContent="space-between"
-        width="100%"
       >
-        <Grid xs={12} md={6} lg={7}>
+        <Grid xs={12} sm={12} md={12} lg={7} xl={8}>
           <AppIndiceFases
             key={`indice_fases_${slugify(title_indice_fases)}`}
             title={title_indice_fases}
@@ -75,8 +123,9 @@ export default function IndicesComponent({
             selectedBimestre={selectedBimestre}
             onChangeBimestre={onChangeBimestre}
           />
+          {visaoGeral}
         </Grid>
-        <Grid xs={12} md={6} lg={5}>
+        <Grid xs={12} sm={12} md={12} lg={5} xl={4}>
           <AppIndiceAprovacao
             key={`indice_fases_${slugify(title_indice_aprovacao)}`}
             title={title_indice_aprovacao}
@@ -88,38 +137,6 @@ export default function IndicesComponent({
           />
         </Grid>
       </Stack>
-
-      <Grid
-        key={`indice_fases_container_row_grid_${slugify(title_indice_aprovacao)}`}
-        container
-        mx={3}
-        mb={2}
-        flexGrow={1}
-        sx={{
-          bgcolor: 'grey.200',
-          borderRadius: 1,
-          overflow: 'hidden',
-        }}
-      >
-        <Grid>
-          <Box px={1.5} py={0.5} textAlign={'center'}>
-            <Typography variant="subtitle2">ANO DE ENSINO</Typography>
-          </Box>
-          <Box px={2} py={0.5} textAlign={'center'}>
-            <Typography variant="body2">{titulo_completo}</Typography>
-          </Box>
-        </Grid>
-        <Grid>
-          <Box px={1.5} py={0.5} textAlign={'center'}>
-            <Typography variant="subtitle2">TOTAL DE ESTUDANTES</Typography>
-          </Box>
-          <Box px={2} py={0.5} textAlign={'center'}>
-            <Typography variant="body2">{total_estudantes}</Typography>
-          </Box>
-        </Grid>
-
-        {getFasesEmLinha()}
-      </Grid>
     </Box>
   );
 }
