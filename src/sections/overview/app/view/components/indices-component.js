@@ -39,12 +39,12 @@ export default function IndicesComponent({
           <Box
             minHeight={52}
             display={'flex'}
-            justifyContent={"center"}
-            alignItems={"center"}
+            justifyContent={'center'}
+            alignItems={'center'}
+            textAlign={'center'}
             sx={{
               bgcolor: RegistroAprendizagemFasesColors[key],
             }}
-            textAlign={'center'}
           >
             <Typography px={0.5} py={0.5} variant="subtitle2" color="white">
               {value}
@@ -77,28 +77,32 @@ export default function IndicesComponent({
         overflow: 'hidden',
       }}
     >
-      <Grid
-        flexBasis={0}
-        flexGrow={1}
-      >
-        <Box textAlign={'center'}>
+      <Grid flexBasis={0} flexGrow={1}>
+        <Box
+          minHeight={52}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          textAlign={'center'}
+        >
           <Typography px={0} py={0.5} variant="subtitle2">
-            ANO DE <br />
-            ENSINO
+            ANO DE ENSINO
           </Typography>
         </Box>
         <Box px={2} py={0.5} textAlign={'center'}>
           <Typography variant="body2">{titulo_completo}</Typography>
         </Box>
       </Grid>
-      <Grid
-        flexGrow={1}
-        flexBasis={0}
-      >
-        <Box textAlign={'center'}>
+      <Grid flexGrow={1} flexBasis={0}>
+        <Box
+          minHeight={52}
+          display={'flex'}
+          justifyContent={'center'}
+          alignItems={'center'}
+          textAlign={'center'}
+        >
           <Typography px={0} py={0.5} variant="subtitle2">
-            TOTAL DE <br />
-            ESTUDANTES
+            TOTAL DE ESTUDANTES
           </Typography>
         </Box>
         <Box px={2} py={0.5} textAlign={'center'}>
@@ -111,9 +115,7 @@ export default function IndicesComponent({
   );
   return (
     <Box width="100%" mb={7}>
-      <Stack
-        direction="row"
-      >
+      <Stack direction="row">
         <Grid xs={12} sm={12} md={12} lg={7} xl={8}>
           <AppIndiceFases
             key={`indice_fases_${slugify(title_indice_fases)}`}
