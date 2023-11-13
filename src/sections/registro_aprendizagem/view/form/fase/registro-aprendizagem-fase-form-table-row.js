@@ -11,8 +11,8 @@ import { RHFTextField } from 'src/components/hook-form';
 import { useFormContext, Controller } from 'react-hook-form';
 
 // _mock
-import { RegistroAprendizagemFases } from 'src/_mock';
-
+import { RegistroAprendizagemFases, RegistroAprendizagemFasesEscrita } from 'src/_mock';
+import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
 import { FormControl, TextField } from '@mui/material';
 import { slugify } from 'src/utils/functions';
@@ -21,7 +21,8 @@ import { slugify } from 'src/utils/functions';
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
   const { id: aluno_turma_id, aluno } = row;
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
+  let resultado = getValues('registros[' + aluno_turma_id + '].resultado') 
 
   return (
     <>
@@ -57,6 +58,24 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
             </TableCell>
           );
         })}
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <RHFTextField 
+          key={'registros[' + aluno_turma_id + '].leitura'} 
+          name={'registros[' + aluno_turma_id + '].leitura'} 
+          disabled={true} 
+          label="" 
+          value={RegistroAprendizagemFasesLeitura[resultado]}
+          />
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <RHFTextField 
+          key={'registros[' + aluno_turma_id + '].escrita'} 
+          name={'registros[' + aluno_turma_id + '].escrita'}
+          label="" 
+          disabled={true} 
+          value={RegistroAprendizagemFasesEscrita[resultado]}
+          />
+        </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <RHFTextField name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>

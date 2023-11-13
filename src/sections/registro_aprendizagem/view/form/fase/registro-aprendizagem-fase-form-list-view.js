@@ -62,6 +62,8 @@ const TABLE_HEAD = [
   ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 80 };
   }),
+  { id: 'nome', label: 'Leitura', width: 250 },
+  { id: 'nome', label: 'Escrita', width: 150 },
   { id: 'observacao', label: 'Observação' },
 ];
 
@@ -157,7 +159,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
         let _newRegistros = [];
-        console.log(registrosDaTurmaBimestre.data)
         _turma.turmas_alunos.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
             registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
