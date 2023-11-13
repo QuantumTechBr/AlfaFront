@@ -12,6 +12,8 @@ import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
+import { fNumber, fPercent } from 'src/utils/format-number';
+
 import last from 'lodash/last';
 
 // ----------------------------------------------------------------------
@@ -70,6 +72,9 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
       enabled: true,
       shared: true,
       intersect: false,
+      y: {
+        formatter: (value) => fNumber(value),
+      },
     },
     ...options,
   });
