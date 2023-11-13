@@ -293,101 +293,110 @@ export default function OverviewAppView() {
             </Button>
           </Grid>
         </Stack>
-        <Stack flexGrow={1} direction="row" alignItems="center" justifyContent="start" width="100%">
-          <Grid xs={12} md="auto">
-            <OverviewTableToolbar
-              filters={filters}
-              onFilters={handleFilters}
-              zonaOptions={zonas}
-              escolaOptions={_escolasFiltered || escolas}
-              turmaOptions={_turmasFiltered || turmas}
-              bimestreOptions={bimestres}
+
+        <Grid container spacing={3}>
+          <Stack
+            flexGrow={1}
+            direction="row"
+            alignItems="center"
+            justifyContent="start"
+            width="100%"
+            sx={{ position: 'sticky', top: 0, zIndex:9999 }}
+          >
+            <Grid xs={12} md="auto">
+              <OverviewTableToolbar
+                filters={filters}
+                onFilters={handleFilters}
+                zonaOptions={zonas}
+                escolaOptions={_escolasFiltered || escolas}
+                turmaOptions={_turmasFiltered || turmas}
+                bimestreOptions={bimestres}
+              />
+            </Grid>
+            <Grid xs={12} md="auto">
+              <Button variant="contained" onClick={preencheGraficos}>
+                Aplicar filtro
+              </Button>
+            </Grid>
+          </Stack>
+
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Total de Usuários Ativos"
+              percents={dados.total_usuarios_ativos.percent}
+              total={dados.total_usuarios_ativos.total}
+              chart={{
+                series: dados.total_usuarios_ativos.chart ?? [],
+              }}
             />
           </Grid>
-
-          <Grid xs={12} md="auto">
-            <Button variant="contained" onClick={preencheGraficos}>
-              Aplicar filtro
-            </Button>
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Total de Alunos Cadastrados"
+              percent={dados.total_alunos_ativos.percent}
+              total={dados.total_alunos_ativos.total}
+              chart={{
+                colors: [theme.palette.info.light, theme.palette.info.main],
+                series: dados.total_alunos_ativos.chart?.series ?? [],
+              }}
+            />
           </Grid>
-        </Stack>
-        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total de Usuários Ativos"
-            percents={dados.total_usuarios_ativos.percent}
-            total={dados.total_usuarios_ativos.total}
-            chart={{
-              series: dados.total_usuarios_ativos.chart ?? [],
-            }}
-          />
+          <Grid xs={12} md={4}>
+            <AppWidgetSummary
+              title="Número de Turmas Ativas"
+              percent={dados.total_turmas_ativas.percent}
+              total={dados.total_turmas_ativas.total}
+              chart={{
+                colors: [theme.palette.warning.light, theme.palette.warning.main],
+                series: dados.total_turmas_ativas.chart?.series ?? [],
+              }}
+            />
+          </Grid>
+          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+            <IndicesComponent
+              key="indices_component_1_ano"
+              ano_escolar={1}
+              indice_fases={dados.indice_fases_1_ano}
+              indice_aprovacao={dados.indice_aprovacao_1_ano}
+              bimestres={bimestres}
+              selectedBimestre={filters.bimestre}
+              onChangeBimestre={handleChangeBimestreFn}
+            />
+          )}
+          {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
+            <IndicesComponent
+              key="indices_component_2_ano"
+              ano_escolar={2}
+              indice_fases={dados.indice_fases_2_ano}
+              indice_aprovacao={dados.indice_aprovacao_2_ano}
+              bimestres={bimestres}
+              selectedBimestre={filters.bimestre}
+              onChangeBimestre={handleChangeBimestreFn}
+            />
+          )}
+          {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
+            <IndicesComponent
+              key="indices_component_3_ano"
+              ano_escolar={3}
+              indice_fases={dados.indice_fases_3_ano}
+              indice_aprovacao={dados.indice_aprovacao_3_ano}
+              bimestres={bimestres}
+              selectedBimestre={filters.bimestre}
+              onChangeBimestre={handleChangeBimestreFn}
+            />
+          )}
+          {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+            <IndicesComponent
+              key="indices_component_geral"
+              ano_escolar="Geral"
+              indice_fases={dados.indice_fases_geral}
+              indice_aprovacao={dados.indice_aprovacao_geral}
+              bimestres={bimestres}
+              selectedBimestre={filters.bimestre}
+              onChangeBimestre={handleChangeBimestreFn}
+            />
+          )}
         </Grid>
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Total de Alunos Cadastrados"
-            percent={dados.total_alunos_ativos.percent}
-            total={dados.total_alunos_ativos.total}
-            chart={{
-              colors: [theme.palette.info.light, theme.palette.info.main],
-              series: dados.total_alunos_ativos.chart?.series ?? [],
-            }}
-          />
-        </Grid>
-        <Grid xs={12} md={4}>
-          <AppWidgetSummary
-            title="Número de Turmas Ativas"
-            percent={dados.total_turmas_ativas.percent}
-            total={dados.total_turmas_ativas.total}
-            chart={{
-              colors: [theme.palette.warning.light, theme.palette.warning.main],
-              series: dados.total_turmas_ativas.chart?.series ?? [],
-            }}
-          />
-        </Grid>
-        {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-          <IndicesComponent
-            key="indices_component_1_ano"
-            ano_escolar={1}
-            indice_fases={dados.indice_fases_1_ano}
-            indice_aprovacao={dados.indice_aprovacao_1_ano}
-            bimestres={bimestres}
-            selectedBimestre={filters.bimestre}
-            onChangeBimestre={handleChangeBimestreFn}
-          />
-        )}
-        {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-          <IndicesComponent
-            key="indices_component_2_ano"
-            ano_escolar={2}
-            indice_fases={dados.indice_fases_2_ano}
-            indice_aprovacao={dados.indice_aprovacao_2_ano}
-            bimestres={bimestres}
-            selectedBimestre={filters.bimestre}
-            onChangeBimestre={handleChangeBimestreFn}
-          />
-        )}
-        {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-          <IndicesComponent
-            key="indices_component_3_ano"
-            ano_escolar={3}
-            indice_fases={dados.indice_fases_3_ano}
-            indice_aprovacao={dados.indice_aprovacao_3_ano}
-            bimestres={bimestres}
-            selectedBimestre={filters.bimestre}
-            onChangeBimestre={handleChangeBimestreFn}
-          />
-        )}
-        {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
-          <IndicesComponent
-            key="indices_component_geral"
-            ano_escolar="Geral"
-            indice_fases={dados.indice_fases_geral}
-            indice_aprovacao={dados.indice_aprovacao_geral}
-            bimestres={bimestres}
-            selectedBimestre={filters.bimestre}
-            onChangeBimestre={handleChangeBimestreFn}
-          />
-        )}
 
         <Grid xs={12}>
           <AppDesempenhoAlunos
@@ -416,6 +425,8 @@ export default function OverviewAppView() {
           </Button>
         </Grid>
       </Grid>
+
+      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
     </Container>
   );
 }
