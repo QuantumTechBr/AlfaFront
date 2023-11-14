@@ -35,6 +35,7 @@ import dashboardsMethods from '../../dashboards-repository';
 import Iconify from 'src/components/iconify';
 import IndicesComponent from './components/indices-component';
 import last from 'lodash/last';
+import LoadindBox from 'src/components/helpers/loading-box';
 
 export default function OverviewAppView() {
   const theme = useTheme();
@@ -301,7 +302,7 @@ export default function OverviewAppView() {
             alignItems="center"
             justifyContent="start"
             width="100%"
-            sx={{ position: 'sticky', top: 0, zIndex:9999 }}
+            sx={{ position: 'sticky', top: 0, zIndex: 9999 }}
           >
             <Grid xs={12} md="auto">
               <OverviewTableToolbar
@@ -352,7 +353,7 @@ export default function OverviewAppView() {
               }}
             />
           </Grid>
-          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 ? (
             <IndicesComponent
               key="indices_component_1_ano"
               ano_escolar={1}
@@ -362,6 +363,8 @@ export default function OverviewAppView() {
               selectedBimestre={filters.bimestre}
               onChangeBimestre={handleChangeBimestreFn}
             />
+          ) : (
+            <LoadindBox />
           )}
           {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
             <IndicesComponent
@@ -398,13 +401,17 @@ export default function OverviewAppView() {
           )}
         </Grid>
 
-        <Grid xs={12}>
-          <AppDesempenhoAlunos
-            title="Desempenho dos Alunos"
-            subheader={dados.desempenho_alunos.subheader}
-            chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
-          />
-        </Grid>
+        {(dados.desempenho_alunos.chart?.series ?? []).length > 0 ? (
+          <Grid xs={12}>
+            <AppDesempenhoAlunos
+              title="Desempenho dos Alunos"
+              subheader={dados.desempenho_alunos.subheader}
+              chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
+            />
+          </Grid>
+        ) : (
+          <LoadindBox />
+        )}
 
         <Grid xs={12} lg={6} sx={{ my: 3 }}>
           <Button
