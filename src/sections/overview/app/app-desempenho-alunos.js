@@ -15,6 +15,7 @@ import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/
 import { fNumber, fPercent } from 'src/utils/format-number';
 
 import last from 'lodash/last';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -93,6 +94,24 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     }
   }, [series]);
 
+  const prepareData = (originalData) => {
+    const newData = [];
+
+    for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
+      let valoresParaFase = originalData.find((item) => item.name == fase);
+      if(valoresParaFase?.data){
+        newData.push(valoresParaFase);
+      }else{
+        newData.push({
+          name: fase,
+          data: _.times(bimestres.length, _.constant(0))
+        });
+
+      }
+    }
+    return newData;
+  };
+
   if (series.length == 0) {
     return <>Sem dados para exibir.</>;
   }
@@ -133,7 +152,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
                 dir="ltr"
                 type="bar"
                 height={364}
-                series={item.data}
+                series={prepareData(item.data)}
                 options={chartOptions}
                 width="100%"
               />
