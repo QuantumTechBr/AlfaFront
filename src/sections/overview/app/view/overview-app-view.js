@@ -35,7 +35,7 @@ import dashboardsMethods from '../../dashboards-repository';
 import Iconify from 'src/components/iconify';
 import IndicesComponent from './components/indices-component';
 import last from 'lodash/last';
-import LoadindBox from 'src/components/helpers/loading-box';
+import LoadingBox from 'src/components/helpers/loading-box';
 
 export default function OverviewAppView() {
   const theme = useTheme();
@@ -364,7 +364,7 @@ export default function OverviewAppView() {
               onChangeBimestre={handleChangeBimestreFn}
             />
           ) : (
-            <LoadindBox />
+            <LoadingBox />
           )}
           {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
             <IndicesComponent
@@ -410,7 +410,7 @@ export default function OverviewAppView() {
             />
           </Grid>
         ) : (
-          <LoadindBox />
+          <LoadingBox />
         )}
 
         <Grid xs={12} lg={6} sx={{ my: 3 }}>
