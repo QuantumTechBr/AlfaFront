@@ -2,7 +2,7 @@
 
 import { Box, Button, CircularProgress } from '@mui/material';
 
-export default function LoadindBox() {
+export default function LoadingBox() {
   return (
     <Box
       sx={{
