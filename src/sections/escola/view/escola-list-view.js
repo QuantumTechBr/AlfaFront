@@ -46,7 +46,7 @@ import EscolaTableToolbar from '../escola-table-toolbar';
 import EscolaTableFiltersResult from '../escola-table-filters-result';
 //
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
 // ----------------------------------------------------------------------
 
@@ -262,22 +262,8 @@ export default function EscolaListView() {
 
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

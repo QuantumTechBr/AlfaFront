@@ -49,7 +49,7 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 import AppAvaliacaoDiagnostico from 'src/sections/overview/app/app-avaliacao-diagnostico.js';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository.js';
 //
@@ -422,23 +422,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
             <Scrollbar>
               {!preparado.value ? (
-                <Box
-                  sx={{
-                    height: 100,
-                    textAlign: 'center',
-                  }}
-                >
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: 'white',
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                </Box>
+                <LoadingBox />
               ) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom

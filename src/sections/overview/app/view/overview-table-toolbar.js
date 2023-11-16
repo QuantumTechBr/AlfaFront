@@ -73,16 +73,18 @@ export default function OverviewTableToolbar({
   return (
     <>
       <Stack
-        spacing={2}
+        spacing={1}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
           xs: 'column',
           md: 'row',
         }}
-        sx={{
-          p: 2.5,
-          pr: { xs: 2.5, md: 1 },
-        }}
+        sx={
+          {
+            // p: 2.5,
+            // pr: { xs: 2.5, md: 1 },
+          }
+        }
       >
         <FormControl
           sx={{
@@ -90,12 +92,13 @@ export default function OverviewTableToolbar({
             width: { xs: 1, md: 150 },
           }}
         >
-          <InputLabel>DDZ</InputLabel>
+          <InputLabel size="small">DDZ</InputLabel>
           <Select
+            size="small"
             multiple
             value={filters.zona}
             onChange={handleFilterZona}
-            input={<OutlinedInput label="ZONA" />}
+            input={<OutlinedInput fullWidth label="DDZ" />}
             renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
             MenuProps={{
               PaperProps: {
@@ -115,20 +118,21 @@ export default function OverviewTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 300 },
+            width: { xs: 1, md: 450 },
           }}
         >
-          <InputLabel>Escola</InputLabel>
+          <InputLabel size="small">Escola</InputLabel>
 
           <Select
+            size="small"
             multiple
             value={filters.escola}
             onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
+            input={<OutlinedInput fullWidth label="Escola" />}
             renderValue={renderValueEscola}
             MenuProps={{
               PaperProps: {
-                sx: { maxHeight: 240 },
+                sx: { maxHeight: 240},
               },
             }}
           >
@@ -145,16 +149,17 @@ export default function OverviewTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 300 },
+              width: { xs: 1, md: 135 },
             }}
           >
-            <InputLabel>Turma</InputLabel>
+            <InputLabel size="small">Turma</InputLabel>
 
             <Select
+              size="small"
               multiple
               value={filters.turma}
               onChange={handleFilterTurma}
-              input={<OutlinedInput label="Turma" />}
+              input={<OutlinedInput fullWidth label="Turma" />}
               renderValue={renderValueTurma}
               MenuProps={{
                 PaperProps: {
@@ -179,12 +184,12 @@ export default function OverviewTableToolbar({
               width: { xs: 1, md: 120 },
             }}
           >
-            <InputLabel>Bimestre</InputLabel>
-
+            <InputLabel size="small">Bimestre</InputLabel>
             <Select
+              size="small"
               value={filters.bimestre}
               onChange={handleFilterBimestre}
-              input={<OutlinedInput label="Bimestre" />}
+              input={<OutlinedInput fullWidth label="Bimestre" />}
               renderValue={(selected) => `${selected.ordinal}º`}
               MenuProps={{
                 PaperProps: {

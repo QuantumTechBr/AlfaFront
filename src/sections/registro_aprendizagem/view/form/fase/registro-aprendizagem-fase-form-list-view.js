@@ -54,14 +54,16 @@ import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fa
 import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 150 },
+  { id: 'nome', label: 'Nome', width: 100 },
   ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
-    return { id: itemList[0], label: itemList[1], width: 80 };
+    return { id: itemList[0], label: itemList[1], width: 35 };
   }),
+  { id: 'nome', label: 'Leitura', width: 250 },
+  { id: 'nome', label: 'Escrita', width: 110 },
   { id: 'observacao', label: 'Observação' },
 ];
 
@@ -157,7 +159,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
         let _newRegistros = [];
-        console.log(registrosDaTurmaBimestre.data)
         _turma.turmas_alunos.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
             registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
@@ -297,22 +298,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar>
               {!prep.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+               ) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}

@@ -28,7 +28,7 @@ import FileManagerGridView from '../file-manager-grid-view';
 import FileManagerFiltersResult from '../file-manager-filters-result';
 import FileManagerNewFolderDialog from '../file-manager-new-folder-dialog';
 import documentoMethods from 'src/sections/file-manager/documento-repository';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
@@ -262,22 +262,8 @@ export default function FileManagerView() {
         </Stack>
 
         {notFound ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
           <>
             {view === 'list' ? (
               <FileManagerTable
