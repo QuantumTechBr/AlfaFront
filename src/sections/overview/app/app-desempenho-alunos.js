@@ -12,6 +12,10 @@ import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
+import { fNumber, fPercent } from 'src/utils/format-number';
+
+import last from 'lodash/last';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -31,19 +35,13 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   const [seriesYearData, setSeriesYearData] = useState();
 
   const chartOptions = useChart({
-    colors: [
-      theme.palette.grey[500],
-      theme.palette.grey[600],
-      theme.palette.grey[700],
-      theme.palette.grey[800],
-    ],
+    colors: colors,
     xaxis: {
-      categories: Object.values(RegistroAprendizagemFases),
+      categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
       labels: {
         style: {
           fontSize: '14px',
           fontWeigth: 'bold',
-          colors: colors,
         },
       },
     },
@@ -75,6 +73,9 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
       enabled: true,
       shared: true,
       intersect: false,
+      y: {
+        formatter: (value) => fNumber(value),
+      },
     },
     ...options,
   });
@@ -89,28 +90,25 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
 
   useEffect(() => {
     if (series.length) {
-      setSeriesYearData(`${series[0]?.year}`);
+      setSeriesYearData(`${last(series)?.year}`);
     }
   }, [series]);
 
   const prepareData = (originalData) => {
     const newData = [];
-    for (const [indexBimestre, bimestre] of Object.entries(bimestres)) {
-      let dataForBimestre = [];
 
-      for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
-        let searchAllValuesBimestre = originalData.find((item) => item.name == value);
-        if (searchAllValuesBimestre?.data) {
-          dataForBimestre.push(searchAllValuesBimestre.data[indexBimestre]);
-        }
+    for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
+      let valoresParaFase = originalData.find((item) => item.name == fase);
+      if(valoresParaFase?.data){
+        newData.push(valoresParaFase);
+      }else{
+        newData.push({
+          name: fase,
+          data: _.times(bimestres.length, _.constant(0))
+        });
+
       }
-
-      newData.push({
-        name: bimestre.replace(`-`, `º `),
-        data: dataForBimestre,
-      });
     }
-
     return newData;
   };
 
