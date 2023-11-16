@@ -45,7 +45,7 @@ import profissionalMethods from '../profissional-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import userMethods from 'src/sections/user/user-repository';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 
 // ----------------------------------------------------------------------
 
@@ -268,22 +268,8 @@ export default function ProfissionalListView() {
 
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
