@@ -287,6 +287,21 @@ export const RegistroAprendizagemFases = {
   alfabetica_consolidada: 'Alfabética Consolidada',
   nao_avaliado: 'Não Avaliado',
 };
+export const RegistroAprendizagemFasesLeitura = {
+  'Pré Alfabética': 'Predição',
+  'Alfabética Parcial': 'Analogia',
+  'Alfabética Completa': 'Decodificação',
+  'Alfabética Consolidada': 'Reconhecimento Automático',
+  'Não Avaliado': '',
+};
+export const RegistroAprendizagemFasesEscrita = {
+  'Pré Alfabética': 'Letra',
+  'Alfabética Parcial': 'Palavra',
+  'Alfabética Completa': 'Frase',
+  'Alfabética Consolidada': 'Texto',
+  'Não Avaliado': '',
+};
+
 export const RegistroAprendizagemFasesColors = {
   pre_alfabetica: '#d11400',
   alfabetica_parcial: '#f17105',
