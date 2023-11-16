@@ -75,7 +75,7 @@ export function useNavData() {
             path: paths.dashboard.blank,
             icon: ICONS.alfaUserProfile,
             children: [
-              { title: 'Perfis e Permissões', path: paths.dashboard.blank },
+              // { title: 'Perfis e Permissões', path: paths.dashboard.blank },
               { title: t('usuários'), path: paths.dashboard.user.list },
             ],
           },
@@ -102,8 +102,8 @@ export function useNavData() {
             icon: ICONS.alfaCalendar,
             children: [
               { title: t('calendário'), path: paths.dashboard.calendar },
-              { title: t('gerar relatório'), path: paths.dashboard.blank },
-              { title: t('documentos administrativos'), path: paths.dashboard.blank },
+              // { title: t('gerar relatório'), path: paths.dashboard.blank },
+              // { title: t('documentos administrativos'), path: paths.dashboard.blank },
             ],
           },
 
@@ -114,9 +114,9 @@ export function useNavData() {
             icon: ICONS.alfaBookAccount,
             children: [
               { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-              { title: t('frequência'), path: paths.dashboard.blank },
-              { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
-              { title: 'Planos de Aulas', path: paths.dashboard.blank },
+              // { title: t('frequência'), path: paths.dashboard.blank },
+              // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
+              // { title: 'Planos de Aulas', path: paths.dashboard.blank },
             ],
           },
 
