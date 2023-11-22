@@ -102,7 +102,6 @@ export default function FileManagerNewFolderDialog({
 
       const response = await insertDocumento(formData).catch(erro => {
         console.log("upload erro");
-        logout();
         throw erro;
       });
 

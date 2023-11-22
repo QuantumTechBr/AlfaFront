@@ -26,7 +26,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 
 import { AWS_S3 } from 'src/config-global';
-import { insertDocumento, getAllDocumentos } from './documento-turma-repository';
+import { insertDocumentoTurma, getAllDocumentos } from './documento-turma-repository';
 
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
@@ -50,6 +50,7 @@ export default function FileManagerNewFolderDialog({
   //
   folderName,
   onChangeFolderName,
+  turma,
   ...other
 }) {
   const [files, setFiles] = useState([]);
@@ -78,20 +79,12 @@ export default function FileManagerNewFolderDialog({
   const handleUpload = async () => {
     const file = files[0];
     let response;
-
-
-    const novoDocumento = {
-      ano_id: 'e445d95b-e92c-4fe9-b6b2-10afc66178b9', // Pegar o ano letivo atual
-      destino: "teste",
-      arquivo: file,
-    };
     
     try {
 
       let formData = new FormData();
 
-      formData.append('ano_id', novoDocumento.ano_id);
-      formData.append('destino', novoDocumento.destino);
+      formData.append('turma_id', turma.id);
       formData.append('arquivo', file)
 
       const config = {
@@ -100,9 +93,8 @@ export default function FileManagerNewFolderDialog({
         }
       }
 
-      const response = await insertDocumento(formData).catch(erro => {
+      const response = await insertDocumentoTurma(formData).catch(erro => {
         console.log("upload erro");
-        logout();
         throw erro;
       });
 
@@ -111,6 +103,7 @@ export default function FileManagerNewFolderDialog({
       
     } catch (err) {
       console.log('Error uploading object', err);
+      throw err;
     } finally {
       uploading.onFalse();
     }

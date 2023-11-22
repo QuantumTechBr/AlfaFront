@@ -30,6 +30,16 @@ import FileManagerNewFolderDialog from '../file-manager-new-folder-dialog';
 import documentoTurmaMethods from '../documento-turma-repository';
 import { Box, CircularProgress } from '@mui/material';
 import Alert from '@mui/material/Alert';
+import LoadingBox from 'src/components/helpers/loading-box';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import MenuItem from '@mui/material/MenuItem';
+import Checkbox from '@mui/material/Checkbox';
+
+// Cash
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import turmaMethods from 'src/sections/turma/turma-repository';
 
 // ----------------------------------------------------------------------
 
@@ -57,11 +67,21 @@ export default function FileManagerView() {
 
   const [view, setView] = useState('list');
 
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
+  const [ escolaSelecionada, setEscolaSelecionada ] = useState();
+
+  const [ turmaSelecionada, setTurmaSelecionada ] = useState();
+
   const [documentos, setDocumentos] = useState([]);
 
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
+  
+  const preparado = useBoolean(false);
 
   const dateError =
     filters.startDate && filters.endDate
@@ -83,39 +103,71 @@ export default function FileManagerView() {
   const canReset =
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
 
   useEffect(() => {
-    buscaDocumentos({force:true}).then(retorno => {
-      if (retorno.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de documentos');
+    const promises = [];
+
+    let escola1 = null;
+    let turma1 = null;
+
+    const escolasPromise = buscaEscolas().then(async (_escolas) => {
+      if (_escolas.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de escolas');
+      } else {
+        escola1 = _escolas[0];
+        setEscolaSelecionada(escola1);
+
+        await buscaTurmas({force:true}).then((_turmas) => {
+          if (_turmas.length == 0) {
+            setWarningMsg('A API retornou uma lista vazia de turmas');
+          } else {
+            turma1 = _turmas.find(turma => turma.escola.id == escola1.id);
+            if (turma1){
+              setTurmaSelecionada(turma1)
+            } else {
+              setTurmaSelecionada(null)
+            }
+          }
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turmas');
+        });
       }
-      setTableData(retorno);
+
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
     });
+    promises.push(escolasPromise);
+
+    Promise.all(promises).then(() => {
+      if(turma1) {
+        buscaDocumentos(turma1.id).then(retorno => {
+          if (retorno?.length == 0) {
+            setWarningMsg('A API retornou uma lista vazia de documentos');
+          }
+        });
+      }
+      preparado.onTrue()
+    })
   }, []);
 
-  const buscaDocumentos = async ({ force = false } = {}) => {
+  const buscaDocumentos = async (turmaId) => {
+    setWarningMsg('');
+    setErrorMsg('');
+    preparado.onFalse();
     let returnData = documentos;
-    if (force || documentos.length == 0) {
 
+    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
+      if (response.data == '' || response.data === undefined) response.data = [];
 
-      const consultaAtual = documentoTurmaMethods.getAllDocumentos().then((response) => {
-        if (response.data == '' || response.data === undefined) response.data = [];
+      setDocumentos(response.data);
+      returnData = response.data;
+      setTableData(response.data);
+      return returnData;
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de documentos');
+    }).finally(() => preparado.onTrue());
 
-        setDocumentos(response.data);
-        returnData = response.data;
-        return returnData;
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de documentos');
-      });
-
-      await consultaAtual.then((value) => {
-        returnData = value;
-      });
-    }
-
-    return returnData;
+    return consultaAtual;
   };
 
   const handleChangeView = useCallback((event, newView) => {
@@ -134,6 +186,38 @@ export default function FileManagerView() {
     },
     [table]
   );
+
+  
+  const handleSelectEscola = useCallback(
+    async (event) => {
+        const escolaId = typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
+        const escolas = await buscaEscolas();
+        const turmas = await buscaTurmas();
+        const escolaNova = escolas.find((option) => option.id == escolaId);
+        setEscolaSelecionada(escolaNova);
+        const turmaEscola = turmas.find(turma => turma.escola.id == escolaId);
+        if (turmaEscola){
+          setTurmaSelecionada(turmaEscola)
+          buscaDocumentos(turmaEscola.id);
+        } else {
+          setTurmaSelecionada(null);
+          setDocumentos([]);
+          setTableData([]);
+        }
+    },
+    []
+  );
+
+  const handleSelectTurma = useCallback(
+    async (event) => {
+        const turmaId = event.target.value;
+        const turmas = await buscaTurmas();
+        setTurmaSelecionada(turmas.find((option) => option.id == turmaId));
+        buscaDocumentos(turmaId);
+    },
+    []
+  );
+
 
   const handleDeleteItem = useCallback(
     async (id) => {
@@ -185,7 +269,7 @@ export default function FileManagerView() {
   const handleUploadClose = useCallback((event) => {
     console.log(event);
     if(event?.data?.id) {
-      buscaDocumentos({force:true}).then(retorno => setTableData(retorno));
+      buscaDocumentos(event.data.turma.id).then(retorno => setTableData(retorno));
     }
     
     upload.onFalse();
@@ -207,6 +291,7 @@ export default function FileManagerView() {
         //
         dateError={dateError}
         typeOptions={FILE_TYPE_OPTIONS}
+
       />
 
       <ToggleButtonGroup size="small" value={view} exclusive onChange={handleChangeView}>
@@ -233,6 +318,60 @@ export default function FileManagerView() {
     />
   );
 
+  
+  const renderValueEscola = (selected) => 
+     { return escolas.find((option) => option.id == selected)?.nome; }
+
+  const renderValueTurma = (selected) => 
+    { 
+      const turma = turmas.find((option) => option.id == selected);
+      return  `${turma.ano_escolar}º ${turma.nome} - ${turma.ano.ano}`; 
+    }
+
+  const renderFilterEscola = (
+    <Select
+      value={escolaSelecionada ? escolaSelecionada.id : ''}
+      // defaultValue={escolas.length ? escolas[0]?.id : ''}
+      onChange={handleSelectEscola}
+      input={<OutlinedInput label="Escola" />}
+      renderValue={renderValueEscola}
+      MenuProps={{
+        PaperProps: {
+          sx: { maxHeight: 240 },
+        },
+      }}
+    >
+      {escolas?.map((escola) => (
+        <MenuItem key={escola.id} value={escola.id}>
+          {escola.nome}
+        </MenuItem>
+      ))}
+    </Select>
+  )
+
+  const renderFilterTurma = (
+    <Select
+      value={turmaSelecionada ? turmaSelecionada.id : ''}
+      // defaultValue={turmas.length ? turmas[0]?.id : ''}
+      onChange={handleSelectTurma}
+      input={<OutlinedInput label="Turma" />}
+      renderValue={renderValueTurma}
+      MenuProps={{
+        PaperProps: {
+          sx: { maxHeight: 240 },
+        },
+      }}
+    >
+      {turmas?.filter(turma => turma.escola.id == escolaSelecionada?.id)?.map((turma) => (
+        <MenuItem key={turma.id} value={turma.id}>
+          {turma.ano_escolar}º {turma.nome} - {turma.ano.ano}
+        </MenuItem>
+      ))}
+    </Select>
+  )
+
+
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -251,41 +390,36 @@ export default function FileManagerView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Stack
-          spacing={2.5}
-          sx={{
-            my: { xs: 3, md: 5 },
-          }}
-        >
-          {renderFilters}
+            spacing={2.5}
+            sx={{
+              my: { xs: 3, md: 5 },
+            }}
+          >
+            {renderFilters}
 
-          {canReset && renderResults}
+            {canReset && renderResults}
         </Stack>
 
-        {notFound ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+        {!preparado.value ? (
+                  <LoadingBox />
+                ) : (
+
           <>
+            {renderFilterEscola}
+            {renderFilterTurma}
+
+            {!tableData.length && (
+              <Alert severity="warning">
+                Nenhum documento para mostrar
+              </Alert>
+            )}
             {view === 'list' ? (
               <FileManagerTable
                 table={table}
                 tableData={tableData}
                 dataFiltered={dataFiltered}
                 onDeleteRow={handleDeleteItem}
-                notFound={notFound}
+                notFound={!preparado}
                 onOpenConfirm={confirm.onTrue}
               />
             ) : (
@@ -301,7 +435,7 @@ export default function FileManagerView() {
         )}
       </Container>
 
-      <FileManagerNewFolderDialog open={upload.value} onClose={handleUploadClose} />
+      <FileManagerNewFolderDialog open={upload.value} onClose={handleUploadClose} turma={turmaSelecionada} />
 
       <ConfirmDialog
         open={confirm.value}
