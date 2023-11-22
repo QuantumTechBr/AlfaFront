@@ -32,7 +32,6 @@ import FileThumbnail from 'src/components/file-thumbnail';
 import FileManagerShareDialog from './file-manager-share-dialog';
 import FileManagerFileDetails from './file-manager-file-details';
 
-
 // ----------------------------------------------------------------------
 
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
@@ -72,6 +71,8 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
     },
     doubleClick: () => console.info('CLICK DUPLO'),
   });
+
+  const handleDownload = () => window.open(row.arquivo, '_blank');
 
   const handleCopy = useCallback(() => {
     enqueueSnackbar('Copiado!');
@@ -229,6 +230,16 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         <MenuItem
           onClick={() => {
             popover.onClose();
+            handleDownload();
+          }}
+        >
+          <Iconify icon="ph:download-duotone" />
+          Download
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            popover.onClose();
             share.onTrue();
           }}
         >
@@ -276,7 +287,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         open={confirm.value}
         onClose={confirm.onFalse}
         title="Delete"
-        content="Are you sure want to delete?"
+        content="Tem certeza que quer deletar o arquivo?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar
