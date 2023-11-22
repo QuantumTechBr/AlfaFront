@@ -21,13 +21,9 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTurmaForm({ escola, open, onClose }) {
+export default function AlunoTurmaForm({ turma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  
-
   const [errorMsg, setErrorMsg] = useState('');
-
-
   const defaultValues = useMemo(
     () => ({
 
@@ -69,13 +65,12 @@ export default function AlunoTurmaForm({ escola, open, onClose }) {
               sm: 'repeat(2, 1fr)',
             }}
           >
-
           </Box>
         </DialogContent>
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -88,7 +83,7 @@ export default function AlunoTurmaForm({ escola, open, onClose }) {
 }
 
 AlunoTurmaForm.propTypes = {
-  currentTurma: PropTypes.object,
+  turma: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };

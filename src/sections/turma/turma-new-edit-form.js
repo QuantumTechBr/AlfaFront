@@ -227,7 +227,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 Definir Alunos da Turma
               </Button>)
               }
-            <AlunoTurmaForm escola={currentTurma?.escola} open={modalAlunoTurma.value} onClose={modalAlunoTurma.onFalse} />
+            <AlunoTurmaForm turma={currentTurma} open={modalAlunoTurma.value} onClose={modalAlunoTurma.onFalse} />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
