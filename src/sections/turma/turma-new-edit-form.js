@@ -41,11 +41,13 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import turmaMethods from '../turma/turma-repository';
 import Alert from '@mui/material/Alert';
 import AlunoTurmaForm from './aluno-turma-form';
+import ProfessorTurmaForm from './professor-turma-form';
 // ----------------------------------------------------------------------
 
 export default function TurmaNewEditForm({ currentTurma }) {
   const router = useRouter();
   const modalAlunoTurma = useBoolean();
+  const modalProfessorTurma = useBoolean();
 
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -158,7 +160,6 @@ export default function TurmaNewEditForm({ currentTurma }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }}/>
 
             <Box
               rowGap={3}
@@ -170,7 +171,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
               }}
 
             >
-
+              <RHFTextField name="nome" label="Nome da Turma" />
               <RHFSelect name="ano_escolar" label="Ano">
                 {_anosSerie.map((ano) => (
                   <MenuItem key={ano} value={ano}>
@@ -196,7 +197,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
               </RHFSelect>
 
               {currentTurma ? 
-              (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
+              (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome}/>)
               :
               (<RHFSelect name="escola_id" label="Escola" >
                 {escolas.map((escola) => (
@@ -227,7 +228,20 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 Definir Alunos da Turma
               </Button>)
               }
+              {currentTurma && 
+              (<Button
+                variant="contained"
+                onClick={modalProfessorTurma.onTrue}
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                sx={{
+                  bgcolor: "#00A5AD",
+                }}
+              >
+                Definir Professor da Turma
+              </Button>)
+              }
             <AlunoTurmaForm escola={currentTurma?.escola} open={modalAlunoTurma.value} onClose={modalAlunoTurma.onFalse} />
+            <ProfessorTurmaForm escola={currentTurma?.escola} open={modalProfessorTurma.value} onClose={modalProfessorTurma.onFalse} />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
