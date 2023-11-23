@@ -75,12 +75,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                 {habilidades_options.map((hab) => (
                   <MenuItem key={id + '_hab_' + hab} value={hab} sx={{ height: '34px' }}>
                       <Tooltip title={(hab === 'D' && 'Domina') ||
-                          (hab === 'PD' && 'Parcialmente Domina') ||
+                          (hab === 'DP' && 'Domina Parcialmente') ||
                           (hab === 'ND' && 'Não Domina')}>
                       <Label
                         variant="soft"
                         color={(hab === 'D' && 'success') ||
-                          (hab === 'PD' && 'warning') ||
+                          (hab === 'DP' && 'warning') ||
                           (hab === 'ND' && 'error') ||
                           'default'}
                       >
