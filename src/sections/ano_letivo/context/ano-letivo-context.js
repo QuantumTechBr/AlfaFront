@@ -8,10 +8,14 @@ export const AnosLetivosProvider = ({ children }) => {
 
   const buscaAnosLetivos = async  ({ force = false } = {}) => {
     if (force || anosLetivos.length == 0) {
-      await anoLetivoMethods.getAllAnosLetivos().then((response) => {
+      return anoLetivoMethods.getAllAnosLetivos().then((response) => {
         if (response.data == '' || response.data === undefined) response.data = [];
-        setAnosLetivos(response.data.sort(function(a, b){return b.ano-a.ano}));
+        const anosOrdenados = response.data.sort(function(a, b){return b.ano-a.ano});
+        setAnosLetivos(anosOrdenados);
+        return anosOrdenados;
       });
+    } else {
+      return anosLetivos;
     }
   };
 

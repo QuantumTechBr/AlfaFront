@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
@@ -27,6 +27,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 import { AWS_S3 } from 'src/config-global';
 import { insertDocumento, getAllDocumentos } from './documento-repository';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 import { HttpRequest } from '@aws-sdk/protocol-http';
 import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
@@ -53,6 +54,7 @@ export default function FileManagerNewFolderDialog({
   ...other
 }) {
   const [files, setFiles] = useState([]);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   
   const uploading = useBoolean(false); 
 
@@ -76,41 +78,39 @@ export default function FileManagerNewFolderDialog({
   );
 
   const handleUpload = async () => {
-    const file = files[0];
+
     let response;
 
-
-    const novoDocumento = {
-      ano_id: 'e445d95b-e92c-4fe9-b6b2-10afc66178b9', // Pegar o ano letivo atual
-      destino: "teste",
-      arquivo: file,
-    };
+    const anos = await buscaAnosLetivos();
+    const anoAtual = new Date().getFullYear();
+    let idAnoLetivoAtual = anos.find(anoLetivo => anoLetivo.ano == anoAtual)?.id;
     
     try {
+      files.forEach(async file => {
 
-      let formData = new FormData();
-
-      formData.append('ano_id', novoDocumento.ano_id);
-      formData.append('destino', novoDocumento.destino);
-      formData.append('arquivo', file)
-
-      const config = {
-        headers: {
-          'content-type': 'multipart/form-data'
+        let formData = new FormData();
+  
+        formData.append('ano_id', idAnoLetivoAtual);
+        formData.append('destino', "TESTE");
+        formData.append('arquivo', file)
+  
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
         }
-      }
+  
+        response = await insertDocumento(formData).catch(erro => {
+          console.log("upload erro");
+          throw erro;
+        });
+        
+      })
 
-      const response = await insertDocumento(formData).catch(erro => {
-        console.log("upload erro");
-        throw erro;
-      });
-
-
-      onClose(response);
-      
     } catch (err) {
       console.log('Error uploading object', err);
     } finally {
+      onClose(response);
       uploading.onFalse();
     }
     
