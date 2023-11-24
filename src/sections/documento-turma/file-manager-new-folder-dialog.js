@@ -26,7 +26,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 
 import { AWS_S3 } from 'src/config-global';
-import { insertDocumento, getAllDocumentos } from './documento-repository';
+import { insertDocumentoTurma, getAllDocumentos } from './documento-turma-repository';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 import { HttpRequest } from '@aws-sdk/protocol-http';
@@ -51,6 +51,7 @@ export default function FileManagerNewFolderDialog({
   //
   folderName,
   onChangeFolderName,
+  turma,
   ...other
 }) {
   const [files, setFiles] = useState([]);
@@ -78,7 +79,6 @@ export default function FileManagerNewFolderDialog({
   );
 
   const handleUpload = async () => {
-
     let response;
 
     const anos = await buscaAnosLetivos();
@@ -87,28 +87,30 @@ export default function FileManagerNewFolderDialog({
     
     try {
       files.forEach(async file => {
-
+      
+        
         let formData = new FormData();
-  
-        formData.append('ano_id', idAnoLetivoAtual);
-        formData.append('destino', "TESTE");
+        
+        formData.append('turma_id', turma.id);
         formData.append('arquivo', file)
-  
         const config = {
           headers: {
             'content-type': 'multipart/form-data'
           }
         }
-  
-        response = await insertDocumento(formData).catch(erro => {
+        response = await insertDocumentoTurma(formData).catch(erro => {
           console.log("upload erro");
           throw erro;
         });
         
+        
       })
 
+
+      
     } catch (err) {
       console.log('Error uploading object', err);
+      throw err;
     } finally {
       onClose(response);
       uploading.onFalse();
