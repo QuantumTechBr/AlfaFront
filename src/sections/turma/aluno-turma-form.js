@@ -62,7 +62,8 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   useEffect(() => {
     if (open) {
       setCurrentEscola({});
-      table.setSelected(turma.turmas_alunos.map((aluno) => aluno.id));
+      let selectedList = turma.turmas_alunos.map((aluno) => aluno.id);
+      table.setSelected(selectedList);
       getEscola(turma.escola.id);
     }
   }, [open]);
