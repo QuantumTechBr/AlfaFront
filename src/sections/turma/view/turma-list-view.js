@@ -54,6 +54,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
+  { id: 'escola', label: 'Escola', width: 300 },
   { id: 'ano_serie', label: 'Ano', width: 300 },
   { id: 'nome', label: 'Turma', width: 200 },
   { id: 'turno', label: 'Turno', width: 200 },
