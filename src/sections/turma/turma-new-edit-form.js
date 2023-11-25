@@ -54,15 +54,19 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  useEffect(() => {
+  const preparacaoInicial = async () => {
+    //
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de Anos Letivos');
     });
+  };
 
-  }, [])
+  useEffect(() => {
+    preparacaoInicial();
+  }, []);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -79,7 +83,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       escola: currentTurma?.escola || '',
       escola_id: currentTurma?.escola?.id || '',
       turno: currentTurma?.turno?.toLowerCase() || '',
-      status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
+      status: (currentTurma?.status == 'true' ? 'true' : 'false') || '',
     }),
     [currentTurma]
   );
@@ -103,21 +107,20 @@ export default function TurmaNewEditForm({ currentTurma }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       var novaTurma = {
-        nome:  data.nome,
+        nome: data.nome,
         turno: data.turno,
-        ano_letivo: data.ano_letivo
-      }
-    
+        ano_letivo: data.ano_letivo,
+      };
+
       novaTurma.escola_id = data.escola_id;
       novaTurma.ano_id = data.ano_id;
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
-     
+
       if (currentTurma?.id) {
         await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
           throw error;
         });
-        
       } else {
         await turmaMethods.insertTurma(novaTurma).catch((error) => {
           throw error;
@@ -128,7 +131,9 @@ export default function TurmaNewEditForm({ currentTurma }) {
       router.push(paths.dashboard.turma.list);
       console.info('DATA', data);
     } catch (error) {
-      currentTurma ? setErrorMsg('Tentativa de atualização da turma falhou') : setErrorMsg('Tentativa de criação da turma falhou');
+      currentTurma
+        ? setErrorMsg('Tentativa de atualização da turma falhou')
+        : setErrorMsg('Tentativa de criação da turma falhou');
       console.error(error);
     }
   });
@@ -148,8 +153,8 @@ export default function TurmaNewEditForm({ currentTurma }) {
     [setValue]
   );
 
-  useEffect(()  => {
-    reset(defaultValues)
+  useEffect(() => {
+    reset(defaultValues);
   }, [currentTurma]);
 
   return (
@@ -158,7 +163,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }}/>
+            <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
 
             <Box
               rowGap={3}
@@ -168,9 +173,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 xs: 'repeat(1, 1fr)',
                 sm: 'repeat(2, 1fr)',
               }}
-
             >
-
               <RHFSelect name="ano_escolar" label="Ano">
                 {_anosSerie.map((ano) => (
                   <MenuItem key={ano} value={ano}>
@@ -195,39 +198,48 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 ))}
               </RHFSelect>
 
-              {currentTurma ? 
-              (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
-              :
-              (<RHFSelect name="escola_id" label="Escola" >
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id} >
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>)
-              }
+              {currentTurma ? (
+                <RHFTextField
+                  name="escola"
+                  disabled={true}
+                  value={currentTurma.escola?.nome}
+                  sx={{ mb: 3 }}
+                />
+              ) : (
+                <RHFSelect name="escola_id" label="Escola">
+                  {escolas.map((escola) => (
+                    <MenuItem key={escola.id} value={escola.id}>
+                      {escola.nome}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
+              )}
 
               <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
-            {currentTurma && 
-              (<Button
-                variant="contained"
-                onClick={modalAlunoTurma.onTrue}
-                startIcon={<Iconify icon="mingcute:add-line" />}
-                sx={{
-                  bgcolor: "#00A5AD",
-                }}
-              >
-                Definir Alunos da Turma
-              </Button>)
-              }
-            <AlunoTurmaForm turma={currentTurma} open={modalAlunoTurma.value} onClose={modalAlunoTurma.onFalse} />
+              {currentTurma && (
+                <Button
+                  variant="contained"
+                  onClick={ () => { modalAlunoTurma.onTrue(); }}
+                  startIcon={<Iconify icon="mingcute:add-line" />}
+                  sx={{
+                    bgcolor: '#00A5AD',
+                  }}
+                >
+                  Definir Alunos da Turma
+                </Button>
+              )}
+              <AlunoTurmaForm
+                turma={currentTurma}
+                open={modalAlunoTurma.value}
+                onClose={modalAlunoTurma.onFalse}
+              />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
