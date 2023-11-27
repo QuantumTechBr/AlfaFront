@@ -25,7 +25,7 @@ import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function TurmaTableRow({ row, showEscola, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, nome, escola, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
 
   // console.log(row)
@@ -53,7 +53,7 @@ export default function TurmaTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
+        {showEscola && (<TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>)}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}° ano</TableCell>
 
@@ -156,5 +156,6 @@ TurmaTableRow.propTypes = {
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
   row: PropTypes.object,
+  showEscola: PropTypes.bool,
   selected: PropTypes.bool,
 };

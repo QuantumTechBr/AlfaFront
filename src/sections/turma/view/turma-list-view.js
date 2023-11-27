@@ -53,16 +53,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
-const TABLE_HEAD = [
-  { id: 'escola', label: 'Escola', width: 300 },
-  { id: 'ano_serie', label: 'Ano', width: 300 },
-  { id: 'nome', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
-  { id: 'alunos', label: 'Alunos', width: 200 },
-  { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
-];
+
 
 const anoAtual = new Date().getFullYear();
 const defaultFilters = {
@@ -82,6 +73,18 @@ export default function TurmaListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const preparado = useBoolean(false);
+
+  let TABLE_HEAD = [
+    ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
+    // escolas.length ? { id: 'escola', label: 'Escola', width: 300 } : null,
+    { id: 'ano_serie', label: 'Ano', width: 300 },
+    { id: 'nome', label: 'Turma', width: 200 },
+    { id: 'turno', label: 'Turno', width: 200 },
+    { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
+    { id: 'alunos', label: 'Alunos', width: 200 },
+    { id: 'status', label: 'Status', width: 200 },
+    { id: '', width: 88 },
+  ];
 
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
@@ -347,6 +350,7 @@ export default function TurmaListView() {
                       <TurmaTableRow
                         key={row.id}
                         row={row}
+                        showEscola={escolas.length > 1}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
