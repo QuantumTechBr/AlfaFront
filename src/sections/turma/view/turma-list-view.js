@@ -76,7 +76,6 @@ export default function TurmaListView() {
 
   let TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
-    // escolas.length ? { id: 'escola', label: 'Escola', width: 300 } : null,
     { id: 'ano_serie', label: 'Ano', width: 300 },
     { id: 'nome', label: 'Turma', width: 200 },
     { id: 'turno', label: 'Turno', width: 200 },
