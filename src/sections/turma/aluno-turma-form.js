@@ -3,6 +3,8 @@ import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import every from 'lodash/every';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -67,6 +69,11 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       .getEscolaById(id)
       .then((escola) => {
         setCurrentEscola(escola.data);
+        
+        let selectedList = turma.turmas_alunos.map((aluno) => aluno.id);
+        let preSelectedList = selectedList.every((a) => escola.data.alunoEscolas.map((v) => v.aluno.id).includes(a.id));
+        table.setSelected(preSelectedList);
+
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
@@ -84,8 +91,6 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   useEffect(() => {
     if (open) {
       setCurrentEscola({});
-      let selectedList = turma.turmas_alunos.map((aluno) => aluno.id);
-      table.setSelected(selectedList);
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
@@ -122,6 +127,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       // reset();
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
       console.info('DATA', data);
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');

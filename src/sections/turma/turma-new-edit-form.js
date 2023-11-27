@@ -158,99 +158,103 @@ export default function TurmaNewEditForm({ currentTurma }) {
   }, [currentTurma]);
 
   return (
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
-            <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
+    <>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        <Grid container spacing={3}>
+          <Grid xs={12} md={8}>
+            <Card sx={{ p: 3 }}>
+              <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
 
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <RHFSelect name="ano_escolar" label="Ano">
-                {_anosSerie.map((ano) => (
-                  <MenuItem key={ano} value={ano}>
-                    {ano}°
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect name="turno" label="Turno">
-                {_turnos.map((turno) => (
-                  <MenuItem key={turno} value={turno}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect name="ano_id" label="Ano Letivo">
-                {anosLetivos.map((ano) => (
-                  <MenuItem key={ano.id} value={ano.id}>
-                    {ano.ano}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              {currentTurma ? (
-                <RHFTextField
-                  name="escola"
-                  disabled={true}
-                  value={currentTurma.escola?.nome}
-                  sx={{ mb: 3 }}
-                />
-              ) : (
-                <RHFSelect name="escola_id" label="Escola">
-                  {escolas.map((escola) => (
-                    <MenuItem key={escola.id} value={escola.id}>
-                      {escola.nome}
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
+              >
+                <RHFSelect name="ano_escolar" label="Ano">
+                  {_anosSerie.map((ano) => (
+                    <MenuItem key={ano} value={ano}>
+                      {ano}°
                     </MenuItem>
                   ))}
                 </RHFSelect>
-              )}
 
-              <RHFSelect name="status" label="Status">
-                {USER_STATUS_OPTIONS.map((status) => (
-                  <MenuItem key={status.value} value={status.value}>
-                    {status.label}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+                <RHFSelect name="turno" label="Turno">
+                  {_turnos.map((turno) => (
+                    <MenuItem key={turno} value={turno}>
+                      <Box sx={{ textTransform: 'capitalize' }}>{turno}</Box>
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
 
-              {currentTurma && (
-                <Button
-                  variant="contained"
-                  onClick={ () => { modalAlunoTurma.onTrue(); }}
-                  startIcon={<Iconify icon="mingcute:add-line" />}
-                  sx={{
-                    bgcolor: '#00A5AD',
-                  }}
-                >
-                  Definir Alunos da Turma
-                </Button>
-              )}
-              <AlunoTurmaForm
-                turma={currentTurma}
-                open={modalAlunoTurma.value}
-                onClose={modalAlunoTurma.onFalse}
-              />
-            </Box>
+                <RHFSelect name="ano_id" label="Ano Letivo">
+                  {anosLetivos.map((ano) => (
+                    <MenuItem key={ano.id} value={ano.id}>
+                      {ano.ano}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentTurma ? 'Criar Turma' : 'Atualizar Turma'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+                {currentTurma ? (
+                  <RHFTextField
+                    name="escola"
+                    disabled={true}
+                    value={currentTurma.escola?.nome}
+                    sx={{ mb: 3 }}
+                  />
+                ) : (
+                  <RHFSelect name="escola_id" label="Escola">
+                    {escolas.map((escola) => (
+                      <MenuItem key={escola.id} value={escola.id}>
+                        {escola.nome}
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
+                )}
+
+                <RHFSelect name="status" label="Status">
+                  {USER_STATUS_OPTIONS.map((status) => (
+                    <MenuItem key={status.value} value={status.value}>
+                      {status.label}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
+
+                {currentTurma && (
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      modalAlunoTurma.onTrue();
+                    }}
+                    startIcon={<Iconify icon="mingcute:add-line" />}
+                    sx={{
+                      bgcolor: '#00A5AD',
+                    }}
+                  >
+                    Definir Alunos da Turma
+                  </Button>
+                )}
+              </Box>
+
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentTurma ? 'Criar Turma' : 'Atualizar Turma'}
+                </LoadingButton>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </FormProvider>
+      </FormProvider>
+      <AlunoTurmaForm
+        turma={currentTurma}
+        open={modalAlunoTurma.value}
+        onClose={modalAlunoTurma.onFalse}
+      />
+    </>
   );
 }
 
