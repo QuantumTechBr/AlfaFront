@@ -11,11 +11,13 @@ import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider from 'src/components/hook-form';
-import { _habilidades, _roles, _ddzs, _escolas } from 'src/_mock';
+import { _habilidades, _roles, _ddzs, _escolas, habilidades_options } from 'src/_mock';
 import { useEffect, useState } from 'react';
 import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
+import Label from 'src/components/label';
+import { Box } from '@mui/material';
 
 
 // ----------------------------------------------------------------------
@@ -132,7 +134,24 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
-      <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
+        {habilidades_options.map((hab) => (
+          hab === '' ? ('') :
+          (<Label
+            variant="soft"
+            color={(hab === 'D' && 'success') ||
+              (hab === 'DP' && 'warning') ||
+              (hab === 'ND' && 'error') ||
+              'default'}
+            sx={{ mt: 3}}  
+          >
+            {(hab === 'D' && `${hab} = Domina`) ||
+            (hab === 'DP' && `${hab} = Domina Parcialmente`) ||
+            (hab === 'ND' && `${hab} = Não Domina`)}
+          </Label>)
+        ))}
+      </Stack>
+      <Stack alignItems="flex-end" sx={{ mt: 3, mr: 3 }}>
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar
         </LoadingButton>
