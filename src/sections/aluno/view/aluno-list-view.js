@@ -55,12 +55,12 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Aluno', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
-  { id: 'ano', label: 'Ano', width: 200 },
-  { id: 'turma', label: 'Turma', width: 200 },
-  { id: 'turno', label: 'Turno', width: 200 },
-  { id: 'escola', label: 'Escola', width: 200 },
-  { id: 'fase', label: 'Fase', width: 200 },
-  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100 },
+  { id: 'ano', label: 'Ano', width: 200, notsortable: true },
+  { id: 'turma', label: 'Turma', width: 200, notsortable: true },
+  { id: 'turno', label: 'Turno', width: 200, notsortable: true },
+  { id: 'escola', label: 'Escola', width: 200, notsortable: true },
+  { id: 'fase', label: 'Fase', width: 200, notsortable: true },
+  { id: 'data_nascimento', label: 'Data de Nascimento', width: 100, notsortable: true },
   { id: '', width: 88 },
 ];
 
@@ -80,6 +80,7 @@ export default function AlunoListView() {
   };
 
   const [_alunoList, setAlunoList] = useState([]);
+  const [countAlunos, setCountAlunos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -100,6 +101,27 @@ export default function AlunoListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
+  const buscaAlunos = async (pagina=1, linhasPorPagina=25) => {
+    const offset = (pagina-1)*linhasPorPagina;
+    const limit = linhasPorPagina;
+    
+    await alunoMethods.getAllAlunos(offset, limit).then(alunos => {
+      if (alunos.data.count == 0) {
+        setWarningMsg('A API retornou uma lista vazia de alunos');
+        // setAlunoList([]);
+        preparado.onTrue();
+      } else {
+        let listaAlunos = alunos.data.results
+        setAlunoList([...listaAlunos, ..._alunoList]);
+      }
+      setCountAlunos(alunos.data.count);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de alunos');
+      console.log(error);
+      preparado.onTrue();
+    });
+  }
+
   const preparacaoInicial = async () => {
       await buscaAnosLetivos().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
@@ -113,17 +135,11 @@ export default function AlunoListView() {
         setErrorMsg('Erro de comunicação com a API de turmas');
         preparado.onTrue();
       });
-      await alunoMethods.getAllAlunos().then(alunos => {
-        if (alunos.data.length == 0) {
-          setWarningMsg('A API retornou uma lista vazia de alunos')
-          setAlunoList([]);
-          preparado.onTrue();
-        }
-        setAlunoList(alunos.data);
-      }).catch((error) => {
+      await buscaAlunos().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de alunos');
+        console.log(error);
         preparado.onTrue();
-      });
+      });;
   };
 
   const preencheTabela = async () => {
@@ -191,6 +207,18 @@ export default function AlunoListView() {
     }
   };
 
+  const onChangePage = useCallback((event, newPage) => {
+    if (_alunoList.length < newPage*table.rowsPerPage) {
+      buscaAlunos(newPage, table.rowsPerPage);
+    }
+    table.setPage(newPage);
+  }, []);
+
+  const onChangeRowsPerPage = useCallback((event) => {
+    table.setPage(0);
+    table.setRowsPerPage(parseInt(event.target.value, 10));
+  }, []);
+
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
@@ -234,6 +262,7 @@ export default function AlunoListView() {
         setTableData(deleteRow);
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+        console.log(error);
       });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
@@ -249,6 +278,7 @@ export default function AlunoListView() {
         const newPromise = alunoMethods.deleteAlunoById(row.id).catch((error) => {
           remainingRows.push(row);
           setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+          console.log(error);
           throw error;
         });
         promises.push(newPromise)
@@ -420,11 +450,11 @@ export default function AlunoListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={countAlunos}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
