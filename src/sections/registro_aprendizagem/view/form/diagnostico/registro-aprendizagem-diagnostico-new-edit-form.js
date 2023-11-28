@@ -134,7 +134,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
-      <Box>
+      <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
         {habilidades_options.map((hab) => (
           hab === '' ? ('') :
           (<Label
@@ -143,15 +143,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
               (hab === 'DP' && 'warning') ||
               (hab === 'ND' && 'error') ||
               'default'}
-            sx={{ mt: 3, ml: 10 }}  
+            sx={{ mt: 3}}  
           >
             {(hab === 'D' && `${hab} = Domina`) ||
             (hab === 'DP' && `${hab} = Domina Parcialmente`) ||
             (hab === 'ND' && `${hab} = Não Domina`)}
           </Label>)
         ))}
-      </Box>
-      <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+      </Stack>
+      <Stack alignItems="flex-end" sx={{ mt: 3, mr: 3 }}>
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar
         </LoadingButton>
