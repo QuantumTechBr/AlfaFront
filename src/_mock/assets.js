@@ -286,7 +286,6 @@ export const RegistroAprendizagemFasesCRUD = {
   alfabetica_parcial: 'Alfabética Parcial',
   alfabetica_completa: 'Alfabética Completa',
   alfabetica_consolidada: 'Alfabética Consolidada',
-  nao_avaliado: 'Não Avaliado',
 };
 
 export const RegistroAprendizagemFases = {
