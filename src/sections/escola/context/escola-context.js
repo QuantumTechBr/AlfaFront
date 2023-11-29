@@ -23,7 +23,7 @@ export const EscolasProvider = ({ children }) => {
         returnData = value;
       });
     }
-    console.log(returnData);
+    // console.log(returnData);
     return returnData;
   };
 
