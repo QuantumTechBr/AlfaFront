@@ -30,8 +30,6 @@ export const AnosLetivosProvider = ({ children }) => {
   };
 
   return (
-    <AnosLetivosContext.Provider value={{ anosLetivos, buscaAnosLetivos }}>
-      {children}
-    </AnosLetivosContext.Provider>
+    <AnosLetivosContext.Provider value={{ anosLetivos, buscaAnosLetivos }}>{children}</AnosLetivosContext.Provider>
   );
 };
