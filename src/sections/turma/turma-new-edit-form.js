@@ -41,11 +41,13 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import turmaMethods from '../turma/turma-repository';
 import Alert from '@mui/material/Alert';
 import AlunoTurmaForm from './aluno-turma-form';
+import ProfessorTurmaForm from './professor-turma-form';
 // ----------------------------------------------------------------------
 
 export default function TurmaNewEditForm({ currentTurma }) {
   const router = useRouter();
   const modalAlunoTurma = useBoolean();
+  const modalProfessorTurma = useBoolean();
 
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -238,6 +240,18 @@ export default function TurmaNewEditForm({ currentTurma }) {
                     Definir Alunos da Turma
                   </Button>
                 )}
+                {currentTurma && (
+                  <Button
+                    variant="contained"
+                    onClick={modalProfessorTurma.onTrue}
+                    startIcon={<Iconify icon="mingcute:add-line" />}
+                    sx={{
+                      bgcolor: '#00A5AD',
+                    }}
+                  >
+                    Definir Professor da Turma
+                  </Button>
+                )}
               </Box>
 
               <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -253,6 +267,11 @@ export default function TurmaNewEditForm({ currentTurma }) {
         turma={currentTurma}
         open={modalAlunoTurma.value}
         onClose={modalAlunoTurma.onFalse}
+      />
+      <ProfessorTurmaForm
+        escola={currentTurma?.escola}
+        open={modalProfessorTurma.value}
+        onClose={modalProfessorTurma.onFalse}
       />
     </>
   );

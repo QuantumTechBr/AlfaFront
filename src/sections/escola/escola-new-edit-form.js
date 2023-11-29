@@ -25,6 +25,7 @@ import { countries } from 'src/assets/data';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
+import { useBoolean } from 'src/hooks/use-boolean';
 import FormProvider, {
   RHFSelect,
   RHFSwitch,
@@ -40,10 +41,12 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import Alert from '@mui/material/Alert';
 import escolaMethods from './escola-repository';
 import { ZonasContext } from '../zona/context/zona-context';
+import AlunoEscolaForm from './aluno-escola-form';
 // ----------------------------------------------------------------------
 
 export default function EscolaNewEditForm({ currentEscola }) {
   const router = useRouter();
+  const modalAlunoEscola = useBoolean();
 
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -129,8 +132,6 @@ export default function EscolaNewEditForm({ currentEscola }) {
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
-          <RHFTextField name="endereco" label="Endereço" sx={{ mb: 3 }}/>
 
             <Box
               rowGap={3}
@@ -142,6 +143,8 @@ export default function EscolaNewEditForm({ currentEscola }) {
               }}
 
             >
+              <RHFTextField name="nome" label="Nome"/>
+          <RHFTextField name="endereco" label="Endereço" />
               <RHFSelect name="zona" label="DDZ">
                 {zonas.map((zona) => (
                   <MenuItem key={zona.id} value={zona.id}>
@@ -149,8 +152,22 @@ export default function EscolaNewEditForm({ currentEscola }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
-              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
-              
+              <RHFTextField name="cidade" label="Cidade" disabled={true} />
+
+              {currentEscola && 
+              (<Button
+                variant="contained"
+                onClick={modalAlunoEscola.onTrue}
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                sx={{
+                  bgcolor: "#00A5AD",
+                  mb: 3,
+                }}
+              >
+                Definir Alunos da Escola
+              </Button>)
+              }
+              <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>

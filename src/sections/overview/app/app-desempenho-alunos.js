@@ -33,8 +33,9 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
   const popover = usePopover();
 
   const [seriesYearData, setSeriesYearData] = useState();
+  const [preparedData, setPreparedData] = useState();
 
-  const chartOptions = useChart({
+  const chartOptionsBase = {
     colors: colors,
     xaxis: {
       categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
@@ -48,6 +49,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     plotOptions: {
       bar: {
         horizontal: false,
+        columnWidth:50,
         dataLabels: {
           position: 'top',
         },
@@ -55,6 +57,10 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     },
     dataLabels: {
       enabled: true,
+      formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
+        // return preparedData[dataPointIndex]?.porcentagem;
+        return 1;
+      },
       offsetY: 0,
       dropShadow: {
         enabled: true,
@@ -78,7 +84,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
       },
     },
     ...options,
-  });
+  };
 
   const handleChangeSeries = useCallback(
     (newValue) => {
@@ -94,23 +100,40 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     }
   }, [series]);
 
-  const prepareData = (originalData) => {
+  const prepareData = useCallback((originalData) => {
     const newData = [];
 
     for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
       let valoresParaFase = originalData.find((item) => item.name == fase);
-      if(valoresParaFase?.data){
+      if (valoresParaFase?.data) {
         newData.push(valoresParaFase);
-      }else{
+      } else {
         newData.push({
           name: fase,
-          data: _.times(bimestres.length, _.constant(0))
+          data: _.times(bimestres.length, _.constant(0)),
         });
-
       }
     }
+
+    newData.map((itemData) => {
+      itemData.totalBimestre = [];
+      itemData.porcentagem = [];
+      for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
+        let bimestreQuant = newData.reduce((total, item) => total + item.data[indexBimestre], 0);
+        itemData.totalBimestre[indexBimestre] = bimestreQuant;
+
+        itemData.porcentagem[indexBimestre] = Math.round(
+          (itemData.data[indexBimestre] / bimestreQuant) * 100
+        );
+      }
+
+      return itemData;
+    });
+
+    // console.log(newData);
+
     return newData;
-  };
+  }, []);
 
   if (series.length == 0) {
     return <>Sem dados para exibir.</>;
@@ -145,20 +168,31 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
           }
         />
 
-        {series.map((item) => (
-          <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-            {item.year === seriesYearData && (
-              <Chart
-                dir="ltr"
-                type="bar"
-                height={364}
-                series={prepareData(item.data)}
-                options={chartOptions}
-                width="100%"
-              />
-            )}
-          </Box>
-        ))}
+        {series.map((item) => {
+          let preparedData = prepareData(item.data);
+          let chartOptionsMod = chartOptionsBase;
+          chartOptionsMod.dataLabels.formatter = function (
+            value,
+            { _series, seriesIndex, dataPointIndex, w }
+          ) {
+            return `${preparedData[seriesIndex].porcentagem[dataPointIndex]}%`;
+          };
+          let chartOptions = useChart(chartOptionsBase);
+          return (
+            <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
+              {item.year === seriesYearData && (
+                <Chart
+                  dir="ltr"
+                  type="bar"
+                  height={364}
+                  series={preparedData}
+                  options={chartOptions}
+                  width="100%"
+                />
+              )}
+            </Box>
+          );
+        })}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
