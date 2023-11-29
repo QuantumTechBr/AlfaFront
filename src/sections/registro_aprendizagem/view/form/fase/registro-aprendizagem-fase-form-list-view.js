@@ -62,8 +62,8 @@ const TABLE_HEAD = [
   ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 35 };
   }),
-  { id: 'leitura', label: 'Leitura', width: 250 },
-  { id: 'escrita', label: 'Escrita', width: 110 },
+  { id: 'nome', label: 'Leitura', width: 250 },
+  { id: 'nome', label: 'Escrita', width: 110 },
   { id: 'observacao', label: 'Observação' },
 ];
 
@@ -171,7 +171,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             resultado: registroEncontrado?.resultado ?? '',
             observacao: registroEncontrado?.observacao ?? '',
           };
-
         });
         setValue('registros', _newRegistros);
 

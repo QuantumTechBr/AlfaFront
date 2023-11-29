@@ -95,14 +95,14 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           nome:  data.nome,
           email: data.email,
           senha: data.senha, 
-          login: data.email,
+          login: data.nome,
           status: data.status,
         }
       } else {
         novoUsuario = {
           nome:  data.nome,
           email: data.email,
-          login: data.email,
+          login: data.nome,
           status: data.status,
         }
       }

@@ -16,38 +16,14 @@ import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
 import { FormControl, TextField } from '@mui/material';
 import { slugify } from 'src/utils/functions';
-import { useContext } from 'react';
-import { AuthContext } from 'src/auth/context/alfa';
-import { useBoolean } from 'src/hooks/use-boolean';
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
-  
-  const { user } = useContext(AuthContext);
-  const desabilita = useBoolean(true);
-
   const { id: aluno_turma_id, aluno } = row;
   const { control, getValues } = useFormContext();
-  let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
+  let resultado = getValues('registros[' + aluno_turma_id + '].resultado') 
 
-
-  const mapDesabilitarCheckbox = {
-    'Não Avaliado' : 1,
-    'Pré Alfabética': 2,
-    'Alfabética Parcial': 3,
-    'Alfabética Completa': 4,
-    'Alfabética Consolidada': 5,
-  };
-
-  const disableCheckbox = (tipoFaseValue) => {
-    if (user.permissao_usuario[0].nome === "PROFESSOR") {
-      return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultado] ? true : false;
-    } else {
-      return false;
-    }
-  }
- 
   return (
     <>
       <TableRow hover>
@@ -70,7 +46,6 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
                 control={control}
                 render={({ field, fieldState: { error } }) => (
                   <Checkbox
-                    disabled={disableCheckbox(tipoFaseValue)}
                     checked={field.value === tipoFaseValue}
                     onChange={(event) => {
                       field.onChange(event.target.value);
@@ -85,6 +60,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
         })}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <RHFTextField 
+          key={'registros[' + aluno_turma_id + '].leitura'} 
           name={'registros[' + aluno_turma_id + '].leitura'} 
           disabled={true} 
           label="" 
@@ -93,6 +69,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <RHFTextField 
+          key={'registros[' + aluno_turma_id + '].escrita'} 
           name={'registros[' + aluno_turma_id + '].escrita'}
           label="" 
           disabled={true} 
