@@ -119,6 +119,13 @@ export const endpoints = {
     update: '/api/v1/documentos/',
     delete: '/api/v1/documentos/',
   },
+  documento_turma: {
+    list: '/api/v1/documento-turma/',
+    post: '/api/v1/documento-turma/',
+    get_by_id: '/api/v1/documento-turma/',
+    update: '/api/v1/documento-turma/',
+    delete: '/api/v1/documento-turma/',
+  },
   escola: {
     list: '/api/v1/escolas/',
     post: '/api/v1/escolas/',

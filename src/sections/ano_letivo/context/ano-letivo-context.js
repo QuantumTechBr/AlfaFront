@@ -24,6 +24,8 @@ export const AnosLetivosProvider = ({ children }) => {
       await _consultaAtual.then((value) => {
         returnData = value;
       });
+    } else {
+      return anosLetivos;
     }
 
     return returnData;

@@ -41,6 +41,7 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import turmaMethods from '../turma/turma-repository';
 import Alert from '@mui/material/Alert';
 import AlunoTurmaForm from './aluno-turma-form';
+import ProfessorTurmaForm from './professor-turma-form';
 import TextField from '@mui/material/TextField';
 import { FormControl, Paper } from '@mui/material';
 // ----------------------------------------------------------------------
@@ -48,6 +49,7 @@ import { FormControl, Paper } from '@mui/material';
 export default function TurmaNewEditForm({ currentTurma }) {
   const router = useRouter();
   const modalAlunoTurma = useBoolean();
+  const modalProfessorTurma = useBoolean();
 
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -167,7 +169,6 @@ export default function TurmaNewEditForm({ currentTurma }) {
           <Grid xs={12} md={8}>
             <Card sx={{ p: 3 }}>
               <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
-
               <Box
                 rowGap={3}
                 columnGap={2}
@@ -241,15 +242,25 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 {currentTurma && (
                   <Button
                     variant="contained"
-                    onClick={() => {
-                      modalAlunoTurma.onTrue();
-                    }}
+                    onClick={modalAlunoTurma.onTrue}
                     startIcon={<Iconify icon="mingcute:add-line" />}
                     sx={{
                       bgcolor: '#00A5AD',
                     }}
                   >
                     Definir Alunos da Turma
+                  </Button>
+                )}
+                {currentTurma && (
+                  <Button
+                    variant="contained"
+                    onClick={modalProfessorTurma.onTrue}
+                    startIcon={<Iconify icon="mingcute:add-line" />}
+                    sx={{
+                      bgcolor: '#00A5AD',
+                    }}
+                  >
+                    Definir Professor da Turma
                   </Button>
                 )}
               </Box>
@@ -267,6 +278,11 @@ export default function TurmaNewEditForm({ currentTurma }) {
         turma={currentTurma}
         open={modalAlunoTurma.value}
         onClose={modalAlunoTurma.onFalse}
+      />
+      <ProfessorTurmaForm
+        escola={currentTurma?.escola}
+        open={modalProfessorTurma.value}
+        onClose={modalProfessorTurma.onFalse}
       />
     </>
   );

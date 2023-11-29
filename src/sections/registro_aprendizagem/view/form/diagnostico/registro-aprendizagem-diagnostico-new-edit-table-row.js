@@ -74,19 +74,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               <RHFSelect name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
                 {habilidades_options.map((hab) => (
                   <MenuItem key={id + '_hab_' + hab} value={hab} sx={{ height: '34px' }}>
-                      <Tooltip title={(hab === 'D' && 'Domina') ||
-                          (hab === 'PD' && 'Parcialmente Domina') ||
-                          (hab === 'ND' && 'Não Domina')}>
                       <Label
                         variant="soft"
                         color={(hab === 'D' && 'success') ||
-                          (hab === 'PD' && 'warning') ||
+                          (hab === 'DP' && 'warning') ||
                           (hab === 'ND' && 'error') ||
                           'default'}
                       >
                         {hab}
-                      </Label>
-                  </Tooltip>
+                      </Label> 
                     </MenuItem>
                 ))}
               </RHFSelect>
