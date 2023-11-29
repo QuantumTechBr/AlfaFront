@@ -220,7 +220,6 @@ export default function TurmaNewEditForm({ currentTurma }) {
                     </Typography>
                   </Paper>
                 ) : (
-                  // <></>
 
                   <RHFSelect name="escola_id" label="Escola">
                     {escolas.map((escola) => (
