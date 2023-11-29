@@ -302,7 +302,7 @@ export default function OverviewAppView() {
             alignItems="center"
             justifyContent="start"
             width="100%"
-            sx={{ position: 'sticky', top: 0, zIndex: 9999 }}
+            sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
           >
             <Grid xs={12} md="auto">
               <OverviewTableToolbar
