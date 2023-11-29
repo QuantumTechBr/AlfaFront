@@ -72,7 +72,7 @@ export function useNavData() {
           // USER
           {
             title: 'Gerenciamento de Usuários',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.user.list,
             icon: ICONS.alfaUserProfile,
             children: [
               // { title: 'Perfis e Permissões', path: paths.dashboard.blank },
@@ -98,7 +98,7 @@ export function useNavData() {
           // ANOS
           {
             title: 'Lista de Anos Letivos',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.calendar,
             icon: ICONS.alfaCalendar,
             children: [
               { title: t('calendário'), path: paths.dashboard.calendar },
@@ -110,7 +110,7 @@ export function useNavData() {
           // TURMAS
           {
             title: 'Turmas',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.turma.list,
             icon: ICONS.alfaBookAccount,
             children: [
               { title: t('lista de turmas'), path: paths.dashboard.turma.list },
@@ -145,7 +145,7 @@ export function useNavData() {
           // TOUR
           {
             title: 'Redes de Ensino',
-            path: paths.dashboard.blank,
+            path: paths.dashboard.zona.list,
             icon: ICONS.alfaBuilding,
             children: [
               { title: 'Lista de DDZ', path: paths.dashboard.zona.list },
