@@ -11,7 +11,7 @@ import { RHFTextField } from 'src/components/hook-form';
 import { useFormContext, Controller } from 'react-hook-form';
 
 // _mock
-import { RegistroAprendizagemFases, RegistroAprendizagemFasesEscrita } from 'src/_mock';
+import { RegistroAprendizagemFasesCRUD, RegistroAprendizagemFasesEscrita } from 'src/_mock';
 import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
 import { FormControl, TextField } from '@mui/material';
@@ -59,7 +59,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].id'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].alunosTurmas_id'} />
         </TableCell>
-        {Object.values(RegistroAprendizagemFases).map((tipoFaseValue) => {
+        {Object.values(RegistroAprendizagemFasesCRUD).map((tipoFaseValue) => {
           return (
             <TableCell
               key={`resultado_${slugify(tipoFaseValue)}_{${aluno_turma_id}`}
