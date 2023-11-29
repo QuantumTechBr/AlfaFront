@@ -281,11 +281,11 @@ const RegistroAprendizagemDiagnosticoTipos = {
 };
 
 export const RegistroAprendizagemFases = {
-  nao_avaliado: 'Não Avaliado',
   pre_alfabetica: 'Pré Alfabética',
   alfabetica_parcial: 'Alfabética Parcial',
   alfabetica_completa: 'Alfabética Completa',
   alfabetica_consolidada: 'Alfabética Consolidada',
+  nao_avaliado: 'Não Avaliado',
 };
 export const RegistroAprendizagemFasesLeitura = {
   'Pré Alfabética': 'Predição',
