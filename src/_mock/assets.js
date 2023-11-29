@@ -280,6 +280,14 @@ const RegistroAprendizagemDiagnosticoTipos = {
   final: 'Final',
 };
 
+export const RegistroAprendizagemFasesCRUD = {
+  nao_avaliado: 'Não Avaliado',
+  pre_alfabetica: 'Pré Alfabética',
+  alfabetica_parcial: 'Alfabética Parcial',
+  alfabetica_completa: 'Alfabética Completa',
+  alfabetica_consolidada: 'Alfabética Consolidada',
+};
+
 export const RegistroAprendizagemFases = {
   pre_alfabetica: 'Pré Alfabética',
   alfabetica_parcial: 'Alfabética Parcial',
@@ -287,6 +295,7 @@ export const RegistroAprendizagemFases = {
   alfabetica_consolidada: 'Alfabética Consolidada',
   nao_avaliado: 'Não Avaliado',
 };
+
 export const RegistroAprendizagemFasesLeitura = {
   'Pré Alfabética': 'Predição',
   'Alfabética Parcial': 'Analogia',
