@@ -41,6 +41,8 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import turmaMethods from '../turma/turma-repository';
 import Alert from '@mui/material/Alert';
 import AlunoTurmaForm from './aluno-turma-form';
+import TextField from '@mui/material/TextField';
+import { FormControl, Paper } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function TurmaNewEditForm({ currentTurma }) {
@@ -200,13 +202,25 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 </RHFSelect>
 
                 {currentTurma ? (
-                  <RHFTextField
-                    name="escola"
-                    disabled={true}
-                    value={currentTurma.escola?.nome}
-                    sx={{ mb: 3 }}
-                  />
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 1.1,
+                      borderColor: 'divider',
+                      borderStyle: 'solid',
+                      display: 'flex',
+                      alignItems: 'center',
+                      py: 0.3,
+                      px: 1.5,
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
+                      {currentTurma.escola?.nome}
+                    </Typography>
+                  </Paper>
                 ) : (
+                  // <></>
+
                   <RHFSelect name="escola_id" label="Escola">
                     {escolas.map((escola) => (
                       <MenuItem key={escola.id} value={escola.id}>

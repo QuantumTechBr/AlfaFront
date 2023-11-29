@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import every from 'lodash/every';
+import sortBy from 'lodash/sortby';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -23,9 +23,7 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
   getComparator,
-  emptyRows,
   TableNoData,
-  TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
   TablePaginationCustom,
@@ -33,14 +31,19 @@ import {
 import TableBody from '@mui/material/TableBody';
 
 // components
+import { useTheme } from '@mui/material/styles';
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
+import { useDebounce } from 'src/hooks/use-debounce';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import Scrollbar from 'src/components/scrollbar';
 import AlunoTurmaTableRow from './components/aluno-turma-table-row';
 import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola/escola-repository';
 import turmaMethods from './turma-repository';
+import Typography from '@mui/material/Typography';
+
+
 
 // ----------------------------------------------------------------------
 
@@ -64,16 +67,24 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [currentEscola, setCurrentEscola] = useState({});
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
+  const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
+
   const getAlunosEscola = (id) => {
     escolaMethods
       .getEscolaById(id)
       .then((escola) => {
-        setCurrentEscola(escola.data);
-        
-        let selectedList = turma.turmas_alunos.map((aluno) => aluno.id);
-        let preSelectedList = selectedList.every((a) => escola.data.alunoEscolas.map((v) => v.aluno.id).includes(a.id));
-        table.setSelected(preSelectedList);
+        let alunosEscola = escola.data.alunoEscolas;
+        alunosEscola = sortBy(alunosEscola, (ae) => {
+          return ae.aluno.nome;
+        });
+        escola.data.alunoEscolas = alunosEscola;
 
+        setCurrentEscola(escola.data);
+
+        let selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
+        let alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
+        let preSelectedList = selectedList.filter((alunoId) => alunosIdEscola.includes(alunoId));
+        table.setSelected(preSelectedList);
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
@@ -108,7 +119,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   const dataFiltered = applyFilter({
     inputData: currentEscola.alunoEscolas ?? [],
-    query: searchAlunosInput,
+    query: debouncedSearchFilter,
   });
 
   const onSubmit = handleSubmit(async (data) => {
@@ -181,7 +192,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={currentEscola.alunoEscolas}
+                    rowCount={currentEscola.alunoEscolas.length}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
@@ -194,12 +205,15 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                       />
                     ))}
 
-                    <TableEmptyRows height={52} emptyRows={dataFiltered.length == 0} />
+                    
 
                     <TableNoData notFound={false} />
                   </TableBody>
                 </Table>
               </Scrollbar>
+              <Box  sx={{ mt: 2}}>
+                <Typography variant="subtitle2">{table.selected.length} selecionados</Typography>
+              </Box>
             </DialogContent>
           </>
         )}
