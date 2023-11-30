@@ -168,7 +168,6 @@ export default function TurmaNewEditForm({ currentTurma }) {
         <Grid container spacing={3}>
           <Grid xs={12} md={8}>
             <Card sx={{ p: 3 }}>
-              <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
               <Box
                 rowGap={3}
                 columnGap={2}
@@ -178,6 +177,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                   sm: 'repeat(2, 1fr)',
                 }}
               >
+                <RHFTextField name="nome" label="Nome da Turma" />
                 <RHFSelect name="ano_escolar" label="Ano">
                   {_anosSerie.map((ano) => (
                     <MenuItem key={ano} value={ano}>
