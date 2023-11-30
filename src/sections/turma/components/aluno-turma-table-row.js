@@ -15,19 +15,24 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import Iconify from 'src/components/iconify';
 
 import parse from 'date-fns/parse';
+import { disableCache } from '@iconify/react';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTurmaTableRow({ row, selected, onSelectRow }) {
-  const { id, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+export default function AlunoTurmaTableRow({ row, selected, currentTurma, onSelectRow }) {
+  const { id, nome, matricula, data_nascimento, alunos_turmas, created_at, updated_at, deleted_at } = row;
 
   let date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
+  let outrasTurmas = alunos_turmas.filter((at) => at.turma !=  currentTurma.id);
+  let emOutraTurma = alunos_turmas.length == 0 ? false : outrasTurmas.length > 0 ;
+  selected = emOutraTurma ? false : selected;
+ 
   return (
     <>
       <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
+          <Checkbox {...emOutraTurma ? {disabled:"disabled"} : null} checked={selected} onClick={onSelectRow} />
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
@@ -39,7 +44,8 @@ export default function AlunoTurmaTableRow({ row, selected, onSelectRow }) {
 }
 
 AlunoTurmaTableRow.propTypes = {
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
+  currentTurma: PropTypes.object,
+  onSelectRow: PropTypes.func,
 };

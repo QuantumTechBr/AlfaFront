@@ -200,6 +200,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                       <AlunoTurmaTableRow
                         key={row.aluno.id}
                         row={row.aluno}
+                        currentTurma={turma}
                         selected={table.selected.includes(row.aluno.id)}
                         onSelectRow={() => table.onSelectRow(row.aluno.id)}
                       />
