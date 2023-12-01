@@ -64,22 +64,21 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
 
-  const [currentEscola, setCurrentEscola] = useState({});
+  const [currentAlunosEscola, setCurrentAlunosEscola] = useState({});
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
   const getAlunosEscola = (id) => {
     escolaMethods
-      .getEscolaById(id)
+      .getAlunosByEscolaId(id)
       .then((escola) => {
-        let alunosEscola = escola.data.alunoEscolas;
+        let alunosEscola = escola.data;
         alunosEscola = sortBy(alunosEscola, (ae) => {
           return ae.aluno.nome;
         });
-        escola.data.alunoEscolas = alunosEscola;
 
-        setCurrentEscola(escola.data);
+        setCurrentAlunosEscola(alunosEscola);
 
         let selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
         let alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
@@ -101,7 +100,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   useEffect(() => {
     if (open) {
-      setCurrentEscola({});
+      setCurrentAlunosEscola({});
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
@@ -118,7 +117,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   ];
 
   const dataFiltered = applyFilter({
-    inputData: currentEscola.alunoEscolas ?? [],
+    inputData: currentAlunosEscola ?? [],
     query: debouncedSearchFilter,
   });
 
@@ -146,7 +145,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     }
   });
 
-  const isLoading = currentEscola.alunoEscolas === undefined;
+  const isLoading = !currentAlunosEscola.length;
 
   return (
     <Dialog
@@ -192,7 +191,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={currentEscola.alunoEscolas.length}
+                    rowCount={currentAlunosEscola.length}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
