@@ -64,7 +64,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
 
-  const [currentAlunosEscola, setCurrentAlunosEscola] = useState([]);
+  const [currentAlunosEscola, setCurrentAlunosEscola] = useState(null);
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
@@ -100,7 +100,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   useEffect(() => {
     if (open) {
-      setCurrentAlunosEscola([]);
+      setCurrentAlunosEscola(null);
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
@@ -145,7 +145,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     }
   });
 
-  const isLoading = !currentAlunosEscola.length;
+  const isLoading = currentAlunosEscola === undefined || currentAlunosEscola === null;
 
   return (
     <Dialog
@@ -191,11 +191,13 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={currentAlunosEscola.length}
+                    rowCount={currentAlunosEscola?.length ?? 0}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
-                    {dataFiltered.map((row) => (
+                    {dataFiltered.map((row) => {
+                      // console.log(table.selected.includes(row.aluno.id));
+                      return(
                       <AlunoTurmaTableRow
                         key={row.aluno.id}
                         row={row.aluno}
@@ -203,7 +205,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                         selected={table.selected.includes(row.aluno.id)}
                         onSelectRow={() => table.onSelectRow(row.aluno.id)}
                       />
-                    ))}
+                    )})}
 
                     
 

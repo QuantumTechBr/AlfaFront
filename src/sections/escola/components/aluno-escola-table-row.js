@@ -30,15 +30,12 @@ export default function AlunoEscolaTableRow({
 
   let date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
-  let outrasEscolas = allAlunos.filter((aluno) => {
-    return (
-      aluno.alunoEscolas.filter((ae) => {
-        ae.escola != currentEscola.id;
-      }).length > 0
-    );
-  });
+  let _aluno = allAlunos.filter((aluno) => aluno.id == id);
+  _aluno = _aluno.length > 0 ? _aluno[0] : null;
+  let outrasEscolas =
+    _aluno == null ? [] : _aluno.alunoEscolas.filter((ae) => ae.escola != currentEscola.id);
 
-  let emOutraEscola = allAlunos.length == 0 ? false : outrasEscolas.length > 0;
+  let emOutraEscola = outrasEscolas.length > 0;
   selected = emOutraEscola ? false : selected;
 
   return (
