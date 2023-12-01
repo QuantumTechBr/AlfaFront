@@ -64,7 +64,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
 
-  const [currentAlunosEscola, setCurrentAlunosEscola] = useState(null);
+  const [currentAlunosEscola, setCurrentAlunosEscola] = useState({});
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
@@ -100,7 +100,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   useEffect(() => {
     if (open) {
-      setCurrentAlunosEscola(null);
+      setCurrentAlunosEscola({});
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
@@ -145,7 +145,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     }
   });
 
-  const isLoading = currentAlunosEscola === undefined || currentAlunosEscola === null;
+  const isLoading = !currentAlunosEscola.length;
 
   return (
     <Dialog
@@ -191,13 +191,11 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={currentAlunosEscola?.length ?? 0}
+                    rowCount={currentAlunosEscola.length}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
-                    {dataFiltered.map((row) => {
-                      // console.log(table.selected.includes(row.aluno.id));
-                      return(
+                    {dataFiltered.map((row) => (
                       <AlunoTurmaTableRow
                         key={row.aluno.id}
                         row={row.aluno}
@@ -205,7 +203,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                         selected={table.selected.includes(row.aluno.id)}
                         onSelectRow={() => table.onSelectRow(row.aluno.id)}
                       />
-                    )})}
+                    ))}
 
                     
 
