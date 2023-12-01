@@ -79,7 +79,7 @@ export default function AlunoListView() {
     turma: turmaFiltro,
   };
 
-  const [_alunoList, setAlunoList] = useState([]);
+  const [alunoList, setAlunoList] = useState([]);
   const [countAlunos, setCountAlunos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -102,6 +102,7 @@ export default function AlunoListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const buscaAlunos = async (pagina=1, linhasPorPagina=25) => {
+    preparado.onFalse();
     const offset = (pagina-1)*linhasPorPagina;
     const limit = linhasPorPagina;
     
@@ -112,7 +113,7 @@ export default function AlunoListView() {
         preparado.onTrue();
       } else {
         let listaAlunos = alunos.data.results
-        setAlunoList([...listaAlunos, ..._alunoList]);
+        setAlunoList([...alunoList, ...listaAlunos]);
       }
       setCountAlunos(alunos.data.count);
     }).catch((error) => {
@@ -135,7 +136,7 @@ export default function AlunoListView() {
         setErrorMsg('Erro de comunicação com a API de turmas');
         preparado.onTrue();
       });
-      await buscaAlunos().catch((error) => {
+      await buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de alunos');
         console.log(error);
         preparado.onTrue();
@@ -143,14 +144,14 @@ export default function AlunoListView() {
   };
 
   const preencheTabela = async () => {
-    if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && _alunoList.length) {
+    if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && alunoList.length) {
       let _alunosTableData = [];
       const idAnoLetivoAtual = anosLetivos.map((ano) => {
         if (ano.status === "NÃO FINALIZADO") {
           return ano.id;
         }
       }).filter(Boolean)
-      _alunoList.forEach( async (aluno) => {
+      alunoList.forEach( async (aluno) => {
         if (aluno?.alunos_turmas.length) {
           const alunoTurma = aluno.alunos_turmas.find((alunoTurma) => { 
             const turmaEncontrada = turmas.find((turma) => {
@@ -204,15 +205,16 @@ export default function AlunoListView() {
         })
       })
       setTableData(_alunosTableData);
+      preparado.onTrue();
     }
   };
 
-  const onChangePage = useCallback((event, newPage) => {
-    if (_alunoList.length < newPage*table.rowsPerPage) {
-      buscaAlunos(newPage, table.rowsPerPage);
+  const onChangePage = async (event, newPage) => {
+    if (alunoList.length < (newPage+1)*table.rowsPerPage) {
+      buscaAlunos(newPage+1, table.rowsPerPage);
     }
     table.setPage(newPage);
-  }, []);
+  };
 
   const onChangeRowsPerPage = useCallback((event) => {
     table.setPage(0);
@@ -224,16 +226,16 @@ export default function AlunoListView() {
   }, []); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
     preencheTabela();
-  }, [anosLetivos, turmas, escolas, _alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [anosLetivos, turmas, escolas, alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  // const dataFiltered = applyFilter({
+  //   inputData: tableData,
+  //   comparator: getComparator(table.order, table.orderBy),
+  //   filters,
+  // });
 
-  const dataInPage = dataFiltered.slice(
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
@@ -242,7 +244,7 @@ export default function AlunoListView() {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     (nome, value) => {
@@ -295,9 +297,9 @@ export default function AlunoListView() {
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
+      totalRowsFiltered: tableData.length,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [tableData.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -316,19 +318,19 @@ export default function AlunoListView() {
     setFilters(resetFilters);
   }, []);
 
-  useEffect(() => {
-    if (dataFiltered.length === _alunoList.length && _alunoList.length != 0) {
-      setTableData(tableData);
-      preparado.onTrue()
-    }
-    if (turmaFiltro.length != 0) {
-      if (dataFiltered.length != 0) {
-        setTableData(tableData);
-        preparado.onTrue()
-        sessionStorage.setItem('filtroTurmaId', [])
-      }
-    }
-  }, [dataFiltered])
+  // useEffect(() => {
+  //   if (tableData.length === alunoList.length && alunoList.length != 0) {
+  //     setTableData(tableData);
+  //     preparado.onTrue();
+  //   }
+  //   if (turmaFiltro.length != 0) {
+  //     if (tableData.length != 0) {
+  //       setTableData(tableData);
+  //       preparado.onTrue()
+  //       sessionStorage.setItem('filtroTurmaId', [])
+  //     }
+  //   }
+  // }, [tableData])
   
   return (
     <>
@@ -377,7 +379,7 @@ export default function AlunoListView() {
               turmaOptions={turmas}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={tableData.length}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -422,7 +424,7 @@ export default function AlunoListView() {
                 />
                 
                 <TableBody>
-                {dataFiltered
+                {tableData
                   .slice(
                     table.page * table.rowsPerPage,
                     table.page * table.rowsPerPage + table.rowsPerPage
