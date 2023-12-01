@@ -43,7 +43,7 @@ import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-tab
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -126,7 +126,7 @@ export default function RegistroAprendizagemFaseListView() {
               ano_escolar: _turma.ano_escolar,
               nome: _turma.nome,
               turno: _turma.turno,
-              alunos: _turma.alunosTurmas.length,
+              alunos: _turma.turmas_alunos.length,
               bimestre: _bimestre,
               escola: _turma.escola.nome,
             });
@@ -284,22 +284,8 @@ export default function RegistroAprendizagemFaseListView() {
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
             {!prep.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

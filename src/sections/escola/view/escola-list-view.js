@@ -42,16 +42,13 @@ import {
 } from 'src/components/table';
 //
 import EscolaTableRow from '../escola-table-row';
-// import EscolaTableToolbar from '../escola-table-toolbar';
-// import EscolaTableFiltersResult from '../escola-table-filters-result';
+import EscolaTableToolbar from '../escola-table-toolbar';
+import EscolaTableFiltersResult from '../escola-table-filters-result';
 //
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import { Box, CircularProgress } from '@mui/material';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 300 },
@@ -64,16 +61,13 @@ const TABLE_HEAD = [
 const defaultFilters = {
   nome: '',
   ddz: [],
-  escola: [],
-  status: 'all',
 };
 
 // ----------------------------------------------------------------------
 
 export default function EscolaListView() {
 
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const [_escolaList, setEscolaList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
@@ -85,12 +79,16 @@ export default function EscolaListView() {
   useEffect(() => {
     escolaMethods.getAllEscolas().then(_escolas => {
       setTableData(_escolas.data);
+      console.log(_escolas.data)
       preparado.onTrue();
     }).catch((error) => {
       console.log(error)
       setErrorMsg('Erro de comunicação com a API de escolas');
       preparado.onTrue();
-    })
+    });
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
+    });
     
   }, []);
   
@@ -223,25 +221,24 @@ export default function EscolaListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          {/* <EscolaTableToolbar
+          <EscolaTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //roleOptions={_roles}
-            ddzOptions={_ddzs}
-            escolaOptions={escolas}
-          /> */}
+            ddzOptions={zonas}
 
-          {/* {canReset && (
+          />
+
+          {canReset && (
             <EscolaTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              //
+              ddzOptions={zonas}
               onResetFilters={handleResetFilters}
               //
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )} */}
+          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
@@ -265,22 +262,8 @@ export default function EscolaListView() {
 
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -366,7 +349,7 @@ export default function EscolaListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
+  const { nome, ddz } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -380,16 +363,12 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (turma) => turma.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (escola) => escola.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
   if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+    inputData = inputData.filter((escola) => ddz.includes(escola.zona.id));
   }
 
   return inputData;

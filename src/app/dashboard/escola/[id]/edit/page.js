@@ -1,4 +1,3 @@
-'use client';
 
 import PropTypes from 'prop-types';
 // sections
@@ -6,9 +5,9 @@ import { EscolaEditView } from 'src/sections/escola/view';
 
 // ----------------------------------------------------------------------
 
-// export const metadata = {
-//   title: 'Dashboard: Edição de Escola',
-// };
+export const metadata = {
+  title: 'Dashboard: Edição de Escola',
+};
 
 export default function EscolaEditPage({ params }) {
   const { id } = params;

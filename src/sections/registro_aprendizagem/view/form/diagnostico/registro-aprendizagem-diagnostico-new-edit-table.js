@@ -32,7 +32,7 @@ import InfoIcon from '@mui/icons-material/Info';
 import { Box } from '@mui/material';
 import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro-aprendizagem-diagnostico-new-edit-table-filters-result';
 import { useBoolean } from 'src/hooks/use-boolean';
-import { CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma, prep }) {
   const defaultFilters = {
@@ -142,22 +142,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

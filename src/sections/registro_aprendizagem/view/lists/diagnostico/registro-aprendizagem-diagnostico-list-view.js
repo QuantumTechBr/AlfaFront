@@ -49,7 +49,7 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 import AppAvaliacaoDiagnostico from 'src/sections/overview/app/app-avaliacao-diagnostico.js';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository.js';
 //
@@ -128,20 +128,20 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     const promisesList = [];
     let turmasRegistroInicial = [];
     let turmasRegistroFinal = [];
-    if (!!turmas && turmas.length) {
+    if (!!turmas && turmas?.length) {
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
       const buscaPeriodoInicial = registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
         .then((listaIdsTurmas) => {
-          if (listaIdsTurmas.data.length) {
+          if (listaIdsTurmas.data?.length) {
             turmasRegistroInicial = turmas.filter((turma) =>
               listaIdsTurmas.data.includes(turma.id)
             );
             turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
               const retorno = { ...turma };
               retorno.periodo = 'Inicial';
-              retorno.alunos = turma.alunosTurmas.length;
+              retorno.alunos = turma.turmas_alunos?.length;
               retorno.escola_nome = turma.escola.nome;
               retorno.ano_letivo = turma.ano.ano;
               return retorno;
@@ -151,18 +151,19 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          console.error(error);
           // preparado.onTrue();
         });
       promisesList.push(buscaPeriodoInicial);
       const buscaPeriodoFinal = registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Final' })
         .then((listaIdsTurmas) => {
-          if (listaIdsTurmas.data.length) {
+          if (listaIdsTurmas.data?.length) {
             turmasRegistroFinal = turmas.filter((turma) => listaIdsTurmas.data.includes(turma.id));
             turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
               const retorno = { ...turma };
               retorno.periodo = 'Final';
-              retorno.alunos = turma.alunosTurmas.length;
+              retorno.alunos = turma.turmas_alunos?.length;
               retorno.escola_nome = turma.escola.nome;
               retorno.ano_letivo = turma.ano.ano;
               return retorno;
@@ -172,6 +173,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          console.error(error);
           // preparado.onTrue();
         })
         .finally(() => {
@@ -420,23 +422,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
             <Scrollbar>
               {!preparado.value ? (
-                <Box
-                  sx={{
-                    height: 100,
-                    textAlign: 'center',
-                  }}
-                >
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: 'white',
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                </Box>
+                <LoadingBox />
               ) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom

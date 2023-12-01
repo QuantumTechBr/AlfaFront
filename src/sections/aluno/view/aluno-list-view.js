@@ -47,8 +47,7 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-import { Box, CircularProgress } from '@mui/material';
-import Label from 'src/components/label';
+import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -136,8 +135,8 @@ export default function AlunoListView() {
         }
       }).filter(Boolean)
       _alunoList.forEach( async (aluno) => {
-        if (aluno?.alunosTurmas.length) {
-          const alunoTurma = aluno.alunosTurmas.find((alunoTurma) => { 
+        if (aluno?.alunos_turmas.length) {
+          const alunoTurma = aluno.alunos_turmas.find((alunoTurma) => { 
             const turmaEncontrada = turmas.find((turma) => {
               return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
             });
@@ -160,7 +159,7 @@ export default function AlunoListView() {
           }
         }
         let alunoTurma = [];
-        aluno.alunosTurmas.forEach((turma_id) => {
+        aluno.alunos_turmas.forEach((turma_id) => {
           alunoTurma  = turmas.map((turma) => {
             if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
               return turma;
@@ -375,22 +374,7 @@ export default function AlunoListView() {
 
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

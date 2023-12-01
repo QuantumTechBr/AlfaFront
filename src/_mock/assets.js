@@ -263,7 +263,7 @@ export const _anos = [2024, 2023, 2022];
 
 export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
-export const habilidades_options = ['', 'D', 'PD', 'ND'];
+export const habilidades_options = ['', 'D', 'DP', 'ND'];
 
 export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
@@ -280,6 +280,14 @@ const RegistroAprendizagemDiagnosticoTipos = {
   final: 'Final',
 };
 
+export const RegistroAprendizagemFasesCRUD = {
+  nao_avaliado: 'Não Avaliado',
+  pre_alfabetica: 'Pré Alfabética',
+  alfabetica_parcial: 'Alfabética Parcial',
+  alfabetica_completa: 'Alfabética Completa',
+  alfabetica_consolidada: 'Alfabética Consolidada',
+};
+
 export const RegistroAprendizagemFases = {
   pre_alfabetica: 'Pré Alfabética',
   alfabetica_parcial: 'Alfabética Parcial',
@@ -287,6 +295,22 @@ export const RegistroAprendizagemFases = {
   alfabetica_consolidada: 'Alfabética Consolidada',
   nao_avaliado: 'Não Avaliado',
 };
+
+export const RegistroAprendizagemFasesLeitura = {
+  'Pré Alfabética': 'Predição',
+  'Alfabética Parcial': 'Analogia',
+  'Alfabética Completa': 'Decodificação',
+  'Alfabética Consolidada': 'Reconhecimento Automático',
+  'Não Avaliado': '',
+};
+export const RegistroAprendizagemFasesEscrita = {
+  'Pré Alfabética': 'Letra',
+  'Alfabética Parcial': 'Palavra',
+  'Alfabética Completa': 'Frase',
+  'Alfabética Consolidada': 'Texto',
+  'Não Avaliado': '',
+};
+
 export const RegistroAprendizagemFasesColors = {
   pre_alfabetica: '#d11400',
   alfabetica_parcial: '#f17105',

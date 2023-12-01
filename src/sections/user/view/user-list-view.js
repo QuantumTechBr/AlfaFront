@@ -48,7 +48,7 @@ import UserTableFiltersResult from '../user-table-filters-result';
 import userMethods from '../user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { Box, CircularProgress } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 
 
@@ -330,22 +330,8 @@ export default function UserListView() {
 
             <Scrollbar>
             {!preparado.value ? (
-                <Box sx={{
-                  height: 100,
-                  textAlign: "center",
-                }}>
-                  <Button
-                    disabled
-                    variant="outlined"
-                    startIcon={<CircularProgress />}
-                    sx={{
-                      bgcolor: "white",
-                    }}
-                  >
-                    Carregando
-                  </Button>
-                  
-                </Box>) : (
+                <LoadingBox />
+                ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

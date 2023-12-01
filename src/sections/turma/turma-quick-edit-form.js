@@ -155,13 +155,17 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="escola_id" label="Escola">
-              {escolas.map((escola) => (
-                <MenuItem key={escola.id} value={escola.id} >
-                  {escola.nome}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            {currentTurma ? 
+              (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
+              :
+              (<RHFSelect name="escola_id" label="Escola" >
+                {escolas.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id} >
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+              </RHFSelect>)
+              }
 
             <RHFSelect name="status" label="Status">
               {USER_STATUS_OPTIONS.map((status) => (
