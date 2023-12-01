@@ -64,7 +64,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
 
-  const [currentAlunosEscola, setCurrentAlunosEscola] = useState({});
+  const [currentAlunosEscola, setCurrentAlunosEscola] = useState([]);
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
@@ -100,7 +100,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   useEffect(() => {
     if (open) {
-      setCurrentAlunosEscola({});
+      setCurrentAlunosEscola([]);
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
