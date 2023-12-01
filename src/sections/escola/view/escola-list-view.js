@@ -79,7 +79,6 @@ export default function EscolaListView() {
   useEffect(() => {
     escolaMethods.getAllEscolas().then(_escolas => {
       setTableData(_escolas.data);
-      console.log(_escolas.data)
       preparado.onTrue();
     }).catch((error) => {
       console.log(error)

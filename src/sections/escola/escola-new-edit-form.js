@@ -127,6 +127,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
   }, [currentEscola]);
 
   return (
+    <>
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
@@ -167,7 +168,6 @@ export default function EscolaNewEditForm({ currentEscola }) {
                 Definir Alunos da Escola
               </Button>)
               }
-              <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} />
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -179,6 +179,8 @@ export default function EscolaNewEditForm({ currentEscola }) {
         </Grid>
       </Grid>
     </FormProvider>
+    <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} />
+    </>
   );
 }
 
