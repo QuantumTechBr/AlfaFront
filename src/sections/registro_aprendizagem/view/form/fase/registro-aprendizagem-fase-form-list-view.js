@@ -22,7 +22,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 
 // _mock
-import { RegistroAprendizagemFases } from 'src/_mock';
+import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -59,7 +59,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 100 },
-  ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
+  ...Object.entries(RegistroAprendizagemFasesCRUD).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 35 };
   }),
   { id: 'leitura', label: 'Leitura', width: 250 },
@@ -155,7 +155,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
           prep.onTrue();
         });
-
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
         let _newRegistros = [];
