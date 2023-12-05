@@ -144,8 +144,9 @@ export default function AlunoListView() {
   };
 
   const preencheTabela = async () => {
+    let _alunosTableData = [];
+    let promises = [];
     if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && alunoList.length) {
-      let _alunosTableData = [];
       const idAnoLetivoAtual = anosLetivos.map((ano) => {
         if (ano.status === "NÃO FINALIZADO") {
           return ano.id;
@@ -159,11 +160,13 @@ export default function AlunoListView() {
             });
             return turmaEncontrada ? true : false;
           });
-          if(alunoTurma) {
-            let registroFaseDoAluno = await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
+          if(alunoTurma && aluno.fase == undefined) {
+            let registroFaseDoAlunoPromise = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
               setErrorMsg('Erro de comunicação com a API de Registros Aprendizagem Fase');
               preparado.onTrue();
             });
+            promises.push(registroFaseDoAlunoPromise);
+            let registroFaseDoAluno = await registroFaseDoAlunoPromise;
             let indiceMaisNovo = 0;
             let maiorBimestre = 0;
             for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
@@ -202,11 +205,18 @@ export default function AlunoListView() {
           turno: alunoTurma[0]?.turno.toLowerCase() || '',
           escola: alunoEscola[0] ? alunoEscola[0] : '',
           fase: aluno?.fase || '',
-        })
-      })
-      setTableData(_alunosTableData);
-      preparado.onTrue();
-    }
+        });
+      });
+      if(promises.length) {
+        Promise.all(promises).then(()=> {
+          setTableData(_alunosTableData);
+          preparado.onTrue();    
+        });
+      } else {
+        setTableData(_alunosTableData);
+        preparado.onTrue();
+      };
+    };
   };
 
   const onChangePage = async (event, newPage) => {
