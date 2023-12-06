@@ -102,12 +102,14 @@ export default function AlunoListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const buscaAlunos = async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
+    setWarningMsg('');
+    setErrorMsg('');
     preparado.onFalse();
     const offset = (pagina)*linhasPorPagina;
     const limit = linhasPorPagina;
     const {nome, matricula, escola, turma} = filtros;
     
-    await alunoMethods.getAllAlunos({offset, limit, nome, turma, escola, matricula}).then(async alunos => {
+    await alunoMethods.getAllAlunos({offset, limit, nome, turmas: turma, escolas: escola, matricula}).then(async alunos => {
       if (alunos.data.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de alunos');
         preparado.onTrue();
