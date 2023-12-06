@@ -101,19 +101,19 @@ export default function AlunoListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const buscaAlunos = async (pagina=1, linhasPorPagina=25) => {
+  const buscaAlunos = async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
     preparado.onFalse();
-    const offset = (pagina-1)*linhasPorPagina;
+    const offset = (pagina)*linhasPorPagina;
     const limit = linhasPorPagina;
+    const {nome, matricula, escola, turma} = filtros;
     
-    await alunoMethods.getAllAlunos(offset, limit).then(alunos => {
+    await alunoMethods.getAllAlunos({offset, limit, nome, turma, escola, matricula}).then(async alunos => {
       if (alunos.data.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de alunos');
-        // setAlunoList([]);
         preparado.onTrue();
       } else {
         let listaAlunos = alunos.data.results
-        setAlunoList([...alunoList, ...listaAlunos]);
+        setAlunoList([...oldAlunoList, ...listaAlunos]);
       }
       setCountAlunos(alunos.data.count);
     }).catch((error) => {
@@ -221,7 +221,7 @@ export default function AlunoListView() {
 
   const onChangePage = async (event, newPage) => {
     if (alunoList.length < (newPage+1)*table.rowsPerPage) {
-      buscaAlunos(newPage+1, table.rowsPerPage);
+      buscaAlunos(newPage, table.rowsPerPage, alunoList);
     }
     table.setPage(newPage);
   };
@@ -229,6 +229,9 @@ export default function AlunoListView() {
   const onChangeRowsPerPage = useCallback((event) => {
     table.setPage(0);
     table.setRowsPerPage(parseInt(event.target.value, 10));
+    setAlunoList([]);
+    setTableData([]);
+    buscaAlunos(0, event.target.value);
   }, []);
 
   useEffect(() => {
@@ -257,12 +260,16 @@ export default function AlunoListView() {
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
+    async (nome, value) => {
       table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
+      const novosFiltros = {
+        ...filters,
         [nome]: value,
-      }));
+      }
+      setFilters(novosFiltros);
+      setTableData([]);
+      setAlunoList([]);
+      buscaAlunos(table.page, table.rowsPerPage, [], novosFiltros);
     },
     [table]
   );
@@ -325,7 +332,11 @@ export default function AlunoListView() {
       escola: [],
       turma: [],
     };
+    setTableData([]);
+    setAlunoList([]);
     setFilters(resetFilters);
+    buscaAlunos(table.page, table.rowsPerPage);
+
   }, []);
 
   // useEffect(() => {
