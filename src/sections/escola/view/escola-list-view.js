@@ -48,6 +48,7 @@ import EscolaTableFiltersResult from '../escola-table-filters-result';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
+import { EscolasContext } from '../context/escola-context';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -68,6 +69,7 @@ const defaultFilters = {
 export default function EscolaListView() {
 
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [_escolaList, setEscolaList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
@@ -77,7 +79,7 @@ export default function EscolaListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    escolaMethods.getAllEscolas().then(_escolas => {
+    buscaEscolas({force: true }).then(_escolas => {
       setTableData(_escolas.data);
       preparado.onTrue();
     }).catch((error) => {

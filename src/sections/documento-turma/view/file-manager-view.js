@@ -117,7 +117,7 @@ export default function FileManagerView() {
         escola1 = _escolas[0];
         setEscolaSelecionada(escola1);
 
-        await buscaTurmas({force:true}).then((_turmas) => {
+        await buscaTurmas().then((_turmas) => {
           if (_turmas.length == 0) {
             setWarningMsg('A API retornou uma lista vazia de turmas');
           } else {

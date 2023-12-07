@@ -84,9 +84,8 @@ export default function ZonaListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    zonaMethods.getAllZonas().then(_zonas => {
-      console.log(_zonas)
-      setTableData(_zonas.data);
+    buscaZonas({ force: true }).then(_zonas => {
+      setTableData(_zonas);
       preparado.onTrue();
     }).catch((error) => {
       console.log(error)

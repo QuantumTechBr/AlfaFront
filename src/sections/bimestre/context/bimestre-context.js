@@ -5,16 +5,26 @@ export const BimestresContext = createContext();
 
 export const BimestresProvider = ({ children }) => {
   const [bimestres, setBimestres] = useState([]);
+  let _consultaAtual;
 
   const buscaBimestres = async ({ force = false } = {}) => {
+    let returnData = bimestres;
     if (force || bimestres.length == 0) {
-      return await bimestreMethods.getAllBimestres().then((response) => {
-        if (response.data == '' || response.data === undefined) response.data = [];
-        setBimestres(response.data);
-        return response.data;
+      if (!_consultaAtual || force) {
+        _consultaAtual = bimestreMethods.getAllBimestres().then((response) => {
+          if (response.data == '' || response.data === undefined) response.data = [];
+          setBimestres(response.data);
+          returnData = response.data;
+          return returnData;
+        });
+      }
+
+      await _consultaAtual.then((value) => {
+        returnData = value;
       });
     }
-    return bimestres;
+
+    return returnData;
   };
 
   return (

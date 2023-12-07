@@ -10,13 +10,9 @@ export const ProfissionaisProvider = ({ children }) => {
   const buscaProfissionais = async ({ force = false } = {}) => {
     let returnData = profissionais;
     if (force || profissionais.length == 0) {
-      // console.log('_consultaAtual');
-      // console.log(_consultaAtual);
-
-      if (!_consultaAtual) {
+      if (!_consultaAtual || force) {
         _consultaAtual = profissionalMethods.getAllProfissionais().then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
-
           setProfissionais(response.data);
           returnData = response.data;
           return returnData;

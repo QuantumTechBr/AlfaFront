@@ -11,7 +11,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
   const buscaRegistroAprendizagemFaseByTurmaIdBimestreId = async ({ turmaId, bimestreId, force = false } = {}) => {
     let returnData = registroAprendizagemFase;
     if (force || registroAprendizagemFase.length == 0 || registroAprendizagemFase[0]?.aluno_turma?.aluno?.alunos_turmas[0]?.turma != turmaId || registroAprendizagemFase[0]?.bimestre.id != bimestreId){
-      if (!_consultaAtual) {
+      if (!_consultaAtual || force) {
         _consultaAtual = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaId,
           bimestreId: bimestreId,
@@ -35,8 +35,6 @@ export const RegistroAprendizagemProvider = ({ children }) => {
       return null;
     }
 
-    // console.log('returnData');
-    // console.table(returnData);
     return returnData;
   };
 
