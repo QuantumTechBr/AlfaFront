@@ -55,6 +55,7 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { RegistroAprendizagemProvider } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -294,40 +295,43 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               />
             )}
 
-            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-              <Scrollbar>
-              {!prep.value ? (
-                <LoadingBox />
-               ) : (
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    onSort={table.onSort}
-                  />
-
-                  <TableBody>
-                    {dataFiltered.map((row, index) => {
-                      return (
-                        <RegistroAprendizagemFaseFormTableRow
-                          key={row.id}
-                          row={row}
-                          index={index}
-                        />
-                      );
-                    })}
-
-                    <TableEmptyRows
-                      height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+            <RegistroAprendizagemProvider>
+              <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+                <Scrollbar>
+                {!prep.value ? (
+                  <LoadingBox />
+                ) : (
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      onSort={table.onSort}
                     />
+                    
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table> )}
-              </Scrollbar>
-            </TableContainer>
+                    <TableBody>
+                      {dataFiltered.map((row, index) => {
+                        return (
+                          <RegistroAprendizagemFaseFormTableRow
+                            key={row.id}
+                            row={row}
+                            index={index}
+                          />
+                        );
+                      })}
+
+                      <TableEmptyRows
+                        height={denseHeight}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table> )}
+                </Scrollbar>
+              </TableContainer>                  
+            </RegistroAprendizagemProvider>
 
             <TablePaginationCustom
               hidden

@@ -10,12 +10,10 @@ export const AnosLetivosProvider = ({ children }) => {
   const buscaAnosLetivos = async ({ force = false } = {}) => {
     let returnData = anosLetivos;
     if (force || anosLetivos.length == 0) {
-      if (!_consultaAtual) {
+      if (!_consultaAtual || force) {
         _consultaAtual = anoLetivoMethods.getAllAnosLetivos().then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
-          returnData = response.data.sort(function (a, b) {
-            return b.ano - a.ano;
-          });
+          returnData = response.data.sort((a, b) => b.ano - a.ano);
           setAnosLetivos(returnData);
           return returnData;
         });

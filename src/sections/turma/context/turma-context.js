@@ -10,14 +10,9 @@ export const TurmasProvider = ({ children }) => {
   const buscaTurmas = async ({ force = false } = {}) => {
     let returnData = turmas;
     if (force || turmas.length == 0) {
-      // console.log('_consultaAtual');
-      // console.log(_consultaAtual);
-
-      if (!_consultaAtual) {
+      if (!_consultaAtual || force) {
         _consultaAtual = turmaMethods.getAllTurmas().then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
-          // console.log('- THEN getAllTurmas');
-
           setTurmas(response.data);
           returnData = response.data;
           return returnData;
@@ -29,8 +24,6 @@ export const TurmasProvider = ({ children }) => {
       });
     }
 
-    // console.log('returnData');
-    // console.table(returnData);
     return returnData;
   };
 

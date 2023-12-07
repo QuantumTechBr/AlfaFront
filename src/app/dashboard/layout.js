@@ -12,7 +12,6 @@ import { EscolasProvider } from 'src/sections/escola/context/escola-context';
 import { FuncoesProvider } from 'src/sections/funcao/context/funcao-context';
 import { TurmasProvider } from 'src/sections/turma/context/turma-context';
 import { BimestresProvider } from 'src/sections/bimestre/context/bimestre-context';
-import { RegistroAprendizagemProvider } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 // ----------------------------------------------------------------------
 
 export default function Layout({ children }) {
@@ -24,9 +23,7 @@ export default function Layout({ children }) {
             <FuncoesProvider>
               <TurmasProvider>
                 <BimestresProvider>
-                  <RegistroAprendizagemProvider>
-                    <DashboardLayout>{children}</DashboardLayout>
-                  </RegistroAprendizagemProvider>
+                  <DashboardLayout>{children}</DashboardLayout>
                 </BimestresProvider>
               </TurmasProvider>
             </FuncoesProvider>
