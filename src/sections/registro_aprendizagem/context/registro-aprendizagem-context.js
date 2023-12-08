@@ -10,13 +10,15 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
   const buscaRegistroAprendizagemFaseByTurmaIdBimestreId = async ({ turmaId, bimestreId, force = false } = {}) => {
     let returnData = registroAprendizagemFase;
-    if (force || registroAprendizagemFase.length == 0 || registroAprendizagemFase[0]?.aluno_turma?.aluno?.alunos_turmas[0]?.turma != turmaId || registroAprendizagemFase[0]?.bimestre.id != bimestreId){
+
+    if (force || registroAprendizagemFase?.length == 0 || registroAprendizagemFase[0]?.turma_id != turmaId || registroAprendizagemFase[0]?.bimestre.id != bimestreId){
       if (!_consultaAtual || force) {
         _consultaAtual = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaId,
           bimestreId: bimestreId,
         }).then((response) => {
-          if (response.data == '' || response.data === undefined) response.data = [];
+          if (response?.data == '' || response?.data === undefined) response.data = [];
+            response.data[0].turma_id = turmaId;
             setRegistroAprendizagemFase(response.data);
             returnData = response.data;
             return returnData;
