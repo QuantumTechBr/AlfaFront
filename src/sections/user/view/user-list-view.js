@@ -94,6 +94,7 @@ export default function UserListView() {
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
           usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
           usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
+          usuariosNaoDeletados[i].zona = usuariosNaoDeletados[i].funcao_usuario[0].zona?.id;
         }
       }
       usuariosNaoDeletados.map((usuario => {

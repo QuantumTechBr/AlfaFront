@@ -25,26 +25,38 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from '../zona/context/zona-context';
 import permissaoMethods from '../permissao/permissao-repository';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 
 // ----------------------------------------------------------------------
 
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  
+  const assessor = useBoolean(false);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
+  const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
 
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
+    if (currentUser.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      assessor.onTrue()
+    } else {
+      assessor.onFalse()
+    }
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
     permissaoMethods.getAllPermissoes().then(permissoes => {
@@ -70,7 +82,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       status: (currentUser?.status ? "true" : "false") || '',
-      ddz: currentUser?.ddz || '',
+      zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
     [currentUser]
@@ -85,6 +97,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     reset,
     handleSubmit,
     formState: { isSubmitting },
+    setValue,
+    getValues,
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
@@ -106,13 +120,20 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           status: data.status,
         }
       }
-      novoUsuario.funcao_usuario = [{
-        funcao_id: data.funcao,
-        escola_id: data.escola
-      }];
+      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+        novoUsuario.funcao_usuario = [{
+          funcao_id: data.funcao,
+          zona_id: data.zona,
+        }];
+      } else {
+        novoUsuario.funcao_usuario = [{
+          funcao_id: data.funcao,
+          escola_id: data.escola,
+        }];
+      }
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
+      novoUsuario.permissao_usuario_id = [permissao?.id]
       await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
         throw error;
       });   
@@ -126,6 +147,18 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       console.error(error);
     }
   });
+
+  const handleFuncao = (event) => {
+    setValue('funcao', event.target.value)
+    if (event.target.value == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      assessor.onTrue()
+    } else {
+      assessor.onFalse()
+    }
+    setFuncaoUsuario(event.target.value)
+    return
+  }
+
 
   return (
     <Dialog
@@ -156,7 +189,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="email" label="Email" />
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="funcao" label="Função">
+            <RHFSelect name="funcao" label="Função" value={funcaoUsuario} onChange={handleFuncao}>
               {funcoes.map((_funcao) => (
                 <MenuItem key={_funcao.id} value={_funcao.id}>
                   {_funcao.nome}
@@ -172,13 +205,23 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               ))}
             </RHFSelect>
 
-            <RHFSelect name="escola" label="Escola">
-              {escolas.map((_escola) => (
-                <MenuItem key={_escola.id} value={_escola.id}>
-                  {_escola.nome}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            {assessor.value ? 
+              (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+                {zonas.map((zona) => (
+                  <MenuItem key={zona.id} value={zona.id}>
+                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+                  </MenuItem>
+                ))}
+              </RHFSelect>) 
+              :
+              (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+                {escolas.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+              </RHFSelect>)
+              }
 
           </Box>
         </DialogContent>

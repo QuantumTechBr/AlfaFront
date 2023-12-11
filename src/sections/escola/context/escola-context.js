@@ -10,7 +10,7 @@ export const EscolasProvider = ({ children }) => {
   const buscaEscolas = async ({ force = false } = {}) => {
     let returnData = escolas;
     if (force || escolas.length == 0) {
-      if (!_consultaAtual) {
+      if (!_consultaAtual || force) {
         _consultaAtual = escolaMethods.getAllEscolas().then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
           setEscolas(response.data);
@@ -23,7 +23,7 @@ export const EscolasProvider = ({ children }) => {
         returnData = value;
       });
     }
-    // console.log(returnData);
+    
     return returnData;
   };
 

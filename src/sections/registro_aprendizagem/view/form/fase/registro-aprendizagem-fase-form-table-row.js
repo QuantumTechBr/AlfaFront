@@ -19,17 +19,29 @@ import { slugify } from 'src/utils/functions';
 import { useContext } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
   
+  const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
-  const desabilita = useBoolean(true);
 
   const { id: aluno_turma_id, aluno } = row;
   const { control, getValues } = useFormContext();
   let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
+  let turmaId = getValues('turma.id')
+  let bimestreId = getValues('bimestre.id')
+  buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
+    turmaId: turmaId,
+    bimestreId: bimestreId,
+  });
+  let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+  let resultadoPrevio = ""
+  if (registro){
+    resultadoPrevio = registro?.resultado
+  }
 
 
   const mapDesabilitarCheckbox = {
@@ -39,10 +51,9 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
     'Alfabética Completa': 4,
     'Alfabética Consolidada': 5,
   };
-
   const disableCheckbox = (tipoFaseValue) => {
-    if (user.permissao_usuario[0].nome === "PROFESSOR") {
-      return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultado] ? true : false;
+    if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
+      return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
     } else {
       return false;
     }

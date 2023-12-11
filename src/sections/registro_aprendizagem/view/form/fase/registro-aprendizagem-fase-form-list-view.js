@@ -22,7 +22,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 
 // _mock
-import { RegistroAprendizagemFases } from 'src/_mock';
+import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -55,11 +55,12 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { RegistroAprendizagemProvider } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', width: 100 },
-  ...Object.entries(RegistroAprendizagemFases).map((itemList) => {
+  ...Object.entries(RegistroAprendizagemFasesCRUD).map((itemList) => {
     return { id: itemList[0], label: itemList[1], width: 35 };
   }),
   { id: 'leitura', label: 'Leitura', width: 250 },
@@ -155,7 +156,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
           prep.onTrue();
         });
-
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
         let _newRegistros = [];
@@ -295,40 +295,43 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               />
             )}
 
-            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-              <Scrollbar>
-              {!prep.value ? (
-                <LoadingBox />
-               ) : (
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                  <TableHeadCustom
-                    order={table.order}
-                    orderBy={table.orderBy}
-                    headLabel={TABLE_HEAD}
-                    onSort={table.onSort}
-                  />
-
-                  <TableBody>
-                    {dataFiltered.map((row, index) => {
-                      return (
-                        <RegistroAprendizagemFaseFormTableRow
-                          key={row.id}
-                          row={row}
-                          index={index}
-                        />
-                      );
-                    })}
-
-                    <TableEmptyRows
-                      height={denseHeight}
-                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+            <RegistroAprendizagemProvider>
+              <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+                <Scrollbar>
+                {!prep.value ? (
+                  <LoadingBox />
+                ) : (
+                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      onSort={table.onSort}
                     />
+                    
 
-                    <TableNoData notFound={notFound} />
-                  </TableBody>
-                </Table> )}
-              </Scrollbar>
-            </TableContainer>
+                    <TableBody>
+                      {dataFiltered.map((row, index) => {
+                        return (
+                          <RegistroAprendizagemFaseFormTableRow
+                            key={row.id}
+                            row={row}
+                            index={index}
+                          />
+                        );
+                      })}
+
+                      <TableEmptyRows
+                        height={denseHeight}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      />
+
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table> )}
+                </Scrollbar>
+              </TableContainer>                  
+            </RegistroAprendizagemProvider>
 
             <TablePaginationCustom
               hidden

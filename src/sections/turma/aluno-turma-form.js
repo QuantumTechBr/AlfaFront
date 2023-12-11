@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import sortBy from 'lodash/sortby';
+// import sortBy from 'lodash/sortby';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -64,22 +64,21 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
 
-  const [currentEscola, setCurrentEscola] = useState({});
+  const [currentAlunosEscola, setCurrentAlunosEscola] = useState(null);
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
   const getAlunosEscola = (id) => {
     escolaMethods
-      .getEscolaById(id)
+      .getAlunosByEscolaId(id)
       .then((escola) => {
-        let alunosEscola = escola.data.alunoEscolas;
-        alunosEscola = sortBy(alunosEscola, (ae) => {
-          return ae.aluno.nome;
-        });
-        escola.data.alunoEscolas = alunosEscola;
+        let alunosEscola = escola.data;
+        // alunosEscola = sortBy(alunosEscola, (ae) => {
+        //   return ae.aluno.nome;
+        // });
 
-        setCurrentEscola(escola.data);
+        setCurrentAlunosEscola(alunosEscola);
 
         let selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
         let alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
@@ -101,7 +100,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   useEffect(() => {
     if (open) {
-      setCurrentEscola({});
+      setCurrentAlunosEscola(null);
       getAlunosEscola(turma.escola.id);
     }
   }, [open]);
@@ -118,7 +117,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   ];
 
   const dataFiltered = applyFilter({
-    inputData: currentEscola.alunoEscolas ?? [],
+    inputData: currentAlunosEscola ?? [],
     query: debouncedSearchFilter,
   });
 
@@ -146,7 +145,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     }
   });
 
-  const isLoading = currentEscola.alunoEscolas === undefined;
+  const isLoading = currentAlunosEscola === undefined || currentAlunosEscola === null;
 
   return (
     <Dialog
@@ -192,11 +191,13 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={currentEscola.alunoEscolas.length}
+                    rowCount={currentAlunosEscola?.length ?? 0}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
-                    {dataFiltered.map((row) => (
+                    {dataFiltered.map((row) => {
+                      // console.log(table.selected.includes(row.aluno.id));
+                      return(
                       <AlunoTurmaTableRow
                         key={row.aluno.id}
                         row={row.aluno}
@@ -204,7 +205,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                         selected={table.selected.includes(row.aluno.id)}
                         onSelectRow={() => table.onSelectRow(row.aluno.id)}
                       />
-                    ))}
+                    )})}
 
                     
 
