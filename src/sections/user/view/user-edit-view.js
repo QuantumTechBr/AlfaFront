@@ -21,12 +21,12 @@ export default function UserEditView({ id }) {
   const settings = useSettingsContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
-      usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao.id : '';
-      usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola.id : '';
+      usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao?.id : '';
+      usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola?.id : '';
+      usuario.data.zona = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].zona?.id : '';
       if (usuario.data.length === 0) {
         setWarningMsg('A API retornou uma lista vazia de usuário');
       }

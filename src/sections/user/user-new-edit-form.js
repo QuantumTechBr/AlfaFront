@@ -36,6 +36,7 @@ import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from '../zona/context/zona-context';
 import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
 
@@ -46,6 +47,7 @@ export default function UserNewEditForm({ currentUser }) {
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -56,6 +58,9 @@ export default function UserNewEditForm({ currentUser }) {
     });
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
     permissaoMethods.getAllPermissoes().then(permissoes => {
@@ -80,7 +85,7 @@ export default function UserNewEditForm({ currentUser }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       status: (currentUser?.status ? "true" : "false") || '',
-      ddz: currentUser?.ddz || '',
+      zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
     [currentUser]
@@ -99,6 +104,7 @@ export default function UserNewEditForm({ currentUser }) {
     control,
     setValue,
     handleSubmit,
+    getValues,
     formState: { isSubmitting },
   } = methods;
 
@@ -123,10 +129,17 @@ export default function UserNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
-      novoUsuario.funcao_usuario = [{
-        funcao_id: data.funcao,
-        escola_id: data.escola
-      }];
+      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+        novoUsuario.funcao_usuario = [{
+          funcao_id: data.funcao,
+          zona_id: data.zona,
+        }];
+      } else {
+        novoUsuario.funcao_usuario = [{
+          funcao_id: data.funcao,
+          escola_id: data.escola,
+        }];
+      }
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
@@ -153,6 +166,14 @@ export default function UserNewEditForm({ currentUser }) {
   useEffect(()  => {
     reset(defaultValues)
   }, [currentUser]);
+
+  const assessor = () => {
+    if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -189,13 +210,21 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <RHFSelect name="escola" label="Escola">
+              {!assessor() ? (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
                 {escolas.map((escola) => (
                   <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </MenuItem>
                 ))}
-              </RHFSelect>
+              </RHFSelect>)
+              :
+              (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+                {zonas.map((zona) => (
+                  <MenuItem key={zona.id} value={zona.id}>
+                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+                  </MenuItem>
+                ))}
+              </RHFSelect>) }
 
             </Box>
 
