@@ -52,6 +52,7 @@ export default function OverviewAppView() {
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
+  const isGettingGraphics = useBoolean(false);
 
   const defaultFilters = {
     zona: [],
@@ -133,6 +134,7 @@ export default function OverviewAppView() {
   };
 
   const preencheGraficos = async () => {
+    isGettingGraphics.onTrue();
     console.log('preencheGraficos');
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
@@ -178,6 +180,8 @@ export default function OverviewAppView() {
         }));
       }),
     ]);
+
+    isGettingGraphics.onFalse();
   };
 
   const handleFilters = useCallback(
@@ -353,55 +357,64 @@ export default function OverviewAppView() {
               }}
             />
           </Grid>
-          {(dados.indice_fases_1_ano.chart?.series ?? []).length > 0 ? (
-            <IndicesComponent
-              key="indices_component_1_ano"
-              ano_escolar={1}
-              indice_fases={dados.indice_fases_1_ano}
-              indice_aprovacao={dados.indice_aprovacao_1_ano}
-              bimestres={bimestres}
-              selectedBimestre={filters.bimestre}
-              onChangeBimestre={handleChangeBimestreFn}
-            />
-          ) : (
-            <LoadingBox />
+
+          {!!isGettingGraphics.value && (
+            <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+              <LoadingBox />
+            </Grid>
           )}
-          {(dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-            <IndicesComponent
-              key="indices_component_2_ano"
-              ano_escolar={2}
-              indice_fases={dados.indice_fases_2_ano}
-              indice_aprovacao={dados.indice_aprovacao_2_ano}
-              bimestres={bimestres}
-              selectedBimestre={filters.bimestre}
-              onChangeBimestre={handleChangeBimestreFn}
-            />
-          )}
-          {(dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-            <IndicesComponent
-              key="indices_component_3_ano"
-              ano_escolar={3}
-              indice_fases={dados.indice_fases_3_ano}
-              indice_aprovacao={dados.indice_aprovacao_3_ano}
-              bimestres={bimestres}
-              selectedBimestre={filters.bimestre}
-              onChangeBimestre={handleChangeBimestreFn}
-            />
-          )}
-          {(dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
-            <IndicesComponent
-              key="indices_component_geral"
-              ano_escolar="Geral"
-              indice_fases={dados.indice_fases_geral}
-              indice_aprovacao={dados.indice_aprovacao_geral}
-              bimestres={bimestres}
-              selectedBimestre={filters.bimestre}
-              onChangeBimestre={handleChangeBimestreFn}
-            />
-          )}
+
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+              <IndicesComponent
+                key="indices_component_1_ano"
+                ano_escolar={1}
+                indice_fases={dados.indice_fases_1_ano}
+                indice_aprovacao={dados.indice_aprovacao_1_ano}
+                bimestres={bimestres}
+                selectedBimestre={filters.bimestre}
+                onChangeBimestre={handleChangeBimestreFn}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
+              <IndicesComponent
+                key="indices_component_2_ano"
+                ano_escolar={2}
+                indice_fases={dados.indice_fases_2_ano}
+                indice_aprovacao={dados.indice_aprovacao_2_ano}
+                bimestres={bimestres}
+                selectedBimestre={filters.bimestre}
+                onChangeBimestre={handleChangeBimestreFn}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
+              <IndicesComponent
+                key="indices_component_3_ano"
+                ano_escolar={3}
+                indice_fases={dados.indice_fases_3_ano}
+                indice_aprovacao={dados.indice_aprovacao_3_ano}
+                bimestres={bimestres}
+                selectedBimestre={filters.bimestre}
+                onChangeBimestre={handleChangeBimestreFn}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+              <IndicesComponent
+                key="indices_component_geral"
+                ano_escolar="Geral"
+                indice_fases={dados.indice_fases_geral}
+                indice_aprovacao={dados.indice_aprovacao_geral}
+                bimestres={bimestres}
+                selectedBimestre={filters.bimestre}
+                onChangeBimestre={handleChangeBimestreFn}
+              />
+            )}
         </Grid>
 
-        {(dados.desempenho_alunos.chart?.series ?? []).length > 0 ? (
+        {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
           <Grid xs={12}>
             <AppDesempenhoAlunos
               title="Desempenho dos Alunos"
@@ -409,8 +422,6 @@ export default function OverviewAppView() {
               chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
             />
           </Grid>
-        ) : (
-          <LoadingBox />
         )}
 
         <Grid xs={12} lg={6} sx={{ my: 3 }}>
