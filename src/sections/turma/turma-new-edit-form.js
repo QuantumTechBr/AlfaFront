@@ -279,7 +279,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
         onClose={modalAlunoTurma.onFalse}
       />
       <ProfessorTurmaForm
-        escola={currentTurma?.escola}
+        turma={currentTurma}
         open={modalProfessorTurma.value}
         onClose={modalProfessorTurma.onFalse}
       />
