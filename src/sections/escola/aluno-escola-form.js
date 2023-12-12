@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import sortBy from 'lodash/sortby';
+// import sortBy from 'lodash/sortby';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -73,9 +73,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       .then((response) => {
         let _allAlunos = response.data;
         
-        _allAlunos = sortBy(_allAlunos, (ae) => {
-          return ae.nome;
-        });
+        // _allAlunos = sortBy(_allAlunos, (ae) => {
+        //   return ae.nome;
+        // });
 
         setAllAlunos(_allAlunos);
 
