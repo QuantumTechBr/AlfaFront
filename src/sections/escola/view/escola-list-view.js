@@ -80,7 +80,7 @@ export default function EscolaListView() {
 
   useEffect(() => {
     buscaEscolas({force: true }).then(_escolas => {
-      setTableData(_escolas.data);
+      setTableData(_escolas);
       preparado.onTrue();
     }).catch((error) => {
       console.log(error)
