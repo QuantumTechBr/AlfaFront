@@ -42,6 +42,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import alunosMethods from './../aluno/aluno-repository';
 import escolaMethods from './escola-repository';
 import Typography from '@mui/material/Typography';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 // ----------------------------------------------------------------------
 
@@ -61,7 +62,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
   const table = useTable();
-
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [allAlunos, setAllAlunos] = useState();
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
@@ -69,9 +70,10 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const getAllAlunos = (id) => {
     alunosMethods
-      .getAllAlunos()
+      .getAllAlunos({offset: 0, limit: 10000})
       .then((response) => {
-        let _allAlunos = response.data;
+        console.log(response)
+        let _allAlunos = response.data.results;
         
         // _allAlunos = sortBy(_allAlunos, (ae) => {
         //   return ae.nome;
@@ -104,6 +106,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     if (open) {
       setAllAlunos();
       getAllAlunos(escola.id);
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
+      });
     }
   }, [open]);
 
@@ -125,11 +130,13 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      let idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
       await escolaMethods
         .updateEscolaById(escola.id, {
           alunoEscolas: table.selected.map((id) => {
             return {
               aluno_id: id,
+              ano_id: idAnoLetivoAtual,
             };
           }),
         })
@@ -140,7 +147,6 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
-      console.info('DATA', data);
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
