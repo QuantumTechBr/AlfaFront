@@ -11,11 +11,12 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 
-// components
-import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { useSettingsContext } from 'src/components/settings';
-import turmaMethods from 'src/sections/turma/turma-repository';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { Autocomplete, TextField } from '@mui/material';
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 // ----------------------------------------------------------------------
 
@@ -38,11 +39,8 @@ export default function OverviewTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
-      onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
+    (newValue) => {
+      onFilters('escola', newValue);
     },
     [onFilters]
   );
@@ -79,12 +77,6 @@ export default function OverviewTableToolbar({
           xs: 'column',
           md: 'row',
         }}
-        sx={
-          {
-            // p: 2.5,
-            // pr: { xs: 2.5, md: 1 },
-          }
-        }
       >
         <FormControl
           sx={{
@@ -115,35 +107,42 @@ export default function OverviewTableToolbar({
           </Select>
         </FormControl>
 
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 450 },
-          }}
-        >
-          <InputLabel size="small">Escola</InputLabel>
-
-          <Select
-            size="small"
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput fullWidth label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240},
-              },
+        {escolaOptions.length > 0 && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 450 },
             }}
           >
-            {escolaOptions?.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <Autocomplete
+              fullWidth
+              size="small"
+              multiple
+              limitTags={1}
+              options={escolaOptions}
+              disableCloseOnSelect
+              onChange={(event, newValue) => {
+                handleFilterEscola(newValue);
+              }}
+              getOptionLabel={(option) => option.nome}
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                  />
+                  {option.nome}
+                </li>
+              )}
+              // style={{ width: 500 }}
+              renderInput={(params) => {
+                return <TextField {...params} label="Escolas" placeholder="Digite para buscar" />;
+              }}
+            />
+          </FormControl>
+        )}
 
         {turmaOptions && (
           <FormControl
