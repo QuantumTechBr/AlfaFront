@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useContext } from 'react';
+import { AuthContext } from 'src/auth/context/alfa';
 // routes
 import { paths } from 'src/routes/paths';
 // locales
@@ -56,6 +57,219 @@ const ICONS = {
 
 export function useNavData() {
   const { t } = useLocales();
+  const { user } = useContext(AuthContext);
+
+  let items = [];
+
+  if (user?.permissao_usuario[0]?.nome == 'SUPERADMIN') {
+    items = [
+      {
+        title: t('home (dashboard)'),
+        path: paths.dashboard.root,
+        icon: ICONS.alfaHome,
+      },
+      // USER
+      {
+        title: 'Gerenciamento de Usuários',
+        path: paths.dashboard.user.list,
+        icon: ICONS.alfaUserProfile,
+        children: [
+          // { title: 'Perfis e Permissões', path: paths.dashboard.blank },
+          { title: t('usuários'), path: paths.dashboard.user.list },
+        ],
+      },
+      
+
+      // PROFISSIONAIS
+      {
+        title: 'Profissionais da Educação',
+        path: paths.dashboard.profissional.list,
+        icon: ICONS.alfaClipboardAccount,
+      },
+
+      // ALUNOS
+      {
+        title: 'Lista de Alunos',
+        path: paths.dashboard.aluno.list,
+        icon: ICONS.alfaStudent,
+      },
+
+      // ANOS
+      {
+        title: 'Lista de Anos Letivos',
+        path: paths.dashboard.calendar,
+        icon: ICONS.alfaCalendar,
+        children: [
+          { title: t('calendário'), path: paths.dashboard.calendar },
+          // { title: t('gerar relatório'), path: paths.dashboard.blank },
+          // { title: t('documentos administrativos'), path: paths.dashboard.blank },
+        ],
+      },
+
+      // TURMAS
+      {
+        title: 'Turmas',
+        path: paths.dashboard.turma.list,
+        icon: ICONS.alfaBookAccount,
+        children: [
+          { title: t('lista de turmas'), path: paths.dashboard.turma.list },
+          { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma },
+          // { title: t('frequência'), path: paths.dashboard.blank },
+          // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
+          // { title: 'Planos de Aulas', path: paths.dashboard.blank },
+        ],
+      },
+
+      // AVALIAÇÕES
+      { 
+        title: t('avaliações'), 
+        path: paths.dashboard.registro_aprendizagem.root,
+        icon: ICONS.alfaBookAccount,
+        children: [
+          {
+            title: t('Dianóstico'), 
+            path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
+          },
+          {
+            title: t('Fase'), 
+            path: paths.dashboard.registro_aprendizagem.root_fase, 
+          },
+          {
+            title: t('Componente'), 
+            path: paths.dashboard.registro_aprendizagem.root_componente, 
+          }
+        ]
+      },
+
+      // Redes de Ensino
+      {
+        title: 'Redes de Ensino',
+        path: paths.dashboard.zona.list,
+        icon: ICONS.alfaBuilding,
+        children: [
+          { title: 'Lista de DDZ', path: paths.dashboard.zona.list },
+          { title: 'Lista de Escolas', path: paths.dashboard.escola.list },
+        ],
+      },
+
+      // FILE MANAGER
+      {
+        title: t('Documento'),
+        path: paths.dashboard.documento,
+        icon: ICONS.folder,
+      },
+
+    ]
+  } else {
+    try {
+      const modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo.map(permissaoModulo => {
+        if (permissaoModulo.cadastrar || permissaoModulo.editar || permissaoModulo.deletar) {
+          return permissaoModulo.modulo?.namespace;
+        }
+      });
+      items.push({
+        title: t('home (dashboard)'),
+        path: paths.dashboard.root,
+        icon: ICONS.alfaHome,
+      });
+      if (user?.permissao_usuario[0]?.nome == 'ADMIN') {
+        items.push({
+          title: 'Gerenciamento de Usuários',
+          path: paths.dashboard.user.list,
+          icon: ICONS.alfaUserProfile,
+          children: [
+            { title: t('usuários'), path: paths.dashboard.user.list },
+          ],
+        });
+      }
+
+      if (modulosPermitidos.includes("usuario")) {
+        items.push({
+          title: 'Profissionais da Educação',
+          path: paths.dashboard.profissional.list,
+          icon: ICONS.alfaClipboardAccount,
+        })
+      }
+      if (modulosPermitidos.includes("aluno")) {
+        items.push({
+          title: 'Lista de Alunos',
+          path: paths.dashboard.aluno.list,
+          icon: ICONS.alfaStudent,
+        })
+      }
+      if (modulosPermitidos.includes("ano_letivo")) {
+        items.push({
+          title: 'Lista de Anos Letivos',
+          path: paths.dashboard.calendar,
+          icon: ICONS.alfaCalendar,
+          children: [
+            { title: t('calendário'), path: paths.dashboard.calendar },
+          ],
+        })
+      }
+      if (modulosPermitidos.includes("turma")) {
+        items.push({
+          title: 'Turmas',
+          path: paths.dashboard.turma.list,
+          icon: ICONS.alfaBookAccount,
+          children: [
+            { title: t('lista de turmas'), path: paths.dashboard.turma.list },
+            { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma }
+          ],
+        });
+      }
+      if (modulosPermitidos.includes("registro_aprendizagem")) {
+        items.push({ 
+          title: t('avaliações'), 
+          path: paths.dashboard.registro_aprendizagem.root,
+          icon: ICONS.alfaBookAccount,
+          children: [
+            {
+              title: t('Dianóstico'), 
+              path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
+            },
+            {
+              title: t('Fase'), 
+              path: paths.dashboard.registro_aprendizagem.root_fase, 
+            },
+            {
+              title: t('Componente'), 
+              path: paths.dashboard.registro_aprendizagem.root_componente, 
+            }
+          ]
+        });
+      }
+
+      const redesEnsinoModuloChildren = [];
+      if (modulosPermitidos.includes("zonas")) {
+        redesEnsinoModuloChildren.push({ title: 'Lista de DDZ', path: paths.dashboard.zona.list });
+      }
+      if (modulosPermitidos.includes("escola")) {
+        redesEnsinoModuloChildren.push({ title: 'Lista de Escolas', path: paths.dashboard.escola.list },);
+      }
+      if (redesEnsinoModuloChildren.length){
+        items.push({
+          title: 'Redes de Ensino',
+          path: paths.dashboard.zona.list,
+          icon: ICONS.alfaBuilding,
+          children: redesEnsinoModuloChildren,
+        })
+      }
+
+      if (modulosPermitidos.includes("documentos")) {
+        items.push({
+          title: t('Documento'),
+          path: paths.dashboard.documento,
+          icon: ICONS.folder,
+        });
+      }
+  
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+
+  }
 
   const data = useMemo(
     () => [
@@ -63,340 +277,8 @@ export function useNavData() {
       // ----------------------------------------------------------------------
       {
         subheader: t('menu'),
-        items: [
-          {
-            title: t('home (dashboard)'),
-            path: paths.dashboard.root,
-            icon: ICONS.alfaHome,
-          },
-          // USER
-          {
-            title: 'Gerenciamento de Usuários',
-            path: paths.dashboard.user.list,
-            icon: ICONS.alfaUserProfile,
-            children: [
-              // { title: 'Perfis e Permissões', path: paths.dashboard.blank },
-              { title: t('usuários'), path: paths.dashboard.user.list },
-            ],
-          },
-          
-
-          // PROFISSIONAIS
-          {
-            title: 'Profissionais da Educação',
-            path: paths.dashboard.profissional.list,
-            icon: ICONS.alfaClipboardAccount,
-          },
-
-          // ALUNOS
-          {
-            title: 'Lista de Alunos',
-            path: paths.dashboard.aluno.list,
-            icon: ICONS.alfaStudent,
-          },
-
-          // ANOS
-          {
-            title: 'Lista de Anos Letivos',
-            path: paths.dashboard.calendar,
-            icon: ICONS.alfaCalendar,
-            children: [
-              { title: t('calendário'), path: paths.dashboard.calendar },
-              // { title: t('gerar relatório'), path: paths.dashboard.blank },
-              // { title: t('documentos administrativos'), path: paths.dashboard.blank },
-            ],
-          },
-
-          // TURMAS
-          {
-            title: 'Turmas',
-            path: paths.dashboard.turma.list,
-            icon: ICONS.alfaBookAccount,
-            children: [
-              { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-              { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma },
-              // { title: t('frequência'), path: paths.dashboard.blank },
-              // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
-              // { title: 'Planos de Aulas', path: paths.dashboard.blank },
-            ],
-          },
-
-          // AVALIAÇÕES
-          { 
-            title: t('avaliações'), 
-            path: paths.dashboard.registro_aprendizagem.root,
-            icon: ICONS.alfaBookAccount,
-            children: [
-              {
-                title: t('Dianóstico'), 
-                path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
-              },
-              {
-                title: t('Fase'), 
-                path: paths.dashboard.registro_aprendizagem.root_fase, 
-              },
-              {
-                title: t('Componente'), 
-                path: paths.dashboard.registro_aprendizagem.root_componente, 
-              }
-            ]
-          },
-
-          // TOUR
-          {
-            title: 'Redes de Ensino',
-            path: paths.dashboard.zona.list,
-            icon: ICONS.alfaBuilding,
-            children: [
-              { title: 'Lista de DDZ', path: paths.dashboard.zona.list },
-              { title: 'Lista de Escolas', path: paths.dashboard.escola.list },
-            ],
-          },
-
-          // FILE MANAGER
-          {
-            title: t('Documento'),
-            path: paths.dashboard.documento,
-            icon: ICONS.folder,
-          },
-
-        ],
+        items,
       },
-
-      // OVERVIEW
-      // ----------------------------------------------------------------------
-     /* {
-        subheader: t('overview'),
-        items: [
-          { title: t('app'), path: paths.dashboard.blank, icon: ICONS.dashboard },
-          { title: t('ecommerce'), path: paths.dashboard.general.ecommerce, icon: ICONS.ecommerce },
-          { title: t('analytics'), path: paths.dashboard.general.analytics, icon: ICONS.analytics },
-          { title: t('banking'), path: paths.dashboard.general.banking, icon: ICONS.banking },
-          { title: t('booking'), path: paths.dashboard.general.booking, icon: ICONS.booking },
-          { title: t('file'), path: paths.dashboard.general.file, icon: ICONS.file },
-        ],
-      },
-
-      // MANAGEMENT
-      // ----------------------------------------------------------------------
-      {
-        subheader: t('management'),
-        items: [
-          // USER
-          {
-            title: t('user'),
-            path: paths.dashboard.user.root,
-            icon: ICONS.user,
-            children: [
-              { title: t('profile'), path: paths.dashboard.user.root },
-              { title: t('cards'), path: paths.dashboard.user.cards },
-              { title: t('list'), path: paths.dashboard.user.list },
-              { title: t('create'), path: paths.dashboard.user.new },
-              { title: t('edit'), path: paths.dashboard.user.demo.edit },
-              { title: t('account'), path: paths.dashboard.user.account },
-            ],
-          },
-
-          // PRODUCT
-          {
-            title: t('product'),
-            path: paths.dashboard.product.root,
-            icon: ICONS.product,
-            children: [
-              { title: t('list'), path: paths.dashboard.product.root },
-              { title: t('details'), path: paths.dashboard.product.demo.details },
-              { title: t('create'), path: paths.dashboard.product.new },
-              { title: t('edit'), path: paths.dashboard.product.demo.edit },
-            ],
-          },
-
-          // ORDER
-          {
-            title: t('order'),
-            path: paths.dashboard.order.root,
-            icon: ICONS.order,
-            children: [
-              { title: t('list'), path: paths.dashboard.order.root },
-              { title: t('details'), path: paths.dashboard.order.demo.details },
-            ],
-          },
-
-          // INVOICE
-          {
-            title: t('invoice'),
-            path: paths.dashboard.invoice.root,
-            icon: ICONS.invoice,
-            children: [
-              { title: t('list'), path: paths.dashboard.invoice.root },
-              { title: t('details'), path: paths.dashboard.invoice.demo.details },
-              { title: t('create'), path: paths.dashboard.invoice.new },
-              { title: t('edit'), path: paths.dashboard.invoice.demo.edit },
-            ],
-          },
-
-          // BLOG
-          {
-            title: t('blog'),
-            path: paths.dashboard.post.root,
-            icon: ICONS.blog,
-            children: [
-              { title: t('list'), path: paths.dashboard.post.root },
-              { title: t('details'), path: paths.dashboard.post.demo.details },
-              { title: t('create'), path: paths.dashboard.post.new },
-              { title: t('edit'), path: paths.dashboard.post.demo.edit },
-            ],
-          },
-
-          // JOB
-          {
-            title: t('job'),
-            path: paths.dashboard.job.root,
-            icon: ICONS.job,
-            children: [
-              { title: t('list'), path: paths.dashboard.job.root },
-              { title: t('details'), path: paths.dashboard.job.demo.details },
-              { title: t('create'), path: paths.dashboard.job.new },
-              { title: t('edit'), path: paths.dashboard.job.demo.edit },
-            ],
-          },
-
-          // TOUR
-          {
-            title: t('tour'),
-            path: paths.dashboard.tour.root,
-            icon: ICONS.tour,
-            children: [
-              { title: t('list'), path: paths.dashboard.tour.root },
-              { title: t('details'), path: paths.dashboard.tour.demo.details },
-              { title: t('create'), path: paths.dashboard.tour.new },
-              { title: t('edit'), path: paths.dashboard.tour.demo.edit },
-            ],
-          },
-
-          // FILE MANAGER
-          {
-            title: t('file_manager'),
-            path: paths.dashboard.fileManager,
-            icon: ICONS.folder,
-          },
-
-          // MAIL
-          {
-            title: t('mail'),
-            path: paths.dashboard.mail,
-            icon: ICONS.mail,
-            info: <Label color="error">+32</Label>,
-          },
-
-          // CHAT
-          {
-            title: t('chat'),
-            path: paths.dashboard.chat,
-            icon: ICONS.chat,
-          },
-
-          // CALENDAR
-          {
-            title: t('calendar'),
-            path: paths.dashboard.calendar,
-            icon: ICONS.calendar,
-          },
-
-          // KANBAN
-          {
-            title: t('kanban'),
-            path: paths.dashboard.kanban,
-            icon: ICONS.kanban,
-          },
-        ],
-      },
-
-      // DEMO MENU STATES
-      {
-        subheader: t(t('other_cases')),
-        items: [
-          {
-            // default roles : All roles can see this entry.
-            // roles: ['user'] Only users can see this item.
-            // roles: ['admin'] Only admin can see this item.
-            // roles: ['admin', 'manager'] Only admin/manager can see this item.
-            // Reference from 'src/guards/RoleBasedGuard'.
-            title: t('item_by_roles'),
-            path: paths.dashboard.permission,
-            icon: ICONS.lock,
-            roles: ['admin', 'manager'],
-            caption: t('only_admin_can_see_this_item'),
-          },
-          {
-            title: t('menu_level'),
-            path: '#/dashboard/menu_level',
-            icon: ICONS.menuItem,
-            children: [
-              {
-                title: t('menu_level_1a'),
-                path: '#/dashboard/menu_level/menu_level_1a',
-              },
-              {
-                title: t('menu_level_1b'),
-                path: '#/dashboard/menu_level/menu_level_1b',
-                children: [
-                  {
-                    title: t('menu_level_2a'),
-                    path: '#/dashboard/menu_level/menu_level_1b/menu_level_2a',
-                  },
-                  {
-                    title: t('menu_level_2b'),
-                    path: '#/dashboard/menu_level/menu_level_1b/menu_level_2b',
-                    children: [
-                      {
-                        title: t('menu_level_3a'),
-                        path: '#/dashboard/menu_level/menu_level_1b/menu_level_2b/menu_level_3a',
-                      },
-                      {
-                        title: t('menu_level_3b'),
-                        path: '#/dashboard/menu_level/menu_level_1b/menu_level_2b/menu_level_3b',
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            title: t('item_disabled'),
-            path: '#disabled',
-            icon: ICONS.disabled,
-            disabled: true,
-          },
-          {
-            title: t('item_label'),
-            path: '#label',
-            icon: ICONS.label,
-            info: (
-              <Label color="info" startIcon={<Iconify icon="solar:bell-bing-bold-duotone" />}>
-                NEW
-              </Label>
-            ),
-          },
-          {
-            title: t('item_caption'),
-            path: '#caption',
-            icon: ICONS.menuItem,
-            caption:
-              'Quisque malesuada placerat nisl. In hac habitasse platea dictumst. Cras id dui. Pellentesque commodo eros a enim. Morbi mollis tellus ac sapien.',
-          },
-          {
-            title: t('item_external_link'),
-            path: 'https://www.google.com/',
-            icon: ICONS.external,
-          },
-          {
-            title: t('blank'),
-            path: paths.dashboard.blank,
-            icon: ICONS.blank,
-          },
-        ],
-      }, */
     ],
     [t]
   );
