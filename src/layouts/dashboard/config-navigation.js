@@ -162,11 +162,14 @@ export function useNavData() {
     ]
   } else {
     try {
-      const modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo.map(permissaoModulo => {
+      let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo.map(permissaoModulo => {
         if (permissaoModulo.cadastrar || permissaoModulo.editar || permissaoModulo.deletar) {
           return permissaoModulo.modulo?.namespace;
         }
       });
+
+      modulosPermitidos ??= [];
+
       items.push({
         title: t('home (dashboard)'),
         path: paths.dashboard.root,
