@@ -25,6 +25,7 @@ import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 
 export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, profissional, email, funcao, escola, zona , turma } = row;
+ 
 
 
   const user = {
@@ -32,7 +33,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     nome: row.profissional,
     email: row.email,
     funcao: row.funcao.id,
-    escola: row.escola.id,
+    escola: row.escola?.id,
     zona: row.zona?.id,
     turma: row.turma,
   }
@@ -69,7 +70,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
         <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcao.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
 

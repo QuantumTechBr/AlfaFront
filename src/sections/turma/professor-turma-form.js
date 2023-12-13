@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect, useState } from 'react';
+import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -13,37 +13,110 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import Table from '@mui/material/Table';
+import {
+  useTable,
+  getComparator,
+  TableNoData,
+  TableHeadCustom,
+  TableSelectedAction,
+  TablePaginationCustom,
+} from 'src/components/table';
+import TableBody from '@mui/material/TableBody';
 // components
 import Iconify from 'src/components/iconify';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-
-
+import profissionalMethods from '../profissional/profissional-repository';
+import Scrollbar from 'src/components/scrollbar';
+import LoadingBox from 'src/components/helpers/loading-box';
+import ProfessorTurmaTableRow from './components/professor-turma-table-row';
+import Typography from '@mui/material/Typography';
+import turmaMethods from './turma-repository';
 // ----------------------------------------------------------------------
 
-export default function ProfessorTurmaForm({ escola, open, onClose }) {
+
+const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
+
+const TABLE_HEAD = [
+  { id: '', width: 5 },
+  { id: 'nome', label: 'Nome', width: 200 },
+  { id: 'email', label: 'E-Mail', width: 300 },
+  { id: 'funcao', label: 'Função', width: 200 },
+  { id: 'status', label: 'Status', width: 200 },
+  { id: '', width: 88 },
+];
+
+export default function ProfessorTurmaForm({ turma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   
-
+  const table = useTable();
   const [errorMsg, setErrorMsg] = useState('');
+  const [currentProfessoresEscola, setCurrentProfessoresEscola] = useState(null);
 
+  const getProfessoresEscola = (id) => {
+    profissionalMethods
+      .getProfessoresByEscolaId({ escolaId: id })
+      .then((professores) => {
+        let professoresEscola = professores.data;
+        let professorTurma = professoresEscola.filter((professor) => professor?.turma[0]?.id === turma.id)
+        if (professorTurma.length > 0) {
+          table.setSelected(professorTurma[0].id);
+        }
+        setCurrentProfessoresEscola(professoresEscola);
+      })
+      .catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de profissionais');
+      });
+  };
 
-  const defaultValues = useMemo(
-    () => ({
-
-    }),
-    []
-  );
-
-  const methods = useForm({
-    defaultValues,
-  });
+  const methods = useForm({});
 
   const {
     reset,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    if (open) {
+      setCurrentProfessoresEscola(null);
+      getProfessoresEscola(turma.escola.id);
+    }
+  }, [open]);
+
+  const dataFiltered = applyFilter({
+    inputData: currentProfessoresEscola ?? [],
+  });
+
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      console.log(table.selected)
+      await turmaMethods
+        .updateTurmaById(turma.id, {
+          professor_turma: [{usuario_id: table.selected, responsavel: true}]
+        }).catch((error) => {
+          throw error;
+        });
+      reset();
+      onClose();
+      enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
+    } catch (error) {
+      setErrorMsg('Tentativa de atualização da turma falhou');
+      console.error(error);
+    }
+  });
+
+  const onSelectRowCustom = useCallback(
+    (inputValue) => {
+      table.setSelected(inputValue);
+    },
+    [table.selected]
+  );
+
+  const isLoading = currentProfessoresEscola === undefined || currentProfessoresEscola === null;
 
   return (
     <Dialog
@@ -52,26 +125,55 @@ export default function ProfessorTurmaForm({ escola, open, onClose }) {
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { maxWidth: 720 },
+        sx: { maxWidth: 800 },
       }}
     >
-      <FormProvider methods={methods}>
-        <DialogTitle>Definir Professor da Turma</DialogTitle>
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+      <DialogTitle>Definir Professor: {turma?.escola?.nome} {turma?.ano_escolar}º {turma?.nome}</DialogTitle>
+      {isLoading ? (
+          <>
+            <Box sx={{ pt: 2 }}>
+              <LoadingBox />
+            </Box>
+          </>
+        ) : (
+          <>
         <DialogContent>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
+          <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
+                <Table size="small" sx={{ width: '100%' }}>
+                  <TableHeadCustom
+                    order="asc"
+                    orderBy="nome"
+                    headLabel={TABLE_HEAD}
+                    rowCount={currentProfessoresEscola?.length ?? 0}
+                    numSelected={table.selected.length}
+                  />
+                  <TableBody>
+                    {dataFiltered.map((row) => {
+                      return(
+                      <ProfessorTurmaTableRow
+                        key={row.id}
+                        row={row}
+                        currentTurma={turma}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => onSelectRowCustom(row.id)}
+                      />
+                    )})}
 
-          </Box>
+                    
+
+                    <TableNoData notFound={false} />
+                  </TableBody>
+                </Table>
+              </Scrollbar>
+              <Box  sx={{ mt: 2}}>
+                <Typography variant="subtitle2">{table.selected.length > 0 ? 1 : 0} selecionado</Typography>
+              </Box>
         </DialogContent>
+        </>
+        )}
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
@@ -88,7 +190,19 @@ export default function ProfessorTurmaForm({ escola, open, onClose }) {
 }
 
 ProfessorTurmaForm.propTypes = {
-  currentTurma: PropTypes.object,
+  Turma: PropTypes.object,
   onClose: PropTypes.func,
   open: PropTypes.bool,
+};
+
+const applyFilter = ({ inputData, query }) => {
+  if (query) {
+    inputData = inputData.filter(
+      (item) =>
+        item.aluno.nome.toLowerCase().indexOf(query.toLowerCase()) !== -1 ||
+        item.aluno.matricula.toLowerCase().indexOf(query.toLowerCase()) !== -1
+    );
+  }
+
+  return inputData;
 };

@@ -45,7 +45,7 @@ export default function ProfissionalEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'Profissioanis',
+            name: 'Profissionais',
             href: paths.dashboard.profissional.list,
           },
           { name: currentUser?.nome },
