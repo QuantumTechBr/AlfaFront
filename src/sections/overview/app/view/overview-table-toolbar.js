@@ -136,7 +136,6 @@ export default function OverviewTableToolbar({
                   {option.nome}
                 </li>
               )}
-              // style={{ width: 500 }}
               renderInput={(params) => {
                 return <TextField {...params} label="Escolas" placeholder="Digite para buscar" />;
               }}
