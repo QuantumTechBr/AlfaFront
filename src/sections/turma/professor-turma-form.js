@@ -99,10 +99,10 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
         }).catch((error) => {
           throw error;
         });
-      reset();
-      onClose();
-      enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
+      // reset();
+      // onClose();
+      // enqueueSnackbar('Atualizado com sucesso!');
+      // window.location.reload();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
