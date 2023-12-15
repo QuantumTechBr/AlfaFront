@@ -294,7 +294,7 @@ export default function FileManagerView() {
 
       />
 
-      <ToggleButtonGroup size="small" value={view} exclusive onChange={handleChangeView}>
+      {/* <ToggleButtonGroup size="small" value={view} exclusive onChange={handleChangeView}>
         <ToggleButton value="list">
           <Iconify icon="solar:list-bold" />
         </ToggleButton>
@@ -302,7 +302,7 @@ export default function FileManagerView() {
         <ToggleButton value="grid">
           <Iconify icon="mingcute:dot-grid-fill" />
         </ToggleButton>
-      </ToggleButtonGroup>
+      </ToggleButtonGroup> */}
     </Stack>
   );
 
