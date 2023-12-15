@@ -16,7 +16,7 @@ import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
 import { FormControl, TextField } from '@mui/material';
 import { slugify } from 'src/utils/functions';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
@@ -33,16 +33,13 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
   let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
   let turmaId = getValues('turma.id')
   let bimestreId = getValues('bimestre.id')
-  buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
-    turmaId: turmaId,
-    bimestreId: bimestreId,
-  });
-  let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
-  let resultadoPrevio = ""
-  if (registro){
-    resultadoPrevio = registro?.resultado
-  }
 
+  useEffect(() => {
+    buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
+      turmaId: turmaId,
+      bimestreId: bimestreId,
+    });
+  }, []);
 
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 1,
@@ -58,7 +55,13 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, index }) {
       return false;
     }
   }
- 
+
+  let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+  let resultadoPrevio = ""
+  if (registro){
+    resultadoPrevio = registro?.resultado
+  }
+
   return (
     <>
       <TableRow hover>

@@ -93,16 +93,25 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       console.log(table.selected)
-      await turmaMethods
+      if (table.selected.length < 1) {
+        await turmaMethods
+        .updateTurmaById(turma.id, {
+          professor_turma: []
+        }).catch((error) => {
+          throw error;
+        });
+      } else {
+        await turmaMethods
         .updateTurmaById(turma.id, {
           professor_turma: [{usuario_id: table.selected, responsavel: true}]
         }).catch((error) => {
           throw error;
         });
-      // reset();
-      // onClose();
-      // enqueueSnackbar('Atualizado com sucesso!');
-      // window.location.reload();
+      }
+      reset();
+      onClose();
+      enqueueSnackbar('Atualizado com sucesso!');
+      window.location.reload();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
@@ -111,7 +120,11 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
 
   const onSelectRowCustom = useCallback(
     (inputValue) => {
-      table.setSelected(inputValue);
+      if (table.selected.includes(inputValue)) {
+        table.setSelected([])
+      } else {
+        table.setSelected(inputValue);
+      }
     },
     [table.selected]
   );

@@ -63,7 +63,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {turmas_alunos?.length > 0 ? turmas_alunos.length : 0}
           <Button
               onClick={listarAlunosTurma}
@@ -77,7 +77,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
             >
             <Iconify icon="carbon:user-filled" />
             </Button>
-        </TableCell>
+        </TableCell> */}
 
         <TableCell>
           <Label

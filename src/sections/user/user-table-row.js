@@ -68,7 +68,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
               'default'
             }
           >
-            {status? 'Ativo' : 'Inativo'}
+            {status === 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 
