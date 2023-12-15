@@ -377,7 +377,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola.id));
+    inputData = inputData.filter((user) => escola.includes(user?.escola?.id));
   }
 
   return inputData;
