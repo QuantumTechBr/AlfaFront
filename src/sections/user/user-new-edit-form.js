@@ -130,15 +130,25 @@ export default function UserNewEditForm({ currentUser }) {
         }
       }
       if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-        novoUsuario.funcao_usuario = [{
-          funcao_id: data.funcao,
-          zona_id: data.zona,
-        }];
+        if (data.zona == '') {
+          setErrorMsg('Voce deve selecionar uma zona');
+          return
+        } else {
+          novoUsuario.funcao_usuario = [{
+            funcao_id: data.funcao,
+            zona_id: data.zona,
+          }];
+        }
       } else {
-        novoUsuario.funcao_usuario = [{
-          funcao_id: data.funcao,
-          escola_id: data.escola,
-        }];
+        if (data.escola == '') {
+          setErrorMsg('Voce deve selecionar uma escola');
+          return
+        } else {
+          novoUsuario.funcao_usuario = [{
+            funcao_id: data.funcao,
+            escola_id: data.escola,
+          }];
+        }
       }
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
@@ -210,21 +220,25 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              {!assessor() ? (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>)
-              :
-              (<RHFSelect disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+              <RHFSelect sx={{
+                display: !assessor() ? "none" : "inherit"
+              }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
                 {zonas.map((zona) => (
                   <MenuItem key={zona.id} value={zona.id}>
                     <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
                   </MenuItem>
                 ))}
-              </RHFSelect>) }
+              </RHFSelect>
+
+              <RHFSelect sx={{
+                display: assessor() ? "none" : "inherit"
+              }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+                {escolas.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
             </Box>
 

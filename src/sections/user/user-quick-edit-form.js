@@ -215,9 +215,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               ))}
             </RHFSelect>
 
-            {/* {assessor.value ?  */}
-              {/* ( */}
-                <RHFSelect sx={{
+              <RHFSelect sx={{
                 display: !assessor.value ? "none" : "inherit"
               }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
                 {zonas.map((zona) => (
@@ -226,9 +224,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
-              {/* )  */}
-              {/* : */}
-              {/* ( */}
+
               <RHFSelect sx={{
                 display: assessor.value ? "none" : "inherit"
               }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
@@ -238,8 +234,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
-              {/* ) */}
-              {/* } */}
 
           </Box>
         </DialogContent>

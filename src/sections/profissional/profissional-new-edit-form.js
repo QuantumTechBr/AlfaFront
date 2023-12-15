@@ -37,6 +37,7 @@ import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 import userMethods from '../user/user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from '../zona/context/zona-context';
 import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
 
@@ -47,6 +48,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -58,7 +60,10 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
-    
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
+    });
+
     permissaoMethods.getAllPermissoes().then(permissoes => {
       setPermissoes(permissoes.data);
     }).catch((error) => {
@@ -81,7 +86,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       status: (currentUser?.status ? "true" : "false") || '',
-      ddz: currentUser?.ddz || '',
+      zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
     [currentUser]
@@ -99,6 +104,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     watch,
     control,
     setValue,
+    getValues,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -124,10 +130,27 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
-      novoUsuario.funcao_usuario = [{
-        funcao_id: data.funcao,
-        escola_id: data.escola
-      }];
+      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+        if (data.zona == '') {
+          setErrorMsg('Voce deve selecionar uma zona');
+          return
+        } else {
+          novoUsuario.funcao_usuario = [{
+            funcao_id: data.funcao,
+            zona_id: data.zona,
+          }];
+        }
+      } else {
+        if (data.escola == '') {
+          setErrorMsg('Voce deve selecionar uma escola');
+          return
+        } else {
+          novoUsuario.funcao_usuario = [{
+            funcao_id: data.funcao,
+            escola_id: data.escola,
+          }];
+        }
+      }
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
@@ -154,6 +177,14 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   useEffect(()  => {
     reset(defaultValues)
   }, [currentUser]);
+
+  const assessor = () => {
+    if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      return true;
+    } else {
+      return false;
+    }
+  }
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -190,7 +221,19 @@ export default function ProfissionalNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <RHFSelect name="escola" label="Escola">
+              <RHFSelect sx={{
+                display: !assessor() ? "none" : "inherit"
+              }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+                {zonas.map((zona) => (
+                  <MenuItem key={zona.id} value={zona.id}>
+                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+              <RHFSelect sx={{
+                display: assessor() ? "none" : "inherit"
+              }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
                 {escolas.map((escola) => (
                   <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}
