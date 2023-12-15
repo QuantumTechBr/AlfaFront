@@ -42,8 +42,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
 
   const listarAlunosTurma = () => {
     const turmaId = id
-    sessionStorage.setItem('filtroTurmaId', turmaId);
-    router.push(paths.dashboard.aluno.list);
+    // sessionStorage.setItem('filtroTurmaId', turmaId);
+    // router.push(paths.dashboard.aluno.list);
   }
 
   return (
@@ -63,9 +63,9 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
-        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {turmas_alunos?.length > 0 ? turmas_alunos.length : 0}
-          <Button
+          {/* <Button
               onClick={listarAlunosTurma}
               variant="contained"
               sx={{
@@ -76,8 +76,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
               }}
             >
             <Iconify icon="carbon:user-filled" />
-            </Button>
-        </TableCell> */}
+            </Button> */}
+        </TableCell>
 
         <TableCell>
           <Label

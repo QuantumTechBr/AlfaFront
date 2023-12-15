@@ -80,7 +80,7 @@ export default function TurmaListView() {
     { id: 'nome', label: 'Turma', width: 200 },
     { id: 'turno', label: 'Turno', width: 200 },
     { id: 'ano_escolar', label: 'Ano Letivo', width: 300 },
-    // { id: 'alunos', label: 'Alunos', width: 200 },
+    { id: 'alunos', label: 'Alunos', width: 200 },
     { id: 'status', label: 'Status', width: 200 },
     { id: '', width: 88 },
   ];
