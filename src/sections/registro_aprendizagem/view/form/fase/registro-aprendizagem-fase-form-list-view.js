@@ -166,7 +166,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
           _newRegistros[alunoTurmaItem.id] = {
             aluno_nome: alunoTurmaItem.aluno.nome,
-            id: registroEncontrado?.id ?? '',
+            ...(registroEncontrado?.id !== undefined ? {avalicao_id: registroEncontrado?.id } : null),
             aluno_turma_id: alunoTurmaItem.id,
             resultado: registroEncontrado?.resultado ?? '',
             observacao: registroEncontrado?.observacao ?? '',
@@ -207,7 +207,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       delete item.aluno_nome;
       return item;
     });
-
+    console.log(toSend)
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
         throw error;

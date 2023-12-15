@@ -69,14 +69,14 @@ const TABLE_HEAD = [
 
 export default function AlunoListView() {
 
-  let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
+  // let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
 
 
   const defaultFilters = {
     nome: '',
     matricula: '',
     escola: [],
-    turma: turmaFiltro,
+    turma: [],
   };
 
   const [alunoList, setAlunoList] = useState([]);

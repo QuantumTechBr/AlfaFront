@@ -196,6 +196,16 @@ export function AuthProvider({ children }) {
     [login, logout, register, forgotPassword, state.user, status]
   );
 
+  const checkPermissaoModulo = (nomeModulo, permissao) => {
+    let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo;
+    if (!modulosPermitidos) { return false; }
+    const moduloPermissao = modulosPermitidos.find(moduloPermissao => {
+      moduloPermissao.nome == nomeModulo
+    });
+    if (!moduloPermissao) { return false; }
+    return moduloPermissao[permissao];
+  }
+
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
 }
 
