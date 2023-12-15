@@ -154,7 +154,7 @@ export function useNavData() {
 
       // FILE MANAGER
       {
-        title: t('Documento'),
+        title: t('Documentos Administrativos'),
         path: paths.dashboard.documento,
         icon: ICONS.folder,
       },
@@ -261,7 +261,7 @@ export function useNavData() {
 
       if (modulosPermitidos.includes("documentos")) {
         items.push({
-          title: t('Documento'),
+          title: t('Documentos Administrativos'),
           path: paths.dashboard.documento,
           icon: ICONS.folder,
         });

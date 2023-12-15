@@ -196,12 +196,12 @@ export default function FileManagerFilters({
       sx={{ width: 1 }}
     >
       {renderFilterName}
-
+{/* 
       <Stack spacing={1} direction="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
         {renderFilterDate}
 
         {renderFilterType}
-      </Stack>
+      </Stack> */}
     </Stack>
   );
 }
