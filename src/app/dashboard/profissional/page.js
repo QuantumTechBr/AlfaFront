@@ -1,5 +1,5 @@
 // sections
-import { ProfissionalListView, ProfissionalProfileView } from 'src/sections/profissinal/view';
+import { ProfissionalListView, ProfissionalProfileView } from 'src/sections/profissional/view';
 
 // ----------------------------------------------------------------------
 
