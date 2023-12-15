@@ -168,7 +168,11 @@ export default function UserNewEditForm({ currentUser }) {
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
-      currentUser ? setErrorMsg('Tentativa de atualização do usuário falhou') : setErrorMsg('Tentativa de criação do usuário falhou');
+      let arrayMsg = Object.values(error).map((msg) => {
+        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+      });
+      let mensagem = arrayMsg.join(' ');
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
@@ -222,7 +226,7 @@ export default function UserNewEditForm({ currentUser }) {
 
               <RHFSelect sx={{
                 display: !assessor() ? "none" : "inherit"
-              }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+              }} id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
                 {zonas.map((zona) => (
                   <MenuItem key={zona.id} value={zona.id}>
                     <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
@@ -232,7 +236,7 @@ export default function UserNewEditForm({ currentUser }) {
 
               <RHFSelect sx={{
                 display: assessor() ? "none" : "inherit"
-              }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+              }} id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
                 {escolas.map((escola) => (
                   <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}

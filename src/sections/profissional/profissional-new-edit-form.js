@@ -168,8 +168,12 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.profissional.list);
       console.info('DATA', data);
-    } catch (error) {
-      currentUser ? setErrorMsg('Tentativa de atualização do profissional falhou') : setErrorMsg('Tentativa de criação do profissional falhou');
+    } catch (error) { 
+      let arrayMsg = Object.values(error).map((msg) => {
+        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+      });
+      let mensagem = arrayMsg.join(' ');
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
@@ -223,7 +227,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
               <RHFSelect sx={{
                 display: !assessor() ? "none" : "inherit"
-              }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+              }} id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
                 {zonas.map((zona) => (
                   <MenuItem key={zona.id} value={zona.id}>
                     <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
@@ -233,7 +237,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
               <RHFSelect sx={{
                 display: assessor() ? "none" : "inherit"
-              }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+              }} id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
                 {escolas.map((escola) => (
                   <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}

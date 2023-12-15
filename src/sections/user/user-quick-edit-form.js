@@ -153,7 +153,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      setErrorMsg('Tentativa de atualização do usuário falhou');
+      let arrayMsg = Object.values(error).map((msg) => {
+        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+      });
+      let mensagem = arrayMsg.join(' ');
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });

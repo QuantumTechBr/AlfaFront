@@ -109,14 +109,14 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
           nome:  data.nome,
           email: data.email,
           senha: data.senha, 
-          login: data.nome,
+          login: data.email,
           status: data.status,
         }
       } else {
         novoUsuario = {
           nome:  data.nome,
           email: data.email,
-          login: data.nome,
+          login: data.email,
           status: data.status,
         }
       }
@@ -154,7 +154,11 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
 
       console.info('DATA', data);
     } catch (error) {
-      setErrorMsg('Tentativa de atualização do profissional falhou');
+      let arrayMsg = Object.values(error).map((msg) => {
+        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+      });
+      let mensagem = arrayMsg.join(' ');
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
