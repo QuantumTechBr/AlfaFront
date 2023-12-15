@@ -76,7 +76,7 @@ export default function AlunoListView() {
     nome: '',
     matricula: '',
     escola: [],
-    turma: turmaFiltro,
+    turma: [],
   };
 
   const [alunoList, setAlunoList] = useState([]);
