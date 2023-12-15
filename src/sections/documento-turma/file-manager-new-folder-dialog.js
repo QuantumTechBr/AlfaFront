@@ -29,18 +29,6 @@ import { AWS_S3 } from 'src/config-global';
 import { insertDocumentoTurma, getAllDocumentos } from './documento-turma-repository';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
-import { HttpRequest } from '@aws-sdk/protocol-http';
-import { S3RequestPresigner } from '@aws-sdk/s3-request-presigner';
-import { parseUrl } from '@aws-sdk/url-parser';
-import { Sha256 } from '@aws-crypto/sha256-browser';
-import { Hash } from '@aws-sdk/hash-node';
-import { formatUrl } from '@aws-sdk/util-format-url';
-import { createRequest } from '@aws-sdk/util-create-request';
-import {
-  TranscribeClient,
-  StartTranscriptionJobCommand,
-} from "@aws-sdk/client-transcribe";
-
 export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
   open,
