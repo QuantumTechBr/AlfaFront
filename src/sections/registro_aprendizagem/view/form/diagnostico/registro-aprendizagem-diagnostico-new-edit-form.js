@@ -103,7 +103,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           aluno_turma_id: itemList.id,
           promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
           habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
-          id: itemList.id_registro,
+          avaliacao_id: itemList.id_registro,
         }
         registrosAprendizagem.push(registroAprendizagem);
       } else {
