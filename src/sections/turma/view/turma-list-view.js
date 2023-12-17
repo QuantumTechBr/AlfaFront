@@ -45,6 +45,7 @@ import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
 import TurmaTableFiltersResult from '../turma-table-filters-result';
 //
+import { AuthContext } from 'src/auth/context/alfa';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
@@ -68,11 +69,14 @@ const defaultFilters = {
 
 export default function TurmaListView() {
 
+  const { user } = useContext(AuthContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const preparado = useBoolean(false);
+  
+  const checkProfessor = user?.funcao_usuario[0]?.funcao?.nome == 'PROFESSOR';
 
   let TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
@@ -216,7 +220,8 @@ export default function TurmaListView() {
             { name: 'Turmas', href: paths.dashboard.turma.root },
             { name: 'Listar' },
           ]}
-          action={
+          // TODO: trocar por teste de permissão
+          action={!checkProfessor &&
             <Button
               component={RouterLink}
               href={paths.dashboard.turma.new}
