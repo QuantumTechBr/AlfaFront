@@ -1,4 +1,5 @@
-import PropTypes from 'prop-types';
+
+import { useContext } from 'react';import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -22,6 +23,7 @@ import TurmaQuickEditForm from './turma-quick-edit-form';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
+import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
@@ -29,6 +31,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
   const { id, nome, escola, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
 
   // console.log(row)
+  
+  const { user } = useContext(AuthContext);
   
   const turnoRender = turno.toLowerCase();
 
@@ -45,6 +49,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
     // sessionStorage.setItem('filtroTurmaId', turmaId);
     // router.push(paths.dashboard.aluno.list);
   }
+
+  const checkProfessor = user?.funcao_usuario[0]?.funcao?.nome == 'PROFESSOR';
 
   return (
     <>
@@ -94,11 +100,15 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip>
+          
+        {/*  TODO: trocar por teste de permissão */}
+          {!checkProfessor &&
+            <Tooltip title="Quick Edit" placement="top" arrow>
+              <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            </Tooltip>
+          }
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -106,7 +116,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         </TableCell>
       </TableRow>
 
-      <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+        <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -114,16 +124,19 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>
+      {/*  TODO: trocar por teste de permissão */}
+        {!checkProfessor &&
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Deletar
+          </MenuItem>
+        }
 
         <MenuItem
           onClick={() => {
