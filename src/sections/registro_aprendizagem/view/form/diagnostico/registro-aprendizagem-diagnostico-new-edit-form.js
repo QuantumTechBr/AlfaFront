@@ -72,6 +72,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
+    console.log(data)
     const registrosAprendizagem = [];
     alunosTurma.forEach((itemList) => {
       const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
@@ -101,7 +102,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           tipo: 'Diagnóstico',
           periodo: periodo,
           aluno_turma_id: itemList.id,
-          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
           habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
           avaliacao_id: itemList.id_registro,
         }
@@ -112,7 +113,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           tipo: 'Diagnóstico',
           periodo: periodo,
           aluno_turma_id: itemList.id,
-          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior,
+          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
           habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
         }
         registrosAprendizagem.push(registroAprendizagem);
