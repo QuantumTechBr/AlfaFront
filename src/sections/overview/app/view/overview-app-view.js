@@ -102,6 +102,9 @@ export default function OverviewAppView() {
       bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
     };
 
+    if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
+      return 
+    }
     dashboardsMethods
       .getDashboardIndiceFases({
         ...fullFilters,

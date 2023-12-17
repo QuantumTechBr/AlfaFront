@@ -127,28 +127,28 @@ export default function AlunoListView() {
 
   const preparacaoInicial = async () => {
       await buscaAnosLetivos().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de anos letivos');
-        preparado.onTrue();
-      });
-      await buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-        preparado.onTrue();
-      });
-      await buscaTurmas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turmas');
-        preparado.onTrue();
-      });
-      await buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de alunos');
-        console.log(error);
-        preparado.onTrue();
-      });;
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+      preparado.onTrue();
+    });
+    await buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+      preparado.onTrue();
+    });
+    await buscaTurmas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+      preparado.onTrue();
+    });
+    await buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de alunos');
+      console.log(error);
+      preparado.onTrue();
+    });
   };
 
   const preencheTabela = async () => {
     let _alunosTableData = [];
     let promises = [];
-    if (!preparado.value && anosLetivos.length && turmas.length && escolas.length && alunoList.length) {
+    if (!preparado.value && alunoList.length) {
       const idAnoLetivoAtual = anosLetivos.map((ano) => {
         if (ano.status === "NÃO FINALIZADO") {
           return ano.id;
