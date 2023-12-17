@@ -200,7 +200,7 @@ export function useNavData() {
           icon: ICONS.alfaStudent,
         })
       }
-      if (modulosPermitidos.includes("ano_letivo")) {
+      if (modulosPermitidos.includes("calendario")) {
         items.push({
           title: 'Lista de Anos Letivos',
           path: paths.dashboard.calendar,
