@@ -98,11 +98,16 @@ export default function OverviewAppView() {
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
       bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
     };
 
     if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
-      return 
+      setDados((prevState) => ({
+        ...prevState,
+        [`indice_fases_${anoEscolar}_ano`]: {},
+      }));
+      return
     }
     dashboardsMethods
       .getDashboardIndiceFases({

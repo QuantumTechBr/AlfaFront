@@ -118,17 +118,19 @@ export default function RegistroAprendizagemFaseListView() {
 
       _turmasComRegistros.data.forEach((registro) => {
         let _turma = turmas.find((turma) => turma.id == registro.turma_id);
-        let _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
-        _registrosAprendizagemFase.push({
-          id: _turma.id,
-          ano_letivo: _turma.ano.ano,
-          ano_escolar: _turma.ano_escolar,
-          nome: _turma.nome,
-          turno: _turma.turno,
-          alunos: _turma.turmas_alunos.length,
-          bimestre: _bimestre,
-          escola: _turma.escola.nome,
-        });
+        if (_turma?.id) {
+          let _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
+          _registrosAprendizagemFase.push({
+            id: _turma.id,
+            ano_letivo: _turma.ano.ano,
+            ano_escolar: _turma.ano_escolar,
+            nome: _turma.nome,
+            turno: _turma.turno,
+            alunos: _turma.turmas_alunos.length,
+            bimestre: _bimestre,
+            escola: _turma.escola.nome,
+          });
+        }
       })
       setTableData(_registrosAprendizagemFase);
       prep.onTrue();
