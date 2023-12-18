@@ -36,26 +36,25 @@ import Iconify from 'src/components/iconify';
 import IndicesComponent from './components/indices-component';
 import last from 'lodash/last';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { AuthContext } from 'src/auth/context/alfa';
 
 export default function OverviewAppView() {
   const theme = useTheme();
   const settings = useSettingsContext();
   const router = useRouter();
-
+  const { user } = useContext(AuthContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
-
   const [_escolasFiltered, setEscolasFiltered] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
-
   const defaultFilters = {
-    zona: [],
+    zona: user?.funcao_usuario?.length > 0 ? [user?.funcao_usuario[0]?.escola?.zona] : [],
     escola: [],
     turma: [],
     bimestre: '',
