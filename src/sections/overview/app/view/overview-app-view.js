@@ -109,10 +109,11 @@ export default function OverviewAppView() {
       }));
       return
     }
+    
     dashboardsMethods
       .getDashboardIndiceFases({
         ...fullFilters,
-        turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
+        turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : (filters.turma.length ? filters.turma.map((t)=> t.id) : null),
       })
       .then((response) => {
         if (response.data.chart?.series && response.data.chart?.series.length > 0) {
