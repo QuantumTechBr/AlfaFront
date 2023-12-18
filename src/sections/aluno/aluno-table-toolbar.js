@@ -171,13 +171,13 @@ export default function AlunoTableToolbar({
           </Select>
         </FormControl>
 
-          <IconButton onClick={popover.onOpen}>
+          {/* <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       </Stack>
 
-      <CustomPopover
+      {/* <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -209,7 +209,7 @@ export default function AlunoTableToolbar({
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover>
+      </CustomPopover> */}
     </>
   );
 }
