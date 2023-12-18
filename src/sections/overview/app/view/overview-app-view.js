@@ -53,14 +53,14 @@ export default function OverviewAppView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
-  const defaultFilters = {
-    zona: user?.funcao_usuario?.length > 0 ? [user?.funcao_usuario[0]?.escola?.zona] : [],
+  let zonaFiltro = []
+
+  const [filters, setFilters] = useState({
+    zona: zonaFiltro,
     escola: [],
     turma: [],
-    bimestre: '',
-  };
+    bimestre: '',});
 
-  const [filters, setFilters] = useState(defaultFilters);
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
@@ -97,6 +97,7 @@ export default function OverviewAppView() {
 
   // TODO: resolver indice de fases geral
   const getIndices = async (anoEscolar) => {
+    console.log(filters)
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
@@ -145,6 +146,7 @@ export default function OverviewAppView() {
   const preencheGraficos = async () => {
     isGettingGraphics.onTrue();
     console.log('preencheGraficos');
+    console.log(filters)
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
@@ -267,6 +269,22 @@ export default function OverviewAppView() {
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {}, [contextReady.value]);
+
+  useEffect(()  => {
+    if (user?.funcao_usuario?.length > 0) {
+      if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
+        zonaFiltro = [user?.funcao_usuario[0]?.zona]
+      } else {
+        zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona]
+      }  
+    }
+    setFilters({
+      zona: zonaFiltro,
+      escola: [],
+      turma: [],
+      bimestre: '',
+    })
+  }, []);
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
