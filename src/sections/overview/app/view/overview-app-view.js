@@ -94,6 +94,8 @@ export default function OverviewAppView() {
     return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
   };
 
+
+  // TODO: resolver indice de fases geral
   const getIndices = async (anoEscolar) => {
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
