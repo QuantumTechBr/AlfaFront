@@ -147,13 +147,13 @@ export default function TurmaTableToolbar({
             }}
           />
 
-          <IconButton onClick={popover.onOpen}>
+          {/* <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
+          </IconButton> */}
         </Stack>
       </Stack>
 
-      <CustomPopover
+      {/* <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -185,7 +185,7 @@ export default function TurmaTableToolbar({
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover>
+      </CustomPopover> */}
     </>
   );
 }

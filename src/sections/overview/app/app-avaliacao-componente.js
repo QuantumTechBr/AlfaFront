@@ -11,9 +11,12 @@ import Scrollbar from 'src/components/scrollbar';
 import Chart, { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
 
-export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) {
+export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) { 
 
-
+    const randomColor = () => {
+        let corAleatoria = "#" + Math.floor(Math.random() * 16777215).toString(16);
+        return corAleatoria
+    }
     
     const chartOptions = useChart({
 
@@ -65,7 +68,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             <Scrollbar>
                 <ChartColumnStacked 
                     series={[
-                        { name: 'Desenvolvida', data: [8,6,7,9,7], stack: 'A', title: '',label: 'Desenvolvida' ,color: '#00B9D7', },
+                        { name: 'Desenvolvida', data: [8,6,7,9,7], stack: 'A', title: '',label: 'Desenvolvida' ,color: randomColor, },
                     ]} 
                     options={chartOptions} 
                     width={86}
