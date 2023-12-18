@@ -68,7 +68,7 @@ export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...oth
             <Scrollbar>
                 <ChartColumnStacked 
                     series={[
-                        { name: 'Desenvolvida', data: [8,6,7,9,7], stack: 'A', title: '',label: 'Desenvolvida' ,color: randomColor, },
+                        { name: 'Desenvolvida', data: [8,6,7,9,7], stack: 'A', title: '',label: 'Desenvolvida' ,color: randomColor },
                     ]} 
                     options={chartOptions} 
                     width={86}
