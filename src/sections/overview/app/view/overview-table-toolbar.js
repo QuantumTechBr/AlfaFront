@@ -16,6 +16,7 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { useSettingsContext } from 'src/components/settings';
 import turmaMethods from 'src/sections/turma/turma-repository';
+import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,10 @@ export default function OverviewTableToolbar({
   turmaOptions,
   bimestreOptions,
 }) {
+
+  const { user } = useContext(AuthContext);
+
+
   const handleFilterZona = useCallback(
     (event) => {
       onFilters(
@@ -96,6 +101,7 @@ export default function OverviewTableToolbar({
           <Select
             size="small"
             multiple
+            disabled={user?.funcao_usuario?.length > 0 ? true : false}
             value={filters.zona}
             onChange={handleFilterZona}
             input={<OutlinedInput fullWidth label="DDZ" />}

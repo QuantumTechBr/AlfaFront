@@ -201,13 +201,22 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       tipo: 'Fase',
     };
 
-    const toSend = Object.values(data.registros).map((formItem) => {
+    const mapaResultados = Object.values(data.registros).map((formItem) => {
+      if (formItem.observacao.length > 0 ) {
+        if (formItem.resultado == '') {
+          formItem.resultado = 'Não Avaliado'  
+        } 
+      } else {
+        if (formItem.resultado == '') {
+          return
+        }
+      }
       let item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       return item;
     });
-    console.log(toSend)
+    const toSend = mapaResultados.filter(Boolean)
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
         throw error;
