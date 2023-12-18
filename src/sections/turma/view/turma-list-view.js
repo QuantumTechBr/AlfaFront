@@ -271,13 +271,13 @@ export default function TurmaListView() {
                   >
                     {tab.value === 'all' && tableData.length}
                     {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
+                      tableData.filter((turma) => turma.status === 'true').length}
                     {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
+                      tableData.filter((turma) => turma.status === 'pending').length}
                     {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
+                      tableData.filter((turma) => turma.status === 'false').length}
                     {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
+                      tableData.filter((turma) => turma.status === 'rejected').length}
                   </Label>
                 }
               />
@@ -287,7 +287,6 @@ export default function TurmaListView() {
           <TurmaTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            //roleOptions={_roles}
             ddzOptions={_ddzs}
             escolaOptions={escolas}
           />
@@ -414,7 +413,7 @@ export default function TurmaListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
+  const { nome, ddz, escola, status } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -433,11 +432,15 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
+    inputData = inputData.filter((turma) => ddz.includes(turma.ddz));
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola.id));
+    inputData = inputData.filter((turma) => escola.includes(turma.escola.id));
+  }
+
+  if (status !== 'all') {
+    inputData = inputData.filter((turma) => turma.status === status);
   }
 
   return inputData;

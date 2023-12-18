@@ -20,9 +20,9 @@ export default function TurmaTableFiltersResult({
   results,
   ...other
 }) {
-  // const handleRemoveStatus = () => {
-  //   onFilters('status', 'all');
-  // };
+  const handleRemoveStatus = () => {
+    onFilters('status', 'all');
+  };
 
   const escolasSelecionadas = [];
 
@@ -36,11 +36,6 @@ export default function TurmaTableFiltersResult({
   const handleRemoveNome = (inputValue) => {
     onFilters('nome', '');
   };
-
-  // const handleRemoveRole = (inputValue) => {
-  //   const newValue = filters.role.filter((item) => item !== inputValue);
-  //   onFilters('role', newValue);
-  // };
 
   const handleRemoveDdz = (inputValue) => {
     const newValue = filters.ddz.filter((item) => item !== inputValue);
@@ -62,25 +57,17 @@ export default function TurmaTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {/* {filters.status !== 'all' && (
+        {filters.status !== 'all' && (
           <Block label="Status:">
             <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
           </Block>
-        )} */}
+        )}
 
         {filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
         )}
-
-        {/* {!!filters.role.length && (
-          <Block label="Função:">
-            {filters.role.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveRole(item)} />
-            ))}
-          </Block>
-        )} */}
 
         {!!filters.ddz.length && (
           <Block label="DDZ:">
