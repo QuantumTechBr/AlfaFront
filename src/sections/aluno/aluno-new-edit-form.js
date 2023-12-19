@@ -63,8 +63,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
-      escola: currentAluno.alunoEscolas ? currentAluno.alunoEscolas[0].escola : '',
-      turma: currentAluno.alunos_turmas ? currentAluno.alunos_turmas[0].turma : '',
+      escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
+      turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
     [currentAluno]
   );
