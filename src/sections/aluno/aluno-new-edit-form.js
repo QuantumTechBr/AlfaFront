@@ -52,7 +52,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
     alunoNascimento = parseISO(currentAluno.data_nascimento);
   }
 
-
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     matricula: Yup.string().required('Matrícula é obrigatório'),
@@ -64,8 +63,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
-      escola: currentAluno?.escola || '',
-      turma: currentAluno?.turma || '',
+      escola: currentAluno.alunoEscolas ? currentAluno.alunoEscolas[0].escola : '',
+      turma: currentAluno.alunos_turmas ? currentAluno.alunos_turmas[0].turma : '',
     }),
     [currentAluno]
   );
@@ -112,12 +111,12 @@ export default function AlunoNewEditForm({ currentAluno }) {
         ]
       }
       if (currentAluno) {
-        await alunoMethods.updateAlunoById(currentAluno.id, toSend).catch((error) => {
+        await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
         
       } else {
-        await alunoMethods.insertAluno(toSend).catch((error) => {
+        await alunoMethods.insertAluno(toSend).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
       }
@@ -132,6 +131,9 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   useEffect(()  => {
     reset(defaultValues)
+  }, [currentAluno]);
+
+  useEffect(()  => {
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
@@ -144,11 +146,11 @@ export default function AlunoNewEditForm({ currentAluno }) {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      let escolasAssessor = escolas.filter((escola) => {
+      escolasAssessor = escolas.filter((escola) => {
         escola.zona.id == user.funcao_usuario[0].zona.id
       })
     } 
-  }, [currentAluno]);
+  }, []);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
