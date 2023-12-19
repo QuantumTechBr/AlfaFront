@@ -225,7 +225,15 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (promo_ano_anterior.length) {
-    inputData = inputData.filter((alunosTurma) => promo_ano_anterior.includes(alunosTurma.promo_ano_anterior));
+    inputData = inputData.filter((alunosTurma) => {
+      if (promo_ano_anterior.includes('')) {
+        if (alunosTurma.promo_ano_anterior == undefined) {
+          return alunosTurma
+        }
+      } 
+      return promo_ano_anterior.includes(alunosTurma.promo_ano_anterior);
+    }
+    )
   }
 
   return inputData;

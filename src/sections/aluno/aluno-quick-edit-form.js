@@ -6,6 +6,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
+import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
@@ -28,12 +29,24 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import parseISO from 'date-fns/parseISO';
 import ptBR from 'date-fns/locale/pt-BR';
 import { useEffect, useState, useContext } from 'react';
+import { EscolasContext } from '../escola/context/escola-context';
+import { TurmasContext } from '../turma/context/turma-context';
+import { AuthContext } from 'src/auth/context/alfa';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+
 // ----------------------------------------------------------------------
 
 export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
+  const { user } = useContext(AuthContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
+  let escolasAssessor = escolas;
+  console.log(currentAluno)
   let alunoNascimento = parseISO(currentAluno.data_nascimento);
 
   const NewTurmaSchema = Yup.object().shape({
@@ -48,6 +61,8 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
+      escola: currentAluno?.escola.id || '',
+      turma: currentAluno?.turma.id || '',
     }),
     [currentAluno]
   );
@@ -60,15 +75,37 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const {
     reset,
     handleSubmit,
+    setValue,
+    getValues,
     formState: { isSubmitting },
     control,
   } = methods;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const anoLetivoAtual = anosLetivos.find((ano) => {
+        if (ano.status === "NÃO FINALIZADO") {
+          return ano.id;
+        }
+      })
       let nascimento = new Date(data.data_nascimento)
-      data.data_nascimento = nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate()
-      await alunoMethods.updateAlunoById(currentAluno.id, data).catch((error) => {
+      const toSend = {
+        nome: data.nome,
+        matricula: data.matricula,
+        data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
+        alunoEscolas: [
+          {
+            escola_id: data.escola,
+            ano_id: anoLetivoAtual.id
+          }
+        ],
+        alunos_turmas: [
+          {
+            turma_id: data.turma
+          }
+        ]
+      }
+      await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
         throw error;
       });
       reset() 
@@ -82,6 +119,24 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
     }
   });
 
+  useEffect(()  => {
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaTurmas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+    });
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+    });
+    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
+      setValue('escola', user.funcao_usuario[0].escola.id)  
+    } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
+      escolasAssessor = escolas.filter((escola) => {
+        escola.zona.id == user.funcao_usuario[0].zona.id
+      })
+    } 
+  }, []);
 
   return (
     <Dialog
@@ -122,6 +177,28 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
                 )}
               />
             </LocalizationProvider>
+
+            <RHFSelect sx={{
+              }} id={`escola_`+`${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
+                {escolasAssessor.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+            </RHFSelect>
+
+            <RHFSelect sx={{
+              display: getValues('escola') ? "inherit" : "none"
+              }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
+                {turmas.filter((te) => (
+                  te.escola.id == getValues('escola')
+                ))
+                .map((turma) => (
+                  <MenuItem key={turma.id} value={turma.id}>
+                    {turma.ano_escolar}º {turma.nome}
+                  </MenuItem>
+                ))}
+            </RHFSelect>  
 
           </Box>
         </DialogContent>

@@ -281,6 +281,7 @@ export default function AlunoListView() {
       const deleteRow = tableData.filter((row) => row.id !== id);
       alunoMethods.deleteAlunoById(id).then(retorno => {
         setTableData(deleteRow);
+        buscaTurmas({force: true});
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
         console.log(error);
@@ -309,6 +310,7 @@ export default function AlunoListView() {
     });
     Promise.all(promises).then(
       retorno => {
+        buscaTurmas({force: true});
         setTableData(remainingRows);
       }
     )

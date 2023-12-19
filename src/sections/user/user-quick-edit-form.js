@@ -35,6 +35,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   const assessor = useBoolean(false);
+  const liberaSalvar = useBoolean(true);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -42,6 +43,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
 
   const [errorMsg, setErrorMsg] = useState('');
+  
 
   useEffect(() => {
     if (currentUser.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
@@ -65,6 +67,12 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
+
+  useEffect(() => {
+    if (permissoes.length > 0) {
+      liberaSalvar.onFalse()
+    }
+  }, [permissoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -144,6 +152,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao?.id]
+      console.log(funcoes)
+      console.log(permissoes)
+      console.log(funcao)
+      console.log(permissao)
       await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
         throw error;
       });   
@@ -247,7 +259,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             Cancel
           </Button>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+          <LoadingButton disabled={liberaSalvar.value} type="submit" variant="contained" loading={isSubmitting}>
             Atualizar
           </LoadingButton>
         </DialogActions>
