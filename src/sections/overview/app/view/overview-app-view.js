@@ -287,6 +287,15 @@ export default function OverviewAppView() {
     })
   }, []);
 
+  const filtroReset = () => {
+    setFilters({
+      zona: zonaFiltro,
+      escola: [],
+      turma: [],
+      bimestre: '',
+    })
+  }
+
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
@@ -349,6 +358,11 @@ export default function OverviewAppView() {
             <Grid xs={12} md="auto">
               <Button variant="contained" onClick={preencheGraficos}>
                 Aplicar filtro
+              </Button>
+            </Grid>
+            <Grid xs={12} md="auto">
+              <Button variant="contained" onClick={filtroReset}>
+                Resetar filtro
               </Button>
             </Grid>
           </Stack>
