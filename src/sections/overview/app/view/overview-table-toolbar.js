@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useCallback, useContext } from 'react';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -84,12 +84,6 @@ export default function OverviewTableToolbar({
           xs: 'column',
           md: 'row',
         }}
-        sx={
-          {
-            // p: 2.5,
-            // pr: { xs: 2.5, md: 1 },
-          }
-        }
       >
         <FormControl
           sx={{
@@ -176,7 +170,7 @@ export default function OverviewTableToolbar({
               {turmaOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {` ${option.ano_escolar}º ${option.nome}`}
+                  {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${filters.escola.length != 1 ? ` (${option.escola.nome})` : ''} ` }
                 </MenuItem>
               ))}
             </Select>

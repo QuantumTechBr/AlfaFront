@@ -24,9 +24,7 @@ import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, profissional, email, funcao, escola, zona , turma } = row;
- 
-
+  const { id, profissional, email, funcao, escola, zona , turma, status } = row;
 
   const user = {
     id: row.id,
@@ -36,6 +34,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     escola: row.escola?.id,
     zona: row.zona?.id,
     turma: row.turma,
+    status: row.status
   }
 
 
