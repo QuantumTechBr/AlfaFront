@@ -44,6 +44,7 @@ import AlunoTurmaForm from './aluno-turma-form';
 import ProfessorTurmaForm from './professor-turma-form';
 import TextField from '@mui/material/TextField';
 import { FormControl, Paper } from '@mui/material';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 // ----------------------------------------------------------------------
 
 export default function TurmaNewEditForm({ currentTurma }) {
@@ -51,6 +52,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
   const modalAlunoTurma = useBoolean();
   const modalProfessorTurma = useBoolean();
 
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
@@ -122,11 +124,11 @@ export default function TurmaNewEditForm({ currentTurma }) {
       novaTurma.ano_escolar = data.ano_escolar;
 
       if (currentTurma?.id) {
-        await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
+        await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
       } else {
-        await turmaMethods.insertTurma(novaTurma).catch((error) => {
+        await turmaMethods.insertTurma(novaTurma).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
       }

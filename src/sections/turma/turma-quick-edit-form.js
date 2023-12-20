@@ -24,12 +24,13 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import turmaMethods from '../turma/turma-repository';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
 export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
@@ -88,7 +89,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
 
-      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).catch((error) => {
+      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
         throw error;
       });
       reset() 
