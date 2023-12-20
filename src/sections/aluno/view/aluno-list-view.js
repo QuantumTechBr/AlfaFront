@@ -21,6 +21,10 @@ import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
+
+// _mock
+import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
+
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -37,6 +41,7 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+
 //
 import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
@@ -77,7 +82,10 @@ export default function AlunoListView() {
     matricula: '',
     escola: [],
     turma: [],
+    fase: []
   };
+
+  const fases = Object.values(RegistroAprendizagemFasesCRUD);
 
   const [alunoList, setAlunoList] = useState([]);
   const [countAlunos, setCountAlunos] = useState(0);
@@ -107,9 +115,9 @@ export default function AlunoListView() {
     preparado.onFalse();
     const offset = (pagina)*linhasPorPagina;
     const limit = linhasPorPagina;
-    const {nome, matricula, escola, turma} = filtros;
+    const {nome, matricula, escola, turma, fase} = filtros;
     
-    await alunoMethods.getAllAlunos({offset, limit, nome, turmas: turma, escolas: escola, matricula}).then(async alunos => {
+    await alunoMethods.getAllAlunos({offset, limit, nome, turmas: turma, escolas: escola, matricula, fase}).then(async alunos => {
       if (alunos.data.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de alunos');
         preparado.onTrue();
@@ -335,6 +343,7 @@ export default function AlunoListView() {
       matricula: '',
       escola: [],
       turma: [],
+      fase: []
     };
     setTableData([]);
     setAlunoList([]);
@@ -395,6 +404,7 @@ export default function AlunoListView() {
             onFilters={handleFilters}
             escolaOptions={escolas}
             turmaOptions={turmas}
+            faseOptions={fases}
           />
 
           {canReset && (
@@ -402,6 +412,7 @@ export default function AlunoListView() {
               filters={filters}
               escolaOptions={escolas}
               turmaOptions={turmas}
+              faseOptions={fases}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={tableData.length}
@@ -518,7 +529,7 @@ export default function AlunoListView() {
 
 function applyFilter({ inputData, comparator, filters }) {
  
-  const { nome, matricula, escola, turma } = filters;
+  const { nome, matricula, escola, turma, fase } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -547,6 +558,10 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (turma?.length) {
     inputData = inputData.filter((aluno) => turma.includes(aluno.turma.id));
+  }
+
+  if (fase.length) {
+    inputData = inputData.filter((aluno) => fase.includes(aluno.fase.toLowerCase()));
   }
 
   return inputData;

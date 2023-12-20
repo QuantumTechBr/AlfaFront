@@ -22,6 +22,7 @@ export default function AlunoTableToolbar({
   onFilters,
   escolaOptions,
   turmaOptions,
+  faseOptions
 }) {
   const popover = usePopover();
 
@@ -59,6 +60,16 @@ export default function AlunoTableToolbar({
     [onFilters]
   );
 
+  const handleFilterFase = useCallback(
+    (event) => {
+      onFilters(
+        'fase',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
       return escolaOptions.find((option) => option.id == escolaId)?.nome;
@@ -68,6 +79,11 @@ export default function AlunoTableToolbar({
     selected.map((turmaId) => {
       let turma = turmaOptions.find((option) => option.id == turmaId);
       return turma?.ano_escolar.concat('º ', turma?.nome);
+    }).join(', ');  
+
+  const renderValueFase = (selected) => 
+    selected.map((fase) => {
+      return faseOptions.find((option) => option == fase);
     }).join(', ');  
     
   return (
@@ -145,7 +161,7 @@ export default function AlunoTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 300 },
+            width: { xs: 1, md: 100 },
           }}
         >
           <InputLabel>Turma</InputLabel>
@@ -166,6 +182,35 @@ export default function AlunoTableToolbar({
               <MenuItem key={turma.id} value={turma.id}>
                 <Checkbox disableRipple size="small" checked={filters.turma.includes(turma.id)} />
                 {turma.ano_escolar}º {turma.nome}
+              </MenuItem>
+            ))}
+          </Select>
+
+        </FormControl>
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 100 },
+          }}
+        >
+          <InputLabel>Fase</InputLabel>
+
+          <Select
+            multiple
+            value={filters.fase}
+            onChange={handleFilterFase}
+            input={<OutlinedInput label="Fase" />}
+            renderValue={renderValueFase}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {faseOptions?.map((fase) => (
+              <MenuItem key={fase} value={fase}>
+                <Checkbox disableRipple size="small" checked={filters.fase.includes(fase)} />
+                {fase}
               </MenuItem>
             ))}
           </Select>
