@@ -325,7 +325,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                           <RegistroAprendizagemFaseFormTableRow
                             key={row.id}
                             row={row}
-                            index={index}
+                            bimestres={bimestres}
                           />
                         );
                       })}
