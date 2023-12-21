@@ -47,6 +47,7 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 // ----------------------------------------------------------------------
 import AppAvaliacaoComponente from 'src/sections/overview/app/app-avaliacao-componente.js';
+import { randomColor } from 'src/utils/functions';
 
 const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
@@ -74,6 +75,8 @@ export default function RegistroAprendizagemComponenteListView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
+
+  const _randomColors = [randomColor(), randomColor(), randomColor(), randomColor(), randomColor()];
 
   useEffect(() => {
     console.log('useEffect COMPONENTE');
@@ -127,13 +130,13 @@ export default function RegistroAprendizagemComponenteListView() {
       title: '',
       label: 'Desenvolvida',
     },
-    {
-      name: 'Não Desenvolvida',
-      data: [2, 4, 3, 1, 3],
-      stack: 'B',
-      title: '',
-      label: 'Desenvolvida',
-    },
+    // {
+    //   name: 'Não Desenvolvida',
+    //   data: [2, 4, 3, 1, 3],
+    //   stack: 'B',
+    //   title: '',
+    //   label: 'Desenvolvida',
+    // },
   ]);
 
   const handleFilters = useCallback(
@@ -236,7 +239,7 @@ export default function RegistroAprendizagemComponenteListView() {
             />
           )}
 
-          <AppAvaliacaoComponente title="Gráfico por Componente" list={dadosGrafico} />
+          <AppAvaliacaoComponente title="Gráfico por Componente" list={dadosGrafico} colors={_randomColors} />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction

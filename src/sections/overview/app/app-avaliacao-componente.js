@@ -7,52 +7,21 @@ import Card from '@mui/material/Card';
 // utils
 import { fNumber, fPercent, fShortenNumber } from 'src/utils/format-number';
 // components
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import Chart, { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
+import _ from 'lodash';
+import { _disciplinas } from 'src/_mock';
 
-export default function AppAvaliacaoComponente({ title, subheader, list, ...other }) {
-  const randomColor = () => {
-    let corAleatoria = '#' + Math.floor(Math.random() * 16777215).toString(16);
-    console.log(corAleatoria);
-    return corAleatoria;
-  };
-
-  const colors = ['#009a50', '#d11400'];
-  const _materias = ['Matemática', 'Português', 'Ciências', 'História', 'Geografia'];
-
-  const [_randomColors, setRandomColors] = useState(colors);
-  const [_series, setSeries] = useState([]);
-
-  useEffect(() => {
-    console.log('use effect');
-
-    const newData = [];
-    list.map((itemList) => {
-      //   for (let indexList = 0; indexList < list.length; indexList++) {
-      //     const data = list[indexList].data;
-      // }
-
-      if (itemList.total === undefined) itemList.total = [];
-
-      for (let indexMateria = 0; indexMateria < _materias.length; indexMateria++) {
-        let xAxisCount = list.reduce((total, item) => {
-            return total + item.data[indexMateria];
-        }, 0);
-        itemList.total[indexMateria] = xAxisCount;
-      }
-
-      newData.push(itemList);
-    });
-
-    console.table(newData);
-
-    setSeries(newData);
-  }, []);
-
+export default function AppAvaliacaoComponente({
+  title,
+  subheader,
+  list = [],
+  colors = [],
+  ...other
+}) {
   const chartOptions = useChart({
-    colors: _randomColors,
+    colors: colors,
     chart: {
       type: 'bar',
       stacked: false,
@@ -63,7 +32,8 @@ export default function AppAvaliacaoComponente({ title, subheader, list, ...othe
     },
     legend: {
       itemMargin: {
-        horizontal: 10,
+        horizontal: 17,
+        vertical: 20,
       },
       horizontalAlign: 'left',
       position: 'bottom',
@@ -72,17 +42,23 @@ export default function AppAvaliacaoComponente({ title, subheader, list, ...othe
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth: 50,
+        columnWidth: '90%',
+        distributed: true,
         dataLabels: {
           position: 'top',
         },
       },
     },
+    labels: {
+      style: {
+        colors: colors,
+      },
+    },
     dataLabels: {
       enabled: true,
       formatter: function (value, { _series_, seriesIndex, dataPointIndex, w }) {
-        return `${fPercent((_series[seriesIndex].data[dataPointIndex] / _series[seriesIndex].total[dataPointIndex] * 100))}`;
-        return 1;
+        // return `${fPercent((_series[seriesIndex].data[dataPointIndex] / _series[seriesIndex].total[dataPointIndex] * 100))}`;
+        return list[seriesIndex].data[dataPointIndex];
       },
       offsetY: 0,
       dropShadow: {
@@ -107,7 +83,7 @@ export default function AppAvaliacaoComponente({ title, subheader, list, ...othe
       },
     },
     xaxis: {
-      categories: _materias,
+      categories: _disciplinas,
     },
   });
 
@@ -115,7 +91,7 @@ export default function AppAvaliacaoComponente({ title, subheader, list, ...othe
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
       <Scrollbar>
-        <ChartColumnStacked series={_series} options={chartOptions} width={86} height={16} />
+        <ChartColumnStacked series={list} options={chartOptions} />
       </Scrollbar>
     </Card>
   );
@@ -125,4 +101,5 @@ AppAvaliacaoComponente.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
   list: PropTypes.array,
+  colors: PropTypes.array,
 };
