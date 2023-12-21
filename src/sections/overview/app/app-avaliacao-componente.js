@@ -10,7 +10,6 @@ import { fNumber } from 'src/utils/format-number';
 import Scrollbar from 'src/components/scrollbar';
 import { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
-import _ from 'lodash';
 import { _disciplinas } from 'src/_mock';
 
 export default function AppAvaliacaoComponente({
