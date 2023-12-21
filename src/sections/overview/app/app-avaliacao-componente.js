@@ -12,9 +12,8 @@ import { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
 import { _disciplinas } from 'src/_mock';
 
-export default function AppAvaliacaoComponente({ title, subheader, list = [], colors = [], ...other }) {
+export default function AppAvaliacaoComponente({ title, subheader, list = [], ...other }) {
   const chartOptions = useChart({
-    colors: colors,
     chart: {
       type: 'bar',
       stacked: false,
@@ -26,7 +25,7 @@ export default function AppAvaliacaoComponente({ title, subheader, list = [], co
     legend: {
       itemMargin: {
         horizontal: 17,
-        vertical:20,
+        vertical: 20,
       },
       horizontalAlign: 'left',
       position: 'bottom',
@@ -44,7 +43,6 @@ export default function AppAvaliacaoComponente({ title, subheader, list = [], co
     },
     labels: {
       style: {
-        colors: colors,
       },
     },
     dataLabels: {

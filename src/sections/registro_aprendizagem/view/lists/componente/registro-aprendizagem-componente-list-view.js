@@ -47,7 +47,6 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 // ----------------------------------------------------------------------
 import AppAvaliacaoComponente from 'src/sections/overview/app/app-avaliacao-componente.js';
-import { randomColor } from 'src/utils/functions';
 
 const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Letivo', width: 75 },
@@ -76,10 +75,7 @@ export default function RegistroAprendizagemComponenteListView() {
 
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
-  const _randomColors = [randomColor(), randomColor(), randomColor(), randomColor(), randomColor()];
-
   useEffect(() => {
-    console.log('useEffect COMPONENTE');
     buscaAnosLetivos();
     buscaEscolas();
     buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas));
@@ -235,7 +231,6 @@ export default function RegistroAprendizagemComponenteListView() {
           <AppAvaliacaoComponente
             title="Gráfico por Componente"
             list={dadosGrafico}
-            colors={_randomColors}
           />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
