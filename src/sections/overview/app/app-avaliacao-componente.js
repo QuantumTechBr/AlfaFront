@@ -91,5 +91,4 @@ AppAvaliacaoComponente.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
   list: PropTypes.array,
-  colors: PropTypes.array,
 };
