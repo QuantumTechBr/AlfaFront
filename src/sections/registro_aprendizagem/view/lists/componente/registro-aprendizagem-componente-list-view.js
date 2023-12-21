@@ -120,7 +120,7 @@ export default function RegistroAprendizagemComponenteListView() {
 
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
-    // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
 
   const [dadosGrafico, setDadosGrafico] = useState([
     {
@@ -130,13 +130,6 @@ export default function RegistroAprendizagemComponenteListView() {
       title: '',
       label: 'Desenvolvida',
     },
-    // {
-    //   name: 'Não Desenvolvida',
-    //   data: [2, 4, 3, 1, 3],
-    //   stack: 'B',
-    //   title: '',
-    //   label: 'Desenvolvida',
-    // },
   ]);
 
   const handleFilters = useCallback(
@@ -239,7 +232,11 @@ export default function RegistroAprendizagemComponenteListView() {
             />
           )}
 
-          <AppAvaliacaoComponente title="Gráfico por Componente" list={dadosGrafico} colors={_randomColors} />
+          <AppAvaliacaoComponente
+            title="Gráfico por Componente"
+            list={dadosGrafico}
+            colors={_randomColors}
+          />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
