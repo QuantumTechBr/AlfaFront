@@ -5,10 +5,10 @@ import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 import Card from '@mui/material/Card';
 // utils
-import { fNumber, fPercent, fShortenNumber } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 // components
 import Scrollbar from 'src/components/scrollbar';
-import Chart, { useChart } from 'src/components/chart';
+import { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
 import _ from 'lodash';
 import { _disciplinas } from 'src/_mock';
@@ -57,7 +57,6 @@ export default function AppAvaliacaoComponente({
     dataLabels: {
       enabled: true,
       formatter: function (value, { _series_, seriesIndex, dataPointIndex, w }) {
-        // return `${fPercent((_series[seriesIndex].data[dataPointIndex] / _series[seriesIndex].total[dataPointIndex] * 100))}`;
         return list[seriesIndex].data[dataPointIndex];
       },
       offsetY: 0,
