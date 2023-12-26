@@ -155,6 +155,7 @@ export default function TurmaListView() {
       const deleteRow = tableData.filter((row) => row.id !== id);
       turmaMethods.deleteTurmaById(id).then(retorno => {
         setTableData(deleteRow);
+      buscaTurmas({force: true});
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
       });
@@ -182,6 +183,7 @@ export default function TurmaListView() {
     Promise.all(promises).then(
       retorno => {
         setTableData(remainingRows);
+        buscaTurmas({force: true});
       }
     )
 

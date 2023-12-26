@@ -1,10 +1,11 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useCallback, useMemo, useEffect, useState } from 'react';
+import { useCallback, useMemo, useEffect, useState, useContext } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
+import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -19,6 +20,7 @@ import { useRouter } from 'src/routes/hook';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
+  RHFSelect,
 } from 'src/components/hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -26,20 +28,29 @@ import alunoMethods from './aluno-repository';
 import parseISO from 'date-fns/parseISO';
 import ptBR from 'date-fns/locale/pt-BR';
 import Alert from '@mui/material/Alert';
+import { EscolasContext } from '../escola/context/escola-context';
+import { TurmasContext } from '../turma/context/turma-context';
+import { AuthContext } from 'src/auth/context/alfa';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 
 // ----------------------------------------------------------------------
 
 export default function AlunoNewEditForm({ currentAluno }) {
-
+  const { user } = useContext(AuthContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
+
+  let escolasAssessor = escolas;
   let alunoNascimento = new Date('01-01-2000');
   if (currentAluno) {
     alunoNascimento = parseISO(currentAluno.data_nascimento);
   }
-
 
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -52,6 +63,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
+      escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
+      turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
     [currentAluno]
   );
@@ -67,6 +80,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
     control,
     setValue,
     handleSubmit,
+    getValues,
     formState: { isSubmitting },
   } = methods;
 
@@ -74,15 +88,43 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const anoLetivoAtual = anosLetivos.find((ano) => {
+        if (ano.status === "NÃO FINALIZADO") {
+          return ano.id;
+        }
+      })
+      let aluno_escolas = []
+      let aluno_turmas = []
+      if (data.escola != '') {
+        aluno_escolas = [
+          {
+            escola_id: data.escola,
+            ano_id: anoLetivoAtual.id
+          }
+        ]
+      } 
+      if (data.turma) {
+        aluno_turmas = [
+          {
+            turma_id: data.turma
+          }
+        ]
+      }
       let nascimento = new Date(data.data_nascimento)
-      data.data_nascimento = nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate()
+      const toSend = {
+        nome: data.nome,
+        matricula: data.matricula,
+        data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
+        alunoEscolas: aluno_escolas,
+        alunos_turmas: aluno_turmas
+      }
       if (currentAluno) {
-        await alunoMethods.updateAlunoById(currentAluno.id, data).catch((error) => {
+        await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
         
       } else {
-        await alunoMethods.insertAluno(data).catch((error) => {
+        await alunoMethods.insertAluno(toSend).then(buscaTurmas({force: true})).catch((error) => {
           throw error;
         });
       }
@@ -98,6 +140,25 @@ export default function AlunoNewEditForm({ currentAluno }) {
   useEffect(()  => {
     reset(defaultValues)
   }, [currentAluno]);
+
+  useEffect(()  => {
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaTurmas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+    });
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+    });
+    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
+      setValue('escola', user.funcao_usuario[0].escola.id)  
+    } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
+      escolasAssessor = escolas.filter((escola) => {
+        escola.zona.id == user.funcao_usuario[0].zona.id
+      })
+    } 
+  }, []);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -118,7 +179,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
             <RHFTextField name="nome" label="Nome do Estudante" />
 
             <RHFTextField name="matricula" label="Matrícula" />
-  
+
             <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
               <Controller
                 name="data_nascimento"
@@ -128,6 +189,28 @@ export default function AlunoNewEditForm({ currentAluno }) {
                 )}
               />
             </LocalizationProvider>
+
+            <RHFSelect sx={{
+              }} id={`escola_`+`${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
+                {escolasAssessor.map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+            </RHFSelect>
+
+            <RHFSelect sx={{
+              display: getValues('escola') ? "inherit" : "none"
+              }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
+                {turmas.filter((te) => (
+                  te.escola.id == getValues('escola')
+                ))
+                .map((turma) => (
+                  <MenuItem key={turma.id} value={turma.id}>
+                    {turma.ano_escolar}º {turma.nome}
+                  </MenuItem>
+                ))}
+            </RHFSelect>  
 
             </Box>
 

@@ -53,14 +53,14 @@ export default function OverviewAppView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
-  const defaultFilters = {
-    zona: user?.funcao_usuario?.length > 0 ? [user?.funcao_usuario[0]?.escola?.zona] : [],
+  const [zonaFiltro, setZonaFiltro] = useState([]);
+
+  const [filters, setFilters] = useState({
+    zona: zonaFiltro,
     escola: [],
     turma: [],
-    bimestre: '',
-  };
+    bimestre: '',});
 
-  const [filters, setFilters] = useState(defaultFilters);
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
@@ -97,6 +97,7 @@ export default function OverviewAppView() {
 
   // TODO: resolver indice de fases geral
   const getIndices = async (anoEscolar) => {
+    console.log(filters)
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
@@ -146,6 +147,7 @@ export default function OverviewAppView() {
   const preencheGraficos = async () => {
     isGettingGraphics.onTrue();
     console.log('preencheGraficos');
+    console.log(filters)
     const fullFilters = {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
@@ -199,14 +201,20 @@ export default function OverviewAppView() {
       if (campo == 'zona') {
         if (value.length == 0) {
           setEscolasFiltered(escolas);
+          setTurmasFiltered(turmas);
         } else {
-          var filtered = escolas.filter((escola) =>
+          var escolasFiltered = escolas.filter((escola) =>
             value.map((zona) => zona.id).includes(escola.zona.id)
           );
-          setEscolasFiltered(filtered);
+          var turmasFiltered = turmas.filter((turma) =>
+            escolasFiltered.map((escola) => escola.id).includes(turma.escola.id)
+          )
+          console.log(escolasFiltered)
+          console.log(turmasFiltered)
+          setEscolasFiltered(escolasFiltered);
+          setTurmasFiltered(turmasFiltered);
         }
 
-        setTurmasFiltered(turmas);
         setFilters((prevState) => ({
           ...prevState,
           ['escola']: [],
@@ -268,6 +276,33 @@ export default function OverviewAppView() {
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {}, [contextReady.value]);
+
+  useEffect(()  => {
+    let zf = [];
+    if (user?.funcao_usuario?.length > 0) {
+      if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
+        zf = [user?.funcao_usuario[0]?.zona]
+      } else {
+        zf = [user?.funcao_usuario[0]?.escola?.zona]
+      }  
+    }
+    setZonaFiltro(zf)
+    setFilters({
+      zona: zf,
+      escola: [],
+      turma: [],
+      bimestre: '',
+    })
+  }, []);
+
+  const filtroReset = () => {
+    setFilters({
+      zona: zonaFiltro,
+      escola: [],
+      turma: [],
+      bimestre: '',
+    })
+  }
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
@@ -331,6 +366,11 @@ export default function OverviewAppView() {
             <Grid xs={12} md="auto">
               <Button variant="contained" onClick={preencheGraficos}>
                 Aplicar filtro
+              </Button>
+            </Grid>
+            <Grid xs={12} md="auto">
+              <Button variant="contained" onClick={filtroReset}>
+                Resetar filtro
               </Button>
             </Grid>
           </Stack>

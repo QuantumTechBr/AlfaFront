@@ -18,11 +18,13 @@ export default function AlunoTableFiltersResult({
   results,
   escolaOptions,
   turmaOptions,
+  faseOptions,
   ...other
 }) {
 
   const escolasSelecionadas = [];
   const turmasSelecionadas = [];
+  const fasesSelecionadas = [];
 
   escolaOptions.map((escola) => {
     if(filters.escola?.includes(escola.id)) {
@@ -34,6 +36,12 @@ export default function AlunoTableFiltersResult({
     if(filters.turma?.includes(turma.id)) {
       turmasSelecionadas.push(turma)
     }
+  })
+
+  faseOptions.map((fase)=> {
+    if(filters.fase?.includes(fase)) {
+      fasesSelecionadas.push(fase)
+    }    
   })
 
   const handleRemoveNome = (inputValue) => {
@@ -53,6 +61,11 @@ export default function AlunoTableFiltersResult({
     const newValue = filters.turma.filter((item) => item !== inputValue);
     onFilters('turma', newValue);
   };
+
+  const handleRemoveFase = (inputValue) => {
+    const newValue = filters.fase.filter((item) => item !== inputValue);
+    onFilters('fase', newValue)
+  }
 
   return (
     <Stack spacing={1.5} {...other}>
@@ -89,6 +102,14 @@ export default function AlunoTableFiltersResult({
           <Block label="Turma:">
             {turmasSelecionadas.map((item) => (
               <Chip key={item.id} label={item.ano_escolar.concat('º ', item.nome)} size="small" onDelete={() => handleRemoveTurma(item.id)} />
+            ))}
+          </Block>
+        )}
+
+        {!!filters.fase.length && (
+          <Block label="Fase:">
+            {fasesSelecionadas.map((item) => (
+              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveFase(item)} />
             ))}
           </Block>
         )}
