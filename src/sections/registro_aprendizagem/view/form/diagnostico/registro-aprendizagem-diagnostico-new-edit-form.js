@@ -127,7 +127,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
     } catch (error) {
-      setErrorMsg('Erro ao Salvar o Registro de Aprendizagem de Diagnóstico')
+      setErrorMsg('Erro ao Salvar o Registro de Aprendizagem Diagnóstica')
     }
   });
 

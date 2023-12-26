@@ -5,7 +5,7 @@ import { RegistroAprendizagemComponenteListView } from "src/sections/registro_ap
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Avaliações de Diagnóstico',
+  title: 'Avaliações de Componente',
 };
 
 export default function RegistroAprendizagemComponenteListPage() {

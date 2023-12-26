@@ -71,7 +71,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           prep.onTrue();
         });
       } else {
-        setWarningMsg('As informações da turma veio sem alunos')
+        setWarningMsg('As informações da turma veio sem estudantes')
         setAlunosTurma([]);
         prep.onTrue();
       }
@@ -135,7 +135,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         prep.onTrue();
       })
     } else {
-      setWarningMsg('As informações da turma veio sem alunos')
+      setWarningMsg('As informações da turma veio sem estudantes')
       setAlunosTurma([]);
       prep.onTrue();
     }
@@ -145,17 +145,17 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Criar nova Avaliação de Diagnóstico"
+        heading="Criar nova Avaliação Diagnóstica"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Avaliações de Diagnóstico',
+            name: 'Avaliações Diagnósticas',
             href: paths.dashboard.registro_aprendizagem.root_diagnostico,
           },
-          { name: 'Avaliação de Diagnóstico - ' + `${periodo}` },
+          { name: 'Avaliação Diagnóstica - ' + `${periodo}` },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

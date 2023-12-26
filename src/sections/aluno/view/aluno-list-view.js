@@ -58,7 +58,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Aluno', width: 300 },
+  { id: 'nome', label: 'Estudante', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
   { id: 'ano', label: 'Ano', width: 200, notsortable: true },
   { id: 'turma', label: 'Turma', width: 200, notsortable: true },
@@ -119,7 +119,7 @@ export default function AlunoListView() {
     
     await alunoMethods.getAllAlunos({offset, limit, nome, turmas: turma, escolas: escola, matricula, fase}).then(async alunos => {
       if (alunos.data.count == 0) {
-        setWarningMsg('A API retornou uma lista vazia de alunos');
+        setWarningMsg('A API retornou uma lista vazia de estudantes');
         preparado.onTrue();
       } else {
         let listaAlunos = alunos.data.results
@@ -127,7 +127,7 @@ export default function AlunoListView() {
       }
       setCountAlunos(alunos.data.count);
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de alunos');
+      setErrorMsg('Erro de comunicação com a API de estudantes');
       console.log(error);
       preparado.onTrue();
     });
@@ -147,7 +147,7 @@ export default function AlunoListView() {
       preparado.onTrue();
     });
     await buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de alunos');
+      setErrorMsg('Erro de comunicação com a API de estudantes');
       console.log(error);
       preparado.onTrue();
     });
@@ -291,7 +291,7 @@ export default function AlunoListView() {
         setTableData(deleteRow);
         buscaTurmas({force: true});
       }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+        setErrorMsg('Erro de comunicação com a API de estudantes no momento da exclusão do estudante');
         console.log(error);
       });
 
@@ -307,7 +307,7 @@ export default function AlunoListView() {
       if(table.selected.includes(row.id)) {
         const newPromise = alunoMethods.deleteAlunoById(row.id).catch((error) => {
           remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de alunos no momento da exclusão do aluno');
+          setErrorMsg('Erro de comunicação com a API de estudantes no momento da exclusão do estudante');
           console.log(error);
           throw error;
         });
@@ -373,7 +373,7 @@ export default function AlunoListView() {
           heading="Listar"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Alunos', href: paths.dashboard.aluno.root },
+            { name: 'Estudantes', href: paths.dashboard.aluno.root },
             { name: 'Listar' },
           ]}
           action={
@@ -505,7 +505,7 @@ export default function AlunoListView() {
         title="Delete"
         content={
           <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> alunos?
+            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> estudantes?
           </>
         }
         action={
