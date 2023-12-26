@@ -61,7 +61,7 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Alunos', width: 80 },
+  { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'periodo', label: 'Período', width: 105 },
   { id: 'escola_nome', label: 'Escola' },
   { id: '', width: 88 },
@@ -354,7 +354,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação de Diagnóstico</Typography>
+          <Typography variant="h4">Avaliação Diagnóstica</Typography>
           <Button
             onClick={novaAvaliacao.onTrue}
             variant="contained"
@@ -394,7 +394,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           {/* <Button variant="contained" onClick={preencheGraficos}>Aplicar filtro ao gráfico</Button> */}
 
           <AppAvaliacaoDiagnostico
-            title="Gráfico Diagnóstico"
+            title="Gráfico Avaliação Diagnóstica"
             list={dadosGrafico.avaliacao_diagnostico}
             subheader=""
           />

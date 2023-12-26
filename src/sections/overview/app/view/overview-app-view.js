@@ -347,7 +347,7 @@ export default function OverviewAppView() {
           </Grid>
           <Grid xs={12} md={4}>
             <AppWidgetSummary
-              title="Total de Alunos Cadastrados"
+              title="Total de Estudantes Cadastrados"
               percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
               chart={{
@@ -427,7 +427,7 @@ export default function OverviewAppView() {
         {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
           <Grid xs={12}>
             <AppDesempenhoAlunos
-              title="Desempenho dos Alunos"
+              title="Desempenho dos Estudantes"
               subheader={dados.desempenho_alunos.subheader}
               chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
             />

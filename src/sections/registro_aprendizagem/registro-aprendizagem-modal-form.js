@@ -82,7 +82,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
   const podeAvancar =
     (tipo == 'Avaliação de Fase' && turma && bimestre) ||
-    (tipo == 'Avaliação de Diagnóstico' && turma && periodo);
+    (tipo == 'Avaliação Diagnóstica' && turma && periodo);
 
   const selectTurma = () => {
     return (
@@ -100,7 +100,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
     try {
       if (tipo == 'Avaliação de Fase') {
         router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
-      } else if (tipo == 'Avaliação de Diagnóstico') {
+      } else if (tipo == 'Avaliação Diagnóstica') {
         const dadosDiagnostico = {
           turma: turma,
           periodo: periodo,
@@ -166,7 +166,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             )}
 
             {/* DIAGNOSTICO */}
-            {tipo == 'Avaliação de Diagnóstico' && (
+            {tipo == 'Avaliação Diagnóstica' && (
               <RHFSelect name="periodo" label="Período">
                 {_periodos.map((periodo) => (
                   <MenuItem key={periodo} value={periodo}>
@@ -176,7 +176,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
               </RHFSelect>
             )}
 
-            {tipo == 'Avaliação de Diagnóstico' && periodo && selectTurma()}
+            {tipo == 'Avaliação Diagnóstica' && periodo && selectTurma()}
           </Box>
         </DialogContent>
         <DialogActions>

@@ -111,7 +111,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   const TABLE_HEAD = [
     { id: '', width: 5 },
-    { id: 'nome', label: 'Aluno', width: 2 },
+    { id: 'nome', label: 'Estudante', width: 2 },
     { id: 'matricula', label: 'Matrícula', width: 3 },
     { id: 'data_nascimento', label: 'Data de Nascimento', width: 2 },
   ];
@@ -167,7 +167,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
         ) : (
           <>
             <DialogTitle>
-              Definir Alunos: {turma.escola.nome} {turma.ano_escolar}º {turma.nome}
+              Definir Estudantes: {turma.escola.nome} {turma.ano_escolar}º {turma.nome}
             </DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}

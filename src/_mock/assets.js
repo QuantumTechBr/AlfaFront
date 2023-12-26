@@ -241,7 +241,7 @@ export const _phoneNumbers = [
 export const _tiposAvaliacao = [
   'Avaliação de Fase',
   // 'Avaliação de Componente Curricular',
-  'Avaliação de Diagnóstico',
+  'Avaliação Diagnóstica',
 ];
 
 export const _habilidades = [
@@ -272,7 +272,7 @@ export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
 
 const RegistroAprendizagemTipos = {
-  diagnostico: 'Diagnóstico',
+  diagnostico: 'Diagnóstica',
   fases: 'Fases',
 };
 const RegistroAprendizagemDiagnosticoTipos = {

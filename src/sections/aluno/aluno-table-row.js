@@ -111,8 +111,8 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Aluno"
-        content="Tem certeza que deseja excluir o aluno?"
+        title="Excluir Estudante"
+        content="Tem certeza que deseja excluir o estudante?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar

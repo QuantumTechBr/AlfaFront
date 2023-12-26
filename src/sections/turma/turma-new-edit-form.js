@@ -247,7 +247,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                       bgcolor: '#00A5AD',
                     }}
                   >
-                    Definir Alunos da Turma
+                    Definir Estudantes da Turma
                   </Button>
                 )}
                 {currentTurma && (

@@ -18,17 +18,17 @@ export default function AlunoCreateView() {
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Criar novo aluno"
+        heading="Criar novo estudante"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Aluno',
+            name: 'Estudante',
             href: paths.dashboard.aluno.root,
           },
-          { name: 'Novo aluno' },
+          { name: 'Novo estudante' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

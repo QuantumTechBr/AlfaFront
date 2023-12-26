@@ -89,7 +89,7 @@ export function useNavData() {
 
       // ALUNOS
       {
-        title: 'Lista de Alunos',
+        title: 'Lista de Estudantes',
         path: paths.dashboard.aluno.list,
         icon: ICONS.alfaStudent,
       },
@@ -127,7 +127,7 @@ export function useNavData() {
         icon: ICONS.alfaBookAccount,
         children: [
           {
-            title: t('Dianóstico'), 
+            title: t('Dianóstica'), 
             path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
           },
           {
@@ -195,7 +195,7 @@ export function useNavData() {
       }
       if (modulosPermitidos.includes("aluno")) {
         items.push({
-          title: 'Lista de Alunos',
+          title: 'Lista de Estudantes',
           path: paths.dashboard.aluno.list,
           icon: ICONS.alfaStudent,
         })
@@ -228,7 +228,7 @@ export function useNavData() {
           icon: ICONS.alfaBookAccount,
           children: [
             {
-              title: t('Dianóstico'), 
+              title: t('Dianóstica'), 
               path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
             },
             {

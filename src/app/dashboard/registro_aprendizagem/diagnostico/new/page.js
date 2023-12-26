@@ -13,7 +13,7 @@ import turmaMethods from "src/sections/turma/turma-repository";
 // ----------------------------------------------------------------------
 
 // export const metadata = {
-//   title: 'Nova Avaliação de Diagnóstico',
+//   title: 'Nova Avaliação Diagnóstica',
 // };
 
 export default function RegistroAprendizagemDiagnosticoCreatePage() {   

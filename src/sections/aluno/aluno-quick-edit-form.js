@@ -77,7 +77,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      setErrorMsg('Tentativa de atualização do aluno falhou');
+      setErrorMsg('Tentativa de atualização do estudante falhou');
       console.error(error);
     }
   });
@@ -109,7 +109,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
             }}
           >
 
-            <RHFTextField name="nome" label="Nome do Aluno" />
+            <RHFTextField name="nome" label="Nome do Estudante" />
 
             <RHFTextField name="matricula" label="Matrícula" />
 

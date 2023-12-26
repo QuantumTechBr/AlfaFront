@@ -90,7 +90,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       enqueueSnackbar(currentAluno ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.aluno.list);
     } catch (error) {
-      currentAluno ? setErrorMsg('Tentativa de atualização do aluno falhou') : setErrorMsg('Tentativa de criação do aluno falhou');
+      currentAluno ? setErrorMsg('Tentativa de atualização do estudante falhou') : setErrorMsg('Tentativa de criação do estudante falhou');
       console.error(error);
     }
   });
@@ -115,7 +115,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
               }}
             >
             
-            <RHFTextField name="nome" label="Nome do Aluno" />
+            <RHFTextField name="nome" label="Nome do Estudante" />
 
             <RHFTextField name="matricula" label="Matrícula" />
   
@@ -133,7 +133,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentAluno ? 'Criar Aluno' : 'Atualizar Aluno'}
+                {!currentAluno ? 'Criar Estudante' : 'Atualizar Estudante'}
               </LoadingButton>
             </Stack>
           </Card>
