@@ -37,7 +37,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   let registroAprendizagemFaseBimestreAnterior = registroAprendizagemFase
 
   const disableCheckbox = () => {
-    if (getValues('registros[' + aluno_turma_id + '].resultado') == '') {
+    if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
       return false
     }
     if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
@@ -63,7 +63,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, []);
 
   const mapDesabilitarCheckbox = {
-    'Não Avaliado' : 1,
+    'Não Avaliado' : 6,
     'Pré Alfabética': 2,
     'Alfabética Parcial': 3,
     'Alfabética Completa': 4,
