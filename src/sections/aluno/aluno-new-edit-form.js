@@ -93,22 +93,30 @@ export default function AlunoNewEditForm({ currentAluno }) {
           return ano.id;
         }
       })
+      let aluno_escolas = []
+      let aluno_turmas = []
+      if (data.escola != '') {
+        aluno_escolas = [
+          {
+            escola_id: data.escola,
+            ano_id: anoLetivoAtual.id
+          }
+        ]
+      } 
+      if (data.turma) {
+        aluno_turmas = [
+          {
+            turma_id: data.turma
+          }
+        ]
+      }
       let nascimento = new Date(data.data_nascimento)
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
-        alunoEscolas: [
-          {
-            escola_id: data.escola,
-            ano_id: anoLetivoAtual.id
-          }
-        ],
-        alunos_turmas: [
-          {
-            turma_id: data.turma
-          }
-        ]
+        alunoEscolas: aluno_escolas,
+        alunos_turmas: aluno_turmas
       }
       if (currentAluno) {
         await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
