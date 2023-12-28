@@ -23,14 +23,18 @@ import { AuthContext } from 'src/auth/context/alfa';
 export default function OverviewTableToolbar({
   filters,
   onFilters,
+  anoLetivoOptions,
   zonaOptions,
   escolaOptions,
   turmaOptions,
   bimestreOptions,
 }) {
-
   const { user } = useContext(AuthContext);
 
+  const handleFilterAnoLetivo = useCallback(
+    (event) => onFilters('anoLetivo', event.target.value),
+    [onFilters]
+  );
 
   const handleFilterZona = useCallback(
     (event) => {
@@ -85,10 +89,38 @@ export default function OverviewTableToolbar({
           md: 'row',
         }}
       >
+        {anoLetivoOptions && !!anoLetivoOptions.length && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel size="small">Ano Letivo</InputLabel>
+
+            <Select
+              size="small"
+              value={filters.anoLetivo}
+              onChange={handleFilterAnoLetivo}
+              input={<OutlinedInput fullWidth label="Ano Letivo" />}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {anoLetivoOptions.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  {option.ano}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 150 },
+            width: { xs: 1, md: 120 },
           }}
         >
           <InputLabel size="small">DDZ</InputLabel>
@@ -132,7 +164,7 @@ export default function OverviewTableToolbar({
             renderValue={renderValueEscola}
             MenuProps={{
               PaperProps: {
-                sx: { maxHeight: 240},
+                sx: { maxHeight: 240 },
               },
             }}
           >
@@ -170,7 +202,9 @@ export default function OverviewTableToolbar({
               {turmaOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${filters.escola.length != 1 ? ` (${option.escola.nome})` : ''} ` }
+                  {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
+                    filters.escola.length != 1 ? ` (${option.escola.nome})` : ''
+                  } `}
                 </MenuItem>
               ))}
             </Select>
@@ -215,6 +249,7 @@ export default function OverviewTableToolbar({
 OverviewTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
+  anoLetivoOptions: PropTypes.array,
   zonaOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
