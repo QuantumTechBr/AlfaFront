@@ -320,6 +320,7 @@ export default function OverviewAppView() {
 
   const filtroReset = () => {
     setFilters({
+      anoLetivo: first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
