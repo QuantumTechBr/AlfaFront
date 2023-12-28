@@ -389,13 +389,13 @@ export default function OverviewAppView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" color="success" onClick={preencheGraficos}>
+              <Button variant="contained" color="primary" onClick={preencheGraficos}>
                 Aplicar filtros
               </Button>
 
               <Button
-                variant="outlined"
-                color="warning"
+                variant="contained"
+                color="primary"
                 onClick={filtroReset}
                 sx={{ margin: { left: 4 } }}
               >
