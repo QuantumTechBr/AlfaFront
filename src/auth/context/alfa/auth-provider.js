@@ -179,6 +179,18 @@ export function AuthProvider({ children }) {
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
+  const checkPermissaoModulo = (nomeModulo, permissao) => {
+    if (!state.user) { return null}
+    let user = state.user;
+    let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo;
+    if (!modulosPermitidos) { return false; }
+    const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
+      moduloPermissao.modulo.namespace == nomeModulo
+    );
+    if (!moduloPermissao) { return false; }
+    return moduloPermissao[permissao];
+  }
+
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
@@ -191,20 +203,11 @@ export function AuthProvider({ children }) {
       register,
       logout,
       forgotPassword,
-      confirmResetPassword
+      confirmResetPassword,
+      checkPermissaoModulo
     }),
     [login, logout, register, forgotPassword, state.user, status]
   );
-
-  const checkPermissaoModulo = (nomeModulo, permissao) => {
-    let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo;
-    if (!modulosPermitidos) { return false; }
-    const moduloPermissao = modulosPermitidos.find(moduloPermissao => {
-      moduloPermissao.nome == nomeModulo
-    });
-    if (!moduloPermissao) { return false; }
-    return moduloPermissao[permissao];
-  }
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
 }
