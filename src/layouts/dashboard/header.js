@@ -14,6 +14,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import Logo from 'src/components/logo';
 import SvgColor from 'src/components/svg-color';
 import { useSettingsContext } from 'src/components/settings';
+import { useAuthContext } from 'src/auth/hooks';
 //
 import { HEADER, NAV } from '../config-layout';
 import {
@@ -24,11 +25,13 @@ import {
   ContactsPopover,
   NotificationsPopover,
 } from '../_common';
+import { Box, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
+  const { user, logout } = useAuthContext();
 
   const settings = useSettingsContext();
 
@@ -61,13 +64,23 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1 }}
       >
-     {/* <LanguagePopover /> */ }
+        {/* <LanguagePopover /> */}
 
-        <NotificationsPopover />
+        {/* <NotificationsPopover /> */}
 
         {/* <ContactsPopover /> */}
 
-        <SettingsButton />
+        {/* <SettingsButton /> */}
+
+        <Box>
+          <Typography align='right' variant="subtitle2" noWrap>
+            {user?.nome}
+          </Typography>
+
+          <Typography align='right' variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+            {user?.permissao_usuario[0]?.nome}
+          </Typography>
+        </Box>
 
         <AccountPopover />
       </Stack>
