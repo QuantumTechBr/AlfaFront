@@ -72,18 +72,21 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, []);
 
   useEffect(() => {
-    if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
-      let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
-      if (registro){
-        if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
-          ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+    if (registroAprendizagemFase.length > 0) {
+      if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
+        let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+        if (registro){
+          if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
+            ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+          } else {
+            setResultadoPrevio(registro?.resultado)
+          }      
         } else {
-          setResultadoPrevio(registro?.resultado)
-        }      
-      } else {
-        ResultadoPrevio({alunoTurmaId: aluno_turma_id});
-      }
-    }    
+          ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+        }
+      }    
+      
+    }
   }, [registroAprendizagemFase]);
   
   const mapDesabilitarCheckbox = {
