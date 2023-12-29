@@ -102,7 +102,7 @@ export default function OverviewAppView() {
   // TODO: resolver indice de fases geral
   const getIndices = async (anoEscolar) => {
     const fullFilters = {
-      ano: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
+      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
@@ -156,7 +156,7 @@ export default function OverviewAppView() {
     isGettingGraphics.onTrue();
     console.log('preencheGraficos', filters);
     const fullFilters = {
-      ano: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
+      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
@@ -166,7 +166,7 @@ export default function OverviewAppView() {
     await Promise.all([
       dashboardsMethods
         .getDashboardTotalUsuariosAtivos({
-          ano_letivo: fullFilters.ano,
+          ano_letivo: fullFilters.ano_letivo,
           ddz: fullFilters.ddz,
           escola: fullFilters.escola,
         })
@@ -184,7 +184,7 @@ export default function OverviewAppView() {
       }),
       dashboardsMethods
         .getDashboardTotalTurmasAtivas({
-          ano_letivo: fullFilters.ano,
+          ano_letivo: fullFilters.ano_letivo,
           ddz: fullFilters.ddz,
           escola: fullFilters.escola,
         })
