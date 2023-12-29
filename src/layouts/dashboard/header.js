@@ -45,6 +45,8 @@ export default function Header({ onOpenNav }) {
 
   const offsetTop = offset && !isNavHorizontal;
 
+  const showDDZEscola = user?.permissao_usuario[0]?.nome == 'PROFESSOR';
+
   const renderContent = (
     <>
       {lgUp && isNavHorizontal && <Logo sx={{ mr: 2.5 }} />}
@@ -73,12 +75,18 @@ export default function Header({ onOpenNav }) {
         {/* <SettingsButton /> */}
 
         <Box>
-          <Typography align='right' variant="subtitle2" noWrap>
-            {user?.nome}
+          <Typography align="right" variant="subtitle2" noWrap>
+            {user?.nome}{showDDZEscola ? ` - ${user?.funcao_usuario[0]?.funcao?.nome}` : ''}
           </Typography>
 
-          <Typography align='right' variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {user?.permissao_usuario[0]?.nome}
+          <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+            {showDDZEscola
+              ? [
+                  user?.funcao_usuario[0]?.escola?.nome,
+                  user?.funcao_usuario[0]?.escola?.cidade?.nome,
+                  user?.funcao_usuario[0]?.escola?.zona?.nome,
+                ].join(' - ')
+              : user?.permissao_usuario[0]?.nome}
           </Typography>
         </Box>
 
