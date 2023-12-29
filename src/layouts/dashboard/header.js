@@ -45,7 +45,11 @@ export default function Header({ onOpenNav }) {
 
   const offsetTop = offset && !isNavHorizontal;
 
-  const showDDZEscola = user?.permissao_usuario[0]?.nome == 'PROFESSOR';
+  const showEscolaInfo =
+    user?.permissao_usuario[0]?.nome == 'PROFESSOR' ||
+    user?.permissao_usuario[0]?.nome == 'DIRETOR';
+  const showDDZInfo = user?.permissao_usuario[0]?.nome == 'ASSESSOR DDZ';
+  const showFullInfo = showEscolaInfo || showDDZInfo;
 
   const renderContent = (
     <>
@@ -76,17 +80,27 @@ export default function Header({ onOpenNav }) {
 
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
-            {user?.nome}{showDDZEscola ? ` - ${user?.funcao_usuario[0]?.funcao?.nome}` : ''}
+            {user?.nome}
+            {showFullInfo ? ` - ${user?.funcao_usuario[0]?.funcao?.nome}` : ''}
           </Typography>
 
           <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {showDDZEscola
+            {showEscolaInfo
               ? [
                   user?.funcao_usuario[0]?.escola?.nome,
                   user?.funcao_usuario[0]?.escola?.cidade?.nome,
                   user?.funcao_usuario[0]?.escola?.zona?.nome,
                 ].join(' - ')
-              : user?.permissao_usuario[0]?.nome}
+              : null}
+
+            {showDDZInfo
+              ? [
+                  user?.funcao_usuario[0]?.zona?.cidade?.nome,
+                  user?.funcao_usuario[0]?.zona?.nome,
+                ].join(' - ')
+              : null}
+
+            {!showFullInfo ? user?.permissao_usuario[0]?.nome : null}
           </Typography>
         </Box>
 
