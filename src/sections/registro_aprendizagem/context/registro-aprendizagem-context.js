@@ -6,41 +6,83 @@ export const RegistroAprendizagemContext = createContext();
 
 export const RegistroAprendizagemProvider = ({ children }) => {
   const [registroAprendizagemFase, setRegistroAprendizagemFase] = useState([]);
-  let _consultaAtual;
+  const [registroAprendizagemFaseAlunoTurma, setRegistroAprendizagemFaseAlunoTurma] = useState([]);
+  
+  let mapsBusca = new Map();
+
+  const retornaValorCache = (ids = []) => {
+    if (!ids) return null;
+
+    let retorno = null;
+    let keysArrays = [...mapsBusca.keys()]
+    keysArrays.forEach(keyArray => {
+      if(keyArray.sort().join(',') === ids.sort().join(',')) { // testa se os dois arrays sao equivalentes
+        retorno = mapsBusca.get(keyArray);
+        return;
+      }
+    });
+
+    return retorno;
+  };
+
+  const limparMapCache = () => {
+    mapsBusca = new Map()
+  };
 
   const buscaRegistroAprendizagemFaseByTurmaIdBimestreId = async ({ turmaId, bimestreId, force = false } = {}) => {
-    let returnData = registroAprendizagemFase;
+    if (!force) {
+      let valorCache = retornaValorCache([turmaId,bimestreId]);
+      if (valorCache) return valorCache
+    }
+    
+    let consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
+      turmaId: turmaId,
+      bimestreId: bimestreId,
+    }).then((response) => {
+      if (response?.data == '' || response?.data === undefined) response.data = [];
+      setRegistroAprendizagemFase(response.data);
+      return response.data;
+    });
+    mapsBusca.set([turmaId,bimestreId], consulta)
+    return consulta;
+  };
 
-    if (force || registroAprendizagemFase?.length < 1 || registroAprendizagemFase[0]?.turma_id != turmaId || registroAprendizagemFase[0]?.bimestre.id != bimestreId){
-      if (!_consultaAtual || force) {
-        _consultaAtual = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
-          turmaId: turmaId,
-          bimestreId: bimestreId,
-        }).then((response) => {
-          if (response?.data == '' || response?.data === undefined) response.data = [];
-          setRegistroAprendizagemFase(response.data);
-          returnData = response.data;
-          return returnData;
-          });
-        }
-        await _consultaAtual.then((value) => {
-          returnData = value;
-        });
-
-    } else {
-      const turmaEncontrada = registroAprendizagemFase.filter((registro) => registro?.aluno_turma?.aluno?.alunos_turmas?.find((turma) => turma.turma == turmaId));
-      const registroBuscado = turmaEncontrada.filter((registro) => registro?.bimestre.id == bimestreId)
-      if (registroBuscado) {
-        return registroBuscado;
-      }
-      return null;
+  const buscaRegistroAprendizagemFaseByAlunoTurmaId = async ({ alunoTurmaId, force = false } = {}) => {
+    if (!force) {
+      let valorCache = retornaValorCache([alunoTurmaId]);
+      if (valorCache) return valorCache
     }
 
-    return returnData;
+    let consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
+      alunoTurmaId: alunoTurmaId,
+    }).then((response) => {
+      if (response?.data == '' || response?.data === undefined) response.data = [];
+      setRegistroAprendizagemFaseAlunoTurma(response.data);
+      return response.data;
+    });
+
+    mapsBusca.set([alunoTurmaId], consulta)
+    return consulta;
+  };
+
+  const melhorResultadoAlunoTurma = async ({ alunoTurmaId }) => {
+    const mapResultados = {
+      'Não Avaliado' : 1,
+      'Pré Alfabética': 2,
+      'Alfabética Parcial': 3,
+      'Alfabética Completa': 4,
+      'Alfabética Consolidada': 5,
+    };
+    let resultados = await buscaRegistroAprendizagemFaseByAlunoTurmaId({alunoTurmaId: alunoTurmaId})
+    let melhor = 'Não Avaliado'
+    for (let index = 0; index < resultados?.length; index++) {
+      melhor = mapResultados[melhor] < mapResultados[resultados[index].resultado] ? resultados[index].resultado : melhor
+    }
+    return melhor;
   };
 
   return (
-    <RegistroAprendizagemContext.Provider value={{ registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId }}>
+    <RegistroAprendizagemContext.Provider value={{ registroAprendizagemFase, registroAprendizagemFaseAlunoTurma, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, buscaRegistroAprendizagemFaseByAlunoTurmaId, melhorResultadoAlunoTurma, limparMapCache }}>
       {children}
     </RegistroAprendizagemContext.Provider>
   );
