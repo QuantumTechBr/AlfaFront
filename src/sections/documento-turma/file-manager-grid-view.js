@@ -149,7 +149,7 @@ export default function FileManagerGridView({
                   Deletar
                 </Button>
 
-                <Button
+                {/* <Button
                   color="primary"
                   size="small"
                   variant="contained"
@@ -157,7 +157,7 @@ export default function FileManagerGridView({
                   onClick={share.onTrue}
                 >
                   Disponibilizar
-                </Button>
+                </Button> */}
               </>
             }
           />

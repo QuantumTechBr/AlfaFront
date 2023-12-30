@@ -77,7 +77,6 @@ export default function TurmaListView() {
   const preparado = useBoolean(false);
   
   const permissaoCadastrar = checkPermissaoModulo("turma","cadastrar");
-  console.log("cadastrar turma", permissaoCadastrar);
 
   let TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),

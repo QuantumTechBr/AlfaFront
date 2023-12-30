@@ -180,9 +180,10 @@ export function AuthProvider({ children }) {
   const status = state.loading ? 'loading' : checkAuthenticated;
 
   const checkPermissaoModulo = (nomeModulo, permissao) => {
-    if (!state.user) { return null}
-    let user = state.user;
-    let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo;
+    if (!state.user || !state.user.permissao_usuario) { return null}
+    let permissaoUsuario = state.user.permissao_usuario[0];
+    if (permissaoUsuario.nome == "SUPERADMIN") { return true };
+    let modulosPermitidos = permissaoUsuario.permissao_modulo;
     if (!modulosPermitidos) { return false; }
     const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
       moduloPermissao.modulo.namespace == nomeModulo
