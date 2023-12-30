@@ -27,11 +27,11 @@ export default function AlunoEditView({ id }) {
   useEffect(()  => {
     alunoMethods.getAlunoById(id).then(aluno => {
       if (aluno.data.length === 0) {
-        setWarningMsg('A API retornou uma lista vazia de alunos')
+        setWarningMsg('A API retornou uma lista vazia de estudantes')
       }
       setCurrentAluno(aluno.data);
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de alunos');
+      setErrorMsg('Erro de comunicação com a API de estudantes');
     });
   }, []);
 
@@ -45,7 +45,7 @@ export default function AlunoEditView({ id }) {
             href: paths.dashboard.root,
           },
           {
-            name: 'Alunos',
+            name: 'Estudantes',
             href: paths.dashboard.aluno.root,
           },
           { name: currentAluno?.nome },

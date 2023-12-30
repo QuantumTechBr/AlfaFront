@@ -165,7 +165,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
                   mb: 3,
                 }}
               >
-                Definir Alunos da Escola
+                Definir Estudantes da Escola
               </Button>)
               }
             </Box>

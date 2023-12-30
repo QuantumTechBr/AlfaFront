@@ -90,7 +90,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
         table.setSelected(preSelectedList);
       })
       .catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
+        setErrorMsg('Erro de comunicação com a API de estudantes');
       });
   };
 
@@ -118,7 +118,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const TABLE_HEAD = [
     { id: '', width: 5 },
-    { id: 'nome', label: 'Aluno', width: 2 },
+    { id: 'nome', label: 'Estudante', width: 2 },
     { id: 'matricula', label: 'Matrícula', width: 3 },
     { id: 'data_nascimento', label: 'Data de Nascimento', width: 2 },
   ];
@@ -174,7 +174,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
           </>
         ) : (
           <>
-            <DialogTitle>Definir Alunos da Escola: {escola.nome}</DialogTitle>
+            <DialogTitle>Definir Estudantes da Escola: {escola.nome}</DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
               <TextField

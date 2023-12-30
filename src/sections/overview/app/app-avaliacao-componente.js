@@ -1,86 +1,94 @@
 import PropTypes from 'prop-types';
+import { useState, useEffect } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import CardHeader from '@mui/material/CardHeader';
 import Card from '@mui/material/Card';
 // utils
-import { fShortenNumber } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 // components
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import Chart, { useChart } from 'src/components/chart';
+import { useChart } from 'src/components/chart';
 import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
+import { _disciplinas } from 'src/_mock';
 
-export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) { 
-
-    const randomColor = () => {
-        let corAleatoria = "#" + Math.floor(Math.random() * 16777215).toString(16);
-        return corAleatoria
-    }
-    
-    const chartOptions = useChart({
-
-        chart: {
-            type: 'bar',
-            stacked: false,
-            stackType: '100%',
-            zoom: {
-                enabled: false,
-            },
+export default function AppAvaliacaoComponente({ title, subheader, list = [], ...other }) {
+  const chartOptions = useChart({
+    chart: {
+      type: 'bar',
+      stacked: false,
+      stackType: '100%',
+      zoom: {
+        enabled: false,
+      },
+    },
+    legend: {
+      itemMargin: {
+        horizontal: 17,
+        vertical: 20,
+      },
+      horizontalAlign: 'left',
+      position: 'bottom',
+      offsetY: 0,
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '90%',
+        distributed: true,
+        dataLabels: {
+          position: 'top',
         },
-        legend: {
-            itemMargin: {
-                horizontal: 10,
-            },
-            horizontalAlign: 'left',
-            position: 'bottom',
-            offsetY: 0,
-        },
-        plotOptions: {
-            bar: {
-                columnWidth: '100%',
-                horizontal: false,
+      },
+    },
+    labels: {
+      style: {
+      },
+    },
+    dataLabels: {
+      enabled: true,
+      formatter: function (value, { _series_, seriesIndex, dataPointIndex, w }) {
+        return list[seriesIndex].data[dataPointIndex];
+      },
+      offsetY: 0,
+      dropShadow: {
+        enabled: true,
+      },
+      style: {
+        fontSize: '14px',
+        colors: ['#fff'],
+      },
+    },
+    stroke: {
+      show: true,
+      width: 1,
+      colors: ['#fff'],
+    },
+    tooltip: {
+      enabled: true,
+      shared: true,
+      intersect: false,
+      y: {
+        formatter: (value) => fNumber(value),
+      },
+    },
+    xaxis: {
+      categories: _disciplinas,
+    },
+  });
 
-            },
-        },
-        stroke: {
-            width: 1,
-            colors: ['#fff'],
-            show: true,
-        },
-        xaxis: {
-            categories: [
-                'Matemática',
-                'Português',
-                'Ciências',
-                'História',
-                'Geografia',
-            ],
-        }
-        
-    });
-
-
-
-    return ( 
-        <Card {...other}>
-            <CardHeader title={title} subheader={subheader} />
-            <Scrollbar>
-                <ChartColumnStacked 
-                    series={[
-                        { name: 'Desenvolvida', data: [8,6,7,9,7], stack: 'A', title: '',label: 'Desenvolvida' ,color: randomColor },
-                    ]} 
-                    options={chartOptions} 
-                    width={86}
-                    height={16}
-                />
-            </Scrollbar>
-        </Card>
-    );
+  return (
+    <Card {...other}>
+      <CardHeader title={title} subheader={subheader} />
+      <Scrollbar>
+        <ChartColumnStacked series={list} options={chartOptions} />
+      </Scrollbar>
+    </Card>
+  );
 }
 
-AppAvaliacaoDiagnostico.propTypes = {
-    list: PropTypes.object,
-    subheader: PropTypes.string,
-    title: PropTypes.string,
+AppAvaliacaoComponente.propTypes = {
+  title: PropTypes.string,
+  subheader: PropTypes.string,
+  list: PropTypes.array,
 };

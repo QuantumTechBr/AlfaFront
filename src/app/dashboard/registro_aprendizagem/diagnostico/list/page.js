@@ -5,7 +5,7 @@ import { RegistroAprendizagemDiagnosticoListView } from "src/sections/registro_a
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Avaliações de Diagnóstico',
+  title: 'Avaliações Diagnósticas',
 };
 
 export default function RegistroAprendizagemDiagnosticoListPage() {

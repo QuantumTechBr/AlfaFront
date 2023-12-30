@@ -4,7 +4,7 @@ import { AlunoCardsView } from 'src/sections/aluno/view';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Aluno   Cards',
+  title: 'Dashboard: Estudante   Cards',
 };
 
 export default function AlunoCardsPage() {

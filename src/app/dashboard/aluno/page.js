@@ -4,7 +4,7 @@ import { AlunoListView, AlunoProfileView } from 'src/sections/aluno/view';
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Alunos',
+  title: 'Dashboard: Estudantes',
 };
 
 export default function AlunoProfilePage() {

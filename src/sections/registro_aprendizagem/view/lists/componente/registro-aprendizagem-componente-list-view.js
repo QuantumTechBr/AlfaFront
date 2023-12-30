@@ -53,7 +53,7 @@ const TABLE_HEAD = [
   { id: 'ano_serie', label: 'Ano Escolar', width: 75 },
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Alunos', width: 80 },
+  { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'escola', label: 'Escola' },
   { id: '', width: 88 },
 ];
@@ -76,7 +76,6 @@ export default function RegistroAprendizagemComponenteListView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   useEffect(() => {
-    console.log('useEffect COMPONENTE');
     buscaAnosLetivos();
     buscaEscolas();
     buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas));
@@ -118,6 +117,16 @@ export default function RegistroAprendizagemComponenteListView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+
+  const [dadosGrafico, setDadosGrafico] = useState([
+    {
+      name: 'Desenvolvida',
+      data: [8, 6, 7, 9, 7],
+      stack: 'A',
+      title: '',
+      label: 'Desenvolvida',
+    },
+  ]);
 
   const handleFilters = useCallback(
     (nome, value) => {
@@ -219,7 +228,10 @@ export default function RegistroAprendizagemComponenteListView() {
             />
           )}
 
-          <AppAvaliacaoComponente title="Gráfico por Componente" list={{}} />
+          <AppAvaliacaoComponente
+            title="Gráfico por Componente"
+            list={dadosGrafico}
+          />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
