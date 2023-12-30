@@ -11,6 +11,7 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import { Box } from '@mui/material';
 // hooks
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
@@ -34,6 +35,7 @@ import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendiza
 import dashboardsMethods from '../../dashboards-repository';
 import Iconify from 'src/components/iconify';
 import IndicesComponent from './components/indices-component';
+import first from 'lodash/first';
 import last from 'lodash/last';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
@@ -43,6 +45,7 @@ export default function OverviewAppView() {
   const settings = useSettingsContext();
   const router = useRouter();
   const { user } = useContext(AuthContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -56,10 +59,12 @@ export default function OverviewAppView() {
   const [zonaFiltro, setZonaFiltro] = useState([]);
 
   const [filters, setFilters] = useState({
+    anoLetivo: '',
     zona: zonaFiltro,
     escola: [],
     turma: [],
-    bimestre: '',});
+    bimestre: '',
+  });
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
@@ -94,11 +99,10 @@ export default function OverviewAppView() {
     return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
   };
 
-
   // TODO: resolver indice de fases geral
   const getIndices = async (anoEscolar) => {
-    console.log(filters)
     const fullFilters = {
+      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
@@ -110,13 +114,17 @@ export default function OverviewAppView() {
         ...prevState,
         [`indice_fases_${anoEscolar}_ano`]: {},
       }));
-      return
+      return;
     }
-    
+
     dashboardsMethods
       .getDashboardIndiceFases({
         ...fullFilters,
-        turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : (filters.turma.length ? filters.turma.map((t)=> t.id) : null),
+        turma: anoEscolar
+          ? getTurmasPorAnoEscolar(anoEscolar)
+          : filters.turma.length
+          ? filters.turma.map((t) => t.id)
+          : null,
       })
       .then((response) => {
         if (response.data.chart?.series && response.data.chart?.series.length > 0) {
@@ -146,17 +154,22 @@ export default function OverviewAppView() {
 
   const preencheGraficos = async () => {
     isGettingGraphics.onTrue();
-    console.log('preencheGraficos');
-    console.log(filters)
+    console.log('preencheGraficos', filters);
     const fullFilters = {
+      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
+      bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
     };
 
     await Promise.all([
       dashboardsMethods
-        .getDashboardTotalUsuariosAtivos({ ddz: fullFilters.ddz, escola: fullFilters.escola })
+        .getDashboardTotalUsuariosAtivos({
+          ano_letivo: fullFilters.ano_letivo,
+          ddz: fullFilters.ddz,
+          escola: fullFilters.escola,
+        })
         .then((response) => {
           setDados((prevState) => ({
             ...prevState,
@@ -170,7 +183,11 @@ export default function OverviewAppView() {
         }));
       }),
       dashboardsMethods
-        .getDashboardTotalTurmasAtivas({ ddz: fullFilters.ddz, escola: fullFilters.escola })
+        .getDashboardTotalTurmasAtivas({
+          ano_letivo: fullFilters.ano_letivo,
+          ddz: fullFilters.ddz,
+          escola: fullFilters.escola,
+        })
         .then((response) => {
           setDados((prevState) => ({
             ...prevState,
@@ -208,9 +225,7 @@ export default function OverviewAppView() {
           );
           var turmasFiltered = turmas.filter((turma) =>
             escolasFiltered.map((escola) => escola.id).includes(turma.escola.id)
-          )
-          console.log(escolasFiltered)
-          console.log(turmasFiltered)
+          );
           setEscolasFiltered(escolasFiltered);
           setTurmasFiltered(turmasFiltered);
         }
@@ -250,6 +265,7 @@ export default function OverviewAppView() {
       preparacaoInicialRunned.onTrue();
       console.log('preparacaoInicial');
       await Promise.all([
+        buscaAnosLetivos(),
         buscaZonas(),
         buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
         buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
@@ -272,37 +288,45 @@ export default function OverviewAppView() {
           bimestre: last(bimestres),
         }));
       }
+      if (anosLetivos && anosLetivos.length) {
+        setFilters((prevState) => ({
+          ...prevState,
+          anoLetivo: first(anosLetivos),
+        }));
+      }
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {}, [contextReady.value]);
 
-  useEffect(()  => {
+  useEffect(() => {
     let zf = [];
     if (user?.funcao_usuario?.length > 0) {
-      if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-        zf = [user?.funcao_usuario[0]?.zona]
+      if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
+        zf = [user?.funcao_usuario[0]?.zona];
       } else {
-        zf = [user?.funcao_usuario[0]?.escola?.zona]
-      }  
+        zf = [user?.funcao_usuario[0]?.escola?.zona];
+      }
     }
-    setZonaFiltro(zf)
+    setZonaFiltro(zf);
     setFilters({
+      anoLetivo: '',
       zona: zf,
       escola: [],
       turma: [],
       bimestre: '',
-    })
+    });
   }, []);
 
   const filtroReset = () => {
     setFilters({
+      anoLetivo: first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
-      bimestre: '',
-    })
-  }
+      bimestre: last(bimestres),
+    });
+  };
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
@@ -357,6 +381,7 @@ export default function OverviewAppView() {
               <OverviewTableToolbar
                 filters={filters}
                 onFilters={handleFilters}
+                anoLetivoOptions={anosLetivos}
                 zonaOptions={zonas}
                 escolaOptions={_escolasFiltered || escolas}
                 turmaOptions={_turmasFiltered || turmas}
@@ -364,13 +389,17 @@ export default function OverviewAppView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={preencheGraficos}>
-                Aplicar filtro
+              <Button variant="contained" color="primary" onClick={preencheGraficos}>
+                Aplicar filtros
               </Button>
-            </Grid>
-            <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={filtroReset}>
-                Resetar filtro
+
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={filtroReset}
+                sx={{ margin: { left: 4 } }}
+              >
+                Limpar
               </Button>
             </Grid>
           </Stack>
