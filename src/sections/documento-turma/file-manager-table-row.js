@@ -238,7 +238,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           Download
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
             share.onTrue();
@@ -246,7 +246,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         >
           <Iconify icon="solar:share-bold" />
           Disponibilizar
-        </MenuItem>
+        </MenuItem> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

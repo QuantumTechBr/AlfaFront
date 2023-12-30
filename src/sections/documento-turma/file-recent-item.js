@@ -176,7 +176,7 @@ export default function FileRecentItem({ file, onDelete, sx, ...other }) {
           Copiar Link
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
             share.onTrue();
@@ -184,7 +184,7 @@ export default function FileRecentItem({ file, onDelete, sx, ...other }) {
         >
           <Iconify icon="solar:share-bold" />
           Disponibilizar
-        </MenuItem>
+        </MenuItem> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

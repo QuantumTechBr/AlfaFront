@@ -20,6 +20,7 @@ import ptBR from 'date-fns/locale/pt-BR';
 // utils
 import uuidv4 from 'src/utils/uuidv4';
 import { fTimestamp } from 'src/utils/format-time';
+import { useAuthContext } from 'src/auth/hooks';
 // api
 import { createEvent, updateEvent, deleteEvent } from 'src/api/calendar';
 // components
@@ -37,6 +38,9 @@ export default function CalendarForm({ currentEvent, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  
+  const { checkPermissaoModulo } = useAuthContext();
+  const permissaoEditar = checkPermissaoModulo("calendario","editar");
 
   // console.table(currentEvent);
 
@@ -109,7 +113,7 @@ export default function CalendarForm({ currentEvent, onClose }) {
     }
   }, [currentEvent?.id, enqueueSnackbar, onClose]);
 
-  const isEditavel = currentEvent?.editavel ?? true;
+  const isEditavel = (currentEvent?.editavel && permissaoEditar) ?? true;
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
