@@ -47,10 +47,12 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 }
               })
               const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
-              alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
-              alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
-              alunosTurma[searchIndex].id_registro = registro.id;
-              alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
+              if (searchIndex >= 0) {
+                alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
+                alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
+                alunosTurma[searchIndex].id_registro = registro.id;
+                alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
+              }
             });
             setAlunosTurma(alunosTurma);
             prep.onTrue();
@@ -111,10 +113,12 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
               }
             })
             const searchIndex = alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
-            alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
-            alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
-            alunosTurma[searchIndex].id_registro = registro.id;
-            alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem;
+              if (searchIndex >= 0) {
+                alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
+                alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
+                alunosTurma[searchIndex].id_registro = registro.id;
+                alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
+              }
           });
           setAlunosTurma(alunosTurma);
           prep.onTrue();
