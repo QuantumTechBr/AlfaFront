@@ -69,14 +69,14 @@ const defaultFilters = {
 
 export default function TurmaListView() {
 
-  const { user } = useContext(AuthContext);
+  const { checkPermissaoModulo } = useContext(AuthContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const preparado = useBoolean(false);
   
-  const checkProfessor = user?.funcao_usuario[0]?.funcao?.nome == 'PROFESSOR';
+  const permissaoCadastrar = checkPermissaoModulo("turma","cadastrar");
 
   let TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
@@ -223,7 +223,7 @@ export default function TurmaListView() {
             { name: 'Listar' },
           ]}
           // TODO: trocar por teste de permissão
-          action={!checkProfessor &&
+          action={permissaoCadastrar &&
             <Button
               component={RouterLink}
               href={paths.dashboard.turma.new}

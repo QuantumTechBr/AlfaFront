@@ -55,7 +55,7 @@ import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendiza
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
-import { RegistroAprendizagemProvider } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -78,6 +78,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const prep = useBoolean(false);
   const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
+  const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const [tableData, setTableData] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
@@ -221,6 +222,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
         throw error;
       });
+      limparMapCache();
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_fase);
     } catch (error) {
@@ -304,7 +306,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               />
             )}
 
-            <RegistroAprendizagemProvider>
               <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
                 <Scrollbar>
                 {!prep.value ? (
@@ -340,7 +341,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                   </Table> )}
                 </Scrollbar>
               </TableContainer>                  
-            </RegistroAprendizagemProvider>
 
             <TablePaginationCustom
               hidden

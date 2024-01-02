@@ -14,6 +14,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import Logo from 'src/components/logo';
 import SvgColor from 'src/components/svg-color';
 import { useSettingsContext } from 'src/components/settings';
+import { useAuthContext } from 'src/auth/hooks';
 //
 import { HEADER, NAV } from '../config-layout';
 import {
@@ -24,11 +25,13 @@ import {
   ContactsPopover,
   NotificationsPopover,
 } from '../_common';
+import { Box, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
+  const { user, logout } = useAuthContext();
 
   const settings = useSettingsContext();
 
@@ -41,6 +44,12 @@ export default function Header({ onOpenNav }) {
   const offset = useOffSetTop(HEADER.H_DESKTOP);
 
   const offsetTop = offset && !isNavHorizontal;
+
+  const showEscolaInfo =
+    user?.permissao_usuario[0]?.nome == 'PROFESSOR' ||
+    user?.permissao_usuario[0]?.nome == 'DIRETOR';
+  const showDDZInfo = user?.permissao_usuario[0]?.nome == 'ASSESSOR DDZ';
+  const showFullInfo = showEscolaInfo || showDDZInfo;
 
   const renderContent = (
     <>
@@ -61,13 +70,39 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1 }}
       >
-     {/* <LanguagePopover /> */ }
+        {/* <LanguagePopover /> */}
 
-        <NotificationsPopover />
+        {/* <NotificationsPopover /> */}
 
         {/* <ContactsPopover /> */}
 
-        <SettingsButton />
+        {/* <SettingsButton /> */}
+
+        <Box>
+          <Typography align="right" variant="subtitle2" noWrap>
+            {user?.nome}
+            {showFullInfo ? ` - ${user?.funcao_usuario[0]?.funcao?.nome}` : ''}
+          </Typography>
+
+          <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
+            {showEscolaInfo
+              ? [
+                  user?.funcao_usuario[0]?.escola?.nome,
+                  user?.funcao_usuario[0]?.escola?.cidade?.nome,
+                  user?.funcao_usuario[0]?.escola?.zona?.nome,
+                ].join(' - ')
+              : null}
+
+            {showDDZInfo
+              ? [
+                  user?.funcao_usuario[0]?.zona?.cidade?.nome,
+                  user?.funcao_usuario[0]?.zona?.nome,
+                ].join(' - ')
+              : null}
+
+            {!showFullInfo ? user?.permissao_usuario[0]?.nome : null}
+          </Typography>
+        </Box>
 
         <AccountPopover />
       </Stack>

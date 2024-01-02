@@ -198,7 +198,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
           Copiar Link
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
             share.onTrue();
@@ -206,7 +206,7 @@ export default function FileManagerFileItem({ file, selected, onSelect, onDelete
         >
           <Iconify icon="solar:share-bold" />
           Disponibilizar
-        </MenuItem>
+        </MenuItem> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

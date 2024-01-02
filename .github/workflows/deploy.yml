@@ -15,3 +15,12 @@ jobs:
 
     - name: Checkout the files
       uses: actions/checkout@v2
+    
+    - name: ssh deploy
+      uses: easingthemes/ssh-deploy@v3
+      with:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_TARGET }}
+          EXCLUDE: "/dist/, /node_modules/"

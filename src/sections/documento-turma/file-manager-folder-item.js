@@ -208,7 +208,7 @@ export default function FileManagerFolderItem({
           Copy Link
         </MenuItem>
 
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
             share.onTrue();
@@ -216,7 +216,7 @@ export default function FileManagerFolderItem({
         >
           <Iconify icon="solar:share-bold" />
           Disponibilizar
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {

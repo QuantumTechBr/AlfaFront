@@ -52,9 +52,7 @@ export default function AccountPopover() {
 
   const router = useRouter();
 
-  const { user } = useAuthContext();
-
-  const { logout } = useAuthContext();
+  const { user, logout } = useAuthContext();
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -108,10 +106,10 @@ export default function AccountPopover() {
       >
         <Avatar
           src={user?.photoURL}
-          alt={"teste"}
+          alt={'teste'}
           sx={{
-            width: 36,
-            height: 36,
+            width: 45,
+            height: 45,
             border: (theme) => `solid 2px ${theme.palette.background.default}`,
           }}
         />
@@ -120,11 +118,11 @@ export default function AccountPopover() {
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 200, p: 0 }}>
         <Box sx={{ p: 2, pb: 1.5 }}>
           <Typography variant="subtitle2" noWrap>
-            { user?.nome }
+            {user?.nome}
           </Typography>
 
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            { user?.email }
+            {user?.email}
           </Typography>
         </Box>
 
@@ -139,7 +137,7 @@ export default function AccountPopover() {
         </Stack> */}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
-            
+
         <Tooltip title="Fazer Logout">
           <MenuItem
             onClick={handleOpen}
@@ -148,16 +146,17 @@ export default function AccountPopover() {
             Logout
           </MenuItem>
         </Tooltip>
-        <Modal
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="modal-modal-title"
-        >
+        <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title">
           <Box sx={style}>
             <Typography id="modal-modal-title" variant="h6" component="h2">
               Deseja sair?
             </Typography>
-            <Button variant="contained" color="success" onClick={handleLogout} sx={{ mt: 2, marginRight: 2 }}>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={handleLogout}
+              sx={{ mt: 2, marginRight: 2 }}
+            >
               Sim
             </Button>
             <Button variant="outlined" color="error" onClick={handleClose} sx={{ mt: 2 }}>
@@ -165,7 +164,6 @@ export default function AccountPopover() {
             </Button>
           </Box>
         </Modal>
-      
       </CustomPopover>
     </>
   );

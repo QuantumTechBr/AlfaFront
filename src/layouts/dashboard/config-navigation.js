@@ -1,5 +1,7 @@
 import { useMemo, useContext } from 'react';
+// auth
 import { AuthContext } from 'src/auth/context/alfa';
+import { useAuthContext } from 'src/auth/hooks';
 // routes
 import { paths } from 'src/routes/paths';
 // locales
@@ -58,6 +60,7 @@ const ICONS = {
 export function useNavData() {
   const { t } = useLocales();
   const { user } = useContext(AuthContext);
+  const { checkPermissaoModulo } = useAuthContext();
 
   let items = [];
 
@@ -186,21 +189,22 @@ export function useNavData() {
         });
       }
 
-      if (modulosPermitidos.includes("usuario")) {
+      if (checkPermissaoModulo("profissionais","acesso")) {
         items.push({
           title: 'Profissionais da Educação',
           path: paths.dashboard.profissional.list,
           icon: ICONS.alfaClipboardAccount,
         })
       }
-      if (modulosPermitidos.includes("aluno")) {
+      if (checkPermissaoModulo("aluno","acesso")) {
         items.push({
           title: 'Lista de Estudantes',
           path: paths.dashboard.aluno.list,
           icon: ICONS.alfaStudent,
         })
       }
-      if (modulosPermitidos.includes("calendario")) {
+      
+      if (checkPermissaoModulo("calendario","acesso")) {
         items.push({
           title: 'Lista de Anos Letivos',
           path: paths.dashboard.calendar,
@@ -210,18 +214,25 @@ export function useNavData() {
           ],
         })
       }
-      if (modulosPermitidos.includes("turma")) {
+      
+      const turmaModuloChildren = [];
+        
+      if (checkPermissaoModulo("turma","acesso")) {
+        turmaModuloChildren.push({ title: 'Lista de Turmas', path: paths.dashboard.turma.list });
+      }
+      if (checkPermissaoModulo("documento_turma","acesso")) {
+        turmaModuloChildren.push({ title: 'Documentos de Intervenção', path: paths.dashboard.documento_turma },);
+      }
+      if (turmaModuloChildren.length){
         items.push({
           title: 'Turmas',
           path: paths.dashboard.turma.list,
           icon: ICONS.alfaBookAccount,
-          children: [
-            { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-            { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma }
-          ],
-        });
+          children: turmaModuloChildren,
+        })
       }
-      if (modulosPermitidos.includes("registro_aprendizagem")) {
+      
+      if (checkPermissaoModulo("registro_aprendizagem","acesso")) {
         items.push({ 
           title: t('avaliações'), 
           path: paths.dashboard.registro_aprendizagem.root,
@@ -244,10 +255,11 @@ export function useNavData() {
       }
 
       const redesEnsinoModuloChildren = [];
-      if (modulosPermitidos.includes("zonas")) {
+        
+      if (checkPermissaoModulo("zonas","acesso")) {
         redesEnsinoModuloChildren.push({ title: 'Lista de DDZ', path: paths.dashboard.zona.list });
       }
-      if (modulosPermitidos.includes("escola")) {
+      if (checkPermissaoModulo("escola","acesso")) {
         redesEnsinoModuloChildren.push({ title: 'Lista de Escolas', path: paths.dashboard.escola.list },);
       }
       if (redesEnsinoModuloChildren.length){
@@ -259,7 +271,7 @@ export function useNavData() {
         })
       }
 
-      if (modulosPermitidos.includes("documentos")) {
+      if (checkPermissaoModulo("documentos","acesso")) {
         items.push({
           title: t('Documentos Administrativos'),
           path: paths.dashboard.documento,
