@@ -184,14 +184,14 @@ export default function OverviewTableToolbar({
               width: { xs: 1, md: 230 },
             }}
           >
-            <InputLabel size="small">Turmas</InputLabel>
+            <InputLabel size="small">Ano - Turma</InputLabel>
 
             <Select
               size="small"
               multiple
               value={filters.turma}
               onChange={handleFilterTurma}
-              input={<OutlinedInput fullWidth label="Turmas" />}
+              input={<OutlinedInput fullWidth label="Ano - Turma" />}
               renderValue={renderValueTurma}
               MenuProps={{
                 PaperProps: {
