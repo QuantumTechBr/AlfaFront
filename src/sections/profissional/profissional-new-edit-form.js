@@ -40,12 +40,13 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
+import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
 export default function ProfissionalNewEditForm({ currentUser }) {
   const router = useRouter();
-
+  const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -190,6 +191,14 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     }
   }
 
+  const desabilitaMudarFuncao = () => {
+    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
+      console.log(user?.funcao_usuario[0]?.funcao?.nome)
+      return currentUser ? true : false
+    }
+    return false
+  }
+
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
@@ -209,7 +218,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-              <RHFSelect name="funcao" label="Função">
+              <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
                 {funcoes.map((funcao) => (
                   <MenuItem key={funcao.id} value={funcao.id}>
                     {funcao.nome}
