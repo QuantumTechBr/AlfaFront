@@ -14,6 +14,7 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import userMethods from './user-repository';
 
 // ----------------------------------------------------------------------
 
@@ -190,45 +191,39 @@ export default function UserTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
           }}
         >
           <Iconify icon="solar:printer-minimalistic-bold" />
           Imprimir
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            userMethods.exportFile(query);
             popover.onClose();
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }

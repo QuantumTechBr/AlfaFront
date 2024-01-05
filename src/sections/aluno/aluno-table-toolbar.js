@@ -14,6 +14,7 @@ import Checkbox from '@mui/material/Checkbox';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import alunoMethods from './aluno-repository';
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +23,7 @@ export default function AlunoTableToolbar({
   onFilters,
   escolaOptions,
   turmaOptions,
-  faseOptions
+  faseOptions,
 }) {
   const popover = usePopover();
 
@@ -70,22 +71,28 @@ export default function AlunoTableToolbar({
     [onFilters]
   );
 
-  const renderValueEscola = (selected) => 
-    selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  const renderValueEscola = (selected) =>
+    selected
+      .map((escolaId) => {
+        return escolaOptions.find((option) => option.id == escolaId)?.nome;
+      })
+      .join(', ');
 
-  const renderValueTurma = (selected) => 
-    selected.map((turmaId) => {
-      let turma = turmaOptions.find((option) => option.id == turmaId);
-      return turma?.ano_escolar.concat('º ', turma?.nome);
-    }).join(', ');  
+  const renderValueTurma = (selected) =>
+    selected
+      .map((turmaId) => {
+        let turma = turmaOptions.find((option) => option.id == turmaId);
+        return turma?.ano_escolar.concat('º ', turma?.nome);
+      })
+      .join(', ');
 
-  const renderValueFase = (selected) => 
-    selected.map((fase) => {
-      return faseOptions.find((option) => option == fase);
-    }).join(', ');  
-    
+  const renderValueFase = (selected) =>
+    selected
+      .map((fase) => {
+        return faseOptions.find((option) => option == fase);
+      })
+      .join(', ');
+
   return (
     <>
       <Stack
@@ -100,7 +107,6 @@ export default function AlunoTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
@@ -129,137 +135,136 @@ export default function AlunoTableToolbar({
             }}
           />
 
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
             }}
           >
-            {escolaOptions?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>Escola</InputLabel>
 
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 100 },
-          }}
-        >
-          <InputLabel>Turma</InputLabel>
+            <Select
+              multiple
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              input={<OutlinedInput label="Escola" />}
+              renderValue={renderValueEscola}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions?.map((escola) => (
+                <MenuItem key={escola.id} value={escola.id}>
+                  <Checkbox
+                    disableRipple
+                    size="small"
+                    checked={filters.escola.includes(escola.id)}
+                  />
+                  {escola.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
 
-          <Select
-            multiple
-            value={filters.turma}
-            onChange={handleFilterTurma}
-            input={<OutlinedInput label="Turma" />}
-            renderValue={renderValueTurma}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 100 },
             }}
           >
-            {turmaOptions?.map((turma) => (
-              <MenuItem key={turma.id} value={turma.id}>
-                <Checkbox disableRipple size="small" checked={filters.turma.includes(turma.id)} />
-                {turma.ano_escolar}º {turma.nome}
-              </MenuItem>
-            ))}
-          </Select>
+            <InputLabel>Turma</InputLabel>
 
-        </FormControl>
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 100 },
-          }}
-        >
-          <InputLabel>Fase</InputLabel>
-
-          <Select
-            multiple
-            value={filters.fase}
-            onChange={handleFilterFase}
-            input={<OutlinedInput label="Fase" />}
-            renderValue={renderValueFase}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+            <Select
+              multiple
+              value={filters.turma}
+              onChange={handleFilterTurma}
+              input={<OutlinedInput label="Turma" />}
+              renderValue={renderValueTurma}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {turmaOptions?.map((turma) => (
+                <MenuItem key={turma.id} value={turma.id}>
+                  <Checkbox disableRipple size="small" checked={filters.turma.includes(turma.id)} />
+                  {turma.ano_escolar}º {turma.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 100 },
             }}
           >
-            {faseOptions?.map((fase) => (
-              <MenuItem key={fase} value={fase}>
-                <Checkbox disableRipple size="small" checked={filters.fase.includes(fase)} />
-                {fase}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>Fase</InputLabel>
 
-          {/* <IconButton onClick={popover.onOpen}>
+            <Select
+              multiple
+              value={filters.fase}
+              onChange={handleFilterFase}
+              input={<OutlinedInput label="Fase" />}
+              renderValue={renderValueFase}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {faseOptions?.map((fase) => (
+                <MenuItem key={fase} value={fase}>
+                  <Checkbox disableRipple size="small" checked={filters.fase.includes(fase)} />
+                  {fase}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
           }}
         >
           <Iconify icon="solar:printer-minimalistic-bold" />
           Imprimir
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            alunoMethods.exportFile(query);
             popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
+            // window.open(alunoMethods.exportFile(query));
+            // router.push(paths.dashboard.post.details(title));
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }
 
 AlunoTableToolbar.propTypes = {
   filters: PropTypes.object,
-  onFilters: PropTypes.func
+  onFilters: PropTypes.func,
 };
