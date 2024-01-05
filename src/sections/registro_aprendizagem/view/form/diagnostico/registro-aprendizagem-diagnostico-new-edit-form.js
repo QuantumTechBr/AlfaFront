@@ -18,6 +18,8 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import Alert from '@mui/material/Alert';
 import Label from 'src/components/label';
 import { Box } from '@mui/material';
+import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import { useContext } from 'react';
 
 
 // ----------------------------------------------------------------------
@@ -26,6 +28,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const router = useRouter();
+  const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -123,6 +126,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
         throw error;
       });
+      limparMapCache();
       reset();
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
