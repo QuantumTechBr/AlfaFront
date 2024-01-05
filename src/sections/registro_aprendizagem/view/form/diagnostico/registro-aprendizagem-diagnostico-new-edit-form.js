@@ -134,7 +134,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
       <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
         {habilidades_options.map((hab) => (
           hab === '' ? ('') :
