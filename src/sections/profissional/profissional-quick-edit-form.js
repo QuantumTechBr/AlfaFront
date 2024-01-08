@@ -28,13 +28,14 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import permissaoMethods from '../permissao/permissao-repository';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { ZonasContext } from '../zona/context/zona-context';
- 
+import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
 export default function ProfissionalQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   const assessor = useBoolean(false);
+  const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -163,6 +164,13 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
     }
   });
 
+  const desabilitaMudarFuncao = () => {
+    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
+      return true 
+    }
+    return false
+  }
+
   const handleFuncao = (event) => {
     setValue('funcao', event.target.value)
     if (event.target.value == '775bb893-032d-492a-b94b-4909e9c2aeab') {
@@ -204,7 +212,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
             <RHFTextField name="email" label="Email" />
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="funcao" label="Função" value={funcaoUsuario} onChange={handleFuncao}>
+            <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()} value={funcaoUsuario} onChange={handleFuncao}>
               {funcoes.map((_funcao) => (
                 <MenuItem key={_funcao.id} value={_funcao.id}>
                   {_funcao.nome}
