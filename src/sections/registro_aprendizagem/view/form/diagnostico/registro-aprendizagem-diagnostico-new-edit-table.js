@@ -34,7 +34,7 @@ import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
-export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma, prep }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
   const defaultFilters = {
     nome: '',
     promo_ano_anterior: [],
@@ -141,8 +141,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
           <TableContainer sx={{ position: 'relative',overflow: 'unset', }}  >
             <Scrollbar sx={{
               "& .simplebar-scrollbar": {
-                "background-color": "#D3D3D3",
-                'border-radius': 10,
+                "backgroundColor": "#D3D3D3",
+                'borderRadius': 10,
               },
              }}>
             {!preparado.value ? (
@@ -169,6 +169,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
                         key={row.id}
                         row={row}
                         habilidades={habilidades}
+                        periodo={periodo}
                         />
                         ))}
 
@@ -202,6 +203,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
 
 RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
   turma: PropTypes.object,
+  periodo: PropTypes.string,
   alunosTurma: PropTypes.array,
   habilidades: PropTypes.array,
   handleTurma: PropTypes.func,
