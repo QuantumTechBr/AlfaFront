@@ -162,6 +162,13 @@ export function useNavData() {
         icon: ICONS.folder,
       },
 
+      // Plano de Intervenção
+      {
+        title: t('Plano de Intervenção'),
+        path: paths.dashboard.plano_intervencao.list,
+        icon: ICONS.folder,
+      },
+
     ]
   } else {
     try {
@@ -275,6 +282,14 @@ export function useNavData() {
         items.push({
           title: t('Documentos Administrativos'),
           path: paths.dashboard.documento,
+          icon: ICONS.folder,
+        });
+      }
+
+      if (checkPermissaoModulo("plano_intervencao","acesso")) {
+        items.push({
+          title: t('Plano de Intervenção'),
+          path: paths.dashboard.plano_de_intervencao.list,
           icon: ICONS.folder,
         });
       }

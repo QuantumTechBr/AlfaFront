@@ -162,6 +162,17 @@ export const paths = {
         edit: `${ROOTS.DASHBOARD}/profissional/${MOCK_ID}/edit`,
       },
     },
+    plano_intervencao: {
+      root: `${ROOTS.DASHBOARD}/plano_intervencao/list`,
+      new: `${ROOTS.DASHBOARD}/plano_intervencao/new`,
+      list: `${ROOTS.DASHBOARD}/plano_intervencao/list`,
+      cards: `${ROOTS.DASHBOARD}/plano_intervencao/cards`,
+      account: `${ROOTS.DASHBOARD}/plano_intervencao/account`,
+      edit: (id) => `${ROOTS.DASHBOARD}/plano_intervencao/${id}/edit`,
+      demo: {
+        edit: `${ROOTS.DASHBOARD}/plano_de_intervencao/${MOCK_ID}/edit`,
+      },
+    },
     registro_aprendizagem: {
       root: `${ROOTS.DASHBOARD}/registro_aprendizagem`,
       root_diagnostico: `${ROOTS.DASHBOARD}/registro_aprendizagem/diagnostico/list`,
