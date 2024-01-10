@@ -15,6 +15,7 @@ import Checkbox from '@mui/material/Checkbox';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import alunoMethods from './aluno-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -250,7 +251,9 @@ export default function AlunoTableToolbar({
           onClick={() => {
             let exportFilters = { ...filters, export: 'csv' };
             let query = new URLSearchParams(exportFilters).toString();
-            alunoMethods.exportFile(query);
+            alunoMethods.exportFile(query).then((csvFile) => {
+              saveCSVFile('Estudantes', csvFile.data);
+            });
             popover.onClose();
             // window.open(alunoMethods.exportFile(query));
             // router.push(paths.dashboard.post.details(title));

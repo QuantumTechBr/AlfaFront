@@ -15,6 +15,7 @@ import Select from '@mui/material/Select';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import userMethods from './user-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -66,14 +67,18 @@ export default function UserTableToolbar({
   );
 
   const renderValueFuncao = (selected) =>
-    selected.map((funcaoId) => {
-      return roleOptions.find((option) => option.id == funcaoId)?.nome;
-    }).join(', ');
+    selected
+      .map((funcaoId) => {
+        return roleOptions.find((option) => option.id == funcaoId)?.nome;
+      })
+      .join(', ');
 
-  const renderValueEscola = (selected) => 
-    selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  const renderValueEscola = (selected) =>
+    selected
+      .map((escolaId) => {
+        return escolaOptions.find((option) => option.id == escolaId)?.nome;
+      })
+      .join(', ');
 
   return (
     <>
@@ -118,7 +123,7 @@ export default function UserTableToolbar({
           </Select>
         </FormControl>
 
-       {/* <FormControl
+        {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 100 },
@@ -216,7 +221,9 @@ export default function UserTableToolbar({
           onClick={() => {
             let exportFilters = { ...filters, export: 'csv' };
             let query = new URLSearchParams(exportFilters).toString();
-            userMethods.exportFile(query);
+            userMethods.exportFile(query).then((csvFile) => {
+              saveCSVFile('Usuários', csvFile.data);
+            });
             popover.onClose();
           }}
         >

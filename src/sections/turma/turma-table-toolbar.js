@@ -14,13 +14,14 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import turmaMethods from './turma-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
 export default function TurmaTableToolbar({
   filters,
   onFilters,
-  //roleOptions,
   ddzOptions,
   escolaOptions,
 }) {
@@ -147,19 +148,19 @@ export default function TurmaTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
           }}
@@ -175,17 +176,22 @@ export default function TurmaTableToolbar({
         >
           <Iconify icon="solar:import-bold" />
           Importar
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            turmaMethods.exportFile(query).then((csvFile) => {
+              saveCSVFile('Turmas', csvFile.data);
+            });
             popover.onClose();
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }
@@ -193,7 +199,7 @@ export default function TurmaTableToolbar({
 TurmaTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  // roleOptions: PropTypes.array,
+
   ddzOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
 };
