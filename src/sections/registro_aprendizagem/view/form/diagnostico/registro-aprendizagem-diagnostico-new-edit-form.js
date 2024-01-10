@@ -18,6 +18,8 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import Alert from '@mui/material/Alert';
 import Label from 'src/components/label';
 import { Box } from '@mui/material';
+import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import { useContext } from 'react';
 
 
 // ----------------------------------------------------------------------
@@ -26,6 +28,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const router = useRouter();
+  const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -123,6 +126,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
         throw error;
       });
+      limparMapCache();
       reset();
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
@@ -134,7 +138,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
       <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
         {habilidades_options.map((hab) => (
           hab === '' ? ('') :

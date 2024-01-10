@@ -333,7 +333,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
       await Promise.all([
         dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
-          console.log(response.data);
           setDadosGrafico((prevState) => ({
             ...prevState,
             avaliacao_diagnostico: response.data,
