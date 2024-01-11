@@ -3,13 +3,17 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
-import { useTheme } from '@mui/material/styles';
+import { alpha, useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
-// hooks
+
+// theme
+import { textGradient } from 'src/theme/css';
+
+// contexts
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -19,27 +23,32 @@ import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
+
 // components
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { first, last } from 'lodash';
+import LoadingBox from 'src/components/helpers/loading-box';
+import Iconify from 'src/components/iconify';
+
 // assets
 import { RegistroAprendizagemFases } from 'src/_mock';
-//
-import AppWidgetSummary from '../app-widget-summary';
-import AppDesempenhoAlunos from '../app-desempenho-alunos';
 
 // ----------------------------------------------------------------------
-import OverviewTableToolbar from './overview-table-toolbar';
-import NovaAvaliacaoForm from '../../../registro_aprendizagem/registro-aprendizagem-modal-form';
-import dashboardsMethods from '../../dashboards-repository';
-import Iconify from 'src/components/iconify';
-import IndicesComponent from './components/indices-component';
-import first from 'lodash/first';
-import last from 'lodash/last';
-import LoadingBox from 'src/components/helpers/loading-box';
+import DashboardRedeTableToolbar from './dashboard-rede-table-toolbar';
+import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
+import dashboardsMethods from 'src/sections/overview/dashboards-repository';
+
 import { AuthContext } from 'src/auth/context/alfa';
 
-export default function OverviewAppView() {
+//
+import NumerosWidget from '../../components/numeros-widget';
+import IndicesComponentWidget from '../../components/indices-component-widget';
+import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
+
+export default function DashboardRedeView() {
+  const ICON_SIZE = 65;
+
   const theme = useTheme();
   const settings = useSettingsContext();
   const router = useRouter();
@@ -376,7 +385,7 @@ export default function OverviewAppView() {
             sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
           >
             <Grid xs={12} md="auto">
-              <OverviewTableToolbar
+              <DashboardRedeTableToolbar
                 filters={filters}
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}
@@ -387,52 +396,67 @@ export default function OverviewAppView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" color="primary" onClick={preencheGraficos}>
+              <Button variant="contained" onClick={preencheGraficos}>
                 Aplicar filtros
               </Button>
 
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={filtroReset}
-                sx={{ margin: { left: 4 } }}
-              >
+              <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
                 Limpar
               </Button>
             </Grid>
           </Stack>
 
           <Grid xs={12} md={4}>
-            <AppWidgetSummary
+            <NumerosWidget
               title="Total de Usuários Ativos"
               percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
               chart={{
                 series: dados.total_usuarios_ativos.chart ?? [],
               }}
+              icon={
+                <Iconify
+                  width={ICON_SIZE}
+                  icon="bi:people-fill"
+                  sx={{
+                    // ...textGradient({
+                    //   direction: '135deg',
+                    //   startColor: theme.palette['primary'].main,
+                    //   endColor: theme.palette['primary'].main,
+                    // }),
+                    color: theme.palette['primary'].main,
+                  }}
+                />
+              }
             />
           </Grid>
           <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Total de Estudantes Cadastrados"
+            <NumerosWidget
+              title="Total de Estudantes Avaliados"
               percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
               chart={{
                 colors: [theme.palette.info.light, theme.palette.info.main],
                 series: dados.total_alunos_ativos.chart?.series ?? [],
               }}
+              icon={
+                <Iconify
+                  width={ICON_SIZE}
+                  icon="bi:people-fill"
+                  sx={{
+                    ...textGradient({
+                      direction: '90deg',
+                      startColor: theme.palette['primary'].light,
+                      endColor: theme.palette['primary'].main,
+                    }),
+                    color: theme.palette['primary'].main,
+                  }}
+                />
+              }
             />
           </Grid>
           <Grid xs={12} md={4}>
-            <AppWidgetSummary
-              title="Número de Turmas Ativas"
-              percent={dados.total_turmas_ativas.percent}
-              total={dados.total_turmas_ativas.total}
-              chart={{
-                colors: [theme.palette.warning.light, theme.palette.warning.main],
-                series: dados.total_turmas_ativas.chart?.series ?? [],
-              }}
-            />
+            {/* META */}
           </Grid>
 
           {!!isGettingGraphics.value && (
@@ -443,57 +467,45 @@ export default function OverviewAppView() {
 
           {!isGettingGraphics.value &&
             (dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-              <IndicesComponent
+              <IndicesComponentWidget
                 key="indices_component_1_ano"
                 ano_escolar={1}
                 indice_fases={dados.indice_fases_1_ano}
                 indice_aprovacao={dados.indice_aprovacao_1_ano}
-                bimestres={bimestres}
-                selectedBimestre={filters.bimestre}
-                onChangeBimestre={handleChangeBimestreFn}
               />
             )}
           {!isGettingGraphics.value &&
             (dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-              <IndicesComponent
+              <IndicesComponentWidget
                 key="indices_component_2_ano"
                 ano_escolar={2}
                 indice_fases={dados.indice_fases_2_ano}
                 indice_aprovacao={dados.indice_aprovacao_2_ano}
-                bimestres={bimestres}
-                selectedBimestre={filters.bimestre}
-                onChangeBimestre={handleChangeBimestreFn}
               />
             )}
           {!isGettingGraphics.value &&
             (dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-              <IndicesComponent
+              <IndicesComponentWidget
                 key="indices_component_3_ano"
                 ano_escolar={3}
                 indice_fases={dados.indice_fases_3_ano}
                 indice_aprovacao={dados.indice_aprovacao_3_ano}
-                bimestres={bimestres}
-                selectedBimestre={filters.bimestre}
-                onChangeBimestre={handleChangeBimestreFn}
               />
             )}
           {!isGettingGraphics.value &&
             (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
-              <IndicesComponent
+              <IndicesComponentWidget
                 key="indices_component_geral"
                 ano_escolar="Geral"
                 indice_fases={dados.indice_fases_geral}
                 indice_aprovacao={dados.indice_aprovacao_geral}
-                bimestres={bimestres}
-                selectedBimestre={filters.bimestre}
-                onChangeBimestre={handleChangeBimestreFn}
               />
             )}
         </Grid>
 
         {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
           <Grid xs={12}>
-            <AppDesempenhoAlunos
+            <DesempenhoAlunosWidget
               title="Desempenho dos Estudantes"
               subheader={dados.desempenho_alunos.subheader}
               chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
