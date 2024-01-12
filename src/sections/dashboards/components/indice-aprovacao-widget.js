@@ -1,36 +1,15 @@
 import PropTypes from 'prop-types';
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
-import CardHeader from '@mui/material/CardHeader';
 import Card from '@mui/material/Card';
-// utils
-import { fNumber } from 'src/utils/format-number';
+
 // components
 import Chart, { useChart } from 'src/components/chart';
-
-// ----------------------------------------------------------------------
-
-const CHART_HEIGHT = 400;
-
-const LEGEND_HEIGHT = 72;
-
-const StyledChart = styled(Chart)(({ theme }) => ({
-  height: CHART_HEIGHT,
-  '& .apexcharts-canvas, .apexcharts-inner, svg, foreignObject': {
-    height: `100% !important`,
-  },
-  '& .apexcharts-legend': {
-    height: LEGEND_HEIGHT,
-    borderTop: `dashed 1px ${theme.palette.divider}`,
-    top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
-  },
-}));
+import { Box, Stack, Typography } from '@mui/material';
+import { px } from 'framer-motion';
 
 // ----------------------------------------------------------------------
 
 export default function IndiceAprovacaoWidget({ title, subheader, series, options, ...other }) {
-  const theme = useTheme();
-
   const totalItems = series.reduce((total, item) => total + item.amount, 0);
   series.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
@@ -40,90 +19,57 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
   //   console.table(series);
 
   const colors = ['#009a50', '#d11400', '#006abc'];
-  const chartSeries = [
-    {
-      name: '',
-      data: series.map((element) => element.porcentagem),
-    },
-  ];
+
+  const chartSeries = series.map((element) => element.porcentagem);
+
+  const getLegend = () => {
+    return Object.entries(colors).map(([key, value]) => {
+      return (
+        <Stack direction="row" sx={{ px: 3, my: 0.8 }}>
+          <Box
+            sx={{ width: 20, height: 20, borderRadius: 0.5, mr: 2, backgroundColor: value }}
+          ></Box>
+          <Box>
+            <Typography variant="body2" fontWeight="600" color="black">
+              {series[key].name}
+            </Typography>
+          </Box>
+        </Stack>
+      );
+    });
+  };
 
   const chartOptions = useChart({
+    labels: series.map((element) => element.name),
+    total: { show: false },
+
     legend: {
       show: false,
-    },
-    plotOptions: {
-      bar: {
-        columnWidth: '100%',
-        distributed: true, // CORES AUTOMATICAS E BOLINHAS
-        borderRadius: 0,
-        dataLabels: {
-          position: 'top', // top, center, bottom
-        },
-      },
+      position: 'bottom',
     },
     colors: colors,
+    tooltip:{show:false},
 
-    dataLabels: {
-      enabled: true,
-      formatter: function (val) {
-        return `${val}%`;
-      },
-      dropShadow: {
-        enabled: true,
-      },
-      offsetY: 0,
-      style: {
-        fontSize: '14px',
-        colors: ['#fff'],
-      },
-    },
-    xaxis: {
-      categories: series.map((i) => i.name),
-      labels: {
-        show: true,
-        style: {
-          fontSize: '13px',
-          fontWeigth: 'bold',
-          colors: colors,
-        },
-      },
-    },
-    yaxis: {
-      labels: {
-        show: false,
-      },
-    },
-
-    tooltip: {
-      enabled: true,
-      followCursor: true,
-      onDatasetHover: {
-        highlightDataSeries: true,
-      },
-      y: {
-        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return series[dataPointIndex]?.amount ?? '-';
-        },
-        title: {
-          formatter: (s) => 'Quantidade: ',
-        },
-      },
-    },
     ...options,
   });
 
   return (
-    <Card {...other}>
-      <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
+    <Card {...other} sx={{ pb: 2 }}>
+      <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
+        {title}
+      </Typography>
 
       <Chart
         dir="ltr"
         width={'100%'}
-        type="bar"
+        type="donut"
         series={chartSeries}
         options={chartOptions}
-        height={290}
+        height={270}
+        sx={{ mb: 2 }}
       />
+
+      {getLegend()}
     </Card>
   );
 }

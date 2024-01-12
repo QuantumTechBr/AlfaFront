@@ -1,43 +1,17 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
 
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
-import CardHeader from '@mui/material/CardHeader';
-import ButtonBase from '@mui/material/ButtonBase';
-import Card from '@mui/material/Card';
-// utils
-import { fNumber } from 'src/utils/format-number';
+import { Box, Typography } from '@mui/material';
+
 // components
-import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import { RegistroAprendizagemFasesColors } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
-const CHART_HEIGHT = 400;
-
-const LEGEND_HEIGHT = 72;
-
-const StyledChart = styled(Chart)(({ theme }) => ({
-  height: CHART_HEIGHT,
-  '& .apexcharts-canvas, .apexcharts-inner, svg, foreignObject': {
-    height: `100% !important`,
-  },
-  '& .apexcharts-legend': {
-    height: LEGEND_HEIGHT,
-    borderTop: `dashed 1px ${theme.palette.divider}`,
-    top: `calc(${CHART_HEIGHT - LEGEND_HEIGHT}px) !important`,
-  },
-}));
-
-// ----------------------------------------------------------------------
-
 export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
-  const theme = useTheme();
-
-  const { series, options } = chart;
+  
+  const { series, options, height = 350 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {
@@ -57,9 +31,9 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
     },
     plotOptions: {
       bar: {
-        columnWidth: '100%',
+        columnWidth: '89%',
         distributed: true, // CORES AUTOMATICAS E BOLINHAS
-        borderRadius: 0,
+        borderRadius: 15,
         dataLabels: {
           position: 'top', // top, center, bottom
         },
@@ -72,7 +46,6 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
       formatter: function (val) {
         return `${val}%`;
       },
-      offsetY: 0,
       dropShadow: {
         enabled: true,
         color: ['#000'],
@@ -85,12 +58,15 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
     xaxis: {
       categories: series.map((i) => i.label),
       labels: {
-        show: false, // LEGENDA EIXO X
+        show: true,
       },
     },
     yaxis: {
       labels: {
-        show: false,
+        labels: {
+          show: true,
+        },
+        // todo add 0-100
       },
     },
 
@@ -109,13 +85,62 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
         },
       },
     },
+
+    toolbar: {
+      show: true,
+      offsetX: 0,
+      offsetY: 0,
+      tools: {
+        download: true,
+        selection: true,
+        zoom: false,
+        pan: false,
+        customIcons: [],
+      },
+      export: {
+        csv: {
+          filename: undefined,
+          columnDelimiter: ',',
+          headerCategory: 'category',
+          headerValue: 'value',
+          dateFormatter(timestamp) {
+            return new Date(timestamp).toDateString();
+          },
+        },
+        svg: {
+          filename: undefined,
+        },
+        png: {
+          filename: undefined,
+        },
+      },
+    },
+
+    stroke: {
+      show: false,
+    },
+
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'vertical',
+        shadeIntensity: 0.4,
+        inverseColors: false,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+      },
+    },
     ...options,
   });
 
   return (
     <>
-      <Card {...other}>
-        <CardHeader title={title} subheader={subheader} sx={{ mb: 0 }} />
+      <Box {...other}>
+        <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
+          {title}
+        </Typography>
 
         <Chart
           dir="ltr"
@@ -123,9 +148,9 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
           type="bar"
           series={chartSeries}
           options={chartOptions}
-          height={290}
+          height={height}
         />
-      </Card>
+      </Box>
     </>
   );
 }

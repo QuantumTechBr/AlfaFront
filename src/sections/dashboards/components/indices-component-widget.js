@@ -10,6 +10,7 @@ import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/
 import { slugify } from 'src/utils/functions';
 import GraficoColunasChart from './grafico-colunas-chart';
 import IndiceAprovacaoWidget from './indice-aprovacao-widget';
+import { Card, LinearProgress } from '@mui/material';
 
 export default function IndicesComponentWidget({
   ano_escolar,
@@ -30,30 +31,42 @@ export default function IndicesComponentWidget({
   const getFasesEmLinha = () => {
     return Object.entries(RegistroAprendizagemFases).map(([key, value]) => {
       return (
-        <Grid
-          key={`indice_fases_container_item_${slugify(title_indice_aprovacao)}_${key}`}
-          flexGrow={1}
-          flexBasis={0}
-        >
-          <Box
-            minHeight={52}
-            display={'flex'}
-            justifyContent={'center'}
-            alignItems={'center'}
-            textAlign={'center'}
-            sx={{
-              bgcolor: RegistroAprendizagemFasesColors[key],
-            }}
-          >
-            <Typography px={0.5} py={0.5} variant="subtitle2" color="white">
+        <Grid key={`indice_fases_container_item_${slugify(title_indice_aprovacao)}_${key}`} mb={0.2} px={5}>
+          <Box textAlign={'center'}>
+            <Typography
+              mb={0}
+              variant="subtitle2"
+              lineHeight="1.05em"
+              fontWeight={600}
+              fontSize={13}
+            >
               {value}
             </Typography>
           </Box>
-          <Box px={0} py={0.5} textAlign={'center'}>
-            <Typography variant="body2">
+          <Box textAlign={'center'}>
+            <Typography variant="body2" fontSize={24} mb={0} fontWeight={800} lineHeight={1.4}>
               {indice_fases.chart.series.find((item) => item.label == value).value}
             </Typography>
           </Box>
+          <LinearProgress
+            value={
+              (indice_fases.chart.series.find((item) => item.label == value).value /
+                total_estudantes) *
+              100
+            }
+            variant="determinate"
+            color="inherit"
+            sx={{
+              height: 3,
+              span: {
+                backgroundColor: RegistroAprendizagemFasesColors[key],
+              },
+              '&::before': {
+                bgcolor: 'divider',
+                opacity: 1,
+              },
+            }}
+          />
         </Grid>
       );
     });
@@ -61,69 +74,36 @@ export default function IndicesComponentWidget({
 
   const visaoGeral = (
     <Grid
+    
       key={`indice_fases_container_row_grid_${slugify(title_indice_aprovacao)}`}
       container
-      mx={0}
-      mb={2}
-      mt={-2}
-      pt={4}
-      flexGrow={1}
-      flexWrap="nowrap"
-      spacing={0}
-      sx={{
-        bgcolor: 'grey.200',
-        borderRadius: 1,
-        overflow: 'hidden',
-      }}
+      flexDirection={'column'} // todo < lg row
     >
-      <Grid flexBasis={0} flexGrow={1}>
-        <Box
-          minHeight={52}
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          textAlign={'center'}
-        >
-          <Typography px={0} py={0.5} variant="subtitle2">
-            ANO DE ENSINO
-          </Typography>
-        </Box>
-        <Box px={2} py={0.5} textAlign={'center'}>
-          <Typography variant="body2">{titulo_completo}</Typography>
-        </Box>
-      </Grid>
-      <Grid flexGrow={1} flexBasis={0}>
-        <Box
-          minHeight={52}
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          textAlign={'center'}
-        >
-          <Typography px={0} py={0.5} variant="subtitle2">
-            TOTAL DE ESTUDANTES
-          </Typography>
-        </Box>
-        <Box px={2} py={0.5} textAlign={'center'}>
-          <Typography variant="body2">{total_estudantes}</Typography>
-        </Box>
-      </Grid>
-
       {getFasesEmLinha()}
     </Grid>
   );
   return (
     <Box width="100%" mb={7}>
       <Stack direction="row">
-        <Grid xs={12} sm={12} md={12} lg={7} xl={8}>
-          <GraficoColunasChart
-            key={`indice_fases_${slugify(title_indice_fases)}`}
-            title={title_indice_fases}
-            chart={indice_fases.chart ?? { series: [] }}
-          />
-          {visaoGeral}
+        <Grid xs={12} lg={7} xl={8}>
+          <Card>
+            <Grid container>
+              <Grid xs={12} lg={10} xl>
+                <GraficoColunasChart
+                  key={`indice_fases_${slugify(title_indice_fases)}`}
+                  title={title_indice_fases}
+                  chart={indice_fases.chart ?? { series: [] }}
+                />
+              </Grid>
+
+              <Grid xs={12} lg={2} xl={2}>
+                {visaoGeral}
+              </Grid>
+            </Grid>
+          </Card>
         </Grid>
-        <Grid xs={12} sm={12} md={12} lg={5} xl={4}>
+
+        <Grid xs={12} lg={5} xl={4}>
           <IndiceAprovacaoWidget
             key={`indice_fases_${slugify(title_indice_aprovacao)}`}
             title={title_indice_aprovacao}

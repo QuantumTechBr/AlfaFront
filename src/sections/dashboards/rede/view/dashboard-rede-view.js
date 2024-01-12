@@ -114,7 +114,7 @@ export default function DashboardRedeView() {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
-      bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
+      bimestre: [(filters.bimestre != '' ? filters.bimestre : first(bimestres)).id], // todo change to last
     };
 
     if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
@@ -168,7 +168,7 @@ export default function DashboardRedeView() {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
-      bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
+      bimestre: [(filters.bimestre != '' ? filters.bimestre : first(bimestres)).id], // todo change to last
     };
 
     await Promise.all([
@@ -293,7 +293,7 @@ export default function DashboardRedeView() {
       if (bimestres && bimestres.length) {
         setFilters((prevState) => ({
           ...prevState,
-          bimestre: last(bimestres),
+          bimestre: first(bimestres) // todo change to last,
         }));
       }
       if (anosLetivos && anosLetivos.length) {
@@ -332,7 +332,7 @@ export default function DashboardRedeView() {
       zona: zonaFiltro,
       escola: [],
       turma: [],
-      bimestre: last(bimestres),
+      bimestre: first(bimestres), // todo change to last
     });
   };
 
@@ -361,7 +361,7 @@ export default function DashboardRedeView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard</Typography>
+            <Typography variant="h3">Dashboard (Rede)</Typography>
           </Grid>
 
           <Grid xs={12} md="auto">
