@@ -20,9 +20,9 @@ export default function DashboardRedeTableToolbar({
   filters,
   onFilters,
   anoLetivoOptions,
-  zonaOptions,
+  ddzOption,
   escolaOptions,
-  turmaOptions,
+  anoTurmaOptions,
   bimestreOptions,
 }) {
   const { user } = useContext(AuthContext);
@@ -134,7 +134,7 @@ export default function DashboardRedeTableToolbar({
               },
             }}
           >
-            {zonaOptions?.map((option) => (
+            {ddzOption?.map((option) => (
               <MenuItem key={option.id} value={option}>
                 <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
                 {option.nome}
@@ -173,7 +173,7 @@ export default function DashboardRedeTableToolbar({
           </Select>
         </FormControl>
 
-        {turmaOptions && (
+        {anoTurmaOptions && (
           <FormControl
             sx={{
               flexShrink: 0,
@@ -195,7 +195,7 @@ export default function DashboardRedeTableToolbar({
                 },
               }}
             >
-              {turmaOptions?.map((option) => (
+              {anoTurmaOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
                   {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
@@ -246,8 +246,8 @@ DashboardRedeTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   anoLetivoOptions: PropTypes.array,
-  zonaOptions: PropTypes.array,
+  ddzOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
-  turmaOptions: PropTypes.array,
+  anoTurmaOptions: PropTypes.array,
   bimestreOptions: PropTypes.array,
 };

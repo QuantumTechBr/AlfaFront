@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
-import { alpha, useTheme } from '@mui/material/styles';
+import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -42,9 +42,10 @@ import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 import { AuthContext } from 'src/auth/context/alfa';
 
 //
-import NumerosWidget from '../../components/numeros-widget';
+import NumeroWidget from '../../components/numero-widget';
 import IndicesComponentWidget from '../../components/indices-component-widget';
 import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
+import MetaWidget from '../../components/meta-widget';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -389,9 +390,9 @@ export default function DashboardRedeView() {
                 filters={filters}
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}
-                zonaOptions={zonas}
+                ddzOptions={zonas}
                 escolaOptions={_escolasFiltered || escolas}
-                turmaOptions={_turmasFiltered || turmas}
+                anoTurmaOptions={_turmasFiltered || turmas}
                 bimestreOptions={bimestres}
               />
             </Grid>
@@ -407,7 +408,7 @@ export default function DashboardRedeView() {
           </Stack>
 
           <Grid xs={12} md={4}>
-            <NumerosWidget
+            <NumeroWidget
               title="Total de Usuários Ativos"
               percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
@@ -431,7 +432,7 @@ export default function DashboardRedeView() {
             />
           </Grid>
           <Grid xs={12} md={4}>
-            <NumerosWidget
+            <NumeroWidget
               title="Total de Estudantes Avaliados"
               percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
@@ -444,19 +445,20 @@ export default function DashboardRedeView() {
                   width={ICON_SIZE}
                   icon="bi:people-fill"
                   sx={{
-                    ...textGradient({
-                      direction: '90deg',
-                      startColor: theme.palette['primary'].light,
-                      endColor: theme.palette['primary'].main,
-                    }),
                     color: theme.palette['primary'].main,
                   }}
                 />
               }
             />
           </Grid>
-          <Grid xs={12} md={4}>
-            {/* META */}
+          <Grid xs={12} md={4} alignSelf="">
+            <MetaWidget
+              title="Meta"
+              total={76}
+              color="primary"
+            >
+             
+            </MetaWidget>
           </Grid>
 
           {!!isGettingGraphics.value && (

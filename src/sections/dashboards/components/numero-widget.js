@@ -7,33 +7,31 @@ import { fShortenNumber } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
-export default function NumerosWidget({ title, total, icon, sx, ...other }) {
+export default function NumeroWidget({ title, total, icon, sx, ...other }) {
   return (
     <Card
       sx={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        p: 2,
-        pl: 3,
+        py: 3,
+        pl: 4,
+        pr: 2,
         ...sx,
       }}
       {...other}
     >
       <Box>
-        <Box sx={{ mb: 0, typography: 'h2', fontWeight:400 }}>{fShortenNumber(total)}</Box>
-        <Box sx={{ color: 'text.primary', typography: 'subtitle1' }}>{title}</Box>
+        <Box sx={{ mb: 1, typography: 'h2', fontWeight: 400 }}>{fShortenNumber(total)}</Box>
+        <Box sx={{ color: 'text.primary', typography: 'h5', fontWeight: 400 }}>{title}</Box>
       </Box>
 
       <Box
         sx={{
-          width: 120,
+          width: 80,
           height: 120,
-          lineHeight: 0,
           display: 'flex',
           alignItems: 'center',
-          //   borderRadius: '50%',
-          //   bgcolor: 'background.neutral',
         }}
       >
         {icon}
@@ -42,9 +40,9 @@ export default function NumerosWidget({ title, total, icon, sx, ...other }) {
   );
 }
 
-NumerosWidget.propTypes = {
-  icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
-  sx: PropTypes.object,
+NumeroWidget.propTypes = {
   title: PropTypes.string,
   total: PropTypes.number,
+  icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
+  sx: PropTypes.object,
 };
