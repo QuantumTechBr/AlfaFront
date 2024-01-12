@@ -452,13 +452,7 @@ export default function DashboardRedeView() {
             />
           </Grid>
           <Grid xs={12} md={4} alignSelf="">
-            <MetaWidget
-              title="Meta"
-              total={76}
-              color="primary"
-            >
-             
-            </MetaWidget>
+            <MetaWidget title="Meta" total={76}></MetaWidget>
           </Grid>
 
           {!!isGettingGraphics.value && (
