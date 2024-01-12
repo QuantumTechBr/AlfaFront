@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { Box, Typography } from '@mui/material';
+import { Box, LinearProgress, Stack, Typography, alpha, lighten, useTheme } from '@mui/material';
+import { bgGradient } from 'src/theme/css';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
@@ -10,6 +11,7 @@ import { RegistroAprendizagemFasesColors } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
+  const theme = useTheme();
   const { series, options, height = 350 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
@@ -137,9 +139,49 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
   return (
     <>
       <Box {...other}>
-        <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-          {title}
-        </Typography>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
+            {title}
+          </Typography>
+
+          <Box sx={{ width: 235 }}>
+            <Typography fontSize={15} mb={0.8} fontWeight="700">
+              Fase adequada
+            </Typography>
+            <LinearProgress
+              value={76}
+              variant="determinate"
+              color="primary"
+              sx={{
+                height: 26,
+                borderRadius: 13,
+                bgcolor: alpha(theme.palette.common.black, 0.08),
+                span: {
+                  borderRadius: '13px !important',
+                  ...bgGradient({
+                    direction: 'to right',
+                    startColor: lighten(theme.palette.primary.main, 0.3),
+                    endColor: theme.palette.primary.light,
+                  }),
+                  '&::before': {
+                    color: theme.palette.common.black,
+                    fontWeight: 800,
+                    content: '"76%"',
+                    top: 2,
+                    display: 'block',
+                    right: 6,
+                    zIndex: 1,
+                    position: 'absolute',
+                  },
+                },
+                '&::before': {
+                  bgcolor: 'divider',
+                  opacity: 1,
+                },
+              }}
+            />
+          </Box>
+        </Stack>
 
         <Chart
           dir="ltr"

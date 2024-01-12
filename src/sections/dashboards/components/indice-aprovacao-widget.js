@@ -31,7 +31,7 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
           ></Box>
           <Box>
             <Typography variant="body2" fontWeight="600" color="black">
-              {series[key].name}
+              {series[key]?.name ?? ''}
             </Typography>
           </Box>
         </Stack>
