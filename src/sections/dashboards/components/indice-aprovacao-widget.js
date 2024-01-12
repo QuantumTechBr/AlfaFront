@@ -45,10 +45,19 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
 
     legend: {
       show: false,
-      position: 'bottom',
     },
+    // plotOptions: {
+    //   pie: {
+    //     donut: {
+    //       labels: {
+    //         show: false,
+    //       },
+    //     },
+    //   },
+    // },
+
     colors: colors,
-    tooltip:{show:false},
+    tooltip: { enabled: false },
 
     ...options,
   });

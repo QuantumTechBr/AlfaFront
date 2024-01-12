@@ -10,7 +10,6 @@ import { RegistroAprendizagemFasesColors } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
-  
   const { series, options, height = 350 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);

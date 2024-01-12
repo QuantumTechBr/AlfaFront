@@ -48,8 +48,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        horizontal: false,
-        columnWidth:50,
+        columnWidth: 50,
         dataLabels: {
           position: 'top',
         },
@@ -72,8 +71,21 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     stroke: {
       show: true,
-      width: 1,
-      colors: ['#fff'],
+      width: 4,
+      colors: ['transparent'],
+    },
+
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'vertical',
+        shadeIntensity: 0.4,
+        inverseColors: false,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+      },
     },
     tooltip: {
       enabled: true,
@@ -82,6 +94,10 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
       y: {
         formatter: (value) => fNumber(value),
       },
+    },
+
+    legend: {
+      position: "top",
     },
     ...options,
   };

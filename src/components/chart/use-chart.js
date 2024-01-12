@@ -8,7 +8,7 @@ export default function useChart(options) {
   const theme = useTheme();
 
   const LABEL_TOTAL = {
-    show: true,
+    show: false,
     label: 'Total',
     color: theme.palette.text.secondary,
     fontSize: theme.typography.subtitle2.fontSize,
