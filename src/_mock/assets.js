@@ -269,6 +269,53 @@ export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+export const anos_options = ['1º', '2º', '3º'];
+
+export const fases_options = ['Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
+
+export const habilidades_1ano = [
+  'H1 - Respeita e expressa sentimentos e emoções.',
+  'H2 - Atua em grupo e demonstra interesse em construir novas relações, respeitando a diversidade e solidarizando-se com os outros',
+  'H3 - Conhece e respeita regras de convívio social, manifestando respeito pelo outro.',
+  'H4 - Reconhece a importância de ações e situações do cotidiano que contribuem para o cuidado de sua saúde e a manutenção de ambientes saudáveis.',
+  'H5 - Apresenta autonomia nas práticas de higiene, de alimentação, de vestir-se e no cuidado com seu bem-estar, valorizando o próprio corpo.',
+  'H6 - Utiliza o corpo intencionalmente (com criatividade, controle e adequação) como instrumento de interação com o outro e com o meio.',
+  'H7 - Coordena suas habilidades manuais.',
+  'H8 - Expressa ideias, desejos e sentimentos em distintas situações de interação, por diferentes meios.',
+  'H9 - Argumenta e relata fatos oralmente, em sequência temporal e causal, organizando e adequando sua fala ao contexto em que é produzida.',
+  'H10 - Ouve, compreende, conta, reconta e cria narrativas.',
+  'H11 - Conhece diferentes gêneros e portadores textuais, demonstrando compreensão da função social da escrita e reconhecendo a leitura como fonte de prazer e informação.',
+  'H12 - Discrimina os diferentes tipos de sons e ritmos e interage com a música, percebendo-a como forma de expressão individual e coletiva.',
+  'H13 - Expressa-se por meio das artes visuais, utilizando diferentes materiais.',
+  'H14 - Relacionar-se com o outro empregando gestos, palavras, brincadeiras, jogos, imitações, observações e expressão corporal.',
+  'H15 - Identificar, nomear adequadamente e compara as propriedades dos objetos, estabelecendo relações entre eles',
+  'H16 - Interage com o meio ambiente e com fenômenos naturais ou artificiais, demonstrando curiosidade e cuidado com relação a eles',
+  'H17 - Utiliza vocabulário relativo às noções de grandeza (maior, menor, igual etc.), espaço (dentro e fora) e medidas (comprido, curto, grosso, fino) como meio de comunicação de suas experiências',
+  'H18 - Utiliza unidades de medida (dia e noite; dias, semanas, meses e ano) e noções de tempo (presente, passado e futuro, antes, agora e depois), para responder a necessidades e questões do cotidiano'
+];
+
+export const habilidades_2ano = [
+  'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF01LP04, EF01LP14, EF12LP10)',
+  'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF01LP11)',
+  'H3 - Conhece o alfabeto (EF01LP10)',
+  'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF01LP12)', 
+  'H5 - Domina as relações entre grafemas e fonemas (EF01LP05, EF01LP06, EF01LP07, EF01LP08)', 
+  'H6 - Sabe decodificar palavras e textos escritos(EF01LP08)', 
+  'H7 - Sabe ler, reconhecendo globalmente as palavras (EF01LP09)', 
+  'H8 - Amplia a sacada do olhar para porções maiores de t…leitura(fatiamento)(EF01LP12, EF01LP03, EF15LP01)'
+];
+
+export const habilidades_3ano = [
+  'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF02LP09, EF12LP10)',
+  'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF02LP07)',
+  'H3 - Conhece o alfabeto (EF02LP06, EF02LP01, EF02LP04)',
+  'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF02LP18, EF15LP18)',
+  'H5 - Domina as relações entre grafemas e fonemas (EF02LP02, EF02LP03)',
+  'H6 - Sabe decodificar palavras e textos escritos(EF12LP01, EF15LP06)',
+  'H7 - Sabe ler, reconhecendo globalmente as palavras (EF12LP08)',
+  'H8 - Amplia a sacada do olhar para porções maiores de texto que meras palavras, desenvolvendo assim fluência e rapidez de leitura(fatiamento)(EF02LP26)',
+];
+
 export const _turnos = ['matutino', 'vespertino', 'noturno'];
 
 const RegistroAprendizagemTipos = {

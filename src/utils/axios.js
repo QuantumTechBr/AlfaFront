@@ -190,11 +190,11 @@ export const endpoints = {
     delete: '/api/v1/planos-aulas/',
   },
   plano_intervencao: {
-    list: '/api/v1/planos-intervencoes/',
-    post: '/api/v1/planos-intervencoes',
-    get_by_id: '/api/v1/planos-intervencoes/',
-    update: '/api/v1/planos-intervencoes/',
-    delete: '/api/v1/planos-intervencoes/',
+    list: '/api/v1/planos-intervencao/',
+    post: '/api/v1/planos-intervencao',
+    get_by_id: '/api/v1/planos-intervencao/',
+    update: '/api/v1/planos-intervencao/',
+    delete: '/api/v1/planos-intervencao/',
   },
   registro_aprendizagem: {
     list: '/api/v1/registros-aprendizagens/',

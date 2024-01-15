@@ -25,7 +25,7 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  let { id, nome, responsavel, data_inicio, status, data_termino } = row;
+  let { id, nome, responsavel, data_inicio, status, data_termino, ano_escolar } = row;
 
   let date_inicio = parse(data_inicio, 'yyyy-MM-dd', new Date())
 
@@ -57,11 +57,13 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsavel}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsavel.nome}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date_inicio.toLocaleDateString('pt-br')}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date_termino.toLocaleDateString('pt-br')}</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{status}</TableCell>
 

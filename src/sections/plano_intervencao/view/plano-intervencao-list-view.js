@@ -48,10 +48,11 @@ import {
 import PlanoIntervencaoTableRow from '../plano-intervencao-table-row';
 import PlanoIntervencaoTableToolbar from '../plano-intervencao-table-toolbar';
 import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filters-result';
-import planoIntervencaoMethods from '../plano-intervencao';
+import planoIntervencaoMethods from '../plano-intervencao-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import LoadingBox from 'src/components/helpers/loading-box';
+import NovoPlanoIntervencaoForm from '../plano-intervencao-modal-form';
 // ----------------------------------------------------------------------
 
 
@@ -60,10 +61,11 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Variáveis a melhorar', width: 200 },
   { id: 'responsavel', label: 'Responsável pela ação', width: 300 },
-  { id: 'data_inicio', label: 'Inicio previsto', width: 100 },
-  { id: 'data_termino', label: 'Término previsto', width: 100 },
-  { id: 'status', label: 'Status', width: 100 },
-  { id: 'farol', label: 'Farol', width: 88 },
+  { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
+  { id: 'data_termino', label: 'Término previsto', width: 80 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
+  { id: 'status', label: 'Status', width: 80 },
+  { id: 'farol', label: 'Farol', width: 50 },
   { id: '', width: 88 },
 ];
 
@@ -88,25 +90,10 @@ export default function PlanoIntervencaoListView() {
   const preparado = useBoolean(false);
 
   useEffect(() => {
-    planoIntervencaoMethods.getAllPlanosIntervencao().then(usuarios => {
-      const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
-      if (usuariosNaoDeletados.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de usuários');
-        setUserList([]);
-        preparado.onTrue();
-      }
-      for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
-          usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
-          usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
-          usuariosNaoDeletados[i].zona = usuariosNaoDeletados[i].funcao_usuario[0].zona?.id;
-        }
-      }
-      usuariosNaoDeletados.map((usuario => {
-        usuario.status = usuario.status.toString()
-      }))
+    planoIntervencaoMethods.getAllPlanosIntervencao().then(planos => {
+      console.log(planos)
       setUserList(usuariosNaoDeletados);
-      setTableData(usuariosNaoDeletados);
+      setTableData(planos.data);
       preparado.onTrue();
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de usuários');
@@ -222,6 +209,12 @@ export default function PlanoIntervencaoListView() {
     setFilters(defaultFilters);
   }, []);
 
+  const novoPlano = useBoolean();
+
+  const closeNovoPlano = (retorno = null) => {
+    novoPlano.onFalse();
+  };
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -234,8 +227,9 @@ export default function PlanoIntervencaoListView() {
           ]}
           action={
             <Button
-              component={RouterLink}
-              href={paths.dashboard.plano_intervencao.new}
+              // component={RouterLink}
+              // href={paths.dashboard.plano_intervencao.new}
+              onClick={novoPlano.onTrue}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
@@ -249,6 +243,8 @@ export default function PlanoIntervencaoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+
+        <NovoPlanoIntervencaoForm open={novoPlano.value} onClose={closeNovoPlano} />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
