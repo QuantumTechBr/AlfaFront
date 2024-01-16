@@ -4,38 +4,63 @@ import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
-import { Stack, Button, Typography, Container } from '@mui/material';
+import {
+  Stack,
+  Button,
+  Typography,
+  Container,
+  Card,
+  TableRow,
+  TableCell,
+  CardHeader,
+} from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material/TableContainer';
+import { styled } from '@mui/material/styles';
 
 // contexts
+import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
 // components
 import { useSettingsContext } from 'src/components/settings';
-import { useBoolean } from 'src/hooks/use-boolean';
-import { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
+import {
+  useTable,
+  getComparator,
+  emptyRows,
+  TableNoData,
+  TableEmptyRows,
+  TableHeadCustom,
+  TablePaginationCustom,
+} from 'src/components/table';
 
-// assets
-import { RegistroAprendizagemFases } from 'src/_mock';
+// hooks
+import { useBoolean } from 'src/hooks/use-boolean';
+import { useRouter } from 'src/routes/hook';
+import { useDebounce } from 'src/hooks/use-debounce';
+
+import { first, last } from 'lodash';
 
 // ----------------------------------------------------------------------
 import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 
-import { AuthContext } from 'src/auth/context/alfa';
-
 //
 import NumeroComponent from '../../components/numero-component';
 import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 import MetaComponent from '../../components/meta-component';
 import IndicesCompostosAlfabetizacaoGeralWidget from '../../widgets/indices-compostos-alfabetizacao-geral-widget';
+import DashboardGridFilters from '../../components/dashboard-grid-filter';
+
+//
+import { paths } from 'src/routes/paths';
+import Scrollbar from 'src/components/scrollbar';
 
 export default function DashboardDDZView() {
   const ICON_SIZE = 65;
@@ -46,11 +71,6 @@ export default function DashboardDDZView() {
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { bimestres, buscaBimestres } = useContext(BimestresContext);
-  const [_escolasFiltered, setEscolasFiltered] = useState([]);
-  const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
@@ -60,38 +80,21 @@ export default function DashboardDDZView() {
   const [filters, setFilters] = useState({
     anoLetivo: '',
     zona: zonaFiltro,
-    escola: [],
-    turma: [],
-    bimestre: '',
   });
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
     //
-    grid_escolas: {},
+    grid_escolas: [],
     desempenho_alunos: {},
   });
-
-  const getFormattedSeries = (series) => {
-    let formattedSeries = [];
-    for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
-      formattedSeries.push({
-        label: value,
-        value: series.find((item) => item.label == value)?.value ?? 0,
-      });
-    }
-    return formattedSeries;
-  };
 
   const preencheGraficos = async () => {
     isGettingGraphics.onTrue();
     const fullFilters = {
       ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
-      // escola: filters.escola.map((item) => item.id),
-      // turma: filters.turma.map((item) => item.id),
-      bimestre: [(filters.bimestre != '' ? filters.bimestre : first(bimestres)).id], // todo change to last
     };
 
     await Promise.all([
@@ -124,6 +127,7 @@ export default function DashboardDDZView() {
             ...prevState,
             grid_escolas: response.data,
           }));
+          setTableData(response.data);
         }),
 
       // ## DESEMPENHO ALUNO
@@ -142,62 +146,18 @@ export default function DashboardDDZView() {
 
   const handleFilters = useCallback(
     (campo, value) => {
-      if (campo == 'zona') {
-        if (value.length == 0) {
-          setEscolasFiltered(escolas);
-          setTurmasFiltered(turmas);
-        } else {
-          var escolasFiltered = escolas.filter((escola) =>
-            value.map((zona) => zona.id).includes(escola.zona.id)
-          );
-          var turmasFiltered = turmas.filter((turma) =>
-            escolasFiltered.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setEscolasFiltered(escolasFiltered);
-          setTurmasFiltered(turmasFiltered);
-        }
-
-        setFilters((prevState) => ({
-          ...prevState,
-          ['escola']: [],
-          ['turma']: [],
-          [campo]: value,
-        }));
-      } else if (campo == 'escola') {
-        if (value.length == 0) {
-          setTurmasFiltered(turmas);
-        } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
-        }
-        setFilters((prevState) => ({
-          ...prevState,
-          ['turma']: [],
-          [campo]: value,
-        }));
-      } else {
-        setFilters((prevState) => ({
-          ...prevState,
-          [campo]: value,
-        }));
-      }
+      setFilters((prevState) => ({
+        ...prevState,
+        [campo]: value,
+      }));
     },
-    [setFilters, setEscolasFiltered, escolas, setTurmasFiltered, turmas, bimestres]
+    [setFilters]
   );
 
   const preparacaoInicial = async () => {
     if (preparacaoInicialRunned.value === false) {
       preparacaoInicialRunned.onTrue();
-      await Promise.all([
-        buscaAnosLetivos(),
-        buscaZonas(),
-        buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
-        buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
-        buscaBimestres(),
-      ]);
-
+      await Promise.all([buscaAnosLetivos(), buscaZonas()]);
       contextReady.onTrue();
     }
   };
@@ -208,12 +168,6 @@ export default function DashboardDDZView() {
     if (contextReady.value) {
       preencheGraficos();
 
-      if (bimestres && bimestres.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          bimestre: first(bimestres), // todo change to last,
-        }));
-      }
       if (anosLetivos && anosLetivos.length) {
         setFilters((prevState) => ({
           ...prevState,
@@ -222,8 +176,6 @@ export default function DashboardDDZView() {
       }
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
-
-  useEffect(() => {}, [contextReady.value]);
 
   useEffect(() => {
     let _zonaFiltro = [];
@@ -238,9 +190,6 @@ export default function DashboardDDZView() {
     setFilters({
       anoLetivo: '',
       zona: _zonaFiltro,
-      escola: [],
-      turma: [],
-      bimestre: '',
     });
   }, []);
 
@@ -248,9 +197,6 @@ export default function DashboardDDZView() {
     setFilters({
       anoLetivo: first(anosLetivos),
       zona: zonaFiltro,
-      escola: [],
-      turma: [],
-      bimestre: first(bimestres), // todo change to last
     });
   };
 
@@ -259,14 +205,57 @@ export default function DashboardDDZView() {
     novaAvaliacao.onFalse();
   };
 
-  const handleChangeBimestreFn = (value) => {
-    setFilters((prevState) => ({
-      ...prevState,
-      bimestre: value,
-    }));
+  // TABLE
+  const router = useRouter();
+  const TABLE_HEAD = [
+    { id: 'escola', label: 'Escola', notsortable: true },
+    { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+    { id: 'Alunos', label: 'Alunos', width: 110, notsortable: true },
+    { id: 'avaliados', label: 'Alunos avaliados', width: 110, notsortable: true },
+    { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
+    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 110, notsortable: true },
+    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 110, notsortable: true },
+    { id: '', width: 88, notsortable: true },
+  ];
 
-    preencheGraficos();
+  const defaultTableFilters = {
+    escola: '',
   };
+
+  const table = useTable({ defaultRowsPerPage: 15 });
+  const [tableData, setTableData] = useState([]);
+  const [tableFilters, setTableFilters] = useState(defaultTableFilters);
+
+  const debouncedGridFilter = useDebounce(tableFilters, 380);
+
+  const dataFiltered = applyTableFilter({
+    inputData: tableData,
+    comparator: getComparator(table.order, table.orderBy),
+    filters: debouncedGridFilter,
+  });
+
+  const notFound = !dataFiltered.length;
+
+  const handleTableFilters = useCallback(
+    (nome, value) => {
+      table.onResetPage();
+      setTableFilters((prevState) => ({
+        ...prevState,
+        escola: value,
+      }));
+    },
+    [table]
+  );
+
+  // TODO REMOVER E MIGRAR PARA ACESSO UNICO
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(even)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    ':hover': {
+      backgroundColor: theme.palette.action.focus,
+    },
+  }));
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -309,7 +298,6 @@ export default function DashboardDDZView() {
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}
                 ddzOptions={zonas}
-                bimestreOptions={bimestres}
               />
             </Grid>
             <Grid xs={12} md="auto">
@@ -390,12 +378,104 @@ export default function DashboardDDZView() {
             />
           </Grid>
         )}
-
-        {/* escola_nome, qtd_alfabetizado, qtd_alunos, qtd_avaliados, qtd_nao_alfabetizado, 
-        qtd_nao_avaliado, turma_ano_escolar, turma_nome, turma_turno,  */}
       </Grid>
 
       <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+
+      <Card sx={{ my: 4, }}>
+        <CardHeader title="Escolas" />
+        <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
+
+        <TableContainer sx={{ mt: 1 ,  height:500 }}>
+          <Scrollbar>
+            <Table size="small" sx={{ minWidth: 960, }}>
+              <TableHeadCustom
+                order={table.order}
+                orderBy={table.orderBy}
+                headLabel={TABLE_HEAD}
+                rowCount={tableData.length}
+                onSort={table.onSort}
+              />
+
+              <TableBody>
+                {Object.entries(
+                  dataFiltered.slice(
+                    table.page * table.rowsPerPage,
+                    table.page * table.rowsPerPage + table.rowsPerPage
+                  )
+                ).map(([key, row]) => (
+                  <StyledTableRow key={`tableRowDash_${key}`}>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
+                    <TableCell>{row.qtd_alfabetizado}</TableCell>
+                    <TableCell>{row.qtd_alunos}</TableCell>
+                    <TableCell>{row.qtd_avaliados}</TableCell>
+                    <TableCell>{row.qtd_nao_alfabetizado}</TableCell>
+                    <TableCell>{row.qtd_nao_avaliado}</TableCell>
+                    <TableCell>{row.turma_ano_escolar}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                      <Button
+                        color="primary"
+                        variant="contained"
+                        size="small"
+                        onClick={() => {
+                          router.push(`${paths.dashboard.root}/dash-escola`);
+                        }}
+                      >
+                        Ver mais
+                      </Button>
+                    </TableCell>
+
+                    {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma_nome}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma_turno}</TableCell> */}
+                  </StyledTableRow>
+                ))}
+
+                <TableEmptyRows
+                  height={43}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                />
+
+                <TableNoData notFound={notFound} />
+              </TableBody>
+            </Table>
+          </Scrollbar>
+        </TableContainer>
+
+        <TablePaginationCustom
+          count={dataFiltered.length}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          rowsPerPageOptions={[5, 10, 15, 25]}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+          //
+          dense={table.dense}
+        />
+      </Card>
     </Container>
   );
+}
+
+// ----------------------------------------------------------------------
+
+function applyTableFilter({ inputData, comparator, filters }) {
+  const { escola } = filters;
+
+  const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+
+  inputData = stabilizedThis.map((el) => el[0]);
+
+  if (escola) {
+    inputData = inputData.filter(
+      (row) => row.escola_nome.toLowerCase().indexOf(escola.toLowerCase()) !== -1
+    );
+  }
+
+  return inputData;
 }

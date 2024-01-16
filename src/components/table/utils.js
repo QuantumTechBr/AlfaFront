@@ -1,7 +1,9 @@
 // ----------------------------------------------------------------------
 
 export function emptyRows(page, rowsPerPage, arrayLength) {
-  return page ? Math.max(0, (1 + page) * rowsPerPage - arrayLength) : 0;
+  let conta = Math.max(0, (1 + page) * rowsPerPage - arrayLength);
+  let ret = page ? conta : 0;
+  return ret;
 }
 
 function descendingComparator(a, b, orderBy) {

@@ -448,7 +448,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
   {
     id: '2',
@@ -458,7 +458,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
   {
     id: '3',
@@ -468,10 +468,9 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
-]
-
+];
 
 export const _registrosAprendizagemComponente = [
   {
@@ -489,7 +488,6 @@ export const _registrosAprendizagemComponente = [
     tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
 ];
-
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];
 
@@ -752,4 +750,85 @@ export const _descriptions = [
   `Sunt totam facilis. Quam commodi voluptatem veniam. Tempora deleniti itaque fugit nihil voluptas.`,
   `Ipsam aliquam velit nobis repellendus officiis aut deserunt id et. Nihil sunt aut dolores aut. Dolores est ipsa quia et laborum quidem laborum accusamus id. Facilis odit quod hic laudantium saepe omnis nisi in sint. Sed cupiditate possimus id.`,
   `Magnam non eveniet optio optio ut aliquid atque. Velit libero aspernatur quis laborum consequatur laudantium. Tempora facere optio fugit accusantium ut. Omnis aspernatur reprehenderit autem esse ut ut enim voluptatibus.`,
+];
+
+export const _dashboardSeries = [
+  {
+    x: 'Escola 1',
+    y: 8,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 17,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
+  {
+    x: 'Escola 2',
+    y: 12,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 13,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
+  {
+    x: 'Escola 3',
+    y: 12,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 10,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
+  {
+    x: 'Escola 3',
+    y: 8,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 15,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
+  {
+    x: 'Escola 5',
+    y: 21,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 18,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
+  {
+    x: 'Escola 6',
+    y: 14,
+    goals: [
+      {
+        name: 'Esperado',
+        value: 10,
+        strokeWidth: 3,
+        strokeDashArray: 3,
+        strokeColor: '#775DD0',
+      },
+    ],
+  },
 ];

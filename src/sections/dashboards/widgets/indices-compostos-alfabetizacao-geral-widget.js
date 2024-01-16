@@ -2,6 +2,7 @@
 
 import PropTypes from 'prop-types';
 import Grid from '@mui/material/Unstable_Grid2';
+import { _dashboardSeries } from 'src/_mock';
 
 import { Box, Stack } from '@mui/material';
 import { slugify } from 'src/utils/functions';
@@ -23,7 +24,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
         <Grid xs={12} lg={7} xl={8}>
           <GraficoHorizontalChart
             title={title_indice_alfabetizacao}
-            chart={indice_alfabetizacao.chart ?? { series: [] }}
+            chart={indice_alfabetizacao.chart ?? { series: _dashboardSeries }}
           />
         </Grid>
 
