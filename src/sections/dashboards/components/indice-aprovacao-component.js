@@ -6,17 +6,15 @@ import Card from '@mui/material/Card';
 import Chart, { useChart } from 'src/components/chart';
 import { Box, Stack, Typography } from '@mui/material';
 import { px } from 'framer-motion';
+import { slugify } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
-export default function IndiceAprovacaoWidget({ title, subheader, series, options, ...other }) {
+export default function IndiceAprovacaoComponent({ title, subheader, series, options, ...other }) {
   const totalItems = series.reduce((total, item) => total + item.amount, 0);
   series.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
   });
-
-  //   console.table(totalItems);
-  //   console.table(series);
 
   const colors = ['#009a50', '#d11400', '#006abc'];
 
@@ -25,7 +23,11 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
   const getLegend = () => {
     return Object.entries(colors).map(([key, value]) => {
       return (
-        <Stack direction="row" sx={{ px: 3, my: 0.8 }}>
+        <Stack
+          key={`indice_aprovacao_component_item_card_${slugify(title)}_${key}`}
+          direction="row"
+          sx={{ px: 3, my: 0.8 }}
+        >
           <Box
             sx={{ width: 20, height: 20, borderRadius: 0.5, mr: 2, backgroundColor: value }}
           ></Box>
@@ -46,16 +48,6 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
     legend: {
       show: false,
     },
-    // plotOptions: {
-    //   pie: {
-    //     donut: {
-    //       labels: {
-    //         show: false,
-    //       },
-    //     },
-    //   },
-    // },
-
     colors: colors,
     tooltip: { enabled: false },
 
@@ -83,7 +75,7 @@ export default function IndiceAprovacaoWidget({ title, subheader, series, option
   );
 }
 
-IndiceAprovacaoWidget.propTypes = {
+IndiceAprovacaoComponent.propTypes = {
   series: PropTypes.array,
   subheader: PropTypes.string,
   title: PropTypes.string,

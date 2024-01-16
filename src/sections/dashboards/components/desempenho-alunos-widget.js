@@ -146,8 +146,6 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
       return itemData;
     });
 
-    // console.log(newData);
-
     return newData;
   }, []);
 

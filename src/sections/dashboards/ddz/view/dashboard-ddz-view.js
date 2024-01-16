@@ -35,7 +35,7 @@ import Iconify from 'src/components/iconify';
 import { RegistroAprendizagemFases } from 'src/_mock';
 
 // ----------------------------------------------------------------------
-import DashboardRedeTableToolbar from './dashboard-rede-table-toolbar';
+import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 
@@ -47,7 +47,7 @@ import IndicesCompostosFasesAlfabetizacaoWidget from '../../widgets/indices-comp
 import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 import MetaComponent from '../../components/meta-component';
 
-export default function DashboardRedeView() {
+export default function DashboardDDZView() {
   const ICON_SIZE = 65;
 
   const theme = useTheme();
@@ -359,7 +359,7 @@ export default function DashboardRedeView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (Rede)</Typography>
+            <Typography variant="h3">Dashboard (DDZ)</Typography>
           </Grid>
 
           <Grid xs={12} md="auto">
@@ -384,7 +384,7 @@ export default function DashboardRedeView() {
             sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
           >
             <Grid xs={12} md="auto">
-              <DashboardRedeTableToolbar
+              <DashboardDDZTableToolbar
                 filters={filters}
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}

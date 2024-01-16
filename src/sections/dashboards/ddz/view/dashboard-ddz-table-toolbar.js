@@ -16,7 +16,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
-export default function DashboardRedeTableToolbar({
+export default function DashboardDDZTableToolbar({
   filters,
   onFilters,
   anoLetivoOptions,
@@ -242,7 +242,7 @@ export default function DashboardRedeTableToolbar({
   );
 }
 
-DashboardRedeTableToolbar.propTypes = {
+DashboardDDZTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   anoLetivoOptions: PropTypes.array,

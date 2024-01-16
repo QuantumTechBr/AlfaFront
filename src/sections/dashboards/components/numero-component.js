@@ -7,7 +7,7 @@ import { fShortenNumber } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
-export default function NumeroWidget({ title, total, icon, sx, ...other }) {
+export default function NumeroComponent({ title, total, icon, sx, ...other }) {
   return (
     <Card
       sx={{
@@ -40,7 +40,7 @@ export default function NumeroWidget({ title, total, icon, sx, ...other }) {
   );
 }
 
-NumeroWidget.propTypes = {
+NumeroComponent.propTypes = {
   title: PropTypes.string,
   total: PropTypes.number,
   icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),

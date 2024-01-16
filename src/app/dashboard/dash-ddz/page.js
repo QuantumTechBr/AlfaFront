@@ -1,12 +1,12 @@
-// // sections
-// import { TurmaListView } from 'src/sections/turma/view';
+// sections
+import { DashboardDDZView } from "src/sections/dashboards/ddz/view";
 
-// // ----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
-// export const metadata = {
-//   title: 'Dashboard: Turmas',
-// };
+export const metadata = {
+  title: 'Dashboard: DDZ',
+};
 
-// export default function TurmaProfilePage() {
-//   return <TurmaListView />;
-// }
+export default function DashboardDDZPage() {
+  return <DashboardDDZView />;
+}

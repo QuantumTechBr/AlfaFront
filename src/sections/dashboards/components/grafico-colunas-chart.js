@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { Box, LinearProgress, Stack, Typography, alpha, lighten, useTheme } from '@mui/material';
+import { LinearProgress, Box, Stack, Typography } from '@mui/material';
+import { lighten, alpha, useTheme } from '@mui/material/styles';
 import { bgGradient } from 'src/theme/css';
 
 // components

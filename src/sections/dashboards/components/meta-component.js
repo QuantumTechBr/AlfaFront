@@ -3,15 +3,13 @@ import PropTypes from 'prop-types';
 import { alpha, useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-// utils
-import { fShortenNumber } from 'src/utils/format-number';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
 
 // ----------------------------------------------------------------------
 
-export default function MetaWidget({ title, total, color = 'primary', sx, ...other }) {
+export default function MetaComponent({ title, total, color = 'primary', sx, ...other }) {
   const theme = useTheme();
 
   const chartOptions = useChart({
@@ -22,7 +20,7 @@ export default function MetaWidget({ title, total, color = 'primary', sx, ...oth
       },
     },
     grid: {
-        padding: { top: 0, bottom: 18 },
+      padding: { top: 0, bottom: 18 },
     },
     legend: {
       show: false,
@@ -43,7 +41,7 @@ export default function MetaWidget({ title, total, color = 'primary', sx, ...oth
         startAngle: -90,
         endAngle: 90,
         track: {
-            background: alpha(theme.palette.common.white, 0.2),
+          background: alpha(theme.palette.common.white, 0.2),
           strokeWidth: '97%',
         },
         hollow: {
@@ -94,7 +92,7 @@ export default function MetaWidget({ title, total, color = 'primary', sx, ...oth
   );
 }
 
-MetaWidget.propTypes = {
+MetaComponent.propTypes = {
   color: PropTypes.string,
   sx: PropTypes.object,
   title: PropTypes.string,
