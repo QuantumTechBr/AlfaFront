@@ -9,34 +9,34 @@ import { Box } from '@mui/system';
 import { slugify } from 'src/utils/functions';
 
 import IndiceFasesComponent from '../components/indice-fases-component';
-import IndiceAprovacaoComponent from '../components/indice-aprovacao-component';
+import IndiceAlfabetizacaoComponent from '../components/indice-alfabetizacao-component';
 
-export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, indice_fases, indice_aprovacao }) {
+export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, indice_fases, indice_alfabetizacao }) {
   let titulo_completo = ano_escolar;
   if (typeof ano_escolar === 'number') {
     titulo_completo += `º ano`;
   }
   const title_indice_fases = `Índice de Fases - ${titulo_completo}`;
-  const title_indice_aprovacao = `Índice de alfabetização - ${titulo_completo}`;
+  const title_indice_alfabetizacao = `Índice de alfabetização - ${titulo_completo}`;
 
   return (
     <Box width="100%" mb={7}>
       <Stack direction="row">
         <Grid xs={12} lg={7} xl={8}>
           <IndiceFasesComponent
-            key={`indice_fases_component_item_${slugify(title_indice_fases)}`}
-            indice_fases={indice_fases}
+            key={`indice_fases_component_${slugify(title_indice_fases)}`}
             title_indice_fases={title_indice_fases}
+            indice_fases={indice_fases}
           />
         </Grid>
 
         <Grid xs={12} lg={5} xl={4}>
-          <IndiceAprovacaoComponent
-            key={`indice_aprovacao_component_item_${slugify(title_indice_aprovacao)}`}
-            title={title_indice_aprovacao}
-            series={
-              indice_aprovacao.hasSeries
-                ? (indice_aprovacao.categories ?? [{ series: [] }])[0].series
+          <IndiceAlfabetizacaoComponent
+            key={`indice_alfabetizacao_component_${slugify(title_indice_alfabetizacao)}`}
+            title={title_indice_alfabetizacao}
+            indice_alfabetizacao={
+              indice_alfabetizacao.hasSeries
+                ? (indice_alfabetizacao.categories ?? [{ series: [] }])[0].series
                 : []
             }
           />
@@ -49,5 +49,5 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, 
 IndicesCompostosFasesAlfabetizacaoWidget.propTypes = {
   ano_escolar: PropTypes.any,
   indice_fases: PropTypes.object,
-  indice_aprovacao: PropTypes.object,
+  indice_alfabetizacao: PropTypes.object,
 };

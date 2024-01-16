@@ -13,18 +13,14 @@ import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/
 import GraficoColunasChart from './grafico-colunas-chart';
 import { Card, LinearProgress } from '@mui/material';
 
-export default function IndiceFasesComponent({
-  indice_fases,
-  title_indice_fases,
-  ...other
-}) {
+export default function IndiceFasesComponent({ title_indice_fases, indice_fases, ...other }) {
   const total_estudantes = indice_fases.chart.series.reduce((total, item) => total + item.value, 0);
 
   const getFasesEmLinha = () => {
     return Object.entries(RegistroAprendizagemFases).map(([key, value]) => {
       return (
         <Grid
-          key={`indice_fases_container_item_${slugify(title_indice_fases)}_${key}`}
+          key={`indice_fases_component_container_${slugify(title_indice_fases)}_${key}`}
           mb={0.2}
           px={5}
         >
@@ -70,7 +66,7 @@ export default function IndiceFasesComponent({
 
   const visaoGeral = (
     <Grid
-      key={`indice_fases_container_row_grid_${slugify(title_indice_fases)}`}
+      key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
       container
       flexDirection={'column'} // todo < lg row
     >
@@ -83,7 +79,6 @@ export default function IndiceFasesComponent({
       <Grid container>
         <Grid xs={12} lg={10} xl>
           <GraficoColunasChart
-            key={`indice_fases_${slugify(title_indice_fases)}`}
             title={title_indice_fases}
             chart={indice_fases.chart ?? { series: [] }}
           />
@@ -98,6 +93,6 @@ export default function IndiceFasesComponent({
 }
 
 IndiceFasesComponent.propTypes = {
-  indice_fases: PropTypes.object,
   title_indice_fases: PropTypes.string,
+  indice_fases: PropTypes.object,
 };

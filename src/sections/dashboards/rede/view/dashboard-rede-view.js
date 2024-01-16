@@ -465,7 +465,7 @@ export default function DashboardRedeView() {
                 key="indices_component_1_ano"
                 ano_escolar={1}
                 indice_fases={dados.indice_fases_1_ano}
-                indice_aprovacao={dados.indice_aprovacao_1_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_1_ano}
               />
             )}
           {!isGettingGraphics.value &&
@@ -474,7 +474,7 @@ export default function DashboardRedeView() {
                 key="indices_component_2_ano"
                 ano_escolar={2}
                 indice_fases={dados.indice_fases_2_ano}
-                indice_aprovacao={dados.indice_aprovacao_2_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_2_ano}
               />
             )}
           {!isGettingGraphics.value &&
@@ -483,7 +483,7 @@ export default function DashboardRedeView() {
                 key="indices_component_3_ano"
                 ano_escolar={3}
                 indice_fases={dados.indice_fases_3_ano}
-                indice_aprovacao={dados.indice_aprovacao_3_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_3_ano}
               />
             )}
           {!isGettingGraphics.value &&
@@ -492,7 +492,7 @@ export default function DashboardRedeView() {
                 key="indices_component_geral"
                 ano_escolar="Geral"
                 indice_fases={dados.indice_fases_geral}
-                indice_aprovacao={dados.indice_aprovacao_geral}
+                indice_alfabetizacao={dados.indice_aprovacao_geral}
               />
             )}
         </Grid>

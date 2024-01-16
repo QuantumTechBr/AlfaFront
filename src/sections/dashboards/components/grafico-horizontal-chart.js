@@ -13,14 +13,9 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
   const theme = useTheme();
   const { series, options, height = 350 } = chart;
 
-  const totalItems = series.reduce((total, item) => total + item.value, 0);
-  series.forEach((element) => {
-    element.porcentagem = Math.round((element.value / totalItems) * 100);
-  });
-
   const chartSeries = [
     {
-      name: '',
+      name: '+-',
       data: series.map((element) => element.porcentagem),
     },
   ];
@@ -31,24 +26,20 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        columnWidth: '89%',
-        distributed: true, // CORES AUTOMATICAS E BOLINHAS
-        borderRadius: 15,
-        dataLabels: {
-          position: 'top', // top, center, bottom
-        },
+        horizontal: true,
+        barHeight: '30%',
       },
     },
-    // colors: Object.values(RegistroAprendizagemFasesColors),
+    colors: [theme.palette.primary.light],
 
     dataLabels: {
-      enabled: true,
+      enabled: false,
       formatter: function (val) {
         return `${val}%`;
       },
       dropShadow: {
         enabled: true,
-        color: ['#000'],
+        color: ['#f0ff00'],
       },
       style: {
         fontSize: '14px',
@@ -82,36 +73,6 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
         },
         title: {
           formatter: (s) => 'Quantidade: ',
-        },
-      },
-    },
-
-    toolbar: {
-      show: true,
-      offsetX: 0,
-      offsetY: 0,
-      tools: {
-        download: true,
-        selection: true,
-        zoom: false,
-        pan: false,
-        customIcons: [],
-      },
-      export: {
-        csv: {
-          filename: undefined,
-          columnDelimiter: ',',
-          headerCategory: 'category',
-          headerValue: 'value',
-          dateFormatter(timestamp) {
-            return new Date(timestamp).toDateString();
-          },
-        },
-        svg: {
-          filename: undefined,
-        },
-        png: {
-          filename: undefined,
         },
       },
     },
@@ -157,7 +118,7 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
 }
 
 GraficoHorizontalChart.propTypes = {
-  subheader: PropTypes.string,
   title: PropTypes.string,
+  subheader: PropTypes.string,
   chart: PropTypes.object,
 };

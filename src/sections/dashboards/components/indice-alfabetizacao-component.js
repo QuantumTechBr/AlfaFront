@@ -10,21 +10,21 @@ import { slugify } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
-export default function IndiceAprovacaoComponent({ title, subheader, series, options, ...other }) {
-  const totalItems = series.reduce((total, item) => total + item.amount, 0);
-  series.forEach((element) => {
+export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_alfabetizacao, options, ...other }) {
+  const totalItems = indice_alfabetizacao.reduce((total, item) => total + item.amount, 0);
+  indice_alfabetizacao.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
   });
 
   const colors = ['#009a50', '#d11400', '#006abc'];
 
-  const chartSeries = series.map((element) => element.porcentagem);
+  const chartSeries = indice_alfabetizacao.map((element) => element.porcentagem);
 
   const getLegend = () => {
     return Object.entries(colors).map(([key, value]) => {
       return (
         <Stack
-          key={`indice_aprovacao_component_item_card_${slugify(title)}_${key}`}
+          key={`indice_aprovacao_component_card_${slugify(title)}_${key}`}
           direction="row"
           sx={{ px: 3, my: 0.8 }}
         >
@@ -33,7 +33,7 @@ export default function IndiceAprovacaoComponent({ title, subheader, series, opt
           ></Box>
           <Box>
             <Typography variant="body2" fontWeight="600" color="black">
-              {series[key]?.name ?? ''}
+              {indice_alfabetizacao[key]?.name ?? ''}
             </Typography>
           </Box>
         </Stack>
@@ -42,7 +42,7 @@ export default function IndiceAprovacaoComponent({ title, subheader, series, opt
   };
 
   const chartOptions = useChart({
-    labels: series.map((element) => element.name),
+    labels: indice_alfabetizacao.map((element) => element.name),
     total: { show: false },
 
     legend: {
@@ -75,8 +75,8 @@ export default function IndiceAprovacaoComponent({ title, subheader, series, opt
   );
 }
 
-IndiceAprovacaoComponent.propTypes = {
-  series: PropTypes.array,
-  subheader: PropTypes.string,
+IndiceAlfabetizacaoComponent.propTypes = {
   title: PropTypes.string,
+  subheader: PropTypes.string,
+  indice_alfabetizacao: PropTypes.array,
 };
