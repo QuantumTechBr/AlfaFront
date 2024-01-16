@@ -78,7 +78,6 @@ export default function DashboardRedeView() {
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
-    total_turmas_ativas: {},
 
     indice_fases_1_ano: {},
     indice_aprovacao_1_ano: {},
@@ -189,18 +188,6 @@ export default function DashboardRedeView() {
           total_alunos_ativos: response.data,
         }));
       }),
-      dashboardsMethods
-        .getDashboardTotalTurmasAtivas({
-          ano_letivo: fullFilters.ano_letivo,
-          ddz: fullFilters.ddz,
-          escola: fullFilters.escola,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_turmas_ativas: response.data,
-          }));
-        }),
 
       // ## FASES
       getIndices(1),
@@ -291,7 +278,7 @@ export default function DashboardRedeView() {
       if (bimestres && bimestres.length) {
         setFilters((prevState) => ({
           ...prevState,
-          bimestre: first(bimestres) // todo change to last,
+          bimestre: first(bimestres), // todo change to last,
         }));
       }
       if (anosLetivos && anosLetivos.length) {
@@ -306,18 +293,18 @@ export default function DashboardRedeView() {
   useEffect(() => {}, [contextReady.value]);
 
   useEffect(() => {
-    let zf = [];
+    let _zonaFiltro = [];
     if (user?.funcao_usuario?.length > 0) {
       if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        zf = [user?.funcao_usuario[0]?.zona];
+        _zonaFiltro = [user?.funcao_usuario[0]?.zona];
       } else {
-        zf = [user?.funcao_usuario[0]?.escola?.zona];
+        _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
       }
     }
-    setZonaFiltro(zf);
+    setZonaFiltro(_zonaFiltro);
     setFilters({
       anoLetivo: '',
-      zona: zf,
+      zona: _zonaFiltro,
       escola: [],
       turma: [],
       bimestre: '',

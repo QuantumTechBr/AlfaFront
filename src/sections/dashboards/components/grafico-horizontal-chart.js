@@ -16,7 +16,23 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
   const chartSeries = [
     {
       name: '+-',
-      data: series.map((element) => element.porcentagem),
+      // data: series.map((element) => element.porcentagem),
+
+      data: [
+        {
+          x: '2011',
+          y: 12,
+          goals: [
+            {
+              name: 'Expected',
+              value: 14,
+              strokeWidth: 2,
+              strokeDashArray: 2,
+              strokeColor: '#775DD0',
+            },
+          ],
+        },
+      ],
     },
   ];
 
@@ -85,8 +101,8 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
       type: 'gradient',
       gradient: {
         shade: 'light',
-        type: 'vertical',
-        shadeIntensity: 0.4,
+        type: 'horizontal',
+        shadeIntensity: 0.2,
         inverseColors: false,
         opacityFrom: 1,
         opacityTo: 1,

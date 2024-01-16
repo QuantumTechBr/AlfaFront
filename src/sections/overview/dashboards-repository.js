@@ -10,7 +10,12 @@ export const getDashboardIndiceAprovacao = payload => axios.post(endpoints.dashb
 export const getDashboardTotalAlunosAtivos = payload => axios.post(endpoints.dashboard.total_alunos_ativos, payload);
 export const getDashboardTotalTurmasAtivas = payload => axios.post(endpoints.dashboard.total_turmas_ativas, payload);
 export const getDashboardTotalUsuariosAtivos = payload => axios.post(endpoints.dashboard.total_usuarios_ativos, payload);
+//
+export const getDashboardGridRede = payload => axios.post(endpoints.dashboard.grid_rede, payload);
+export const getDashboardGridEscolas = payload => axios.post(endpoints.dashboard.grid_escolas, payload);
+export const getDashboardGridProfessores = payload => axios.post(endpoints.dashboard.grid_professores, payload);
 
+//
 const dashboardsMethods = {
     getDashboardAvaliacaoComponente,
     getDashboardAvaliacaoDiagnostico,
@@ -20,6 +25,10 @@ const dashboardsMethods = {
     getDashboardTotalAlunosAtivos,
     getDashboardTotalTurmasAtivas,
     getDashboardTotalUsuariosAtivos,
+    //
+    getDashboardGridRede,
+    getDashboardGridEscolas,
+    getDashboardGridProfessores
 };
 
 export default dashboardsMethods;

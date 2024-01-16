@@ -1,11 +1,9 @@
 'use client';
 
 import PropTypes from 'prop-types';
-import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 
-import { Box } from '@mui/system';
-
+import { Box, Stack } from '@mui/material';
 import { slugify } from 'src/utils/functions';
 
 import IndiceFasesComponent from '../components/indice-fases-component';
@@ -16,7 +14,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, 
   if (typeof ano_escolar === 'number') {
     titulo_completo += `º ano`;
   }
-  const title_indice_fases = `Índice de Fases - ${titulo_completo}`;
+  const title_indice_fases = `Índice de fases - ${titulo_completo}`;
   const title_indice_alfabetizacao = `Índice de alfabetização - ${titulo_completo}`;
 
   return (

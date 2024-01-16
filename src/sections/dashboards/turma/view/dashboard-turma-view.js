@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
+import Grid from '@mui/material/Unstable_Grid2';
 import { useTheme } from '@mui/material/styles';
 import { Stack, Button, Typography, Container } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 
 // contexts
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
@@ -13,6 +13,10 @@ import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+
+// routes
+import { paths } from 'src/routes/paths';
+import { useRouter } from 'src/routes/hook';
 
 // components
 import { useSettingsContext } from 'src/components/settings';
@@ -25,7 +29,7 @@ import Iconify from 'src/components/iconify';
 import { RegistroAprendizagemFases } from 'src/_mock';
 
 // ----------------------------------------------------------------------
-import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
+import DashboardTurmaTableToolbar from './dashboard-turma-table-toolbar';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 
@@ -33,16 +37,16 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 //
 import NumeroComponent from '../../components/numero-component';
-import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 import MetaComponent from '../../components/meta-component';
-import IndicesCompostosAlfabetizacaoGeralWidget from '../../widgets/indices-compostos-alfabetizacao-geral-widget';
+import IndicesCompostosFasesAlfabetizacaoWidget from '../../widgets/indices-compostos-fases-alfabetizacao-widget';
+import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 
-export default function DashboardDDZView() {
+export default function DashboardTurmaView() {
   const ICON_SIZE = 65;
 
   const theme = useTheme();
   const settings = useSettingsContext();
-
+  const router = useRouter();
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -68,8 +72,16 @@ export default function DashboardDDZView() {
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
     total_alunos_ativos: {},
-    //
-    grid_escolas: {},
+
+    indice_fases_1_ano: {},
+    indice_aprovacao_1_ano: {},
+    indice_fases_2_ano: {},
+    indice_aprovacao_2_ano: {},
+    indice_fases_3_ano: {},
+    indice_aprovacao_3_ano: {},
+    indice_fases_geral: {},
+    indice_aprovacao_geral: {},
+
     desempenho_alunos: {},
   });
 
@@ -84,13 +96,62 @@ export default function DashboardDDZView() {
     return formattedSeries;
   };
 
+  const getTurmasPorAnoEscolar = (anoEscolar) => {
+    const _turmas = filters.turma.length ? filters.turma : _turmasFiltered;
+    return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+  };
+
+  const getIndiceFases = async (anoEscolar, fullFilters) => {
+    if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
+      setDados((prevState) => ({
+        ...prevState,
+        [`indice_fases_${anoEscolar}_ano`]: {},
+      }));
+      return;
+    }
+
+    dashboardsMethods
+      .getDashboardIndiceFases({
+        ...fullFilters,
+        turma: anoEscolar
+          ? getTurmasPorAnoEscolar(anoEscolar)
+          : filters.turma.length
+          ? filters.turma.map((t) => t.id)
+          : null,
+      })
+      .then((response) => {
+        if (response.data.chart?.series && response.data.chart?.series.length > 0) {
+          response.data.chart.series = getFormattedSeries(response.data.chart.series);
+        }
+
+        setDados((prevState) => ({
+          ...prevState,
+          [anoEscolar ? `indice_fases_${anoEscolar}_ano` : `indice_fases_geral`]: response.data,
+        }));
+      });
+    dashboardsMethods
+      .getDashboardIndiceAprovacao({
+        ...fullFilters,
+        turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
+      })
+      .then((response) => {
+        setDados((prevState) => ({
+          ...prevState,
+          [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
+            ...response.data,
+            hasSeries: (response.data.categories ?? []).length > 0,
+          },
+        }));
+      });
+  };
+
   const preencheGraficos = async () => {
     isGettingGraphics.onTrue();
     const fullFilters = {
       ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
       ddz: filters.zona.map((item) => item.id),
-      // escola: filters.escola.map((item) => item.id),
-      // turma: filters.turma.map((item) => item.id),
+      escola: filters.escola.map((item) => item.id),
+      turma: filters.turma.map((item) => item.id),
       bimestre: [(filters.bimestre != '' ? filters.bimestre : first(bimestres)).id], // todo change to last
     };
 
@@ -114,21 +175,20 @@ export default function DashboardDDZView() {
         }));
       }),
 
-      //
-      dashboardsMethods
-        .getDashboardGridEscolas({
-          ...fullFilters,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            grid_escolas: response.data,
-          }));
-        }),
+      // ## INDICE DE FASES
+      getIndiceFases(1, fullFilters),
+      getIndiceFases(2, fullFilters),
+      getIndiceFases(3, fullFilters),
+      getIndiceFases(null, fullFilters),
 
       // ## DESEMPENHO ALUNO
       dashboardsMethods
-        .getDashboardDesempenhoAlunos({ ano_letivo: fullFilters.ano_letivo, ddz: fullFilters.ddz })
+        .getDashboardDesempenhoAlunos({
+          ano_letivo: fullFilters.ano_letivo,
+          ddz: fullFilters.ddz,
+          escola: fullFilters.escola,
+          turma: fullFilters.turma,
+        })
         .then((response) => {
           setDados((prevState) => ({
             ...prevState,
@@ -259,15 +319,6 @@ export default function DashboardDDZView() {
     novaAvaliacao.onFalse();
   };
 
-  const handleChangeBimestreFn = (value) => {
-    setFilters((prevState) => ({
-      ...prevState,
-      bimestre: value,
-    }));
-
-    preencheGraficos();
-  };
-
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -279,7 +330,7 @@ export default function DashboardDDZView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (DDZ)</Typography>
+            <Typography variant="h3">Dashboard (Turma)</Typography>
           </Grid>
 
           <Grid xs={12} md="auto">
@@ -304,11 +355,13 @@ export default function DashboardDDZView() {
             sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
           >
             <Grid xs={12} md="auto">
-              <DashboardDDZTableToolbar
+              <DashboardTurmaTableToolbar
                 filters={filters}
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}
                 ddzOptions={zonas}
+                escolaOptions={_escolasFiltered || escolas}
+                anoTurmaOptions={_turmasFiltered || turmas}
                 bimestreOptions={bimestres}
               />
             </Grid>
@@ -372,13 +425,42 @@ export default function DashboardDDZView() {
             </Grid>
           )}
 
-          {!isGettingGraphics.value && (
-            <IndicesCompostosAlfabetizacaoGeralWidget
-              title="DDZ"
-              indice_alfabetizacao={{}}
-              indice_alfabetizacao_geral={{}}
-            />
-          )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
+              <IndicesCompostosFasesAlfabetizacaoWidget
+                key="indices_component_1_ano"
+                ano_escolar={1}
+                indice_fases={dados.indice_fases_1_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_1_ano}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
+              <IndicesCompostosFasesAlfabetizacaoWidget
+                key="indices_component_2_ano"
+                ano_escolar={2}
+                indice_fases={dados.indice_fases_2_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_2_ano}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
+              <IndicesCompostosFasesAlfabetizacaoWidget
+                key="indices_component_3_ano"
+                ano_escolar={3}
+                indice_fases={dados.indice_fases_3_ano}
+                indice_alfabetizacao={dados.indice_aprovacao_3_ano}
+              />
+            )}
+          {!isGettingGraphics.value &&
+            (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+              <IndicesCompostosFasesAlfabetizacaoWidget
+                key="indices_component_geral"
+                ano_escolar="Geral"
+                indice_fases={dados.indice_fases_geral}
+                indice_alfabetizacao={dados.indice_aprovacao_geral}
+              />
+            )}
         </Grid>
 
         {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
@@ -391,8 +473,24 @@ export default function DashboardDDZView() {
           </Grid>
         )}
 
-        {/* escola_nome, qtd_alfabetizado, qtd_alunos, qtd_avaliados, qtd_nao_alfabetizado, 
-        qtd_nao_avaliado, turma_ano_escolar, turma_nome, turma_turno,  */}
+        <Grid xs={12} lg={6} sx={{ my: 3 }}>
+          <Button
+            variant="contained"
+            color="info"
+            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_diagnostico)}
+            sx={{ mr: 3 }}
+          >
+            Ir para Avaliação Diagnóstica
+          </Button>
+          <Button
+            variant="contained"
+            color="info"
+            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_componente)}
+            sx={{ mr: 3 }}
+          >
+            Ir para Avaliação por Componente
+          </Button>
+        </Grid>
       </Grid>
 
       <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />

@@ -16,7 +16,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
-export default function DashboardDDZTableToolbar({
+export default function DashboardTurmaTableToolbar({
   filters,
   onFilters,
   anoLetivoOptions,
@@ -142,37 +142,36 @@ export default function DashboardDDZTableToolbar({
             ))}
           </Select>
         </FormControl>
-        {escolaOptions && (
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 300 },
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 300 },
+          }}
+        >
+          <InputLabel size="small">Escolas</InputLabel>
+
+          <Select
+            size="small"
+            multiple
+            value={filters.escola}
+            onChange={handleFilterEscola}
+            input={<OutlinedInput fullWidth label="Escolas" />}
+            renderValue={renderValueEscola}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
             }}
           >
-            <InputLabel size="small">Escolas</InputLabel>
-
-            <Select
-              size="small"
-              multiple
-              value={filters.escola}
-              onChange={handleFilterEscola}
-              input={<OutlinedInput fullWidth label="Escolas" />}
-              renderValue={renderValueEscola}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {escolaOptions?.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        )}
+            {escolaOptions?.map((option) => (
+              <MenuItem key={option.id} value={option}>
+                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                {option.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         {anoTurmaOptions && (
           <FormControl
@@ -243,7 +242,7 @@ export default function DashboardDDZTableToolbar({
   );
 }
 
-DashboardDDZTableToolbar.propTypes = {
+DashboardTurmaTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   anoLetivoOptions: PropTypes.array,

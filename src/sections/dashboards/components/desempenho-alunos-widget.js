@@ -48,7 +48,8 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        columnWidth: 50,
+        columnWidth: '80%',
+        borderRadius: 15,
         dataLabels: {
           position: 'top',
         },
@@ -71,7 +72,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     stroke: {
       show: true,
-      width: 4,
+      width: 10,
       colors: ['transparent'],
     },
 

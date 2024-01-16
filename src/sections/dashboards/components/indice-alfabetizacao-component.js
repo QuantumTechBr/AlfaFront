@@ -10,7 +10,7 @@ import { slugify } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
-export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_alfabetizacao, options, ...other }) {
+export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_alfabetizacao = [], options, ...other }) {
   const totalItems = indice_alfabetizacao.reduce((total, item) => total + item.amount, 0);
   indice_alfabetizacao.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
@@ -24,7 +24,7 @@ export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_
     return Object.entries(colors).map(([key, value]) => {
       return (
         <Stack
-          key={`indice_aprovacao_component_card_${slugify(title)}_${key}`}
+          key={`indice_alfabetizacao_component_card_${slugify(title)}_${key}`}
           direction="row"
           sx={{ px: 3, my: 0.8 }}
         >

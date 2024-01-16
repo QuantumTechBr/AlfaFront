@@ -1,7 +1,6 @@
 'use client';
 
 import PropTypes from 'prop-types';
-import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
 
 import { Box } from '@mui/system';
