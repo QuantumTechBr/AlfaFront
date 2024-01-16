@@ -8,7 +8,7 @@ import { Box } from '@mui/system';
 
 import { slugify } from 'src/utils/functions';
 
-import IndiceFaseComponent from '../components/indice-fase-component';
+import IndiceFasesComponent from '../components/indice-fases-component';
 import IndiceAprovacaoComponent from '../components/indice-aprovacao-component';
 
 export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, indice_fases, indice_aprovacao }) {
@@ -23,7 +23,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, 
     <Box width="100%" mb={7}>
       <Stack direction="row">
         <Grid xs={12} lg={7} xl={8}>
-          <IndiceFaseComponent
+          <IndiceFasesComponent
             key={`indice_fases_component_item_${slugify(title_indice_fases)}`}
             indice_fases={indice_fases}
             title_indice_fases={title_indice_fases}

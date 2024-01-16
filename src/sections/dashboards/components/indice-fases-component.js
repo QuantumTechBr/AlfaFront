@@ -13,7 +13,7 @@ import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/
 import GraficoColunasChart from './grafico-colunas-chart';
 import { Card, LinearProgress } from '@mui/material';
 
-export default function IndiceFaseComponent({
+export default function IndiceFasesComponent({
   indice_fases,
   title_indice_fases,
   ...other
@@ -97,7 +97,7 @@ export default function IndiceFaseComponent({
   );
 }
 
-IndiceFaseComponent.propTypes = {
+IndiceFasesComponent.propTypes = {
   indice_fases: PropTypes.object,
   title_indice_fases: PropTypes.string,
 };
