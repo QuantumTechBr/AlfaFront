@@ -7,6 +7,7 @@ export const getAllUsers = () => axios.get(endpoints.user.list);
 export const updateUserById = (id, payload) => axios.patch(endpoints.user.update.concat(id), payload);
 export const deleteUserById = id => axios.delete(endpoints.user.delete.concat(id));
 export const getUserById = id => axios.get(endpoints.user.get_by_id.concat(id));
+export const exportFile = query => axios.get(endpoints.user.list.concat(`?`).concat(query));
 
 const userMethods = {
     insertUser,
@@ -14,6 +15,7 @@ const userMethods = {
     updateUserById,
     deleteUserById,
     getUserById,
+    exportFile,
 };
 
 export default userMethods;
