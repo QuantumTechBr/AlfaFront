@@ -259,7 +259,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
         fase: data.fase,
         inicio_previsto: inicioPrev.getFullYear() + "-" + (inicioPrev.getMonth()+1) + "-" + inicioPrev.getDate(),
         termino_previsto: terminoPrev.getFullYear() + "-" + (terminoPrev.getMonth()+1) + "-" + terminoPrev.getDate(),
-        habilidades_plano_intervencao_id: filters.habilidades,
+        habilidades_plano_intervencao: filters.habilidades.map((habilidade) => {return {'habilidade': {'habilidade_id': habilidade}, 'habilidade_id': habilidade}}),
         status: 'Criado',
       };
       console.log(toSend)
