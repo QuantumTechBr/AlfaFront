@@ -10,78 +10,104 @@ import Scrollbar from 'src/components/scrollbar';
 
 // ----------------------------------------------------------------------
 
-export default function GraficoHorizontalChart({ title, subheader, chart, ...other }) {
+export default function GraficoHorizontalChart({
+  title,
+  subheader,
+  chart,
+  height = 445,
+  ...other
+}) {
   const theme = useTheme();
-  const { series, options, height = 305 } = chart;
+  const { series, options } = chart;
 
   if (series === undefined) return;
 
   const chartSeries = [
     {
-      name: 'ano',
-      // data: series.map((element) => element.porcentagem),
+      name: `Índice`,
       data: series,
     },
   ];
 
   const chartOptions = useChart({
+    // animations: {
+    //   enabled: true,
+    //   easing: 'easeinout',
+    //   speed: 450,
+    //   animateGradually: {
+    //     enabled: true,
+    //     delay: 75,
+    //   },
+    //   dynamicAnimation: {
+    //     enabled: true,
+    //     speed: 120,
+    //   },
+    // },
     legend: {
       show: false,
+      floating: true,
+      position: 'top',
+      horizontalAlign: 'left',
+      offsetX: 0,
+
+      showForSingleSeries: true,
+      customLegendItems: ['Atual', 'Meta'],
+      markers: {
+        fillColors: ['#00E396', '#775DD0'],
+      },
     },
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: 40,
-        borderRadius: 11,
+        barHeight: '80%',
+        borderRadius: 13,
       },
     },
     colors: [theme.palette.primary.light],
 
-    track: {
-      background: alpha(theme.palette.common.black, 0.8),
-    },
-
     dataLabels: {
-      enabled: false,
-    },
-    xaxis: {
-      // categories: series.map((i) => i.label),
-      labels: {
-        show: false,
+      enabled: true,
+      formatter: function (val, opt) {
+        const goals = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex].goals;
+
+        if (goals && goals.length) {
+          return `${val ?? 0}% / ${goals[0]?.value ?? 0}%`;
+        }
+        return val;
       },
     },
-    // yaxis: {
-    //   labels: {
-    //     show: false,
-    //     // todo add 0-100
-    //   },
-    // },
 
+    // TODO REVISAR SE SOLICITADO
     tooltip: {
-      enabled: true,
+      shared: false,
+      intersect: false,
+      enabled: false,
+      enabledOnSeries: true,
       followCursor: true,
       onDatasetHover: {
-        highlightDataSeries: true,
+        highlightDataSeries: false,
       },
       y: {
-        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return value;
+        formatter: function (value, opt) {
+          return value ?? series[opt.dataPointIndex]?.alfabetizados ?? '-';
         },
         title: {
-          formatter: (s) => `Quantidade:`,
+          formatter: (s) => `Alfabetizados:`,
         },
       },
     },
 
     grid: {
+      padding: { top: -20, bottom: 0 },
       row: {
         colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
+        height: 50,
       },
     },
 
     stroke: {
-      show: true,
+      show: false,
       strokeWidth: 2,
       colors: ['transparent'],
     },
@@ -103,7 +129,7 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
 
   return (
     <>
-      <Card {...other} sx={{ pb: 2, height:445 }}>
+      <Card {...other} sx={{ pb: 2, height: height }}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
             {title}
@@ -116,7 +142,7 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={height}
+            height={series.length * 50}
           />
         </Scrollbar>
       </Card>
@@ -127,5 +153,6 @@ export default function GraficoHorizontalChart({ title, subheader, chart, ...oth
 GraficoHorizontalChart.propTypes = {
   title: PropTypes.string,
   subheader: PropTypes.string,
+  height: PropTypes.number,
   chart: PropTypes.object,
 };

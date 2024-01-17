@@ -2,13 +2,13 @@
 
 import PropTypes from 'prop-types';
 import Grid from '@mui/material/Unstable_Grid2';
-import { _dashboardSeries } from 'src/_mock';
 
 import { Box, Stack } from '@mui/material';
 import { slugify } from 'src/utils/functions';
 
 import GraficoHorizontalChart from '../components/grafico-horizontal-chart';
 import IndiceAlfabetizacaoComponent from '../components/indice-alfabetizacao-component';
+import { random } from 'lodash';
 
 export default function IndicesCompostosAlfabetizacaoGeralWidget({
   title,
@@ -22,10 +22,30 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
     <Box width="100%" mb={7}>
       <Stack direction="row">
         <Grid xs={12} lg={7} xl={8}>
-          <GraficoHorizontalChart
-            title={title_indice_alfabetizacao}
-            chart={indice_alfabetizacao.chart ?? { series: _dashboardSeries }}
-          />
+          {indice_alfabetizacao.length && (
+            <GraficoHorizontalChart
+              title={title_indice_alfabetizacao}
+              height={445}
+              chart={{
+                series: indice_alfabetizacao.map((ia) => {
+                  return {
+                    x: ia.escola_nome,
+                    y: ia.indice_alfabetizacao,
+                    alfabetizados: ia.alfabetizados,
+                    goals: [
+                      {
+                        name: 'Meta',
+                        value: random(90, 100, false),
+                        strokeWidth: 3,
+                        strokeDashArray: 0,
+                        strokeColor: '#775DD0',
+                      },
+                    ],
+                  };
+                }),
+              }}
+            />
+          )}
         </Grid>
 
         <Grid xs={12} lg={5} xl={4}>
@@ -48,6 +68,6 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
 
 IndicesCompostosAlfabetizacaoGeralWidget.propTypes = {
   title: PropTypes.string,
-  indice_alfabetizacao: PropTypes.object,
+  indice_alfabetizacao: PropTypes.array,
   indice_alfabetizacao_geral: PropTypes.object,
 };

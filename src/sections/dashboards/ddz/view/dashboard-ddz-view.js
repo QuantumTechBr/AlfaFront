@@ -19,6 +19,7 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
+import _ from 'lodash';
 
 // contexts
 import { AuthContext } from 'src/auth/context/alfa';
@@ -123,11 +124,27 @@ export default function DashboardDDZView() {
           ...fullFilters,
         })
         .then((response) => {
+          // adequação dos dados
+
+          let result = _(response.data)
+            .groupBy((turmaEscola) => turmaEscola.escola_nome)
+            .map((escolaTurmas, key) => ({
+              escola_nome: key,
+              registros: escolaTurmas,
+              //
+              turmas: escolaTurmas.length,
+              alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
+              avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
+              alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
+              nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
+              deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
+            }))
+            .value();
+
           setDados((prevState) => ({
             ...prevState,
-            grid_escolas: response.data,
+            grid_escolas: result,
           }));
-          setTableData(response.data);
         }),
 
       // ## DESEMPENHO ALUNO
@@ -205,12 +222,12 @@ export default function DashboardDDZView() {
     novaAvaliacao.onFalse();
   };
 
-  // TABLE
+  // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
     { id: 'escola', label: 'Escola', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
-    { id: 'Alunos', label: 'Alunos', width: 110, notsortable: true },
+    { id: 'alunos', label: 'Alunos', width: 110, notsortable: true },
     { id: 'avaliados', label: 'Alunos avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
     { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 110, notsortable: true },
@@ -223,13 +240,13 @@ export default function DashboardDDZView() {
   };
 
   const table = useTable({ defaultRowsPerPage: 15 });
-  const [tableData, setTableData] = useState([]);
+
   const [tableFilters, setTableFilters] = useState(defaultTableFilters);
 
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
   const dataFiltered = applyTableFilter({
-    inputData: tableData,
+    inputData: dados.grid_escolas,
     comparator: getComparator(table.order, table.orderBy),
     filters: debouncedGridFilter,
   });
@@ -363,7 +380,17 @@ export default function DashboardDDZView() {
           {!isGettingGraphics.value && (
             <IndicesCompostosAlfabetizacaoGeralWidget
               title="DDZ"
-              indice_alfabetizacao={{}}
+              indice_alfabetizacao={[
+                ...dados.grid_escolas.map((e) => {
+                  return {
+                    ...e,
+                    indice_alfabetizacao:
+                      e.avaliados > 0
+                        ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
+                        : e.avaliados,
+                  };
+                }),
+              ]}
               indice_alfabetizacao_geral={{}}
             />
           )}
@@ -372,7 +399,7 @@ export default function DashboardDDZView() {
         {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
           <Grid xs={12}>
             <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes"
+              title="Desempenho dos Estudantes - Índice de fases"
               subheader={dados.desempenho_alunos.subheader}
               chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
             />
@@ -382,18 +409,18 @@ export default function DashboardDDZView() {
 
       <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
-      <Card sx={{ my: 4, }}>
+      <Card sx={{ my: 4 }}>
         <CardHeader title="Escolas" />
         <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-        <TableContainer sx={{ mt: 1 ,  height:500 }}>
+        <TableContainer sx={{ mt: 1, height: 500 }}>
           <Scrollbar>
-            <Table size="small" sx={{ minWidth: 960, }}>
+            <Table size="small" sx={{ minWidth: 960 }}>
               <TableHeadCustom
                 order={table.order}
                 orderBy={table.orderBy}
                 headLabel={TABLE_HEAD}
-                rowCount={tableData.length}
+                rowCount={dados.grid_escolas.length}
                 onSort={table.onSort}
               />
 
@@ -406,20 +433,18 @@ export default function DashboardDDZView() {
                 ).map(([key, row]) => (
                   <StyledTableRow key={`tableRowDash_${key}`}>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
-                    <TableCell>{row.qtd_alfabetizado}</TableCell>
-                    <TableCell>{row.qtd_alunos}</TableCell>
-                    <TableCell>{row.qtd_avaliados}</TableCell>
-                    <TableCell>{row.qtd_nao_alfabetizado}</TableCell>
-                    <TableCell>{row.qtd_nao_avaliado}</TableCell>
-                    <TableCell>{row.turma_ano_escolar}</TableCell>
+                    <TableCell>{row.turmas}</TableCell>
+                    <TableCell>{row.alunos}</TableCell>
+                    <TableCell>{row.avaliados}</TableCell>
+                    <TableCell>{row.alfabetizados}</TableCell>
+                    <TableCell>{row.nao_alfabetizados}</TableCell>
+                    <TableCell>{row.deixou_de_frequentar}</TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       <Button
                         color="primary"
                         variant="contained"
                         size="small"
-                        onClick={() => {
-                          router.push(`${paths.dashboard.root}/dash-escola`);
-                        }}
+                        href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
                       >
                         Ver mais
                       </Button>
@@ -432,7 +457,7 @@ export default function DashboardDDZView() {
 
                 <TableEmptyRows
                   height={43}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                  emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_escolas.length)}
                 />
 
                 <TableNoData notFound={notFound} />
