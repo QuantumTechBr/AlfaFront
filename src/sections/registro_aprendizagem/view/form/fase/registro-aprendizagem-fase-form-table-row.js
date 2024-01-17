@@ -25,16 +25,17 @@ import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres }) {
   
-  const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId } = useContext(RegistroAprendizagemContext);
+  const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, melhorResultadoAlunoTurma } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
-  const [bimestreAnterior, setBimestreAnterior] = useState(undefined)
   const desabilita = useBoolean(false);
   const { id: aluno_turma_id, aluno } = row;
   const { control, getValues, setValue } = useFormContext();
   let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
   let turmaId = getValues('turma.id')
   let bimestreId = getValues('bimestre.id')
-  let registroAprendizagemFaseBimestreAnterior = registroAprendizagemFase
+  const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
+  const bimestreAnterior = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
+  const [resultadoPrevio, setResultadoPrevio] = useState("")
 
   const disableCheckbox = () => {
     if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
@@ -47,21 +48,47 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     }
   }
 
-  useEffect(() => {
-    const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
-    let ba = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
-    setBimestreAnterior(ba)
+  const preparacaoInicial = async () => {
     if (disableCheckbox()) {
       desabilita.onTrue()
     }
-    if (ba != undefined) {
-      buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
+    if (bimestreAnterior != undefined) {
+      await buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
         turmaId: turmaId,
-        bimestreId: ba.id,
+        bimestreId: bimestreAnterior.id,
       });
     }
+  }
+
+  const ResultadoPrevio = async ({ alunoTurmaId }) => {
+    let rp = await melhorResultadoAlunoTurma({
+      alunoTurmaId: alunoTurmaId,
+    });
+    setResultadoPrevio(rp)
+  }
+
+  useEffect(() => {
+    preparacaoInicial() 
   }, []);
 
+  useEffect(() => {
+    if (registroAprendizagemFase.length > 0) {
+      if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
+        let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+        if (registro){
+          if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
+            ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+          } else {
+            setResultadoPrevio(registro?.resultado)
+          }      
+        } else {
+          ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+        }
+      }    
+      
+    }
+  }, [registroAprendizagemFase]);
+  
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
     'Pré Alfabética': 2,
@@ -69,24 +96,14 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     'Alfabética Completa': 4,
     'Alfabética Consolidada': 5,
   };
-  // const disableCheckbox = (tipoFaseValue) => {
-  //   if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
-  //     return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
-  //   } else {
-  //     return false;
-  //   }
-  // }
 
-  const desabilitaBimestre = tipoFaseValue => {
-    if (user?.permissao_usuario[0]?.nome === "PROFESSOR" & bimestreAnterior != undefined) {
-      let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
-      let resultadoPrevio = ""
-      if (registro){
-        resultadoPrevio = registro?.resultado
+  const desabilitaBimestre = (tipoFaseValue) => {
+    if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
+      if (resultadoPrevio == 'Não Avaliado') {
+        return false
+      } else {
+        return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
       }
-      // console.log(registroAprendizagemFase)
-      // console.log(mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio])
-      return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
     }
     if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
       return true
@@ -94,7 +111,6 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       return false
     }
   }
-
 
   return (
     <>

@@ -34,7 +34,7 @@ import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
-export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alunosTurma, habilidades, handleTurma, prep }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
   const defaultFilters = {
     nome: '',
     promo_ano_anterior: [],
@@ -127,7 +127,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
             handleTurma={handleTurma}
           />
 
-          
           {canReset && (
             <RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
               filters={filters}
@@ -139,10 +138,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
             />
           )}
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <Scrollbar>
+          <TableContainer sx={{ position: 'relative',overflow: 'unset', }}  >
+            <Scrollbar sx={{
+              "& .simplebar-scrollbar": {
+                "backgroundColor": "#D3D3D3",
+                'borderRadius': 10,
+              },
+             }}>
             {!preparado.value ? (
-                <LoadingBox />
+              <LoadingBox />
                 ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
@@ -152,31 +156,32 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                />
+                  />
 
-                <TableBody>
+                <TableBody sx={{ bgcolor: 'white' }}>
                   {dataFiltered
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <RegistroAprendizagemDiagnosticoNewEditTableRow
+                      )
+                      .map((row) => (
+                        <RegistroAprendizagemDiagnosticoNewEditTableRow  
                         key={row.id}
                         row={row}
                         habilidades={habilidades}
-                      />
-                    ))}
+                        periodo={periodo}
+                        />
+                        ))}
 
                   <TableEmptyRows
                     height={denseHeight}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                    />
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
               </Table> )}
-            </Scrollbar>
+            </Scrollbar> 
           </TableContainer>
 
           <TablePaginationCustom
@@ -198,6 +203,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, alu
 
 RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
   turma: PropTypes.object,
+  periodo: PropTypes.string,
   alunosTurma: PropTypes.array,
   habilidades: PropTypes.array,
   handleTurma: PropTypes.func,

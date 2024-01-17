@@ -10,6 +10,7 @@ import LinearProgress from '@mui/material/LinearProgress';
 import { fDate } from 'src/utils/format-time';
 // hooks
 import { useResponsive } from 'src/hooks/use-responsive';
+import { useAuthContext } from 'src/auth/hooks';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -37,6 +38,11 @@ export default function CalendarToolbar({
   onOpenForm,
   onOpenFilters,
 }) {
+  
+  const { checkPermissaoModulo } = useAuthContext();
+  
+  const permissaoCadastrar = checkPermissaoModulo("calendario","cadastrar");
+
   const smUp = useResponsive('up', 'sm');
 
   const popover = usePopover();
@@ -86,7 +92,7 @@ export default function CalendarToolbar({
             <Iconify icon="ic:round-filter-list" />
           </IconButton> */}
 
-          <Button
+          {permissaoCadastrar && <Button
             size="small"
             color="primary"
             variant="contained"
@@ -94,7 +100,7 @@ export default function CalendarToolbar({
             onClick={onOpenForm}
           >
             Novo evento
-          </Button>
+          </Button>}
         </Stack>
 
         {loading && (
