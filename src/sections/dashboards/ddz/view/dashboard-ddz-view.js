@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
+import _ from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -13,13 +14,19 @@ import {
   TableRow,
   TableCell,
   CardHeader,
+  Box,
+  TableHead,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
-import _ from 'lodash';
+
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import Collapse from '@mui/material/Collapse';
+import IconButton from '@mui/material/IconButton';
 
 // contexts
 import { AuthContext } from 'src/auth/context/alfa';
@@ -57,10 +64,10 @@ import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 import MetaComponent from '../../components/meta-component';
 import IndicesCompostosAlfabetizacaoGeralWidget from '../../widgets/indices-compostos-alfabetizacao-geral-widget';
 import DashboardGridFilters from '../../components/dashboard-grid-filter';
+import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
-import Scrollbar from 'src/components/scrollbar';
 
 export default function DashboardDDZView() {
   const ICON_SIZE = 65;
@@ -218,6 +225,7 @@ export default function DashboardDDZView() {
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
+    { id: 'collapse', label: '', notsortable: true },
     { id: 'escola', label: 'Escola', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
     { id: 'alunos', label: 'Alunos', width: 110, notsortable: true },
@@ -256,16 +264,6 @@ export default function DashboardDDZView() {
     },
     [table]
   );
-
-  // TODO REMOVER E MIGRAR PARA ACESSO UNICO
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(even)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    ':hover': {
-      backgroundColor: theme.palette.action.focus,
-    },
-  }));
 
   const reduceAlfabetizacaoGeral = function () {
     return {
@@ -420,7 +418,7 @@ export default function DashboardDDZView() {
 
           <TableContainer sx={{ mt: 1, height: 500 }}>
             <Scrollbar>
-              <Table size="small" sx={{ minWidth: 960 }}>
+              <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -436,25 +434,7 @@ export default function DashboardDDZView() {
                       table.page * table.rowsPerPage + table.rowsPerPage
                     )
                   ).map(([key, row]) => (
-                    <StyledTableRow key={`tableRowDash_${key}`}>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
-                      <TableCell>{row.turmas}</TableCell>
-                      <TableCell>{row.alunos}</TableCell>
-                      <TableCell>{row.avaliados}</TableCell>
-                      <TableCell>{row.alfabetizados}</TableCell>
-                      <TableCell>{row.nao_alfabetizados}</TableCell>
-                      <TableCell>{row.deixou_de_frequentar}</TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        <Button
-                          color="primary"
-                          variant="contained"
-                          size="small"
-                          href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
-                        >
-                          Ver mais
-                        </Button>
-                      </TableCell>
-                    </StyledTableRow>
+                    <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
                   ))}
 
                   <TableEmptyRows
@@ -506,4 +486,91 @@ function applyTableFilter({ inputData, comparator, filters }) {
   }
 
   return inputData;
+}
+
+// ----------------------------------------------------------------------
+
+function Row(props) {
+  const { row } = props;
+  const [open, setOpen] = useState(false);
+
+  // TODO REMOVER E MIGRAR PARA ACESSO UNICO
+  const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(even)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    ':hover': {
+      backgroundColor: theme.palette.action.focus,
+    },
+  }));
+  return (
+    <>
+      <StyledTableRow
+        key={`tableStyledRowDash_${row.key}`}
+        sx={{ '& > *': { borderBottom: 'unset' } }}
+      >
+        <TableCell>
+          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
+        <TableCell>{row.turmas}</TableCell>
+        <TableCell>{row.alunos}</TableCell>
+        <TableCell>{row.avaliados}</TableCell>
+        <TableCell>{row.alfabetizados}</TableCell>
+        <TableCell>{row.nao_alfabetizados}</TableCell>
+        <TableCell>{row.deixou_de_frequentar}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Button
+            color="primary"
+            variant="contained"
+            size="small"
+            href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
+          >
+            Ver mais
+          </Button>
+        </TableCell>
+      </StyledTableRow>
+
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              {/* <Typography variant="h6" gutterBottom component="div">
+                History
+              </Typography> */}
+              <Table size="small" aria-label="Turmas" width="100%">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Ano - Turma</TableCell>
+                    <TableCell>Alunos</TableCell>
+                    <TableCell>Alunos avaliados</TableCell>
+                    <TableCell>Alfabetizados</TableCell>
+                    <TableCell>Não alfabetizados</TableCell>
+                    <TableCell>Deixou de frequentar</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {row.registros.map((registro) => (
+                    <TableRow key={registro.turma_id ?? `${registro.escola_nome}-${registro.turma_ano_escolar}-${registro.turma_nome}-${registro.turma_turno}-` }>
+                      <TableCell component="th" scope="row">
+                        {registro.turma_ano_escolar} {registro.turma_nome}
+                      </TableCell>
+                      <TableCell>{registro.qtd_alunos}</TableCell>
+                      <TableCell>{registro.qtd_avaliados}</TableCell>
+                      <TableCell>{registro.qtd_alfabetizado}</TableCell>
+                      <TableCell>{registro.qtd_nao_alfabetizado}</TableCell>
+                      <TableCell>{registro.qtd_nao_avaliado}</TableCell>
+                      
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
+  );
 }

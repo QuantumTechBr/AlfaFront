@@ -17,4 +17,4 @@ export default function StyledTableRow() {
   }));
 }
 
-StyledTableRow.propTypes = {};
+
