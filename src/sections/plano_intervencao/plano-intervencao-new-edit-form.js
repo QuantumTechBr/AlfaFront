@@ -36,9 +36,6 @@ import {
   _roles, 
   USER_STATUS_OPTIONS, 
   _ddzs, 
-  habilidades_1ano, 
-  habilidades_2ano, 
-  habilidades_3ano, 
   anos_options, 
   fases_options,
   aplicacao_options,
@@ -65,6 +62,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
 import alunoMethods from '../aluno/aluno-repository';
+import habilidadeMethods from '../habilidade/habilidade-repository';
 // ----------------------------------------------------------------------
 const filtros = {
   ano: '',
@@ -89,6 +87,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [listaProfissionais, setListaProfissionais] = useState([])
   const [alunos, setAlunos] = useState([]);
+  const [allHab, setAllHab] = useState([]);
+  const [habilidades_1ano, setHabilidades_1ano] = useState([]);
+  const [habilidades_2ano, setHabilidades_2ano] = useState([]);
+  const [habilidades_3ano, setHabilidades_3ano] = useState([]);
 
   let inicioPrevisto = new Date('01-01-2000');
   if (currentPlano) {
@@ -134,6 +136,29 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
+    habilidadeMethods.getAllHabilidades().then((retorno) => {
+      let hab1ano = [];
+      let hab2ano = [];
+      let hab3ano = [];
+      retorno.data.map((habilidade) => {
+        if (habilidade.ano_escolar == 1) {
+          hab1ano.push(habilidade);
+          return
+        }
+        if (habilidade.ano_escolar == 2) {
+          hab2ano.push(habilidade);
+          return
+        }
+        if (habilidade.ano_escolar == 3) {
+          hab3ano.push(habilidade);
+          return
+        }
+      })
+      setAllHab(retorno.data);
+      setHabilidades_1ano(hab1ano);
+      setHabilidades_2ano(hab2ano);
+      setHabilidades_3ano(hab3ano);
+    })
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
@@ -339,7 +364,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
 
   const renderValueHabilidade = (selected) => 
     selected.map((habId) => {
-      return (hab.find((option) => option.id == habId)?.descricao)?.slice(0,3);
+      return (hab.find((option) => option.id == habId)?.nome);
     }).join(', ');
 
 
@@ -539,7 +564,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
               {hab?.map((habi) => (
                 <MenuItem key={habi.id} value={habi.id}>
                   <Checkbox disableRipple size="small" checked={filters.habilidades.includes(habi.id)} />
-                  {habi.descricao}
+                  {`${habi.nome} - ${habi.descricao}`}
                 </MenuItem>
               ))}
             </Select>
