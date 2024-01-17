@@ -383,7 +383,7 @@ export default function DashboardDDZView() {
 
           {!isGettingGraphics.value && (
             <IndicesCompostosAlfabetizacaoGeralWidget
-              title="DDZ"
+              title="por escola"
               indice_alfabetizacao={[
                 ...dados.grid_escolas.map((e) => {
                   return {
