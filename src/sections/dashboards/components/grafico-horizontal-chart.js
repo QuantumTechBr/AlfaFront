@@ -30,19 +30,18 @@ export default function GraficoHorizontalChart({
   ];
 
   const chartOptions = useChart({
-    // animations: {
-    //   enabled: true,
-    //   easing: 'easeinout',
-    //   speed: 450,
-    //   animateGradually: {
-    //     enabled: true,
-    //     delay: 75,
-    //   },
-    //   dynamicAnimation: {
-    //     enabled: true,
-    //     speed: 120,
-    //   },
-    // },
+    states: {
+      hover: {
+        filter: {
+          type: 'none' /* none, lighten, darken */,
+        },
+      },
+      active: {
+        filter: {
+          type: 'none' /* none, lighten, darken */,
+        },
+      },
+    },
     legend: {
       show: false,
       floating: true,
@@ -71,9 +70,13 @@ export default function GraficoHorizontalChart({
         const goals = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex].goals;
 
         if (goals && goals.length) {
+          if (val == 0) return '';
           return `${val ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
         return val;
+      },
+      dropShadow: {
+        enabled: true,
       },
     },
 

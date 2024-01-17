@@ -12,7 +12,7 @@ import Iconify from 'src/components/iconify';
 import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
-import { fNumber, fPercent } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 
 import last from 'lodash/last';
 import _ from 'lodash';
@@ -57,10 +57,6 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     dataLabels: {
       enabled: true,
-      formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-        // return preparedData[dataPointIndex]?.porcentagem;
-        return 1;
-      },
       offsetY: 0,
       dropShadow: {
         enabled: true,
@@ -98,7 +94,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
 
     legend: {
-      position: "top",
+      position: 'top',
     },
     ...options,
   };

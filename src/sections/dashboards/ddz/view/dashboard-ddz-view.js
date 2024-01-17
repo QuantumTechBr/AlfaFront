@@ -45,11 +45,10 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useRouter } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first, last } from 'lodash';
+import { first } from 'lodash';
 
 // ----------------------------------------------------------------------
 import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
-import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 
 //
@@ -125,7 +124,6 @@ export default function DashboardDDZView() {
         })
         .then((response) => {
           // adequação dos dados
-
           let result = _(response.data)
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
             .map((escolaTurmas, key) => ({
@@ -217,11 +215,6 @@ export default function DashboardDDZView() {
     });
   };
 
-  const novaAvaliacao = useBoolean();
-  const closeNovaAvaliacao = (retorno = null) => {
-    novaAvaliacao.onFalse();
-  };
-
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
@@ -274,6 +267,30 @@ export default function DashboardDDZView() {
     },
   }));
 
+  const reduceAlfabetizacaoGeral = function () {
+    return {
+      hasSeries: true,
+      categories: [
+        {
+          series: [
+            {
+              name: 'Alfabetizado',
+              amount: dados.grid_escolas.reduce((acc, i) => acc + i.alfabetizados, 0),
+            },
+            {
+              name: 'Não alfabetizado',
+              amount: dados.grid_escolas.reduce((acc, i) => acc + i.nao_alfabetizados, 0),
+            },
+            {
+              name: 'Deixou de frequentar',
+              amount: dados.grid_escolas.reduce((acc, i) => acc + i.deixou_de_frequentar, 0),
+            },
+          ],
+        },
+      ],
+    };
+  };
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -286,17 +303,6 @@ export default function DashboardDDZView() {
         >
           <Grid xs={12} md>
             <Typography variant="h3">Dashboard (DDZ)</Typography>
-          </Grid>
-
-          <Grid xs={12} md="auto">
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={novaAvaliacao.onTrue}
-              startIcon={<Iconify icon="mingcute:add-line" />}
-            >
-              Registro de Aprendizagem
-            </Button>
           </Grid>
         </Stack>
 
@@ -391,7 +397,7 @@ export default function DashboardDDZView() {
                   };
                 }),
               ]}
-              indice_alfabetizacao_geral={{}}
+              indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
             />
           )}
         </Grid>
@@ -407,76 +413,73 @@ export default function DashboardDDZView() {
         )}
       </Grid>
 
-      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+      {!isGettingGraphics.value && (
+        <Card sx={{ my: 4 }}>
+          <CardHeader title="Escolas" />
+          <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-      <Card sx={{ my: 4 }}>
-        <CardHeader title="Escolas" />
-        <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-        <TableContainer sx={{ mt: 1, height: 500 }}>
-          <Scrollbar>
-            <Table size="small" sx={{ minWidth: 960 }}>
-              <TableHeadCustom
-                order={table.order}
-                orderBy={table.orderBy}
-                headLabel={TABLE_HEAD}
-                rowCount={dados.grid_escolas.length}
-                onSort={table.onSort}
-              />
-
-              <TableBody>
-                {Object.entries(
-                  dataFiltered.slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                ).map(([key, row]) => (
-                  <StyledTableRow key={`tableRowDash_${key}`}>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
-                    <TableCell>{row.turmas}</TableCell>
-                    <TableCell>{row.alunos}</TableCell>
-                    <TableCell>{row.avaliados}</TableCell>
-                    <TableCell>{row.alfabetizados}</TableCell>
-                    <TableCell>{row.nao_alfabetizados}</TableCell>
-                    <TableCell>{row.deixou_de_frequentar}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      <Button
-                        color="primary"
-                        variant="contained"
-                        size="small"
-                        href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
-                      >
-                        Ver mais
-                      </Button>
-                    </TableCell>
-
-                    {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma_nome}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma_turno}</TableCell> */}
-                  </StyledTableRow>
-                ))}
-
-                <TableEmptyRows
-                  height={43}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_escolas.length)}
+          <TableContainer sx={{ mt: 1, height: 500 }}>
+            <Scrollbar>
+              <Table size="small" sx={{ minWidth: 960 }}>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={TABLE_HEAD}
+                  rowCount={dados.grid_escolas.length}
+                  onSort={table.onSort}
                 />
 
-                <TableNoData notFound={notFound} />
-              </TableBody>
-            </Table>
-          </Scrollbar>
-        </TableContainer>
+                <TableBody>
+                  {Object.entries(
+                    dataFiltered.slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
+                  ).map(([key, row]) => (
+                    <StyledTableRow key={`tableRowDash_${key}`}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
+                      <TableCell>{row.turmas}</TableCell>
+                      <TableCell>{row.alunos}</TableCell>
+                      <TableCell>{row.avaliados}</TableCell>
+                      <TableCell>{row.alfabetizados}</TableCell>
+                      <TableCell>{row.nao_alfabetizados}</TableCell>
+                      <TableCell>{row.deixou_de_frequentar}</TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Button
+                          color="primary"
+                          variant="contained"
+                          size="small"
+                          href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
+                        >
+                          Ver mais
+                        </Button>
+                      </TableCell>
+                    </StyledTableRow>
+                  ))}
 
-        <TablePaginationCustom
-          count={dataFiltered.length}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          rowsPerPageOptions={[5, 10, 15, 25]}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-          //
-          dense={table.dense}
-        />
-      </Card>
+                  <TableEmptyRows
+                    height={43}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_escolas.length)}
+                  />
+
+                  <TableNoData notFound={notFound} />
+                </TableBody>
+              </Table>
+            </Scrollbar>
+          </TableContainer>
+
+          <TablePaginationCustom
+            count={dataFiltered.length}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            rowsPerPageOptions={[5, 10, 15, 25]}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+            //
+            dense={table.dense}
+          />
+        </Card>
+      )}
     </Container>
   );
 }

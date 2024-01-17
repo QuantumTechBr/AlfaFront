@@ -7,10 +7,17 @@ import Chart, { useChart } from 'src/components/chart';
 import { Box, Stack, Typography } from '@mui/material';
 import { px } from 'framer-motion';
 import { slugify } from 'src/utils/functions';
+import { fPercent } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
-export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_alfabetizacao = [], options, ...other }) {
+export default function IndiceAlfabetizacaoComponent({
+  title,
+  subheader,
+  indice_alfabetizacao = [],
+  options,
+  ...other
+}) {
   const totalItems = indice_alfabetizacao.reduce((total, item) => total + item.amount, 0);
   indice_alfabetizacao.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
@@ -18,7 +25,7 @@ export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_
 
   const colors = ['#009a50', '#d11400', '#006abc'];
 
-  const chartSeries = indice_alfabetizacao.map((element) => element.porcentagem);
+  const chartSeries = indice_alfabetizacao.map((element) => element.amount);
 
   const getLegend = () => {
     return Object.entries(colors).map(([key, value]) => {
@@ -26,13 +33,14 @@ export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_
         <Stack
           key={`indice_alfabetizacao_component_card_${slugify(title)}_${key}`}
           direction="row"
-          sx={{ px: 3, my: 0.8 }}
+          alignItems="center"
+          sx={{ px: 0, my: 0.8 }}
         >
           <Box
-            sx={{ width: 20, height: 20, borderRadius: 0.5, mr: 2, backgroundColor: value }}
+            sx={{ width: 14, height: 14, borderRadius: 0.5, mr: 0.4, backgroundColor: value }}
           ></Box>
           <Box>
-            <Typography variant="body2" fontWeight="600" color="black">
+            <Typography variant="body2" fontSize={13} fontWeight="600" color="black">
               {indice_alfabetizacao[key]?.name ?? ''}
             </Typography>
           </Box>
@@ -43,7 +51,35 @@ export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_
 
   const chartOptions = useChart({
     labels: indice_alfabetizacao.map((element) => element.name),
-    total: { show: false },
+    plotOptions: {
+      pie: {
+        donut: {
+          hollow: {
+            size: '20%',
+          },
+          labels: {
+            show: true,
+            name: {
+              fontSize: '14px',
+            },
+            value: {
+              fontSize: '24px',
+            },
+            total: { show: false },
+          },
+        },
+      },
+    },
+
+    dataLabels: {
+      enabled: true,
+      formatter: function (val) {
+        return fPercent(val.toFixed(1));
+      },
+      dropShadow: {
+        enabled: false,
+      },
+    },
 
     legend: {
       show: false,
@@ -66,11 +102,13 @@ export default function IndiceAlfabetizacaoComponent({ title, subheader, indice_
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        height={250}
-        sx={{ mb: 2 }}
+        height={300}
+        sx={{ mb: 1 }}
       />
 
-      {getLegend()}
+      <Stack direction="row" justifyContent={'space-evenly'}>
+        {getLegend()}
+      </Stack>
     </Card>
   );
 }

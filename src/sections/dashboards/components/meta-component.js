@@ -30,6 +30,11 @@ export default function MetaComponent({ title, total, color = 'primary', sx, ...
       lineCap: 'square',
     },
     states: {
+      hover: {
+        filter: {
+          type: 'none' /* none, lighten, darken */,
+        },
+      },
       active: {
         filter: {
           type: 'none' /* none, lighten, darken */,

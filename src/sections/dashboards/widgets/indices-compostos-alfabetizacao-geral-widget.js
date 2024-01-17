@@ -54,7 +54,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
               title_indice_alfabetizacao_geral
             )}`}
             title={title_indice_alfabetizacao_geral}
-            indice_alfabetizacao_geral={
+            indice_alfabetizacao={
               indice_alfabetizacao_geral.hasSeries
                 ? (indice_alfabetizacao_geral.categories ?? [{ series: [] }])[0].series
                 : []
