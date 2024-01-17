@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-import _ from 'lodash';
+import _, { sum } from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -120,8 +120,8 @@ export default function DashboardRedeView() {
           grid_ddz: response.data.map((i) => ({
             ...i,
             alunos: i.qtd_alunos,
-            avaliados: i.qtd_avaliados,
-            alfabetizados: i.qtd_alfabetizado,
+            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) :  i.qtd_avaliados,
+            alfabetizados: Array.isArray(i.qtd_alfabetizado) ? sum(i.qtd_alfabetizado) :  i.qtd_alfabetizado,
             nao_alfabetizados: i.qtd_nao_alfabetizado,
             deixou_de_frequentar: i.qtd_nao_avaliado,
           })),

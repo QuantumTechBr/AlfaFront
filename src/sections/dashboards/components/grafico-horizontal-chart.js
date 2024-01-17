@@ -105,7 +105,6 @@ export default function GraficoHorizontalChart({
       row: {
         colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
-        height: 50,
       },
     },
 
@@ -145,7 +144,7 @@ export default function GraficoHorizontalChart({
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={series.length * 50}
+            height={(series.length * (41)) + 42}
           />
         </Scrollbar>
       </Card>
