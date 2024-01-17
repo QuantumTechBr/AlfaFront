@@ -482,7 +482,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
       return (
         <RHFAutocomplete
           multiple
-          disablePortal
           name="alunos"
           options={alunos}
           getOptionLabel={(option) => option.label}
@@ -582,7 +581,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
               </RHFSelect>
 
               <RHFAutocomplete
-                disablePortal
                 name="responsavel"
                 options={listaProfissionais}
                 label="Responsável"
