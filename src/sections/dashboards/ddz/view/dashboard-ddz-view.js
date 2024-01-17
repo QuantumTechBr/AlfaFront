@@ -105,18 +105,12 @@ export default function DashboardDDZView() {
     };
 
     await Promise.all([
-      dashboardsMethods
-        .getDashboardTotalUsuariosAtivos({
-          ano_letivo: fullFilters.ano_letivo,
-          ddz: fullFilters.ddz,
-          escola: fullFilters.escola,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_usuarios_ativos: response.data,
-          }));
-        }),
+      dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
+        setDados((prevState) => ({
+          ...prevState,
+          total_usuarios_ativos: response.data,
+        }));
+      }),
       dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
         setDados((prevState) => ({
           ...prevState,
@@ -125,42 +119,36 @@ export default function DashboardDDZView() {
       }),
 
       //
-      dashboardsMethods
-        .getDashboardGridEscolas({
-          ...fullFilters,
-        })
-        .then((response) => {
-          // adequação dos dados
-          let result = _(response.data)
-            .groupBy((turmaEscola) => turmaEscola.escola_nome)
-            .map((escolaTurmas, key) => ({
-              escola_nome: key,
-              registros: escolaTurmas,
-              //
-              turmas: escolaTurmas.length,
-              alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
-              avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
-              alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
-              nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
-              deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
-            }))
-            .value();
+      dashboardsMethods.getDashboardGridEscolas(fullFilters).then((response) => {
+        // adequação dos dados
+        let result = _(response.data)
+          .groupBy((turmaEscola) => turmaEscola.escola_nome)
+          .map((escolaTurmas, key) => ({
+            escola_nome: key,
+            registros: escolaTurmas,
+            //
+            turmas: escolaTurmas.length,
+            alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
+            avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
+            alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
+            nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
+            deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
+          }))
+          .value();
 
-          setDados((prevState) => ({
-            ...prevState,
-            grid_escolas: result,
-          }));
-        }),
+        setDados((prevState) => ({
+          ...prevState,
+          grid_escolas: result,
+        }));
+      }),
 
       // ## DESEMPENHO ALUNO
-      dashboardsMethods
-        .getDashboardDesempenhoAlunos({ ano_letivo: fullFilters.ano_letivo, ddz: fullFilters.ddz })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            desempenho_alunos: response.data,
-          }));
-        }),
+      dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
+        setDados((prevState) => ({
+          ...prevState,
+          desempenho_alunos: response.data,
+        }));
+      }),
     ]);
 
     isGettingGraphics.onFalse();
@@ -388,6 +376,7 @@ export default function DashboardDDZView() {
                 ...dados.grid_escolas.map((e) => {
                   return {
                     ...e,
+                    title: e.escola_nome,
                     indice_alfabetizacao:
                       e.avaliados > 0
                         ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
@@ -412,7 +401,7 @@ export default function DashboardDDZView() {
       </Grid>
 
       {!isGettingGraphics.value && (
-        <Card sx={{ my: 4 }}>
+        <Card sx={{ mb: 4 }}>
           <CardHeader title="Escolas" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
@@ -507,7 +496,7 @@ function Row(props) {
     <>
       <StyledTableRow
         key={`tableStyledRowDash_${row.key}`}
-        sx={{ '& > *': { borderBottom: 'unset' , backgroundColor: open ? `#00000020` : null } }}
+        sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
       >
         <TableCell>
           <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>

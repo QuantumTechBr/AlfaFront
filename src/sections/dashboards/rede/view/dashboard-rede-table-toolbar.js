@@ -113,65 +113,69 @@ export default function DashboardRedeTableToolbar({
             </Select>
           </FormControl>
         )}
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
-          <InputLabel size="small">DDZ</InputLabel>
-          <Select
-            size="small"
-            multiple
-            disabled={user?.funcao_usuario?.length > 0 ? true : false}
-            value={filters.zona}
-            onChange={handleFilterZona}
-            input={<OutlinedInput fullWidth label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+
+        {ddzOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
             }}
           >
-            {ddzOptions?.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
-                {option.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel size="small">Escolas</InputLabel>
-
-          <Select
-            size="small"
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput fullWidth label="Escolas" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+            <InputLabel size="small">DDZ</InputLabel>
+            <Select
+              size="small"
+              multiple
+              disabled={user?.funcao_usuario?.length > 0 ? true : false}
+              value={filters.zona}
+              onChange={handleFilterZona}
+              input={<OutlinedInput fullWidth label="DDZ" />}
+              renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {ddzOptions?.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
+                  {option.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+        {escolaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
             }}
           >
-            {escolaOptions?.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                {option.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel size="small">Escolas</InputLabel>
+
+            <Select
+              size="small"
+              multiple
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              input={<OutlinedInput fullWidth label="Escolas" />}
+              renderValue={renderValueEscola}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions?.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                  {option.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
         {anoTurmaOptions && (
           <FormControl

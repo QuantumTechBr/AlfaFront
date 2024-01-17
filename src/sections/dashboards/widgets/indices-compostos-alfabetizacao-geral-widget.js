@@ -19,17 +19,17 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
   const title_indice_alfabetizacao_geral = `Índice de alfabetização geral`;
 
   return (
-    <Box width="100%" mb={7}>
+    <Box width="100%" mb={0}>
       <Stack direction="row">
         <Grid xs={12} lg={7} xl={8}>
           {indice_alfabetizacao.length && (
             <GraficoHorizontalChart
               title={title_indice_alfabetizacao}
-              height={445}
+              height={418}
               chart={{
                 series: indice_alfabetizacao.map((ia) => {
                   return {
-                    x: ia.escola_nome,
+                    x: ia.title,
                     y: ia.indice_alfabetizacao,
                     alfabetizados: ia.alfabetizados,
                     goals: [
