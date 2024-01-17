@@ -130,16 +130,10 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     [handleFilters]
   );
 
-  const renderValueHabilidade = (selected) => {
-    //console.log(selected)
-    return selected.map((habilidade) => {
-      return hab.find((habi) => {
-        if (habi == habilidade) {
-          return habi
-        }
-      }).slice(0,3)
+  const renderValueHabilidade = (selected) => 
+    selected.map((habId) => {
+      return (hab.find((option) => option.id == habId)?.descricao)?.slice(0,3);
     }).join(', ');
-  };
 
   useEffect(() => {
     //console.log(values)

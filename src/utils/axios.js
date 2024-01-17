@@ -191,7 +191,7 @@ export const endpoints = {
   },
   plano_intervencao: {
     list: '/api/v1/planos-intervencao/',
-    post: '/api/v1/planos-intervencao',
+    post: '/api/v1/planos-intervencao/',
     get_by_id: '/api/v1/planos-intervencao/',
     update: '/api/v1/planos-intervencao/',
     delete: '/api/v1/planos-intervencao/',
