@@ -394,7 +394,7 @@ export default function DashboardDDZView() {
             <DesempenhoAlunosWidget
               title="Desempenho dos Estudantes - Índice de fases"
               subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
+              chart={dados.desempenho_alunos.chart}
             />
           </Grid>
         )}
