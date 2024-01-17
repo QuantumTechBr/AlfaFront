@@ -14,6 +14,8 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import profissionalMethods from './profissional-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -64,14 +66,18 @@ export default function ProfissionalTableToolbar({
   );
 
   const renderValueFuncao = (selected) =>
-    selected.map((funcaoId) => {
-      return roleOptions.find((option) => option.id == funcaoId)?.nome;
-    }).join(', ');
+    selected
+      .map((funcaoId) => {
+        return roleOptions.find((option) => option.id == funcaoId)?.nome;
+      })
+      .join(', ');
 
-  const renderValueEscola = (selected) => 
-    selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  const renderValueEscola = (selected) =>
+    selected
+      .map((escolaId) => {
+        return escolaOptions.find((option) => option.id == escolaId)?.nome;
+      })
+      .join(', ');
 
   return (
     <>
@@ -87,8 +93,6 @@ export default function ProfissionalTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-
-
         <FormControl
           sx={{
             flexShrink: 0,
@@ -138,7 +142,7 @@ export default function ProfissionalTableToolbar({
               },
             }}
           >
-           {escolaOptions?.map((escola) => (
+            {escolaOptions?.map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
                 <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
                 {escola.nome}
@@ -162,45 +166,41 @@ export default function ProfissionalTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
+        {/* <MenuItem
           onClick={() => {
             popover.onClose();
           }}
         >
           <Iconify icon="solar:printer-minimalistic-bold" />
           Imprimir
-        </MenuItem>
+        </MenuItem> */}
 
         <MenuItem
           onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            profissionalMethods.exportFile(query).then((csvFile) => {
+              saveCSVFile('Profissionais', csvFile.data);
+            });
             popover.onClose();
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }
