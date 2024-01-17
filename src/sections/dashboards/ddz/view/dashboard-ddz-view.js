@@ -507,7 +507,7 @@ function Row(props) {
     <>
       <StyledTableRow
         key={`tableStyledRowDash_${row.key}`}
-        sx={{ '& > *': { borderBottom: 'unset' } }}
+        sx={{ '& > *': { borderBottom: 'unset' , backgroundColor: open ? `#00000020` : null } }}
       >
         <TableCell>
           <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
@@ -534,9 +534,9 @@ function Row(props) {
       </StyledTableRow>
 
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+        <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
-            <Box sx={{ margin: 1 }}>
+            <Box sx={{ margin: 1, border: '1px solid #00000080' }}>
               {/* <Typography variant="h6" gutterBottom component="div">
                 History
               </Typography> */}
@@ -549,21 +549,27 @@ function Row(props) {
                     <TableCell>Alfabetizados</TableCell>
                     <TableCell>Não alfabetizados</TableCell>
                     <TableCell>Deixou de frequentar</TableCell>
+                    <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {row.registros.map((registro) => (
-                    <TableRow key={registro.turma_id ?? `${registro.escola_nome}-${registro.turma_ano_escolar}-${registro.turma_nome}-${registro.turma_turno}-` }>
+                    <StyledTableRow
+                      key={
+                        registro.turma_id ??
+                        `${registro.escola_nome}-${registro.turma_ano_escolar}-${registro.turma_nome}-${registro.turma_turno}-`
+                      }
+                    >
                       <TableCell component="th" scope="row">
                         {registro.turma_ano_escolar} {registro.turma_nome}
                       </TableCell>
-                      <TableCell>{registro.qtd_alunos}</TableCell>
-                      <TableCell>{registro.qtd_avaliados}</TableCell>
-                      <TableCell>{registro.qtd_alfabetizado}</TableCell>
-                      <TableCell>{registro.qtd_nao_alfabetizado}</TableCell>
-                      <TableCell>{registro.qtd_nao_avaliado}</TableCell>
-                      
-                    </TableRow>
+                      <TableCell width="110">{registro.qtd_alunos}</TableCell>
+                      <TableCell width="110">{registro.qtd_avaliados}</TableCell>
+                      <TableCell width="110">{registro.qtd_alfabetizado}</TableCell>
+                      <TableCell width="110">{registro.qtd_nao_alfabetizado}</TableCell>
+                      <TableCell width="110">{registro.qtd_nao_avaliado}</TableCell>
+                      <TableCell width="77"></TableCell>
+                    </StyledTableRow>
                   ))}
                 </TableBody>
               </Table>
