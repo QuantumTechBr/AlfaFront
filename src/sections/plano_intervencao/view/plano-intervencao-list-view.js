@@ -92,11 +92,10 @@ export default function PlanoIntervencaoListView() {
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao().then(planos => {
       console.log(planos)
-      setUserList(usuariosNaoDeletados);
       setTableData(planos.data);
       preparado.onTrue();
       }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de usuários');
+        setErrorMsg('Erro de comunicação com a API de planos');
         preparado.onTrue();
       })
       buscaEscolas().catch((error) => {

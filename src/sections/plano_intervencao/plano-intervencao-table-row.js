@@ -25,11 +25,14 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  let { id, nome, responsavel, data_inicio, status, data_termino, ano_escolar } = row;
+  let { id, nome, responsavel, inicio_previsto, status, termino_previsto, ano_escolar } = row;
+  console.log(row)
 
-  let date_inicio = parse(data_inicio, 'yyyy-MM-dd', new Date())
+  let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
-  let date_termino = parse(data_termino, 'yyyy-MM-dd', new Date())
+  let date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
+
+  const hoje = new Date()
 
   const router = useRouter();
 
@@ -48,6 +51,18 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
     quickEdit.onFalse();
   }
 
+  const retornoStatus = () => {
+    if (status == 'Concluído') {
+      return status
+    }
+    if (hoje > date_inicio && hoje < date_termino) {
+      return 'Em Andamento Dentro do Prazo';
+    } else {
+      return 'Em Andamento Fora do Prazo';
+    }
+
+  }
+
   return (
     <>
       <TableRow hover selected={selected}>
@@ -55,7 +70,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsavel.nome}</TableCell>
 
@@ -65,15 +80,15 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{status}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
 
         <TableCell>
           <Label
             variant="filled"
             color={
-              (status === 'true' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'false' && 'error') ||
+              (retornoStatus() === 'Concluído' && 'success') ||
+              (retornoStatus() === 'Em Andamento Dentro do Prazo' && 'warning') ||
+              (retornoStatus() === 'Em Andamento Fora do Prazo' && 'error') ||
               'default'
             }
           >

@@ -78,9 +78,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
 
-  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [hab, setHab] = useState([])
   const preparado = useBoolean(false);
@@ -158,7 +157,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
       setHabilidades_1ano(hab1ano);
       setHabilidades_2ano(hab2ano);
       setHabilidades_3ano(hab3ano);
-    })
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de habilidades');
+    });
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
@@ -291,14 +292,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
     reset(defaultValues)
   }, [currentPlano]);
 
-  const assessor = () => {
-    if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   const handleFilters = useCallback(
     async (nome, value) => {
       // table.onResetPage();
@@ -352,15 +345,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
     [handleFilters]
   );
 
-  const handleFilterAluno = useCallback(
-    (event) => {
-      handleFilters(
-        'alunos',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [handleFilters]
-  );
+  //const handleFilterAluno = useCallback(
+  //  (event) => {
+  //    handleFilters(
+  //      'alunos',
+  //      typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+  //    );
+  //  },
+  //  [handleFilters]
+  //);
 
   const renderValueHabilidade = (selected) => 
     selected.map((habId) => {
