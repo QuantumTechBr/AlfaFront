@@ -27,8 +27,7 @@ import {
   _productNames,
   _descriptions,
   _phoneNumbers,
-  _dashboardSeries,
-} from './assets';
+  } from './assets';
 
 // ----------------------------------------------------------------------
 
