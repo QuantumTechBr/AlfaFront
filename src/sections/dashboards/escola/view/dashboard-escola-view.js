@@ -396,7 +396,7 @@ export default function DashboardEscolaView() {
 
           {!isGettingGraphics.value && (
             <IndicesCompostosAlfabetizacaoGeralWidget
-              title="por escola"
+              title="por turma"
               indice_alfabetizacao={[
                 ...dados.grid_professores.map((e) => {
                   return {
