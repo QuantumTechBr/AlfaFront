@@ -403,7 +403,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
           <Button
               disabled={table.selected.length > 0 ? false : true}
               component={RouterLink}
-              href={paths.dashboard.plano_intervencao.new_from(table.selected[0]?.id)}
+              href={paths.dashboard.plano_intervencao.new_from(table.selected)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
