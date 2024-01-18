@@ -73,7 +73,7 @@ const filtros = {
   turmas: [],
   alunos: [],
 };
-export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
+export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false }) {
 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
@@ -659,4 +659,5 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
 
 PlanoIntervencaoNewEditForm.propTypes = {
   currentPlano: PropTypes.object,
+  newFrom: PropTypes.bool,
 };

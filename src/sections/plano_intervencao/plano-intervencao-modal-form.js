@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import isEqual from 'lodash/isEqual';
 import * as Yup from 'yup';
 import { useEffect, useCallback, useMemo, useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
@@ -19,11 +20,27 @@ import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
+import { useSettingsContext } from 'src/components/settings';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
-
+import {
+  useTable,
+  getComparator,
+  emptyRows,
+  TableNoData,
+  TableEmptyRows,
+  TableHeadCustom,
+  TableSelectedAction,
+  TablePaginationCustom,
+} from 'src/components/table';
+import TableBody from '@mui/material/TableBody';
+import TableContainer from '@mui/material';
+import Tooltip from '@mui/material';
+import Scrollbar from 'src/components/scrollbar';
+import LoadingBox from 'src/components/helpers/loading-box';
+import Table from '@mui/material/Table';
 // _mock
 import { 
   anos_options, 
@@ -47,9 +64,19 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import planoIntervencaoMethods from './plano-intervencao-repository';
 import Alert from '@mui/material/Alert';
 import habilidadeMethods from '../habilidade/habilidade-repository';
-import permissaoMethods from '../permissao/permissao-repository';
+import PlanoIntervencaoModalTableRow from './plano-intervencao-modal-table-row';
 
 // ----------------------------------------------------------------------
+const TABLE_HEAD = [
+  { id: 'nome', label: 'Variáveis a melhorar', width: 200 },
+  { id: 'responsavel', label: 'Responsável pela ação', width: 300 },
+  { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
+  { id: 'data_termino', label: 'Término previsto', width: 80 },
+  { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
+  { id: 'status', label: 'Status', width: 80 },
+  { id: 'farol', label: 'Farol', width: 50 },
+  { id: '', width: 88 },
+];
 
 const filtros = {
   ano: '',
@@ -97,7 +124,30 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   }, []);
 
   
+  const table = useTable();
 
+  const settings = useSettingsContext();
+
+  const [tableData, setTableData] = useState([]);
+
+  const [filtroTable, setFiltroTable] = useState({});
+
+  const dataFiltered = applyFilter({
+    inputData: tableData,
+    comparator: getComparator(table.order, table.orderBy),
+    filtroTable,
+  });
+
+  const dataInPage = dataFiltered.slice(
+    table.page * table.rowsPerPage,
+    table.page * table.rowsPerPage + table.rowsPerPage
+  );
+
+  const denseHeight = table.dense ? 52 : 72;
+
+  const canReset = !isEqual(filtroTable, filtroTable);
+
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const defaultValues = useMemo(
     () => ({
@@ -189,12 +239,16 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      permissaoMethods.getAllPermissoes({
+      planoIntervencaoMethods.getAllPlanosIntervencao({
         fase: fase,
         habilidades: filters.habilidades,
-      })
-      console.log(data)
-      console.log(filters)
+      }).then(planos => {
+        setTableData(planos.data);
+        preparado.onTrue();
+      }
+      ).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de habilidades');
+    });
     } catch (error) {
       console.error(error);
     }
@@ -284,7 +338,51 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
                 ))}
               </RHFSelect>
 
+            
           </Box>
+          <Scrollbar>
+              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960, mt: 3 }}>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={TABLE_HEAD}
+                  rowCount={tableData.length}
+                  numSelected={table.selected.length}
+                  onSort={table.onSort}
+                  onSelectAllRows={(checked) =>
+                    table.onSelectAllRows(
+                      checked,
+                      tableData.map((row) => row.id)
+                    )
+                  }
+                />
+
+                <TableBody>
+                  {dataFiltered
+                    .slice(
+                      table.page * table.rowsPerPage,
+                      table.page * table.rowsPerPage + table.rowsPerPage
+                    )
+                    .map((row) => (
+                      <PlanoIntervencaoModalTableRow
+                        key={row.id}
+                        row={row}
+                        selected={table.selected.includes(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
+                      />
+                    ))}
+
+                  <TableEmptyRows
+                    height={denseHeight}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                  />
+
+                  <TableNoData notFound={notFound} />
+                </TableBody>
+              </Table> 
+            </Scrollbar>
+
+          
         </DialogContent>
         <DialogActions>
           <LoadingButton
@@ -333,3 +431,19 @@ NovoPlanoIntervencaoForm.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
 };
+
+function applyFilter({ inputData, comparator, filters }) {
+
+  const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+  stabilizedThis.sort((a, b) => {
+    const order = comparator(a[0], b[0]);
+    if (order !== 0) return order;
+    return a[1] - b[1];
+  });
+
+  inputData = stabilizedThis.map((el) => el[0]);
+
+
+  return inputData;
+}
