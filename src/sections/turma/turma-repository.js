@@ -7,6 +7,7 @@ export const getAllTurmas = () => axios.get(endpoints.turma.list);
 export const updateTurmaById = (id, payload) => axios.patch(endpoints.turma.update.concat(id), payload);
 export const deleteTurmaById = id => axios.delete(endpoints.turma.delete.concat(id));
 export const getTurmaById = id => axios.get(endpoints.turma.get_by_id.concat(id));
+export const exportFile = query => axios.get(endpoints.turma.list.concat(`?`).concat(query));
 
 const turmaMethods = {
     insertTurma,
@@ -14,6 +15,7 @@ const turmaMethods = {
     updateTurmaById,
     deleteTurmaById,
     getTurmaById,
+    exportFile,
 };
 
 export default turmaMethods;
