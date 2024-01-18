@@ -178,19 +178,23 @@ export default function DashboardEscolaView() {
     [setFilters, setEscolasFiltered, escolas]
   );
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(() => {
     if (preparacaoInicialRunned.value === false) {
+      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
-      await Promise.all([
+      Promise.all([
         buscaAnosLetivos(),
         buscaZonas(),
         buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
-      ]);
-      contextReady.onTrue();
+      ]).then(() => {
+        contextReady.onTrue();
+      });
     }
-  };
+  }, [preparacaoInicialRunned, anosLetivos, zonas, escolas]);
 
-  preparacaoInicial(); // chamada unica
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -201,10 +205,12 @@ export default function DashboardEscolaView() {
         zona: zonas.filter((z) => z.id == _escola[0].zona.id),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
       }));
-
-      preencheGraficos();
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+
+  useEffect(() => {
+    if (contextReady.value) preencheGraficos();
+  }, [contextReady.value]);
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {

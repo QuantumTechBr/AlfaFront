@@ -248,25 +248,28 @@ export default function DashboardTurmaView() {
         }));
       }
     },
-    [setFilters, setEscolasFiltered, escolas, setTurmasFiltered, turmas, bimestres]
+    [setFilters, anosLetivos, setZonaFiltro, zonas, setEscolasFiltered, escolas, setTurmasFiltered, turmas, bimestres]
   );
 
-  const preparacaoInicial = async () => {
-    if (preparacaoInicialRunned.value === false) {
+  const preparacaoInicial = useCallback(() => {
+    if (!preparacaoInicialRunned.value) {
+      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
-      await Promise.all([
+      Promise.all([
         buscaAnosLetivos(),
         buscaZonas(),
         buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
         buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
         buscaBimestres(),
-      ]);
-
-      contextReady.onTrue();
+      ]).then(() => {
+        contextReady.onTrue();
+      });
     }
-  };
+  }, [preparacaoInicialRunned, anosLetivos, zonas, escolas, turmas, bimestres]);
 
-  preparacaoInicial(); // chamada unica
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -280,12 +283,12 @@ export default function DashboardTurmaView() {
         turma: _turma,
         ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
       }));
-
-      preencheGraficos();
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
-  useEffect(() => {}, [contextReady.value]);
+  useEffect(() => {
+    if (contextReady.value) preencheGraficos();
+  }, [contextReady.value]);
 
   useEffect(() => {
     let _zonaFiltro = [];

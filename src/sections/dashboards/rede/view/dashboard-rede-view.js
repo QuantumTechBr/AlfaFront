@@ -149,15 +149,20 @@ export default function DashboardRedeView() {
     [setFilters]
   );
 
-  const preparacaoInicial = async () => {
-    if (preparacaoInicialRunned.value === false) {
+  const preparacaoInicial = useCallback(() => {
+    if (!preparacaoInicialRunned.value) {
+      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
-      await Promise.all([buscaAnosLetivos()]);
-      contextReady.onTrue();
+      Promise.all([buscaAnosLetivos()
+       ]).then(() => {
+        contextReady.onTrue();
+      });
     }
-  };
+  }, [preparacaoInicialRunned, anosLetivos]);
 
-  preparacaoInicial(); // chamada unica
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   useEffect(() => {
     if (contextReady.value) {

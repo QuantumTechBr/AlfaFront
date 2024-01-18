@@ -166,18 +166,22 @@ export default function DashboardDDZView() {
         [campo]: value,
       }));
     },
-    [setFilters]
+    [setFilters, setZonaFiltro, zonas]
   );
 
-  const preparacaoInicial = async () => {
-    if (preparacaoInicialRunned.value === false) {
+  const preparacaoInicial = useCallback(() => {
+    if (!preparacaoInicialRunned.value) {
+      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
-      await Promise.all([buscaAnosLetivos(), buscaZonas()]);
-      contextReady.onTrue();
+      Promise.all([buscaAnosLetivos(), buscaZonas()]).then(() => {
+        contextReady.onTrue();
+      });
     }
-  };
+  }, [preparacaoInicialRunned, anosLetivos, zonas]);
 
-  preparacaoInicial(); // chamada unica
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -216,7 +220,7 @@ export default function DashboardDDZView() {
   };
 
   // TABLE GRID
-  
+
   const TABLE_HEAD = [
     { id: 'collapse', label: '', notsortable: true },
     { id: 'escola', label: 'Escola', notsortable: true },
