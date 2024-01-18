@@ -26,6 +26,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 // components
+import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
@@ -60,6 +61,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
+
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -468,6 +470,7 @@ function Row(props) {
         <TableCell>{row.deixou_de_frequentar}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
+            component={RouterLink}
             color="primary"
             variant="contained"
             size="small"

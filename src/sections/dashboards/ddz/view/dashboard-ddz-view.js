@@ -34,6 +34,7 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 
 // components
+import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
@@ -49,7 +50,7 @@ import {
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useRouter, useSearchParams } from 'src/routes/hook';
+import { useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { first } from 'lodash';
@@ -215,7 +216,7 @@ export default function DashboardDDZView() {
   };
 
   // TABLE GRID
-  const router = useRouter();
+  
   const TABLE_HEAD = [
     { id: 'collapse', label: '', notsortable: true },
     { id: 'escola', label: 'Escola', notsortable: true },
@@ -507,6 +508,7 @@ function Row(props) {
         <TableCell>{row.deixou_de_frequentar}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
+            component={RouterLink}
             color="primary"
             variant="contained"
             size="small"

@@ -117,7 +117,7 @@ export default function DashboardDDZTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 120 },
+              width: { xs: 1, md: 140 },
             }}
           >
             <InputLabel size="small">DDZ</InputLabel>

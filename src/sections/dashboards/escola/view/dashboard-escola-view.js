@@ -28,6 +28,7 @@ import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 
 // components
+import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
@@ -193,9 +194,11 @@ export default function DashboardEscolaView() {
 
   useEffect(() => {
     if (contextReady.value) {
+      let _escola = escolas.filter((e) => e.id == initialEscola);
       setFilters((prevState) => ({
         ...prevState,
-        escola: escolas.filter((e) => e.id == initialEscola),
+        escola: _escola,
+        zona: zonas.filter((z) => z.id == _escola[0].zona.id),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
       }));
 
@@ -440,7 +443,7 @@ export default function DashboardEscolaView() {
                     height={43}
                     emptyRows={emptyRows(
                       table.page,
-                      table.rowsPerPage,
+                      table.rowsePrPage,
                       dados.grid_professores.length
                     )}
                   />
@@ -526,6 +529,7 @@ function Row(props) {
             color="primary"
             variant="contained"
             size="small"
+            component={RouterLink}
             href={`${paths.dashboard.root}/dash-turma/?turma=${row.turma_id ?? ''}`}
           >
             Ver mais

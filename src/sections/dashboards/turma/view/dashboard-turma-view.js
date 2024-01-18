@@ -19,6 +19,7 @@ import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hook';
 
 // components
+import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { first, last } from 'lodash';
@@ -269,12 +270,15 @@ export default function DashboardTurmaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      // todo selecionar ddz escola da turma da url
+      let _turma = turmas.filter((t) => t.id == initialTurma);
+      let _escola = escolas.filter((e) => e.id == _turma[0].escola.id);
       setFilters((prevState) => ({
         ...prevState,
-        turma: turmas.filter((t) => t.id == initialTurma),
-        ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        zona: zonas.filter((z) => z.id == _escola[0].zona.id),
+        escola: _escola,
+        turma: _turma,
+        ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
       }));
 
       preencheGraficos();
@@ -471,6 +475,7 @@ export default function DashboardTurmaView() {
           <Button
             variant="contained"
             color="info"
+            component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.root_diagnostico}
             sx={{ mr: 3 }}
           >
@@ -479,6 +484,7 @@ export default function DashboardTurmaView() {
           <Button
             variant="contained"
             color="info"
+            component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.root_componente}
             sx={{ mr: 3 }}
           >
