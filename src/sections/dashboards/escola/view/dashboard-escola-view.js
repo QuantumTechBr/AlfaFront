@@ -83,10 +83,11 @@ export default function DashboardEscolaView() {
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
   const [zonaFiltro, setZonaFiltro] = useState([]);
+  const [escolaFiltro, setEscolaFiltro] = useState([]);
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
-    zona: zonaFiltro,
+    zona: [],
     escola: [],
   });
 
@@ -207,14 +208,16 @@ export default function DashboardEscolaView() {
 
       let _filters = {
         ...filters,
-        escola: _escola,
-        zona: zonas.filter((z) => z.id == _escola[0].zona.id),
+        ...(_escola.length > 0 ? { escola: _escola } : {}),
+        ...(zonaFiltro.length && _escola.length == 0
+          ? {}
+          : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, zonaFiltro, escolaFiltro, escolas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
@@ -224,10 +227,17 @@ export default function DashboardEscolaView() {
       } else {
         _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
       }
+
+      let _escolaFiltro = [];
+      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+        _escolaFiltro = [user?.funcao_usuario[0]?.escola];
+      }
       setZonaFiltro(_zonaFiltro);
+      setEscolaFiltro(_escolaFiltro);
       setFilters((prevState) => ({
         ...prevState,
         zona: _zonaFiltro,
+        escola: _escolaFiltro,
       }));
     }
   }, []);

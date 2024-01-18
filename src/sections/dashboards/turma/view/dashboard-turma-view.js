@@ -291,12 +291,12 @@ export default function DashboardTurmaView() {
   useEffect(() => {
     if (contextReady.value) {
       let _turma = turmas.filter((t) => t.id == initialTurma);
-      let _escola = escolas.filter((e) => e.id == _turma[0].escola.id);
+      let _escola = escolas.filter((e) => e.id == _turma[0]?.escola.id);
 
       let _filters = {
         ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-        zona: zonas.filter((z) => z.id == _escola[0].zona.id),
+        zona: zonas.filter((z) => z.id == _escola[0]?.zona.id),
         escola: _escola,
         turma: _turma,
         ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
@@ -304,7 +304,7 @@ export default function DashboardTurmaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, anosLetivos, zonas, escolas, turmas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     let _zonaFiltro = [];
