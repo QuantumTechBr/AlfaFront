@@ -13,7 +13,7 @@ import { RegistroAprendizagemFasesColors } from 'src/_mock';
 
 export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
   const theme = useTheme();
-  const { series, options, height = 350 } = chart;
+  const { series, options, height = 320 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {

@@ -35,7 +35,7 @@ export default function IndiceFasesComponent({ title_indice_fases, indice_fases,
             </Typography>
           </Box>
           <Box textAlign={'center'}>
-            <Typography variant="body2" fontSize={24} mb={0} fontWeight={800} lineHeight={1.4}>
+            <Typography variant="body2" fontSize={24} mb={0} fontWeight={800} lineHeight={1.2}>
               {indice_fases.chart.series.find((item) => item.label == value).value}
             </Typography>
           </Box>
@@ -63,16 +63,6 @@ export default function IndiceFasesComponent({ title_indice_fases, indice_fases,
     });
   };
 
-  const visaoGeral = (
-    <Grid
-      key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
-      container
-      flexDirection={'column'} // todo < lg row
-    >
-      {getFasesEmLinha()}
-    </Grid>
-  );
-
   return (
     <Card>
       <Grid container>
@@ -84,7 +74,13 @@ export default function IndiceFasesComponent({ title_indice_fases, indice_fases,
         </Grid>
 
         <Grid xs={12} lg={2} xl={2}>
-          {visaoGeral}
+          <Grid
+            key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
+            container
+            flexDirection={'column'} // todo < lg row
+          >
+            {getFasesEmLinha()}
+          </Grid>
         </Grid>
       </Grid>
     </Card>

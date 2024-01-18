@@ -18,7 +18,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, 
   const title_indice_alfabetizacao = `Índice de alfabetização - ${titulo_completo}`;
 
   return (
-    <Box width="100%" mb={7}>
+    <Box width="100%" mb={2}>
       <Stack direction="row">
         <Grid xs={12} lg={7} xl={8}>
           <IndiceFasesComponent
