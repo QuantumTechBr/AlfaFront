@@ -497,7 +497,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date(),
+    deleted_at: Date()
   },
   {
     id: '2',
@@ -507,7 +507,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date(),
+    deleted_at: Date()
   },
   {
     id: '3',
@@ -517,7 +517,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date(),
+    deleted_at: Date()
   },
 ];
 
