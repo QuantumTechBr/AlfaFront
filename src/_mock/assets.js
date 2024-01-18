@@ -519,7 +519,7 @@ export const _alunos = [
     updated_at: Date(),
     deleted_at: Date()
   },
-];
+]
 
 export const _registrosAprendizagemComponente = [
   {

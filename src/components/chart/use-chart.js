@@ -37,8 +37,6 @@ export default function useChart(options) {
       theme.palette.info.dark,
       theme.palette.info.darker,
     ],
-    
-    
 
     // Chart
     chart: {
