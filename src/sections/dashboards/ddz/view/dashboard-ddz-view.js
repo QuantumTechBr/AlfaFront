@@ -49,7 +49,7 @@ import {
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useRouter } from 'src/routes/hook';
+import { useRouter, useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { first } from 'lodash';
@@ -74,6 +74,9 @@ export default function DashboardDDZView() {
 
   const theme = useTheme();
   const settings = useSettingsContext();
+
+  const searchParams = useSearchParams();
+  const initialZona = searchParams.get('zona');
 
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -126,6 +129,7 @@ export default function DashboardDDZView() {
           .map((escolaTurmas, key) => ({
             escola_nome: key,
             registros: escolaTurmas,
+            escola_id: escolaTurmas[0]?.escola_id,
             //
             turmas: escolaTurmas.length,
             alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
@@ -176,31 +180,31 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      preencheGraficos();
+      setFilters((prevState) => ({
+        ...prevState,
+        zona: zonas.filter((z) => z.id == initialZona),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+      }));
 
-      if (anosLetivos && anosLetivos.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          anoLetivo: first(anosLetivos),
-        }));
-      }
+      preencheGraficos();
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
-    let _zonaFiltro = [];
     if (user?.funcao_usuario?.length > 0) {
+      let _zonaFiltro = [];
       if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
         _zonaFiltro = [user?.funcao_usuario[0]?.zona];
       } else {
         _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
       }
+
+      setZonaFiltro(_zonaFiltro);
+      setFilters((prevState) => ({
+        ...prevState,
+        zona: _zonaFiltro,
+      }));
     }
-    setZonaFiltro(_zonaFiltro);
-    setFilters({
-      anoLetivo: '',
-      zona: _zonaFiltro,
-    });
   }, []);
 
   const filtroReset = () => {
@@ -323,11 +327,7 @@ export default function DashboardDDZView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Usuários Ativos"
-              percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
-              chart={{
-                series: dados.total_usuarios_ativos.chart ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -342,12 +342,7 @@ export default function DashboardDDZView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -515,7 +510,7 @@ function Row(props) {
             color="primary"
             variant="contained"
             size="small"
-            href={`${paths.dashboard.root}/dash-escola/${row.escola_id ?? ''}`}
+            href={`${paths.dashboard.root}/dash-escola/?escola=${row.escola_id ?? ''}`}
           >
             Ver mais
           </Button>

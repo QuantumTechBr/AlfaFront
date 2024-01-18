@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 // utils
-import { fShortenNumber } from 'src/utils/format-number';
+import { fNumber } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ export default function NumeroComponent({ title, total, icon, sx, ...other }) {
       {...other}
     >
       <Box>
-        <Box sx={{ mb: 1, typography: 'h2', fontWeight: 400 }}>{fShortenNumber(total)}</Box>
+        <Box sx={{ mb: 1, typography: 'h2', fontWeight: 400 }}>{fNumber(total)}</Box>
         <Box sx={{ color: 'text.primary', typography: 'h5', fontWeight: 400 }}>{title}</Box>
       </Box>
 

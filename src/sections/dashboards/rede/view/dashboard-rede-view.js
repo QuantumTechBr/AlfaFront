@@ -14,19 +14,12 @@ import {
   TableRow,
   TableCell,
   CardHeader,
-  Box,
-  TableHead,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
-
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
 
 // contexts
 import { AuthContext } from 'src/auth/context/alfa';
@@ -115,16 +108,20 @@ export default function DashboardRedeView() {
 
       //
       dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
+        let result = response.data.map((i) => ({
+          ...i,
+          alunos: i.qtd_alunos,
+          avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
+          alfabetizados: Array.isArray(i.qtd_alfabetizado)
+            ? sum(i.qtd_alfabetizado)
+            : i.qtd_alfabetizado,
+          nao_alfabetizados: i.qtd_nao_alfabetizado,
+          deixou_de_frequentar: i.qtd_nao_avaliado,
+        }));
+
         setDados((prevState) => ({
           ...prevState,
-          grid_ddz: response.data.map((i) => ({
-            ...i,
-            alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) :  i.qtd_avaliados,
-            alfabetizados: Array.isArray(i.qtd_alfabetizado) ? sum(i.qtd_alfabetizado) :  i.qtd_alfabetizado,
-            nao_alfabetizados: i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: i.qtd_nao_avaliado,
-          })),
+          grid_ddz: result,
         }));
       }),
 
@@ -162,14 +159,12 @@ export default function DashboardRedeView() {
 
   useEffect(() => {
     if (contextReady.value) {
+      setFilters((prevState) => ({
+        ...prevState,
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+      }));
+      
       preencheGraficos();
-
-      if (anosLetivos && anosLetivos.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          anoLetivo: first(anosLetivos),
-        }));
-      }
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
@@ -236,7 +231,7 @@ export default function DashboardRedeView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
+              amount: dados.grid_ddz.reduce((acc, i) => acc + sum(i.qtd_alfabetizado), 0),
             },
             {
               name: 'Não alfabetizado',
@@ -297,11 +292,7 @@ export default function DashboardRedeView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Usuários Ativos"
-              percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
-              chart={{
-                series: dados.total_usuarios_ativos.chart ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -316,12 +307,7 @@ export default function DashboardRedeView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -485,7 +471,7 @@ function Row(props) {
             color="primary"
             variant="contained"
             size="small"
-            href={`${paths.dashboard.root}/dash-ddz/${row.zona_id ?? ''}`}
+            href={`${paths.dashboard.root}/dash-ddz/?zona=${row.zona_id ?? ''}`}
           >
             Ver mais
           </Button>

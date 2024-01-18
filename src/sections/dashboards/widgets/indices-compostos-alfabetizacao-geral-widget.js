@@ -21,8 +21,8 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
   return (
     <Box width="100%" mb={0}>
       <Stack direction="row">
-        <Grid xs={12} lg={7} xl={8}>
-          {indice_alfabetizacao.length && (
+        {indice_alfabetizacao.length > 0 && (
+          <Grid xs={12} lg={7} xl={8}>
             <GraficoHorizontalChart
               title={title_indice_alfabetizacao}
               height={418}
@@ -45,22 +45,22 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
                 }),
               }}
             />
-          )}
-        </Grid>
+          </Grid>
+        )}
 
-        <Grid xs={12} lg={5} xl={4}>
-          <IndiceAlfabetizacaoComponent
-            key={`indice_alfabetizacao_geral_component_${slugify(
-              title_indice_alfabetizacao_geral
-            )}`}
-            title={title_indice_alfabetizacao_geral}
-            indice_alfabetizacao={
-              indice_alfabetizacao_geral.hasSeries
-                ? (indice_alfabetizacao_geral.categories ?? [{ series: [] }])[0].series
-                : []
-            }
-          />
-        </Grid>
+        {indice_alfabetizacao_geral.hasSeries &&
+          indice_alfabetizacao_geral.categories[0]?.series.reduce((acc, i) => acc + i.amount, 0) >
+            0 && (
+            <Grid xs={12} lg={5} xl={4}>
+              <IndiceAlfabetizacaoComponent
+                key={`indice_alfabetizacao_geral_component_${slugify(
+                  title_indice_alfabetizacao_geral
+                )}`}
+                title={title_indice_alfabetizacao_geral}
+                indice_alfabetizacao={indice_alfabetizacao_geral.categories[0].series}
+              />
+            </Grid>
+          )}
       </Stack>
     </Box>
   );

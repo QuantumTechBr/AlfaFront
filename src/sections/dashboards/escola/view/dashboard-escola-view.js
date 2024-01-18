@@ -14,19 +14,12 @@ import {
   TableRow,
   TableCell,
   CardHeader,
-  Box,
-  TableHead,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
-
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import Collapse from '@mui/material/Collapse';
-import IconButton from '@mui/material/IconButton';
 
 // contexts
 import { AuthContext } from 'src/auth/context/alfa';
@@ -50,7 +43,7 @@ import {
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useRouter } from 'src/routes/hook';
+import { useRouter, useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { first } from 'lodash';
@@ -75,6 +68,9 @@ export default function DashboardEscolaView() {
 
   const theme = useTheme();
   const settings = useSettingsContext();
+
+  const searchParams = useSearchParams();
+  const initialEscola = searchParams.get('escola');
 
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -197,32 +193,30 @@ export default function DashboardEscolaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      preencheGraficos();
+      setFilters((prevState) => ({
+        ...prevState,
+        escola: escolas.filter((e) => e.id == initialEscola),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+      }));
 
-      if (anosLetivos && anosLetivos.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          anoLetivo: first(anosLetivos),
-        }));
-      }
+      preencheGraficos();
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
-    let _zonaFiltro = [];
     if (user?.funcao_usuario?.length > 0) {
+      let _zonaFiltro = [];
       if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
         _zonaFiltro = [user?.funcao_usuario[0]?.zona];
       } else {
         _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
       }
+      setZonaFiltro(_zonaFiltro);
+      setFilters((prevState) => ({
+        ...prevState,
+        zona: _zonaFiltro,
+      }));
     }
-    setZonaFiltro(_zonaFiltro);
-    setFilters((prevState) => ({
-      ...prevState,
-      zona: _zonaFiltro,
-      escola: [],
-    }));
   }, []);
 
   const filtroReset = () => {
@@ -348,11 +342,7 @@ export default function DashboardEscolaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Usuários Ativos"
-              percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
-              chart={{
-                series: dados.total_usuarios_ativos.chart ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -367,12 +357,7 @@ export default function DashboardEscolaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
               total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -541,7 +526,7 @@ function Row(props) {
             color="primary"
             variant="contained"
             size="small"
-            href={`${paths.dashboard.root}/dash-turma/${row.turma_id ?? ''}`}
+            href={`${paths.dashboard.root}/dash-turma/?turma=${row.turma_id ?? ''}`}
           >
             Ver mais
           </Button>

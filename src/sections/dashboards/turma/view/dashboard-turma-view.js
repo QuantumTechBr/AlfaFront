@@ -16,7 +16,7 @@ import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context
 
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+import { useSearchParams } from 'src/routes/hook';
 
 // components
 import { useSettingsContext } from 'src/components/settings';
@@ -46,7 +46,10 @@ export default function DashboardTurmaView() {
 
   const theme = useTheme();
   const settings = useSettingsContext();
-  const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const initialTurma = searchParams.get('turma');
+
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -152,7 +155,7 @@ export default function DashboardTurmaView() {
       ddz: filters.zona.map((item) => item.id),
       escola: filters.escola.map((item) => item.id),
       turma: filters.turma.map((item) => item.id),
-      bimestre: [(filters.bimestre != '' ? filters.bimestre : first(bimestres)).id], // todo change to last
+      bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
     };
 
     await Promise.all([
@@ -266,20 +269,15 @@ export default function DashboardTurmaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      preencheGraficos();
+      // todo selecionar ddz escola da turma da url
+      setFilters((prevState) => ({
+        ...prevState,
+        turma: turmas.filter((t) => t.id == initialTurma),
+        ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+      }));
 
-      if (bimestres && bimestres.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          bimestre: first(bimestres), // todo change to last,
-        }));
-      }
-      if (anosLetivos && anosLetivos.length) {
-        setFilters((prevState) => ({
-          ...prevState,
-          anoLetivo: first(anosLetivos),
-        }));
-      }
+      preencheGraficos();
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
@@ -310,7 +308,7 @@ export default function DashboardTurmaView() {
       zona: zonaFiltro,
       escola: [],
       turma: [],
-      bimestre: first(bimestres), // todo change to last
+      bimestre: last(bimestres),
     });
   };
 
@@ -379,11 +377,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Usuários Ativos"
-              percents={dados.total_usuarios_ativos.percent}
               total={dados.total_usuarios_ativos.total}
-              chart={{
-                series: dados.total_usuarios_ativos.chart ?? [],
-              }}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -477,7 +471,7 @@ export default function DashboardTurmaView() {
           <Button
             variant="contained"
             color="info"
-            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_diagnostico)}
+            href={paths.dashboard.registro_aprendizagem.root_diagnostico}
             sx={{ mr: 3 }}
           >
             Ir para Avaliação Diagnóstica
@@ -485,7 +479,7 @@ export default function DashboardTurmaView() {
           <Button
             variant="contained"
             color="info"
-            onClick={() => router.push(paths.dashboard.registro_aprendizagem.root_componente)}
+            href={paths.dashboard.registro_aprendizagem.root_componente}
             sx={{ mr: 3 }}
           >
             Ir para Avaliação por Componente
