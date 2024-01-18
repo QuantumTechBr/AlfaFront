@@ -231,28 +231,32 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     console.log(data)
     console.log(filters)
     try {
-      let listaIdsAplicacao = [];
+      let listaIdsAplicacao = {
+        ddzs: [],
+        escolas: [],
+        turmas: [],
+        alunos: []
+      };
       if (aplicar == 'DDZs') {
-        listaIdsAplicacao = filters.zonas;
+        listaIdsAplicacao.ddzs = filters.zonas;
       }
       if (aplicar == 'Escolas') {
-        listaIdsAplicacao = filters.escolas;
+        listaIdsAplicacao.escolas = filters.escolas;
       }
       if (aplicar == 'Turmas') {
-        listaIdsAplicacao = filters.turmas; 
+        listaIdsAplicacao.turmas = filters.turmas; 
       }
       if (aplicar == 'Alunos') {
         data.alunos.map((aluno) => {
-          listaIdsAplicacao.push(aluno.id)
+          listaIdsAplicacao.alunos.push(aluno.id)
         })
       }
-      let inicioPrev = new Date(data.inicio_previsto)
-      let terminoPrev = new Date(data.termino_previsto)
+      let inicioPrev = new Date(data.inicio_previsto);
+      let terminoPrev = new Date(data.termino_previsto);
+      let aplicacao = listaIdsAplicacao;
       let toSend = {
         responsavel_id: data.responsavel.id,
-        aplicacao: {
-          ids: listaIdsAplicacao,
-        },
+        aplicacao,
         ano_escolar: parseInt(data.ano_escolar.slice(0,1)),
         fase: data.fase,
         inicio_previsto: inicioPrev.getFullYear() + "-" + (inicioPrev.getMonth()+1) + "-" + inicioPrev.getDate(),
