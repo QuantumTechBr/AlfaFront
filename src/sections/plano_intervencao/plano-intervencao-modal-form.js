@@ -254,6 +254,17 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     }
   });
 
+  const onSelectRowCustom = useCallback(
+    (inputValue) => {
+      if (table.selected.includes(inputValue)) {
+        table.setSelected([])
+      } else {
+        table.setSelected(inputValue);
+      }
+    },
+    [table.selected]
+  );
+
   return (
     <Dialog
       fullWidth
@@ -348,13 +359,6 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
                   headLabel={TABLE_HEAD}
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
                 />
 
                 <TableBody>
@@ -368,7 +372,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
                         key={row.id}
                         row={row}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
+                        onSelectRow={() => onSelectRowCustom(row.id)}
                       />
                     ))}
 
@@ -397,9 +401,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
           </LoadingButton>
 
           <Button
-              disabled={true}
+              disabled={table.selected.length > 0 ? false : true}
               component={RouterLink}
-              href={paths.dashboard.plano_intervencao.new_from}
+              href={paths.dashboard.plano_intervencao.new_from(table.selected[0]?.id)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{

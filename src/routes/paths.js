@@ -165,7 +165,7 @@ export const paths = {
     plano_intervencao: {
       root: `${ROOTS.DASHBOARD}/plano_intervencao/list`,
       new: `${ROOTS.DASHBOARD}/plano_intervencao/new`,
-      new_from: `${ROOTS.DASHBOARD}/plano_intervencao/new_from`,
+      new_from: (id) => `${ROOTS.DASHBOARD}/plano_intervencao/${id}/new_from`,
       list: `${ROOTS.DASHBOARD}/plano_intervencao/list`,
       cards: `${ROOTS.DASHBOARD}/plano_intervencao/cards`,
       account: `${ROOTS.DASHBOARD}/plano_intervencao/account`,
