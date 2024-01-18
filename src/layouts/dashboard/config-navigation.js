@@ -116,7 +116,6 @@ export function useNavData() {
         icon: ICONS.alfaBookAccount,
         children: [
           { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-          { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma },
           // { title: t('frequência'), path: paths.dashboard.blank },
           // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
           // { title: 'Planos de Aulas', path: paths.dashboard.blank },
@@ -226,9 +225,6 @@ export function useNavData() {
         
       if (checkPermissaoModulo("turma","acesso")) {
         turmaModuloChildren.push({ title: 'Lista de Turmas', path: paths.dashboard.turma.list });
-      }
-      if (checkPermissaoModulo("documento_turma","acesso")) {
-        turmaModuloChildren.push({ title: 'Documentos de Intervenção', path: paths.dashboard.documento_turma },);
       }
       if (turmaModuloChildren.length){
         items.push({
