@@ -192,7 +192,14 @@ export default function PlanoIntervencaoListView() {
 
   const handleEditRow = useCallback(
     (id) => {
-      router.push(paths.dashboard.user.edit(id));
+      router.push(paths.dashboard.plano_intervencao.edit(id));
+    },
+    [router]
+  );
+
+  const handleNewFrom = useCallback(
+    (id) => {
+      router.push(paths.dashboard.plano_intervencao.new_from(id));
     },
     [router]
   );
@@ -363,6 +370,7 @@ export default function PlanoIntervencaoListView() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onNewFrom={() => handleNewFrom(row.id)}
                       />
                     ))}
 

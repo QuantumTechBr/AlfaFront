@@ -24,7 +24,7 @@ import parse from 'date-fns/parse';
 
 // ----------------------------------------------------------------------
 
-export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }) {
   let { id, nome, responsavel, inicio_previsto, status, termino_previsto, ano_escolar } = row;
   console.log(row)
 
@@ -140,10 +140,10 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
         </MenuItem>
 
         <MenuItem
-          // onClick={() => {
-          //   onNewFrom();
-          //   popover.onClose();
-          // }}
+           onClick={() => {
+             onNewFrom();
+             popover.onClose();
+           }}
         >
           <Iconify icon="solar:pen-bold" />
           Novo Plano a Partir deste...
@@ -168,6 +168,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onS
 PlanoIntervencaoTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
+  onNewFrom: PropTypes.func,
   onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,

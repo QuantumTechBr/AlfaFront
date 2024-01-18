@@ -225,13 +225,13 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     }).join(', ');
 
   useEffect(() => {
-    if (ano == '1º') {
+    if (ano == '1') {
       setHab(habilidades_1ano);
     }
-    if (ano == '2º') {
+    if (ano == '2') {
       setHab(habilidades_2ano);
     }
-    if (ano == '3º') {
+    if (ano == '3') {
       setHab(habilidades_3ano);
     }
     setFilters(filtros);
@@ -306,7 +306,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
           }}>
               {anos_options.map((ano) => (
                 <MenuItem key={ano} value={ano}>
-                  {ano}
+                  {ano}º
                 </MenuItem>
               ))}
             </RHFSelect>

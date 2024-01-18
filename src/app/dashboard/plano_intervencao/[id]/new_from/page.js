@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 // sections
-import { PlanoIntervencaoCreateFrowView } from 'src/sections/plano_intervencao/view';
+import { PlanoIntervencaoCreateFromView } from 'src/sections/plano_intervencao/view';
 
 // ----------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ export const metadata = {
 export default function PlanoIntervencaoCreateFromPage({ params }) {
   const { id } = params;
 
-  return <PlanoIntervencaoCreateFrowView id={id} />;
+  return <PlanoIntervencaoCreateFromView id={id} />;
 }
 
 PlanoIntervencaoCreateFromPage.propTypes = {

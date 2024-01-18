@@ -269,11 +269,11 @@ export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-export const anos_options = ['1º', '2º', '3º'];
+export const anos_options = ['1', '2', '3'];
 
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
 
-export const fases_options = ['Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
+export const fases_options = ['', 'Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
 
 export const habilidades_1ano = [
   {id: '33d4467f-c3a0-cf32-69dc-b98eb5e857bc', descricao: 'H1 - Respeita e expressa sentimentos e emoções.' },
