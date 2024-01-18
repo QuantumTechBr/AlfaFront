@@ -8,5 +8,5 @@ export const metadata = {
 };
 
 export default function FileManagerPage() {
-  return <FileManagerView />;
+  // return <FileManagerView />;
 }
