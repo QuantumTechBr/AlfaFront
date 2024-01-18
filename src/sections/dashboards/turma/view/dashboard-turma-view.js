@@ -149,60 +149,68 @@ export default function DashboardTurmaView() {
       });
   };
 
-  const preencheGraficos = async () => {
-    isGettingGraphics.onTrue();
-    const fullFilters = {
-      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
-      ddz: filters.zona.map((item) => item.id),
-      escola: filters.escola.map((item) => item.id),
-      turma: filters.turma.map((item) => item.id),
-      bimestre: [(filters.bimestre != '' ? filters.bimestre : last(bimestres)).id],
-    };
+  const preencheGraficos = useCallback(
+    async (_filters) => {
+      let _filtersToSearch = _filters ?? filters;
+      isGettingGraphics.onTrue();
+      const fullFilters = {
+        ano_letivo: [
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+        ],
+        ddz: _filtersToSearch.zona.map((item) => item.id),
+        escola: _filtersToSearch.escola.map((item) => item.id),
+        turma: _filtersToSearch.turma.map((item) => item.id),
+        bimestre: [
+          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : last(bimestres)).id,
+        ],
+      };
 
-    await Promise.all([
-      dashboardsMethods
-        .getDashboardTotalUsuariosAtivos({
-          ano_letivo: fullFilters.ano_letivo,
-          ddz: fullFilters.ddz,
-          escola: fullFilters.escola,
-        })
-        .then((response) => {
+      await Promise.all([
+        dashboardsMethods
+          .getDashboardTotalUsuariosAtivos({
+            ano_letivo: fullFilters.ano_letivo,
+            ddz: fullFilters.ddz,
+            escola: fullFilters.escola,
+          })
+          .then((response) => {
+            setDados((prevState) => ({
+              ...prevState,
+              total_usuarios_ativos: response.data,
+            }));
+          }),
+        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
           setDados((prevState) => ({
             ...prevState,
-            total_usuarios_ativos: response.data,
+            total_alunos_ativos: response.data,
           }));
         }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_alunos_ativos: response.data,
-        }));
-      }),
 
-      // ## INDICE DE FASES
-      getIndiceFases(1, fullFilters),
-      getIndiceFases(2, fullFilters),
-      getIndiceFases(3, fullFilters),
-      getIndiceFases(null, fullFilters),
+        // ## INDICE DE FASES
+        getIndiceFases(1, fullFilters),
+        getIndiceFases(2, fullFilters),
+        getIndiceFases(3, fullFilters),
+        getIndiceFases(null, fullFilters),
 
-      // ## DESEMPENHO ALUNO
-      dashboardsMethods
-        .getDashboardDesempenhoAlunos({
-          ano_letivo: fullFilters.ano_letivo,
-          ddz: fullFilters.ddz,
-          escola: fullFilters.escola,
-          turma: fullFilters.turma,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            desempenho_alunos: response.data,
-          }));
-        }),
-    ]);
+        // ## DESEMPENHO ALUNO
+        dashboardsMethods
+          .getDashboardDesempenhoAlunos({
+            ano_letivo: fullFilters.ano_letivo,
+            ddz: fullFilters.ddz,
+            escola: fullFilters.escola,
+            turma: fullFilters.turma,
+          })
+          .then((response) => {
+            setDados((prevState) => ({
+              ...prevState,
+              desempenho_alunos: response.data,
+            }));
+          }),
+      ]);
 
-    isGettingGraphics.onFalse();
-  };
+      isGettingGraphics.onFalse();
+    },
+    [dados, filters, zonas, anosLetivos, escolas, turmas, bimestres, contextReady.value]
+  );
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -248,12 +256,21 @@ export default function DashboardTurmaView() {
         }));
       }
     },
-    [setFilters, anosLetivos, setZonaFiltro, zonas, setEscolasFiltered, escolas, setTurmasFiltered, turmas, bimestres]
+    [
+      setFilters,
+      anosLetivos,
+      setZonaFiltro,
+      zonas,
+      setEscolasFiltered,
+      escolas,
+      setTurmasFiltered,
+      turmas,
+      bimestres,
+    ]
   );
 
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
-      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
       Promise.all([
         buscaAnosLetivos(),
@@ -275,20 +292,19 @@ export default function DashboardTurmaView() {
     if (contextReady.value) {
       let _turma = turmas.filter((t) => t.id == initialTurma);
       let _escola = escolas.filter((e) => e.id == _turma[0].escola.id);
-      setFilters((prevState) => ({
-        ...prevState,
+
+      let _filters = {
+        ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
         zona: zonas.filter((z) => z.id == _escola[0].zona.id),
         escola: _escola,
         turma: _turma,
         ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
-      }));
+      };
+      setFilters(_filters);
+      preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
-
-  useEffect(() => {
-    if (contextReady.value) preencheGraficos();
-  }, [contextReady.value]);
 
   useEffect(() => {
     let _zonaFiltro = [];

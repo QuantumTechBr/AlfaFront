@@ -101,11 +101,12 @@ export default function DashboardDDZView() {
     desempenho_alunos: {},
   });
 
-  const preencheGraficos = async () => {
+  const preencheGraficos = useCallback(async (_filters) => {
+    let _filtersToSearch = _filters ?? filters;
     isGettingGraphics.onTrue();
     const fullFilters = {
-      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
-      ddz: filters.zona.map((item) => item.id),
+      ano_letivo: [(_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id],
+      ddz: _filtersToSearch.zona.map((item) => item.id),
     };
 
     await Promise.all([
@@ -157,7 +158,7 @@ export default function DashboardDDZView() {
     ]);
 
     isGettingGraphics.onFalse();
-  };
+  }, [dados, filters, zonas, anosLetivos, contextReady.value]);
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -171,7 +172,6 @@ export default function DashboardDDZView() {
 
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
-      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
       Promise.all([buscaAnosLetivos(), buscaZonas()]).then(() => {
         contextReady.onTrue();
@@ -185,13 +185,13 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      setFilters((prevState) => ({
-        ...prevState,
+      let _filters = {
+        ...filters,
         zona: zonas.filter((z) => z.id == initialZona),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-      }));
-
-      preencheGraficos();
+      };
+      setFilters(_filters);
+      preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 

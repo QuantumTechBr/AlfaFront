@@ -151,7 +151,6 @@ export default function DashboardRedeView() {
 
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
-      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
       Promise.all([buscaAnosLetivos()
        ]).then(() => {

@@ -98,58 +98,64 @@ export default function DashboardEscolaView() {
     desempenho_alunos: {},
   });
 
-  const preencheGraficos = async () => {
-    isGettingGraphics.onTrue();
-    const fullFilters = {
-      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
-      ddz: filters.zona.map((item) => item.id),
-      escola: filters.escola.map((item) => item.id),
-    };
+  const preencheGraficos = useCallback(
+    async (_filters) => {
+      let _filtersToSearch = _filters ?? filters;
+      isGettingGraphics.onTrue();
+      const fullFilters = {
+        ano_letivo: [
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+        ],
+        ddz: _filtersToSearch.zona.map((item) => item.id),
+        escola: _filtersToSearch.escola.map((item) => item.id),
+      };
 
-    await Promise.all([
-      dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_usuarios_ativos: response.data,
-        }));
-      }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_alunos_ativos: response.data,
-        }));
-      }),
+      await Promise.all([
+        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            total_usuarios_ativos: response.data,
+          }));
+        }),
+        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            total_alunos_ativos: response.data,
+          }));
+        }),
 
-      //
-      dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
-        // adequação dos dados
+        //
+        dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
+          // adequação dos dados
 
-        setDados((prevState) => ({
-          ...prevState,
-          grid_professores: response.data.map((i) => ({
-            ...i,
-            alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
-            alfabetizados: Array.isArray(i.qtd_alfabetizado)
-              ? sum(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado,
-            nao_alfabetizados: i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: i.qtd_nao_avaliado,
-          })),
-        }));
-      }),
+          setDados((prevState) => ({
+            ...prevState,
+            grid_professores: response.data.map((i) => ({
+              ...i,
+              alunos: i.qtd_alunos,
+              avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
+              alfabetizados: Array.isArray(i.qtd_alfabetizado)
+                ? sum(i.qtd_alfabetizado)
+                : i.qtd_alfabetizado,
+              nao_alfabetizados: i.qtd_nao_alfabetizado,
+              deixou_de_frequentar: i.qtd_nao_avaliado,
+            })),
+          }));
+        }),
 
-      // ## DESEMPENHO ALUNO
-      dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          desempenho_alunos: response.data,
-        }));
-      }),
-    ]);
+        // ## DESEMPENHO ALUNO
+        dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            desempenho_alunos: response.data,
+          }));
+        }),
+      ]);
 
-    isGettingGraphics.onFalse();
-  };
+      isGettingGraphics.onFalse();
+    },
+    [dados, filters, zonas, anosLetivos, escolas, contextReady.value]
+  );
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -180,7 +186,6 @@ export default function DashboardEscolaView() {
 
   const preparacaoInicial = useCallback(() => {
     if (preparacaoInicialRunned.value === false) {
-      console.log('preparacaoInicial');
       preparacaoInicialRunned.onTrue();
       Promise.all([
         buscaAnosLetivos(),
@@ -199,18 +204,17 @@ export default function DashboardEscolaView() {
   useEffect(() => {
     if (contextReady.value) {
       let _escola = escolas.filter((e) => e.id == initialEscola);
-      setFilters((prevState) => ({
-        ...prevState,
+
+      let _filters = {
+        ...filters,
         escola: _escola,
         zona: zonas.filter((z) => z.id == _escola[0].zona.id),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-      }));
+      };
+      setFilters(_filters);
+      preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
-
-  useEffect(() => {
-    if (contextReady.value) preencheGraficos();
-  }, [contextReady.value]);
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
