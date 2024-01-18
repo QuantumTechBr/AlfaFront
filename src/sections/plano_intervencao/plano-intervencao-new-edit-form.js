@@ -73,7 +73,7 @@ const filtros = {
   turmas: [],
   alunos: [],
 };
-export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
+export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false }) {
 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
@@ -159,9 +159,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
       setHabilidades_3ano(hab3ano);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de habilidades');
-    });
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
     });
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
@@ -658,4 +655,5 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano }) {
 
 PlanoIntervencaoNewEditForm.propTypes = {
   currentPlano: PropTypes.object,
+  newFrom: PropTypes.bool,
 };

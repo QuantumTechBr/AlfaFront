@@ -90,7 +90,7 @@ export default function PlanoIntervencaoListView() {
   const preparado = useBoolean(false);
 
   useEffect(() => {
-    planoIntervencaoMethods.getAllPlanosIntervencao().then(planos => {
+    planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
       console.log(planos)
       setTableData(planos.data);
       preparado.onTrue();
