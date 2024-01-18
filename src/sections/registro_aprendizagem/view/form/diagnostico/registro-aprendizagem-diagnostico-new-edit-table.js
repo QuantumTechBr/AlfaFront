@@ -39,7 +39,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
     nome: '',
     promo_ano_anterior: [],
   };
-
+  console.log(habilidades)
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
