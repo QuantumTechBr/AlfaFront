@@ -521,6 +521,7 @@ export const _alunos = [
   },
 ]
 
+
 export const _registrosAprendizagemComponente = [
   {
     id: '1',
@@ -537,6 +538,7 @@ export const _registrosAprendizagemComponente = [
     tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
 ];
+
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];
 

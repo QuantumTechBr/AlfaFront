@@ -27,7 +27,7 @@ import {
   _productNames,
   _descriptions,
   _phoneNumbers,
-  } from './assets';
+} from './assets';
 
 // ----------------------------------------------------------------------
 
@@ -73,5 +73,3 @@ export const _mock = {
     portrait: (index) => `${ASSETS_API}/assets/images/portrait/portrait_${index + 1}.jpg`,
   },
 };
-
-
