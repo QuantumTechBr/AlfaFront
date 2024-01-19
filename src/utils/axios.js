@@ -104,7 +104,6 @@ export const endpoints = {
     total_alunos_ativos: '/api/v1/dashboards/total-alunos-ativos',
     total_turmas_ativas: '/api/v1/dashboards/total-turmas-ativas',
     total_usuarios_ativos: '/api/v1/dashboards/total-usuarios-ativos',
-    //
     grid_rede:  '/api/v1/dashboards/grid-rede',
     grid_escolas:  '/api/v1/dashboards/grid-escolas',
     grid_professores:  '/api/v1/dashboards/grid-professores',
