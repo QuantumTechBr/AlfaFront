@@ -187,7 +187,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(() => {
     if (url.includes('/new/')) {
-      preparado.onTrue();       
+      preparado.onTrue();        
     }
   }, [url])
 
@@ -317,10 +317,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         habilidades_plano_intervencao: filters.habilidades.map((habilidade) => {return {'habilidade': {'habilidade_id': habilidade}, 'habilidade_id': habilidade}}),
         status: 'Criado',
       };
-      console.log(toSend)
       if (currentPlano) {
         if (newFrom) {
-          await planoIntervencaoMethods.insertPlanoIntervencao(toSend).catch((error) => {
+          await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
+            reset();
+            enqueueSnackbar('Criado com sucesso!');
+            router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
+          }).catch((error) => {
             throw error;
           });  
         } else {
@@ -328,20 +331,17 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             throw error;
           });
         }
-        
       } else {
         await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
-          console.log(retorno)
-        }
-
-        ).catch((error) => {
+          reset();
+          enqueueSnackbar('Criado com sucesso!');
+          router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
+        }).catch((error) => {
           throw error;
         });
       }
       reset();
-      enqueueSnackbar(currentPlano ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      // router.push(paths.dashboard.plano_intervencao.list);
-      console.info('DATA', data);
+      enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
         return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
@@ -670,21 +670,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 label="Responsável"
               />
 
-              {/* <Autocomplete
-                disablePortal
-                name="responsavel"
-                options={listaProfissionais}
-                renderInput={(params) => <TextField {...params} label="Responsável" />}
-              /> */}
-
-              {/* <RHFSelect name="responsavel" label="Responsável">
-                {listaProfissionais.map((profissional) => (
-                  <MenuItem key={profissional.id} value={profissional.id}>
-                    {profissional.profissional}
-                  </MenuItem>
-                ))}
-              </RHFSelect> */}
-
               <RHFSelect name="aplicar" label="Aplicar Plano a...">
                 {aplicacao_options.map((aplicar) => (
                   <MenuItem key={aplicar} value={aplicar}>
@@ -694,25 +679,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
               </RHFSelect>
 
              
-        {selecionarAplicacao()}
+              {selecionarAplicacao()}
         
-
-              {/* <RHFSelect name="zona" label="DDZ">
-                {zonas.map((zona) => (
-                  <MenuItem key={zona.id} value={zona.id}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect> */}
-
-              
-
-
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentPlano ? 'Criar Plano' : 'Atualizar Plano'}
+                {currentPlano ? (newFrom ? 'Criar Plano' : 'Atualizar Plano') : 'Criar Plano'}
               </LoadingButton>
             </Stack>
           </Card>
