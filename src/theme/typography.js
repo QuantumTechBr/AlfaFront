@@ -25,7 +25,7 @@ export function responsiveFontSizes({ sm, md, lg }) {
 }
 
 export const primaryFont = Public_Sans({
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['300', '400', '500', '600', '700', '800'],
   subsets: ['latin'],
   display: 'swap',
   fallback: ['Helvetica', 'Arial', 'sans-serif'],
