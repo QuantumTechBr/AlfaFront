@@ -256,7 +256,7 @@ export default function PlanoIntervencaoListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          <Tabs
+          {/* <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
             sx={{
@@ -295,7 +295,7 @@ export default function PlanoIntervencaoListView() {
                 }
               />
             ))}
-          </Tabs>
+          </Tabs> */}
 {/* 
           <UserTableToolbar
             filters={filters}

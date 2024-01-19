@@ -93,73 +93,9 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
           >
           </Label>
         </TableCell>
-
-
-
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          {/* <Tooltip title="Edição Rápida" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
-          </Tooltip> */}
-
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
       </TableRow>
 
-      {/* <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} /> */}
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
-
-        <MenuItem
-          // onClick={() => {
-          //   onNewFrom();
-          //   popover.onClose();
-          // }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Novo Plano a Partir deste...
-        </MenuItem>
-      </CustomPopover>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Excluir Usuário"
-        content="Tem certeza que deseja excluir o usuário?"
-        action={
-          <Button variant="contained" color="error" onClick={newDeleteRow}>
-            Deletar
-          </Button>
-        }
-      />
+      
     </>
   );
 }
