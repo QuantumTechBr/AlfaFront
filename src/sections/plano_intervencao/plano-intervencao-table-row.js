@@ -110,13 +110,11 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
         </TableCell>
       </TableRow>
 
-      {/* <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} /> */}
-
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        sx={{ width: 140 }}
+        sx={{ width: 240 }}
       >
         <MenuItem
           onClick={() => {
