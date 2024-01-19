@@ -14,6 +14,7 @@ import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 // utils
 import { fData } from 'src/utils/format-number';
 // routes
@@ -74,10 +75,11 @@ const filtros = {
   turmas: [],
   alunos: [],
 };
-export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false }) {
+export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
+  const conclui = useBoolean();
   const url = window.location.href;
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -114,9 +116,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     terminoPrevisto = parseISO(currentPlano.termino_previsto);
   }
 
-  
 
   useEffect(() => {
+    preparado.onFalse();
     profissionalMethods.getAllProfissionais().then(profissionais => {
       let lp = []
       if (profissionais.data.length == 0) {
@@ -187,9 +189,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(() => {
     if (url.includes('/new/')) {
-      preparado.onTrue();        
+      if (allHab.length > 0 ) {
+        preparado.onTrue();
+      }        
     }
-  }, [url])
+  }, [allHab])
 
   useEffect(()  => {
     if (currentPlano) {
@@ -441,6 +445,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       return alunos.find((option) => option.id == alunoId)?.nome;
     }).join(', ');  
 
+  const concluiPlano = async () => {
+    await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, {status: 'Concluído'}).catch((error) => {
+        console.log(error);
+      });
+    statusConcluido()
+    conclui.onFalse();
+  }
+
   useEffect(() => {
     if (ano_escolar == '1') {
       setHab(habilidades_1ano);
@@ -466,7 +478,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const telaDocumento = () => {
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
   }
-
 
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
@@ -685,10 +696,33 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
              
               {selecionarAplicacao()}
 
-              <Button variant="outlined" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
-                Documentos Plano
-              </Button>
-        
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
+              >
+                <Button variant="outlined" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
+                  Status Concluído
+                </Button>
+                <Button variant="outlined" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
+                  Documentos Plano
+                </Button>
+                <ConfirmDialog
+                  open={conclui.value}
+                  onClose={conclui.onFalse}
+                  title="Plano Concluído"
+                  content="Tem certeza que deseja marcar esse plano como Concluído?"
+                  action={
+                    <Button variant="contained" color="success" onClick={concluiPlano}>
+                      Concluído
+                    </Button>
+                  }
+                />
+              </Box>
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -706,4 +740,5 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 PlanoIntervencaoNewEditForm.propTypes = {
   currentPlano: PropTypes.object,
   newFrom: PropTypes.bool,
+  statusConcluido: PropTypes.func,
 };

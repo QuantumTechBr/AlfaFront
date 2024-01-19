@@ -21,6 +21,8 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import parse from 'date-fns/parse';
+import planoIntervencaoMethods from './plano-intervencao-repository';
+
 
 // ----------------------------------------------------------------------
 
@@ -38,6 +40,8 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
 
   const confirm = useBoolean();
 
+  const conclui = useBoolean();
+
   const quickEdit = useBoolean();
 
   const popover = usePopover();
@@ -45,6 +49,14 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
   const newDeleteRow = () => {
     onDeleteRow();
     confirm.onFalse();
+  }
+
+  const concluiPlano = async () => {
+    await planoIntervencaoMethods.updatePlanoIntervencaoById(row.id, {status: 'Concluído'}).catch((error) => {
+      console.log(error);
+    });
+    conclui.onFalse();
+    window.location.reload()
   }
 
   const closeQuickEdit = (retorno=null) => {
@@ -60,7 +72,6 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
     } else {
       return 'Em Andamento Fora do Prazo';
     }
-
   }
 
   return (
@@ -143,8 +154,19 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
              popover.onClose();
            }}
         >
-          <Iconify icon="solar:pen-bold" />
+          <Iconify icon="mingcute:add-line" />
           Novo Plano a Partir deste...
+        </MenuItem>
+
+        <MenuItem
+          onClick={() => {
+            conclui.onTrue();
+            popover.onClose();
+          }}
+          sx={{ color: 'success.main' }}
+        >
+          <Iconify icon="material-symbols:check" />
+          Marcar como Concluído
         </MenuItem>
       </CustomPopover>
 
@@ -156,6 +178,17 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
         action={
           <Button variant="contained" color="error" onClick={newDeleteRow}>
             Deletar
+          </Button>
+        }
+      />
+      <ConfirmDialog
+        open={conclui.value}
+        onClose={conclui.onFalse}
+        title="Plano Concluído"
+        content="Tem certeza que deseja marcar esse plano como Concluído?"
+        action={
+          <Button variant="contained" color="success" onClick={concluiPlano}>
+            Concluído
           </Button>
         }
       />
