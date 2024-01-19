@@ -463,6 +463,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     setFilters(novoFiltro);
   }, [aplicar]);
 
+  const telaDocumento = () => {
+    router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
+  }
+
 
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
@@ -680,6 +684,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
              
               {selecionarAplicacao()}
+
+              <Button variant="outlined" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
+                Documentos Plano
+              </Button>
         
             </Box>
 
