@@ -107,7 +107,6 @@ export const endpoints = {
     grid_rede:  '/api/v1/dashboards/grid-rede',
     grid_escolas:  '/api/v1/dashboards/grid-escolas',
     grid_professores:  '/api/v1/dashboards/grid-professores',
-
   },
   disciplina: {
     list: '/api/v1/disciplinas/',
