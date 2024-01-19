@@ -86,7 +86,7 @@ export default function DashboardDDZView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
-  const [zonaFiltro, setZonaFiltro] = useState([]);
+  const [zonaFiltro, setZonaFiltro] = useState("");
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
@@ -106,7 +106,7 @@ export default function DashboardDDZView() {
     isGettingGraphics.onTrue();
     const fullFilters = {
       ano_letivo: [(_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id],
-      ddz: _filtersToSearch.zona.map((item) => item.id),
+      ddz: [_filtersToSearch.zona.id],
     };
 
     await Promise.all([
@@ -187,7 +187,7 @@ export default function DashboardDDZView() {
     if (contextReady.value) {
       let _filters = {
         ...filters,
-        zona: zonas.filter((z) => z.id == initialZona),
+        zona: zonas.find((z) => z.id == initialZona),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
       };
       setFilters(_filters);
@@ -197,11 +197,11 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
-      let _zonaFiltro = [];
+      let _zonaFiltro = "";
       if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        _zonaFiltro = [user?.funcao_usuario[0]?.zona];
+        _zonaFiltro = user?.funcao_usuario[0]?.zona;
       } else {
-        _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
+        _zonaFiltro = user?.funcao_usuario[0]?.escola?.zona;
       }
 
       setZonaFiltro(_zonaFiltro);
