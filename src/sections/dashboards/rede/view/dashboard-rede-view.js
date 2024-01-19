@@ -62,7 +62,6 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 
-
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
 
@@ -88,56 +87,61 @@ export default function DashboardRedeView() {
     desempenho_alunos: {},
   });
 
-  const preencheGraficos = async () => {
-    isGettingGraphics.onTrue();
-    const fullFilters = {
-      ano_letivo: [(filters.anoLetivo != '' ? filters.anoLetivo : first(anosLetivos)).id],
-    };
+  const preencheGraficos = useCallback(
+    async (_filters) => {
+      let _filtersToSearch = _filters ?? filters;
 
-    await Promise.all([
-      dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_usuarios_ativos: response.data,
-        }));
-      }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_alunos_ativos: response.data,
-        }));
-      }),
+      isGettingGraphics.onTrue();
+      const fullFilters = {
+        ano_letivo: [(_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id],
+      };
 
-      //
-      dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
-        let result = response.data.map((i) => ({
-          ...i,
-          alunos: i.qtd_alunos,
-          avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
-          alfabetizados: Array.isArray(i.qtd_alfabetizado)
-            ? sum(i.qtd_alfabetizado)
-            : i.qtd_alfabetizado,
-          nao_alfabetizados: i.qtd_nao_alfabetizado,
-          deixou_de_frequentar: i.qtd_nao_avaliado,
-        }));
+      await Promise.all([
+        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            total_usuarios_ativos: response.data,
+          }));
+        }),
+        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            total_alunos_ativos: response.data,
+          }));
+        }),
 
-        setDados((prevState) => ({
-          ...prevState,
-          grid_ddz: result,
-        }));
-      }),
+        //
+        dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
+          let result = response.data.map((i) => ({
+            ...i,
+            alunos: i.qtd_alunos,
+            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
+            alfabetizados: Array.isArray(i.qtd_alfabetizado)
+              ? sum(i.qtd_alfabetizado)
+              : i.qtd_alfabetizado,
+            nao_alfabetizados: i.qtd_nao_alfabetizado,
+            deixou_de_frequentar: i.qtd_nao_avaliado,
+          }));
 
-      // ## DESEMPENHO ALUNO
-      dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          desempenho_alunos: response.data,
-        }));
-      }),
-    ]);
+          setDados((prevState) => ({
+            ...prevState,
+            grid_ddz: result,
+          }));
+        }),
 
-    isGettingGraphics.onFalse();
-  };
+        // ## DESEMPENHO ALUNO
+        dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            desempenho_alunos: response.data,
+          }));
+        }),
+      ]);
+
+      isGettingGraphics.onFalse();
+    },
+    [dados, filters, anosLetivos, contextReady.value]
+  );
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -152,8 +156,7 @@ export default function DashboardRedeView() {
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
       preparacaoInicialRunned.onTrue();
-      Promise.all([buscaAnosLetivos()
-       ]).then(() => {
+      Promise.all([buscaAnosLetivos()]).then(() => {
         contextReady.onTrue();
       });
     }
@@ -165,12 +168,13 @@ export default function DashboardRedeView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      setFilters((prevState) => ({
-        ...prevState,
+      let _filters = {
+        ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-      }));
-      
-      preencheGraficos();
+      }
+
+      setFilters(_filters);
+      preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
@@ -285,7 +289,7 @@ export default function DashboardRedeView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={preencheGraficos()}>
+              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
                 Aplicar filtros
               </Button>
 

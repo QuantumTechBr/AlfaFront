@@ -155,7 +155,7 @@ export default function DashboardEscolaView() {
 
       isGettingGraphics.onFalse();
     },
-    [dados, filters, zonas, anosLetivos, escolas, contextReady.value]
+    [dados, filters, anosLetivos, zonas, escolas, contextReady.value]
   );
 
   const handleFilters = useCallback(
@@ -352,7 +352,7 @@ export default function DashboardEscolaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={preencheGraficos()}>
+              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
                 Aplicar filtros
               </Button>
 
