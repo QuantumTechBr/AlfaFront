@@ -68,6 +68,7 @@ import PlanoIntervencaoModalTableRow from './plano-intervencao-modal-table-row';
 
 // ----------------------------------------------------------------------
 const TABLE_HEAD = [
+  { id: '', width: 88 },
   { id: 'nome', label: 'Variáveis a melhorar', width: 200 },
   { id: 'responsavel', label: 'Responsável pela ação', width: 300 },
   { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
@@ -75,7 +76,7 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
   { id: 'status', label: 'Status', width: 80 },
   { id: 'farol', label: 'Farol', width: 50 },
-  { id: '', width: 88 },
+  
 ];
 
 const filtros = {

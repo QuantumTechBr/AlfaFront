@@ -114,6 +114,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     terminoPrevisto = parseISO(currentPlano.termino_previsto);
   }
 
+  
+
   useEffect(() => {
     profissionalMethods.getAllProfissionais().then(profissionais => {
       let lp = []
@@ -180,12 +182,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     buscaTurmas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
     });
-    console.log(url)
+    
+  }, []);
+
+  useEffect(() => {
     if (url.includes('/new/')) {
       preparado.onTrue();       
     }
-    
-  }, []);
+  }, [url])
 
   useEffect(()  => {
     if (currentPlano) {
@@ -279,8 +283,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const { ano_escolar, fase, habilidades, aplicar } = values;
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
-    console.log(filters)
     try {
       let listaIdsAplicacao = {
         zonas: [],
@@ -328,13 +330,17 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         }
         
       } else {
-        await planoIntervencaoMethods.insertPlanoIntervencao(toSend).catch((error) => {
+        await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
+          console.log(retorno)
+        }
+
+        ).catch((error) => {
           throw error;
         });
       }
       reset();
       enqueueSnackbar(currentPlano ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      router.push(paths.dashboard.plano_intervencao.list);
+      // router.push(paths.dashboard.plano_intervencao.list);
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
