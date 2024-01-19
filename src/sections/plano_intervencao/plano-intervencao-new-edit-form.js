@@ -78,7 +78,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
-
+  const url = window.location.href;
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -142,7 +142,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         }
         auto_complete_aluno.push(al)
       });
-      console.log(auto_complete_aluno)
       setAlunos(auto_complete_aluno)
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
@@ -181,6 +180,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     buscaTurmas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
     });
+    console.log(url)
+    if (url.includes('/new/')) {
+      preparado.onTrue();       
+    }
     
   }, []);
 
@@ -329,16 +332,16 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
           throw error;
         });
       }
-      // reset();
-      // enqueueSnackbar(currentPlano ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      // router.push(paths.dashboard.plano_intervencao.list);
-      // console.info('DATA', data);
+      reset();
+      enqueueSnackbar(currentPlano ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+      router.push(paths.dashboard.plano_intervencao.list);
+      console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
         return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
       });
       let mensagem = arrayMsg.join(' ');
-      currentPlano ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
+      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
@@ -643,7 +646,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
               <RHFSelect name="fase" label="Fase">
                 {fases_options.map((fase) => (
-                  <MenuItem key={fase} value={fase}>
+                  <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
                     {fase}
                   </MenuItem>
                 ))}

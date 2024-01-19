@@ -245,6 +245,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       }).then(planos => {
         setTableData(planos.data);
         preparado.onTrue();
+        if (planos.data.length == 0) {
+          setErrorMsg('Nenhum Plano encontrado');
+        }
       }
       ).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de habilidades');
@@ -343,7 +346,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
             <RHFSelect name="fase" label="Fase">
                 {fases_options.map((fase) => (
-                  <MenuItem key={fase} value={fase}>
+                  <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
                     {fase}
                   </MenuItem>
                 ))}
@@ -351,6 +354,8 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
             
           </Box>
+        {!!errorMsg && <Alert severity="error"  sx={{ mt: 3 }}>{errorMsg}</Alert>}
+        <Box visibility={tableData.length > 0 ? 'inherit' : 'hidden'}>
           <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960, mt: 3 }}>
                 <TableHeadCustom
@@ -385,6 +390,17 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
                 </TableBody>
               </Table> 
             </Scrollbar>
+            <TablePaginationCustom
+            count={dataFiltered.length}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+            //
+            dense={table.dense}
+            onChangeDense={table.onChangeDense}
+          />
+            </Box>
 
           
         </DialogContent>
