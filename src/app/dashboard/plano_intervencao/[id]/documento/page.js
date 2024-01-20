@@ -12,7 +12,7 @@ export const metadata = {
 export default function PlanoIntervencaoFileManagerPage({ params }) {
   const { id } = params;
 
-  return <PlanoIntervencaoFileManagerView id={id} />;
+  return <PlanoIntervencaoFileManagerView planoId={id} />;
 }
 
 PlanoIntervencaoFileManagerPage.propTypes = {

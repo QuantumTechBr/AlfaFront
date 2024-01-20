@@ -6,8 +6,6 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 // utils
 import { fTimestamp } from 'src/utils/format-time';
 // _mock
@@ -16,7 +14,6 @@ import { _allFiles, FILE_TYPE_OPTIONS } from 'src/_mock';
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
 import { fileFormat } from 'src/components/file-thumbnail';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
@@ -27,19 +24,13 @@ import PlanoIntervencaoFileManagerFilters from '../documento_plano_intervencao/p
 import PlanoIntervencaoFileManagerGridView from '../documento_plano_intervencao/plano-intervencao-file-manager-grid-view';
 import PlanoIntervencaoFileManagerFiltersResult from '../documento_plano_intervencao/plano-intervencao-file-manager-filters-result';
 import PlanoIntervencaoFileManagerNewFolderDialog from '../documento_plano_intervencao/plano-intervencao-file-manager-new-folder-dialog';
-import documentoTurmaMethods from 'src/sections/documento-turma/documento-turma-repository';
-import { Box, CircularProgress } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
-import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 
-// Cash
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import turmaMethods from 'src/sections/turma/turma-repository';
+// import { insertDocumentoIntervencao, getAllDocumentos, deleteDocumentoById } from '../documento_plano_intervencao/documento-intervencao-repository';
+
+import documentoTurmaMethods from '../documento_plano_intervencao/documento-intervencao-repository';
+
 
 // ----------------------------------------------------------------------
 
@@ -52,7 +43,7 @@ const defaultFilters = {
 
 // ----------------------------------------------------------------------
 
-export default function PlanoIntervencaoFileManagerView({ id }) {
+export default function PlanoIntervencaoFileManagerView({ planoId }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const table = useTable({ defaultRowsPerPage: 10 });
@@ -66,14 +57,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
   const upload = useBoolean();
 
   const [view, setView] = useState('list');
-
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-
-  const [ escolaSelecionada, setEscolaSelecionada ] = useState();
-
-  const [ turmaSelecionada, setTurmaSelecionada ] = useState();
 
   const [documentos, setDocumentos] = useState([]);
 
@@ -105,58 +88,22 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
 
 
   useEffect(() => {
-    const promises = [];
-
-    let escola1 = null;
-    let turma1 = null;
-
-    const escolasPromise = buscaEscolas().then(async (_escolas) => {
-      if (_escolas.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de escolas');
-      } else {
-        escola1 = _escolas[0];
-        setEscolaSelecionada(escola1);
-
-        await buscaTurmas().then((_turmas) => {
-          if (_turmas.length == 0) {
-            setWarningMsg('A API retornou uma lista vazia de turmas');
-          } else {
-            turma1 = _turmas.find(turma => turma.escola.id == escola1.id);
-            if (turma1){
-              setTurmaSelecionada(turma1)
-            } else {
-              setTurmaSelecionada(null)
-            }
-          }
-        }).catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de turmas');
-        });
+    
+    buscaDocumentos().then(retorno => {
+      if (retorno?.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de documentos');
       }
-
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
     });
-    promises.push(escolasPromise);
-
-    Promise.all(promises).then(() => {
-      if(turma1) {
-        buscaDocumentos(turma1.id).then(retorno => {
-          if (retorno?.length == 0) {
-            setWarningMsg('A API retornou uma lista vazia de documentos');
-          }
-        });
-      }
-      preparado.onTrue()
-    })
+    preparado.onTrue()
   }, []);
 
-  const buscaDocumentos = async (turmaId) => {
+  const buscaDocumentos = async () => {
     setWarningMsg('');
     setErrorMsg('');
     preparado.onFalse();
     let returnData = documentos;
 
-    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
+    const consultaAtual = documentoTurmaMethods.getAllDocumentos(planoId).then((response) => {
       if (response.data == '' || response.data === undefined) response.data = [];
 
       setDocumentos(response.data);
@@ -170,12 +117,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
     return consultaAtual;
   };
 
-  const handleChangeView = useCallback((event, newView) => {
-    if (newView !== null) {
-      setView(newView);
-    }
-  }, []);
-
   const handleFilters = useCallback(
     (name, value) => {
       table.onResetPage();
@@ -186,38 +127,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
     },
     [table]
   );
-
-  
-  const handleSelectEscola = useCallback(
-    async (event) => {
-        const escolaId = typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
-        const escolas = await buscaEscolas();
-        const turmas = await buscaTurmas();
-        const escolaNova = escolas.find((option) => option.id == escolaId);
-        setEscolaSelecionada(escolaNova);
-        const turmaEscola = turmas.find(turma => turma.escola.id == escolaId);
-        if (turmaEscola){
-          setTurmaSelecionada(turmaEscola)
-          buscaDocumentos(turmaEscola.id);
-        } else {
-          setTurmaSelecionada(null);
-          setDocumentos([]);
-          setTableData([]);
-        }
-    },
-    []
-  );
-
-  const handleSelectTurma = useCallback(
-    async (event) => {
-        const turmaId = event.target.value;
-        const turmas = await buscaTurmas();
-        setTurmaSelecionada(turmas.find((option) => option.id == turmaId));
-        buscaDocumentos(turmaId);
-    },
-    []
-  );
-
 
   const handleDeleteItem = useCallback(
     async (id) => {
@@ -244,7 +153,7 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
     const deleteRows = tableData.filter((row) => table.selected.includes(row.id));
 
     deleteRows.forEach(async row => {
-      const retorno = await documentoTurmaMethods.deleteDocumentoById(row.id).catch((error) => {
+      const retorno = await deleteDocumentoById(row.id).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
       });
       if (retorno.status != 204) {
@@ -269,7 +178,7 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
   const handleUploadClose = useCallback((event) => {
     console.log(event);
     if(event?.data?.id) {
-      buscaDocumentos(event.data.turma.id).then(retorno => setTableData(retorno));
+      buscaDocumentos().then(retorno => setTableData(retorno));
     }
     
     upload.onFalse();
@@ -293,16 +202,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
         typeOptions={FILE_TYPE_OPTIONS}
 
       />
-
-      {/* <ToggleButtonGroup size="small" value={view} exclusive onChange={handleChangeView}>
-        <ToggleButton value="list">
-          <Iconify icon="solar:list-bold" />
-        </ToggleButton>
-
-        <ToggleButton value="grid">
-          <Iconify icon="mingcute:dot-grid-fill" />
-        </ToggleButton>
-      </ToggleButtonGroup> */}
     </Stack>
   );
 
@@ -317,60 +216,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
       results={dataFiltered.length}
     />
   );
-
-  
-  const renderValueEscola = (selected) => 
-     { return escolas.find((option) => option.id == selected)?.nome; }
-
-  const renderValueTurma = (selected) => 
-    { 
-      const turma = turmas.find((option) => option.id == selected);
-      return  `${turma.ano_escolar}º ${turma.nome} - ${turma.ano.ano}`; 
-    }
-
-  const renderFilterEscola = (
-    <Select
-      value={escolaSelecionada ? escolaSelecionada.id : ''}
-      // defaultValue={escolas.length ? escolas[0]?.id : ''}
-      onChange={handleSelectEscola}
-      input={<OutlinedInput label="Escola" />}
-      renderValue={renderValueEscola}
-      MenuProps={{
-        PaperProps: {
-          sx: { maxHeight: 240 },
-        },
-      }}
-    >
-      {escolas?.map((escola) => (
-        <MenuItem key={escola.id} value={escola.id}>
-          {escola.nome}
-        </MenuItem>
-      ))}
-    </Select>
-  )
-
-  const renderFilterTurma = (
-    <Select
-      value={turmaSelecionada ? turmaSelecionada.id : ''}
-      // defaultValue={turmas.length ? turmas[0]?.id : ''}
-      onChange={handleSelectTurma}
-      input={<OutlinedInput label="Turma" />}
-      renderValue={renderValueTurma}
-      MenuProps={{
-        PaperProps: {
-          sx: { maxHeight: 240 },
-        },
-      }}
-    >
-      {turmas?.filter(turma => turma.escola.id == escolaSelecionada?.id)?.map((turma) => (
-        <MenuItem key={turma.id} value={turma.id}>
-          {turma.ano_escolar}º {turma.nome} - {turma.ano.ano}
-        </MenuItem>
-      ))}
-    </Select>
-  )
-
-
 
   return (
     <>
@@ -405,9 +250,6 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
                 ) : (
 
           <>
-            {renderFilterEscola}
-            {renderFilterTurma}
-
             {!tableData.length && (
               <Alert severity="warning">
                 Nenhum documento para mostrar
@@ -435,7 +277,7 @@ export default function PlanoIntervencaoFileManagerView({ id }) {
         )}
       </Container>
 
-      <PlanoIntervencaoFileManagerNewFolderDialog open={upload.value} onClose={handleUploadClose} turma={turmaSelecionada} />
+      <PlanoIntervencaoFileManagerNewFolderDialog open={upload.value} onClose={handleUploadClose} planoId={planoId} />
 
       <ConfirmDialog
         open={confirm.value}

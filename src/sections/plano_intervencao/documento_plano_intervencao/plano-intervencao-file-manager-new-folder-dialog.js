@@ -23,11 +23,9 @@ import axios, { endpoints } from 'src/utils/axios';
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { insertDocumentoIntervencao } from './documento-intervencao-repository';
 
 
-import { AWS_S3 } from 'src/config-global';
-import { insertDocumentoTurma, getAllDocumentos } from 'src/sections/documento-turma/documento-turma-repository';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 export default function PlanoIntervencaoFileManagerNewFolderDialog({
   title = 'Enviar arquivos',
@@ -39,11 +37,10 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
   //
   folderName,
   onChangeFolderName,
-  turma,
+  planoId,
   ...other
 }) {
   const [files, setFiles] = useState([]);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   
   const uploading = useBoolean(false); 
 
@@ -69,9 +66,6 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
   const handleUpload = async () => {
     let response;
 
-    const anos = await buscaAnosLetivos();
-    const anoAtual = new Date().getFullYear();
-    let idAnoLetivoAtual = anos.find(anoLetivo => anoLetivo.ano == anoAtual)?.id;
     
     try {
       files.forEach(async file => {
@@ -79,14 +73,14 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
         
         let formData = new FormData();
         
-        formData.append('turma_id', turma.id);
+        formData.append('plano_id', planoId);
         formData.append('arquivo', file)
         const config = {
           headers: {
             'content-type': 'multipart/form-data'
           }
         }
-        response = await insertDocumentoTurma(formData).catch(erro => {
+        response = await insertDocumentoIntervencao(formData).catch(erro => {
           console.log("upload erro");
           throw erro;
         });
