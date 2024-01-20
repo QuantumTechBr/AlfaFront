@@ -123,12 +123,11 @@ export default function DashboardDDZTableToolbar({
             <InputLabel size="small">DDZ</InputLabel>
             <Select
               size="small"
-              multiple
               disabled={user?.funcao_usuario?.length > 0 ? true : false}
               value={filters.zona}
               onChange={handleFilterZona}
               input={<OutlinedInput fullWidth label="DDZ" />}
-              renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
+              // renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
@@ -137,7 +136,6 @@ export default function DashboardDDZTableToolbar({
             >
               {ddzOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
                   {option.nome}
                 </MenuItem>
               ))}

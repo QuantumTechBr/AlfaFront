@@ -52,7 +52,7 @@ export default function GraficoHorizontalChart({
       showForSingleSeries: true,
       customLegendItems: ['Atual', 'Meta'],
       markers: {
-        fillColors: ['#00E396', '#775DD0'],
+        fillColors: [theme.palette.primary.main, '#775DD0'],
       },
     },
     plotOptions: {
@@ -62,7 +62,7 @@ export default function GraficoHorizontalChart({
         borderRadius: 13,
       },
     },
-    colors: [theme.palette.primary.light],
+    colors: [theme.palette.primary.main],
 
     dataLabels: {
       enabled: true,

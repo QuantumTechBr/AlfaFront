@@ -83,7 +83,7 @@ export default function MetaComponent({ title, total, color = 'primary', sx, ...
         borderRadius: 2,
         textAlign: 'center',
         color: `white`,
-        backgroundColor: theme.palette[color].light,
+        backgroundColor: theme.palette[color].main,
         ...sx,
       }}
       {...other}

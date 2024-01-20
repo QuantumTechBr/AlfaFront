@@ -387,7 +387,7 @@ export default function DashboardTurmaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={preencheGraficos}>
+              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
                 Aplicar filtros
               </Button>
 
