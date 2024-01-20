@@ -276,7 +276,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       open={open}
       onClose={onClose}
       PaperProps={{
-        sx: { maxWidth: 720 },
+        sx: { maxWidth: 1500 },
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -301,12 +301,13 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
           display="grid"
           gridTemplateColumns={{
             xs: 'repeat(1, 1fr)',
-            sm: 'repeat(2, 1fr)',
+            sm: 'repeat(4, 1fr)',
           }}
           >
 
           <RHFSelect name="ano" label="Ano" sx={{
             flexShrink: 0,
+            sx: { maxWidth: 120 },
           }}>
               {anos_options.map((ano) => (
                 <MenuItem key={ano} value={ano}>
@@ -352,6 +353,16 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
+
+            <LoadingButton
+              disabled={!podeBuscar(filters.habilidades, fase)}
+              type="submit"
+              variant="contained"
+              color="primary"
+              loading={isSubmitting} 
+            >
+              Buscar Plano
+            </LoadingButton>
 
             
           </Box>
@@ -406,17 +417,6 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
           
         </DialogContent>
         <DialogActions>
-          <LoadingButton
-            disabled={!podeBuscar(filters.habilidades, fase)}
-            type="submit"
-            variant="contained"
-            color="primary"
-            loading={isSubmitting}
-            sx={{ mr: 2}} 
-          >
-            Buscar Plano
-          </LoadingButton>
-
           <Button
               disabled={table.selected.length > 0 ? false : true}
               component={RouterLink}

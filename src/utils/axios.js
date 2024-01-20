@@ -122,12 +122,12 @@ export const endpoints = {
     update: '/api/v1/documentos/',
     delete: '/api/v1/documentos/',
   },
-  documento_turma: {
-    list: '/api/v1/documento-turma/',
-    post: '/api/v1/documento-turma/',
-    get_by_id: '/api/v1/documento-turma/',
-    update: '/api/v1/documento-turma/',
-    delete: '/api/v1/documento-turma/',
+  documento_intervencao: {
+    list: '/api/v1/documento-intervencao/',
+    post: '/api/v1/documento-intervencao/',
+    get_by_id: '/api/v1/documento-intervencao/',
+    update: '/api/v1/documento-intervencao/',
+    delete: '/api/v1/documento-intervencao/',
   },
   escola: {
     list: '/api/v1/escolas/',

@@ -167,6 +167,7 @@ export const paths = {
       new: `${ROOTS.DASHBOARD}/plano_intervencao/new`,
       new_from: (id) => `${ROOTS.DASHBOARD}/plano_intervencao/${id}/new_from`,
       list: `${ROOTS.DASHBOARD}/plano_intervencao/list`,
+      documento: (id) => `${ROOTS.DASHBOARD}/plano_intervencao/${id}/documento`,
       cards: `${ROOTS.DASHBOARD}/plano_intervencao/cards`,
       account: `${ROOTS.DASHBOARD}/plano_intervencao/account`,
       edit: (id) => `${ROOTS.DASHBOARD}/plano_intervencao/${id}/edit`,
