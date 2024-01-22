@@ -705,11 +705,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                   sm: 'repeat(2, 1fr)',
                 }}
               >
-                <Button variant="outlined" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
+                <Button disabled={getValues('status') == 'Concluído' ? true : false} variant="contained" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
                   Status Concluído
                 </Button>
-                <Button variant="outlined" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
-                  Documentos Plano
+                <Button variant="contained" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
+                  Anexos
                 </Button>
                 <ConfirmDialog
                   open={conclui.value}

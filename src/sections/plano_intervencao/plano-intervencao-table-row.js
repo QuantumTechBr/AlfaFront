@@ -159,6 +159,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
         </MenuItem>
 
         <MenuItem
+          disabled={status == 'Concluído' ? true : false}
           onClick={() => {
             conclui.onTrue();
             popover.onClose();

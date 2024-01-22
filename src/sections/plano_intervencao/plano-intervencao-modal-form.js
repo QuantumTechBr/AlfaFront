@@ -367,7 +367,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             
           </Box>
         {!!errorMsg && <Alert severity="error"  sx={{ mt: 3 }}>{errorMsg}</Alert>}
-        <Box visibility={tableData.length > 0 ? 'inherit' : 'hidden'}>
+        <Box>
           <Scrollbar>
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960, mt: 3 }}>
                 <TableHeadCustom
