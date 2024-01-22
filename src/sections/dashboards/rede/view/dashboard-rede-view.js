@@ -312,7 +312,7 @@ export default function DashboardRedeView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_avaliados ?? '-'}
+              total={dados.total_alunos_avaliados ?? 0}
               icon={
                 <Iconify
                   width={ICON_SIZE}
