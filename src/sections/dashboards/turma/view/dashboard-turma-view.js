@@ -340,6 +340,15 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
+  const _indiceDeFasesCount = useCallback(() => {
+    let _list = [
+      (dados.indice_fases_1_ano.chart?.series ?? []).length > 0,
+      (dados.indice_fases_2_ano.chart?.series ?? []).length > 0,
+      (dados.indice_fases_3_ano.chart?.series ?? []).length > 0,
+    ].filter((i) => i === true);
+    return _list.length;
+  });
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -387,7 +396,12 @@ export default function DashboardTurmaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -470,7 +484,8 @@ export default function DashboardTurmaView() {
               />
             )}
           {!isGettingGraphics.value &&
-            (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+            (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
+            _indiceDeFasesCount() > 1 && (
               <IndicesCompostosFasesAlfabetizacaoWidget
                 key="indices_component_geral"
                 ano_escolar="Geral"
