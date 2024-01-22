@@ -95,7 +95,7 @@ export default function DashboardDDZView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
+    total_alunos_avaliados: null,
     //
     grid_escolas: [],
     desempenho_alunos: {},
@@ -114,12 +114,6 @@ export default function DashboardDDZView() {
         setDados((prevState) => ({
           ...prevState,
           total_usuarios_ativos: response.data,
-        }));
-      }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_alunos_ativos: response.data,
         }));
       }),
 
@@ -144,6 +138,7 @@ export default function DashboardDDZView() {
 
         setDados((prevState) => ({
           ...prevState,
+          total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
           grid_escolas: result,
         }));
       }),
@@ -347,7 +342,7 @@ export default function DashboardDDZView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_ativos.total}
+              total={dados.total_alunos_avaliados ?? '-'}
               icon={
                 <Iconify
                   width={ICON_SIZE}

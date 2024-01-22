@@ -75,7 +75,7 @@ export default function DashboardTurmaView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
+    total_alunos_avaliados: null,
 
     indice_fases_1_ano: {},
     indice_aprovacao_1_ano: {},
@@ -178,12 +178,6 @@ export default function DashboardTurmaView() {
               total_usuarios_ativos: response.data,
             }));
           }),
-        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
 
         // ## INDICE DE FASES
         getIndiceFases(1, fullFilters),
@@ -429,12 +423,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
-              total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
+              total={dados.total_alunos_avaliados ?? '-'}
               icon={
                 <Iconify
                   width={ICON_SIZE}

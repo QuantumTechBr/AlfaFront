@@ -81,7 +81,7 @@ export default function DashboardRedeView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
+    total_alunos_avaliados: null,
     //
     grid_ddz: [],
     desempenho_alunos: {},
@@ -103,12 +103,6 @@ export default function DashboardRedeView() {
             total_usuarios_ativos: response.data,
           }));
         }),
-        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
 
         //
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
@@ -125,6 +119,7 @@ export default function DashboardRedeView() {
 
           setDados((prevState) => ({
             ...prevState,
+            total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
             grid_ddz: result,
           }));
         }),
@@ -317,7 +312,7 @@ export default function DashboardRedeView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_ativos.total}
+              total={dados.total_alunos_avaliados ?? '-'}
               icon={
                 <Iconify
                   width={ICON_SIZE}
