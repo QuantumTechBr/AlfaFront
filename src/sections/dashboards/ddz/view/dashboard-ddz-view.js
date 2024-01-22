@@ -401,7 +401,7 @@ export default function DashboardDDZView() {
       </Grid>
 
       {!isGettingGraphics.value && (
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mt: 3, mb:4 }}>
           <CardHeader title="Escolas" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
