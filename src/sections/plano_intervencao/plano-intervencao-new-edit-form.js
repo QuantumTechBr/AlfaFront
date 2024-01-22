@@ -696,39 +696,29 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
              
               {selecionarAplicacao()}
 
-              <Box
-                rowGap={3}
-                columnGap={2}
-                display="grid"
-                gridTemplateColumns={{
-                  xs: 'repeat(1, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                }}
-              >
-                <Button disabled={getValues('status') == 'Concluído' ? true : false} variant="contained" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
-                  Status Concluído
-                </Button>
-                <Button variant="contained" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
-                  Anexos
-                </Button>
-                <ConfirmDialog
-                  open={conclui.value}
-                  onClose={conclui.onFalse}
-                  title="Plano Concluído"
-                  content="Tem certeza que deseja marcar esse plano como Concluído?"
-                  action={
-                    <Button variant="contained" color="success" onClick={concluiPlano}>
-                      Concluído
-                    </Button>
-                  }
-                />
-              </Box>
             </Box>
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+            <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }} alignItems="flex-end">
+            <Button disabled={getValues('status') == 'Concluído' ? true : false} variant="contained" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
+                Status Concluído
+              </Button>
+              <Button variant="contained" sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={telaDocumento}>
+                Anexos
+              </Button>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 {currentPlano ? (newFrom ? 'Criar Plano' : 'Atualizar Plano') : 'Criar Plano'}
               </LoadingButton>
+              <ConfirmDialog
+                open={conclui.value}
+                onClose={conclui.onFalse}
+                title="Plano Concluído"
+                content="Tem certeza que deseja marcar esse plano como Concluído?"
+                action={
+                  <Button variant="contained" color="success" onClick={concluiPlano}>
+                    Concluído
+                  </Button>
+                }
+              />
             </Stack>
           </Card>
         </Grid>
