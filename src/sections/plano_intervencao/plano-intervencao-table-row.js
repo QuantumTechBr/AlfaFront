@@ -167,7 +167,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
           sx={{ color: 'success.main' }}
         >
           <Iconify icon="material-symbols:check" />
-          Marcar como Concluído
+          {status == 'Concluído' ? 'Concluído' : 'Marcar como Concluído'}
         </MenuItem>
       </CustomPopover>
 
