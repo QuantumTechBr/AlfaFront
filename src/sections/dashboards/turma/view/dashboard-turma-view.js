@@ -75,7 +75,6 @@ export default function DashboardTurmaView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_avaliados: null,
 
     indice_fases_1_ano: {},
     indice_aprovacao_1_ano: {},
@@ -343,6 +342,15 @@ export default function DashboardTurmaView() {
     return _list.length;
   });
 
+  const totalEstudandesAvaliados = useCallback(() => {
+    let total = 0;
+    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
+      (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
+      0
+    );
+    return total;
+  });
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -423,7 +431,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_avaliados ?? '-'}
+              total={totalEstudandesAvaliados()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
