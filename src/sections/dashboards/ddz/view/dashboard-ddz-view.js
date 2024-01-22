@@ -527,9 +527,6 @@ function Row(props) {
         <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1, border: '1px solid #00000080' }}>
-              {/* <Typography variant="h6" gutterBottom component="div">
-                History
-              </Typography> */}
               <Table size="small" aria-label="Turmas" width="100%">
                 <TableHead>
                   <TableRow>

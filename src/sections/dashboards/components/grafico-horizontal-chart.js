@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { Card, Stack, Typography } from '@mui/material';
+import { Card, CardHeader } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 
 // components
@@ -132,11 +132,7 @@ export default function GraficoHorizontalChart({
   return (
     <>
       <Card {...other} sx={{ pb: 2, height: height }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-            {title}
-          </Typography>
-        </Stack>
+        <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
         <Scrollbar>
           <Chart
@@ -144,7 +140,7 @@ export default function GraficoHorizontalChart({
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={(series.length * (41)) + 42}
+            height={(series.length * 41) + 42}
           />
         </Scrollbar>
       </Card>

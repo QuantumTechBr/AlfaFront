@@ -4,8 +4,7 @@ import Card from '@mui/material/Card';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Box, Stack, Typography } from '@mui/material';
-import { px } from 'framer-motion';
+import { Box, CardHeader, Stack, Typography } from '@mui/material';
 import { slugify } from 'src/utils/functions';
 import { fPercent } from 'src/utils/format-number';
 
@@ -92,9 +91,7 @@ export default function IndiceAlfabetizacaoComponent({
 
   return (
     <Card {...other} sx={{ pb: 2 }}>
-      <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-        {title}
-      </Typography>
+      <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
       <Chart
         dir="ltr"
