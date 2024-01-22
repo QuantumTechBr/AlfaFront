@@ -53,9 +53,6 @@ export default function IndiceAlfabetizacaoComponent({
     plotOptions: {
       pie: {
         donut: {
-          hollow: {
-            size: '20%',
-          },
           labels: {
             show: true,
             name: {
@@ -64,7 +61,7 @@ export default function IndiceAlfabetizacaoComponent({
             value: {
               fontSize: '24px',
             },
-            total: { show: false },
+            total: { show: true },
           },
         },
       },
@@ -73,7 +70,8 @@ export default function IndiceAlfabetizacaoComponent({
     dataLabels: {
       enabled: true,
       formatter: function (val) {
-        return fPercent(val.toFixed(1));
+        return fPercent(val.toFixed(2));
+        // return fPercent(Math.floor(val));
       },
       dropShadow: {
         enabled: false,
@@ -85,6 +83,23 @@ export default function IndiceAlfabetizacaoComponent({
     },
     colors: colors,
     tooltip: { enabled: false },
+    // stroke: {
+    //   show: true,
+    //   width: 0,
+    //   colors: ['transparent'],
+    // },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        shade: 'light',
+        type: 'vertical',
+        shadeIntensity: 0.7,
+        inverseColors: true,
+        opacityFrom: 1,
+        opacityTo: 1,
+        stops: [0, 100],
+      },
+    },
 
     ...options,
   });
