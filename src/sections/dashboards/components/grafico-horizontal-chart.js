@@ -113,6 +113,7 @@ export default function GraficoHorizontalChart({
       strokeWidth: 2,
       colors: ['transparent'],
     },
+    yaxis: { show: true, min: 0, max: 100 },
 
     fill: {
       type: 'gradient',
@@ -140,7 +141,7 @@ export default function GraficoHorizontalChart({
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={(series.length * 41) + 42}
+            height={series.length * 41 + 42}
           />
         </Scrollbar>
       </Card>

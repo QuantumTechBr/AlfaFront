@@ -35,7 +35,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
                     goals: [
                       {
                         name: 'Meta',
-                        value: random(90, 99, false),
+                        value: random(90, 100, false),
                         strokeWidth: 3,
                         strokeDashArray: 0,
                         strokeColor: '#775DD0',
