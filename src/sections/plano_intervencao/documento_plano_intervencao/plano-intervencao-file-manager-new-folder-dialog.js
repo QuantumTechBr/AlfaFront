@@ -65,9 +65,11 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
 
   const handleUpload = async () => {
     let response;
+    let promises = [];
 
     
     try {
+
       files.forEach(async file => {
       
         
@@ -80,22 +82,24 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
             'content-type': 'multipart/form-data'
           }
         }
-        response = await insertDocumentoIntervencao(formData).catch(erro => {
+        response = insertDocumentoIntervencao(formData).catch(erro => {
           console.log("upload erro");
           throw erro;
         });
-        
+        promises.push(response);
         
       })
 
 
       
     } catch (err) {
-      console.log('Error uploading object', err);
+      console.log('Erro ao fazer upload', err);
       throw err;
     } finally {
-      onClose(response);
-      uploading.onFalse();
+      Promise.all(promises).then(() =>{
+        onClose(true);
+        uploading.onFalse();
+      })
     }
     
   };

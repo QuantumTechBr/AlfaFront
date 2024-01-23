@@ -29,7 +29,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 // import { insertDocumentoIntervencao, getAllDocumentos, deleteDocumentoById } from '../documento_plano_intervencao/documento-intervencao-repository';
 
-import documentoTurmaMethods from '../documento_plano_intervencao/documento-intervencao-repository';
+import documentoIntervencaoMethods from '../documento_plano_intervencao/documento-intervencao-repository';
 
 
 // ----------------------------------------------------------------------
@@ -66,6 +66,8 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
   
   const preparado = useBoolean(false);
 
+  const notFound = (!tableData.length) || !tableData.length;
+
   const dateError =
     filters.startDate && filters.endDate
       ? filters.startDate.getTime() > filters.endDate.getTime()
@@ -89,11 +91,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
 
   useEffect(() => {
     
-    buscaDocumentos().then(retorno => {
-      if (retorno?.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de documentos');
-      }
-    });
+    buscaDocumentos();
     preparado.onTrue()
   }, []);
 
@@ -103,7 +101,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     preparado.onFalse();
     let returnData = documentos;
 
-    const consultaAtual = documentoTurmaMethods.getAllDocumentos(planoId).then((response) => {
+    const consultaAtual = documentoIntervencaoMethods.getAllDocumentos(planoId).then((response) => {
       if (response.data == '' || response.data === undefined) response.data = [];
 
       setDocumentos(response.data);
@@ -130,7 +128,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
 
   const handleDeleteItem = useCallback(
     async (id) => {
-      const retorno = await documentoTurmaMethods.deleteDocumentoById(id).catch((error) => {
+      const retorno = await documentoIntervencaoMethods.deleteDocumentoById(id).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
       });
       if (retorno.status == 204) {
@@ -176,8 +174,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
   }, []);
 
   const handleUploadClose = useCallback((event) => {
-    console.log(event);
-    if(event?.data?.id) {
+    if(event) {
       buscaDocumentos().then(retorno => setTableData(retorno));
     }
     
@@ -221,11 +218,12 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <Typography variant="h4">Documentos de Intervenção</Typography>
+          <Typography variant="h4">Anexos</Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:cloud-upload-fill" />}
             onClick={upload.onTrue}
+            sx={{mt:3}}
           >
             Enviar 
           </Button>
@@ -250,18 +248,13 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
                 ) : (
 
           <>
-            {!tableData.length && (
-              <Alert severity="warning">
-                Nenhum documento para mostrar
-              </Alert>
-            )}
             {view === 'list' ? (
               <PlanoIntervencaoFileManagerTable
                 table={table}
                 tableData={tableData}
                 dataFiltered={dataFiltered}
                 onDeleteRow={handleDeleteItem}
-                notFound={!preparado}
+                notFound={notFound}
                 onOpenConfirm={confirm.onTrue}
               />
             ) : (
