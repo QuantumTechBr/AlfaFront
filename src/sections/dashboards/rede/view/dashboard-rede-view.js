@@ -93,7 +93,9 @@ export default function DashboardRedeView() {
 
       isGettingGraphics.onTrue();
       const fullFilters = {
-        ano_letivo: [(_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id],
+        ano_letivo: [
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id,
+        ],
       };
 
       await Promise.all([
@@ -166,7 +168,7 @@ export default function DashboardRedeView() {
       let _filters = {
         ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-      }
+      };
 
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -284,7 +286,12 @@ export default function DashboardRedeView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -352,21 +359,21 @@ export default function DashboardRedeView() {
               indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
             />
           )}
-        </Grid>
 
-        {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-          <Grid xs={12}>
-            <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes - Índice de fases"
-              subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart}
-            />
-          </Grid>
-        )}
+          {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+            <Grid xs={12}>
+              <DesempenhoAlunosWidget
+                title="Desempenho dos Estudantes - Índice de fases"
+                subheader={dados.desempenho_alunos.subheader}
+                chart={dados.desempenho_alunos.chart}
+              />
+            </Grid>
+          )}
+        </Grid>
       </Grid>
 
       {!isGettingGraphics.value && (
-        <Card sx={{ mt: 3, mb:4 }}>
+        <Card sx={{ mt: 3, mb: 4 }}>
           <CardHeader title="DDZs" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 

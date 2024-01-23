@@ -421,17 +421,17 @@ export default function DashboardEscolaView() {
               indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
             />
           )}
-        </Grid>
 
-        {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-          <Grid xs={12}>
-            <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes - Índice de fases"
-              subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart}
-            />
-          </Grid>
-        )}
+          {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+            <Grid xs={12}>
+              <DesempenhoAlunosWidget
+                title="Desempenho dos Estudantes - Índice de fases"
+                subheader={dados.desempenho_alunos.subheader}
+                chart={dados.desempenho_alunos.chart}
+              />
+            </Grid>
+          )}
+        </Grid>
       </Grid>
 
       {!isGettingGraphics.value && (
