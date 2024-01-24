@@ -42,3 +42,7 @@ export function saveCSVFile(filename, data) {
     }
   }
 }
+
+export const relativePercentageDifference = (a, b) => 
+  Math.abs( ( ( a - b ) / ( ( a + b ) / 2 ) ) * 100 );
+export const percentageChange = (a, b) => ( b / a * 100 ) - 100;

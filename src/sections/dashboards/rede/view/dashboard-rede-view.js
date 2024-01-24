@@ -61,6 +61,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
+import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -338,6 +339,15 @@ export default function DashboardRedeView() {
           {!!isGettingGraphics.value && (
             <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
               <LoadingBox />
+            </Grid>
+          )}
+
+          {!isGettingGraphics.value && (
+            <Grid xs={12}>
+              <IndiceAlfabetizacaoBimestreComponent
+                title={'Índice de alfabetização - Bimestre'}
+                grid_ddz={dados.grid_ddz}
+              ></IndiceAlfabetizacaoBimestreComponent>
             </Grid>
           )}
 
