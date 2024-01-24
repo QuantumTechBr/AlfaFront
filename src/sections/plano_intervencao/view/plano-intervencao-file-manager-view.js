@@ -27,7 +27,6 @@ import PlanoIntervencaoFileManagerNewFolderDialog from '../documento_plano_inter
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
 
-// import { insertDocumentoIntervencao, getAllDocumentos, deleteDocumentoById } from '../documento_plano_intervencao/documento-intervencao-repository';
 
 import documentoIntervencaoMethods from '../documento_plano_intervencao/documento-intervencao-repository';
 
@@ -151,7 +150,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     const deleteRows = tableData.filter((row) => table.selected.includes(row.id));
 
     deleteRows.forEach(async row => {
-      const retorno = await deleteDocumentoById(row.id).catch((error) => {
+      const retorno = await documentoIntervencaoMethods.deleteDocumentoById(row.id).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
       });
       if (retorno.status != 204) {
