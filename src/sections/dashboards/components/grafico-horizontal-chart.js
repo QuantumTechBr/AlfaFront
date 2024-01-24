@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { Card, CardHeader } from '@mui/material';
+import { Card } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 
 // components
@@ -30,6 +30,7 @@ export default function GraficoHorizontalChart({
   ];
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true } },
     states: {
       hover: {
         filter: {
@@ -99,9 +100,18 @@ export default function GraficoHorizontalChart({
         },
       },
     },
-
+    title: {
+      text: title,
+      offsetX: 13,
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
+    },
     grid: {
-      padding: { top: -20, bottom: 0 },
+      padding: { top: 0, bottom: 0 },
       row: {
         colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
@@ -132,9 +142,7 @@ export default function GraficoHorizontalChart({
 
   return (
     <>
-      <Card {...other} sx={{ pb: 2, height: height }}>
-        <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
-
+      <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
         <Scrollbar>
           <Chart
             width={'100%'}

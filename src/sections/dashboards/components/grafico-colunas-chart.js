@@ -28,6 +28,7 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
   ];
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true, offsetY: 7 } },
     legend: {
       show: false,
     },

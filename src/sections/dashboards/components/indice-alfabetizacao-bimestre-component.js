@@ -4,7 +4,8 @@ import Card from '@mui/material/Card';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { CardHeader, Grid, Typography } from '@mui/material';
+import { CardHeader, Grid } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { percentageChange } from 'src/utils/functions';
 import _ from 'lodash';
 import './style.css';
@@ -57,6 +58,8 @@ IndiceAlfabetizacaoBimestreComponent.propTypes = {
 //
 
 export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other }) {
+  const theme = useTheme();
+
   const colorLinha = '#FFBF00';
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
@@ -112,6 +115,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
     markers: { size: 5 },
     colors: colors,
     chart: {
+      toolbar: { show: true },
       stacked: true,
       stackOnlyBar: true,
     },
@@ -181,6 +185,17 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       curve: 'straight',
       lineCap: 'round',
     },
+    title: {
+      text: dados.zona_nome,
+      offsetX: 13,
+      align: 'center',
+      style: {
+        fontSize: '13px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
+    },
 
     fill: {
       type: 'gradient',
@@ -208,9 +223,6 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
 
   return (
     <Grid item xs={12} lg={3} sx={{ my: 2 }}>
-      <Typography fontSize={13} textAlign={'center'} mb={0.8} fontWeight="600">
-        {dados.zona_nome}
-      </Typography>
       <Chart
         dir="ltr"
         width="100%"

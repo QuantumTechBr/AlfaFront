@@ -4,7 +4,8 @@ import Card from '@mui/material/Card';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Box, CardHeader, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { slugify } from 'src/utils/functions';
 import { fPercent } from 'src/utils/format-number';
 
@@ -17,6 +18,8 @@ export default function IndiceAlfabetizacaoComponent({
   options,
   ...other
 }) {
+  const theme = useTheme();
+
   const totalItems = indice_alfabetizacao.reduce((total, item) => total + item.amount, 0);
   indice_alfabetizacao.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
@@ -49,6 +52,7 @@ export default function IndiceAlfabetizacaoComponent({
   };
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true } },
     labels: indice_alfabetizacao.map((element) => element.name),
     plotOptions: {
       pie: {
@@ -82,6 +86,16 @@ export default function IndiceAlfabetizacaoComponent({
       show: false,
     },
     colors: colors,
+    title: {
+      text: title,
+      offsetX: 13,
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
+    },
     tooltip: { enabled: false },
     // stroke: {
     //   show: true,
@@ -105,9 +119,7 @@ export default function IndiceAlfabetizacaoComponent({
   });
 
   return (
-    <Card {...other} sx={{ pb: 2 }}>
-      <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
-
+    <Card {...other} sx={{ pt: 3, pb: 2 }}>
       <Chart
         dir="ltr"
         width={'100%'}

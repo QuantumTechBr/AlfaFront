@@ -36,6 +36,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
   const [preparedData, setPreparedData] = useState();
 
   const chartOptionsBase = {
+    chart: { toolbar: { show: true } },
     colors: colors,
     xaxis: {
       categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
@@ -95,6 +96,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
 
     legend: {
       position: 'top',
+      horizontalAlign: 'left',
     },
     ...options,
   };
