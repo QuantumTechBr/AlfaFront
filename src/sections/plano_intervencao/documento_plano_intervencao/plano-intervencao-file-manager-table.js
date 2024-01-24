@@ -8,7 +8,6 @@ import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import { tableCellClasses } from '@mui/material/TableCell';
-import { tablePaginationClasses } from '@mui/material/TablePagination';
 // components
 import Iconify from 'src/components/iconify';
 import {
@@ -17,7 +16,6 @@ import {
   TableEmptyRows,
   TableHeadCustom,
   TableSelectedAction,
-  TablePaginationCustom,
 } from 'src/components/table';
 //
 import PlanoIntervencaoFileManagerTableRow from './plano-intervencao-file-manager-table-row';
@@ -47,10 +45,10 @@ export default function PlanoIntervencaoFileManagerTable({
 
   const {
     dense,
-    page,
+    // page,
     order,
     orderBy,
-    rowsPerPage,
+    // rowsPerPage,
     //
     selected,
     onSelectRow,
@@ -58,8 +56,8 @@ export default function PlanoIntervencaoFileManagerTable({
     //
     onSort,
     onChangeDense,
-    onChangePage,
-    onChangeRowsPerPage,
+    // onChangePage,
+    // onChangeRowsPerPage,
   } = table;
 
   const denseHeight = dense ? 58 : 78;
@@ -84,12 +82,6 @@ export default function PlanoIntervencaoFileManagerTable({
           }
           action={
             <>
-              <Tooltip title="Share">
-                <IconButton color="primary">
-                  <Iconify icon="solar:share-bold" />
-                </IconButton>
-              </Tooltip>
-
               <Tooltip title="Delete">
                 <IconButton color="primary" onClick={onOpenConfirm}>
                   <Iconify icon="solar:trash-bin-trash-bold" />
@@ -150,7 +142,7 @@ export default function PlanoIntervencaoFileManagerTable({
 
             <TableBody>
               {dataFiltered
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                // .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row) => (
                   <PlanoIntervencaoFileManagerTableRow
                     key={row.id}
@@ -161,10 +153,10 @@ export default function PlanoIntervencaoFileManagerTable({
                   />
                 ))}
 
-              <TableEmptyRows
+              {/* <TableEmptyRows
                 height={denseHeight}
                 emptyRows={emptyRows(page, rowsPerPage, tableData.length)}
-              />
+              /> */}
 
               <TableNoData
                 notFound={notFound}
@@ -179,7 +171,7 @@ export default function PlanoIntervencaoFileManagerTable({
         </TableContainer>
       </Box>
 
-      <TablePaginationCustom
+      {/* <TablePaginationCustom
         count={dataFiltered.length}
         page={page}
         rowsPerPage={rowsPerPage}
@@ -193,7 +185,7 @@ export default function PlanoIntervencaoFileManagerTable({
             borderTopColor: 'transparent',
           },
         }}
-      />
+      /> */}
     </>
   );
 }
