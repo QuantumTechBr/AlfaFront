@@ -6,7 +6,7 @@ import Card from '@mui/material/Card';
 import Chart, { useChart } from 'src/components/chart';
 import { CardHeader, Grid, Typography } from '@mui/material';
 import { percentageChange } from 'src/utils/functions';
-import { filter } from 'lodash';
+import _ from 'lodash';
 import './style.css';
 import { useCallback } from 'react';
 
@@ -60,6 +60,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
   const colorLinha = '#FFBF00';
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
+  const qtd_bimestres = dados.percent_alfabetizado.length;
   const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined);
 
   const chartSeries = [
@@ -150,17 +151,17 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       },
       style: {
         fontSize: '12px',
-        colors: ['#fff', '#fff', '#fff', '#fff', '#000'],
+        colors: [..._.fill(_.range(qtd_bimestres - 1), '#FFF', 0, qtd_bimestres - 1), '#000'],
       },
       formatter: function (value, opts) {
         if (value === null || value == 0) return '';
-        if (opts.seriesIndex <= 3) {
-          if (opts.dataPointIndex <= 3) {
+        if (opts.seriesIndex <= qtd_bimestres - 1) {
+          if (opts.dataPointIndex <= qtd_bimestres - 1) {
             return value + '%';
           }
         }
 
-        if (opts.seriesIndex > 3) {
+        if (opts.seriesIndex == qtd_bimestres) {
           if (opts.dataPointIndex > 0) {
             let _percents = opts.w.config.series[opts.seriesIndex].data;
             let _percentPrev = _percents[opts.dataPointIndex - 1];
@@ -175,8 +176,8 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       },
     },
     stroke: {
-      width: [4, 4, 4, 4, 4],
-      colors: ['transparent', 'transparent', 'transparent', 'transparent', colorLinha], // TODO USE LODASH FILL
+      width: _.fill(_.range(qtd_bimestres + 1), 4, 0, qtd_bimestres + 1),
+      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha], // TODO USE LODASH FILL
       curve: 'straight',
       lineCap: 'round',
     },
