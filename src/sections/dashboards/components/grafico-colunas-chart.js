@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { LinearProgress, Box, Stack, Typography } from '@mui/material';
+import { LinearProgress, Box, Stack, Typography, CardHeader } from '@mui/material';
 import { lighten, alpha, useTheme } from '@mui/material/styles';
 import { bgGradient } from 'src/theme/css';
 
@@ -141,11 +141,8 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
     <>
       <Box {...other}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-            {title}
-          </Typography>
-
-          <Box sx={{ width: 235 }}>
+          <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
+          <Box sx={{ width: 235, mt: 2 }}>
             <Typography fontSize={15} mb={0.8} fontWeight="700">
               Fase adequada
             </Typography>

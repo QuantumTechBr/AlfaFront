@@ -25,7 +25,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
           <Grid xs={12} lg={7} xl={8}>
             <GraficoHorizontalChart
               title={title_indice_alfabetizacao}
-              height={418}
+              height={410}
               chart={{
                 series: indice_alfabetizacao.map((ia) => {
                   return {
@@ -35,7 +35,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
                     goals: [
                       {
                         name: 'Meta',
-                        value: random(90, 99, false),
+                        value: random(90, 100, false), // TODO REMOVER
                         strokeWidth: 3,
                         strokeDashArray: 0,
                         strokeColor: '#775DD0',

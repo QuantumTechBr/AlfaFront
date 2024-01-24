@@ -86,7 +86,7 @@ export default function DashboardDDZView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
-  const [zonaFiltro, setZonaFiltro] = useState("");
+  const [zonaFiltro, setZonaFiltro] = useState('');
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
@@ -95,70 +95,70 @@ export default function DashboardDDZView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
+    total_alunos_avaliados: null,
     //
     grid_escolas: [],
     desempenho_alunos: {},
   });
 
-  const preencheGraficos = useCallback(async (_filters) => {
-    let _filtersToSearch = _filters ?? filters;
-    isGettingGraphics.onTrue();
-    const fullFilters = {
-      ano_letivo: [(_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id],
-      ddz: [_filtersToSearch.zona.id],
-    };
+  const preencheGraficos = useCallback(
+    async (_filters) => {
+      let _filtersToSearch = _filters ?? filters;
+      isGettingGraphics.onTrue();
+      const fullFilters = {
+        ano_letivo: [
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+        ],
+        ddz: [_filtersToSearch.zona.id],
+      };
 
-    await Promise.all([
-      dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_usuarios_ativos: response.data,
-        }));
-      }),
-      dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          total_alunos_ativos: response.data,
-        }));
-      }),
+      await Promise.all([
+        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            total_usuarios_ativos: response.data,
+          }));
+        }),
 
-      //
-      dashboardsMethods.getDashboardGridEscolas(fullFilters).then((response) => {
-        // adequação dos dados
-        let result = _(response.data)
-          .groupBy((turmaEscola) => turmaEscola.escola_nome)
-          .map((escolaTurmas, key) => ({
-            escola_nome: key,
-            registros: escolaTurmas,
-            escola_id: escolaTurmas[0]?.escola_id,
-            //
-            turmas: escolaTurmas.length,
-            alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
-            avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
-            alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
-            nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
-            deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
-          }))
-          .value();
+        //
+        dashboardsMethods.getDashboardGridEscolas(fullFilters).then((response) => {
+          // adequação dos dados
+          let result = _(response.data)
+            .groupBy((turmaEscola) => turmaEscola.escola_nome)
+            .map((escolaTurmas, key) => ({
+              escola_nome: key,
+              registros: escolaTurmas,
+              escola_id: escolaTurmas[0]?.escola_id,
+              //
+              turmas: escolaTurmas.length,
+              alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
+              avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
+              alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
+              nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
+              deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
+            }))
+            .value();
 
-        setDados((prevState) => ({
-          ...prevState,
-          grid_escolas: result,
-        }));
-      }),
+          setDados((prevState) => ({
+            ...prevState,
+            total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
+            grid_escolas: result,
+          }));
+        }),
 
-      // ## DESEMPENHO ALUNO
-      dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          desempenho_alunos: response.data,
-        }));
-      }),
-    ]);
+        // ## DESEMPENHO ALUNO
+        dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
+          setDados((prevState) => ({
+            ...prevState,
+            desempenho_alunos: response.data,
+          }));
+        }),
+      ]);
 
-    isGettingGraphics.onFalse();
-  }, [dados, filters, zonas, anosLetivos, contextReady.value]);
+      isGettingGraphics.onFalse();
+    },
+    [dados, filters, zonas, anosLetivos, contextReady.value]
+  );
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -197,7 +197,7 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
-      let _zonaFiltro = "";
+      let _zonaFiltro = '';
       if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
         _zonaFiltro = user?.funcao_usuario[0]?.zona;
       } else {
@@ -319,7 +319,12 @@ export default function DashboardDDZView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -347,7 +352,7 @@ export default function DashboardDDZView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_ativos.total}
+              total={dados.total_alunos_avaliados ?? 0}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -387,21 +392,21 @@ export default function DashboardDDZView() {
               indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
             />
           )}
-        </Grid>
 
-        {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-          <Grid xs={12}>
-            <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes - Índice de fases"
-              subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart}
-            />
-          </Grid>
-        )}
+          {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+            <Grid xs={12}>
+              <DesempenhoAlunosWidget
+                title="Desempenho dos Estudantes - Índice de fases"
+                subheader={dados.desempenho_alunos.subheader}
+                chart={dados.desempenho_alunos.chart}
+              />
+            </Grid>
+          )}
+        </Grid>
       </Grid>
 
       {!isGettingGraphics.value && (
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mt: 3, mb: 4 }}>
           <CardHeader title="Escolas" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
@@ -527,9 +532,6 @@ function Row(props) {
         <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1, border: '1px solid #00000080' }}>
-              {/* <Typography variant="h6" gutterBottom component="div">
-                History
-              </Typography> */}
               <Table size="small" aria-label="Turmas" width="100%">
                 <TableHead>
                   <TableRow>

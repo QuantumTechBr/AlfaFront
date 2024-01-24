@@ -93,7 +93,7 @@ export default function DashboardEscolaView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
+    total_alunos_avaliados: null,
     //
     grid_professores: [],
     desempenho_alunos: {},
@@ -118,29 +118,25 @@ export default function DashboardEscolaView() {
             total_usuarios_ativos: response.data,
           }));
         }),
-        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
 
         //
         dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
           // adequação dos dados
+          let result = response.data.map((i) => ({
+            ...i,
+            alunos: i.qtd_alunos,
+            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
+            alfabetizados: Array.isArray(i.qtd_alfabetizado)
+              ? sum(i.qtd_alfabetizado)
+              : i.qtd_alfabetizado,
+            nao_alfabetizados: i.qtd_nao_alfabetizado,
+            deixou_de_frequentar: i.qtd_nao_avaliado,
+          }));
 
           setDados((prevState) => ({
             ...prevState,
-            grid_professores: response.data.map((i) => ({
-              ...i,
-              alunos: i.qtd_alunos,
-              avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
-              alfabetizados: Array.isArray(i.qtd_alfabetizado)
-                ? sum(i.qtd_alfabetizado)
-                : i.qtd_alfabetizado,
-              nao_alfabetizados: i.qtd_nao_alfabetizado,
-              deixou_de_frequentar: i.qtd_nao_avaliado,
-            })),
+            total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
+            grid_professores: result,
           }));
         }),
 
@@ -352,7 +348,12 @@ export default function DashboardEscolaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -380,7 +381,7 @@ export default function DashboardEscolaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_ativos.total}
+              total={dados.total_alunos_avaliados ?? 0}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -420,21 +421,21 @@ export default function DashboardEscolaView() {
               indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
             />
           )}
-        </Grid>
 
-        {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-          <Grid xs={12}>
-            <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes - Índice de fases"
-              subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart}
-            />
-          </Grid>
-        )}
+          {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+            <Grid xs={12}>
+              <DesempenhoAlunosWidget
+                title="Desempenho dos Estudantes - Índice de fases"
+                subheader={dados.desempenho_alunos.subheader}
+                chart={dados.desempenho_alunos.chart}
+              />
+            </Grid>
+          )}
+        </Grid>
       </Grid>
 
       {!isGettingGraphics.value && (
-        <Card sx={{ mb: 4 }}>
+        <Card sx={{ mt: 3, mb: 4 }}>
           <CardHeader title="Professores" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 

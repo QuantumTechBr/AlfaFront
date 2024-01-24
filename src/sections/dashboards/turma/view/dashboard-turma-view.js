@@ -75,7 +75,6 @@ export default function DashboardTurmaView() {
 
   const [dados, setDados] = useState({
     total_usuarios_ativos: {},
-    total_alunos_ativos: {},
 
     indice_fases_1_ano: {},
     indice_aprovacao_1_ano: {},
@@ -178,12 +177,6 @@ export default function DashboardTurmaView() {
               total_usuarios_ativos: response.data,
             }));
           }),
-        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
 
         // ## INDICE DE FASES
         getIndiceFases(1, fullFilters),
@@ -340,6 +333,24 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
+  const _indiceDeFasesCount = useCallback(() => {
+    let _list = [
+      (dados.indice_fases_1_ano.chart?.series ?? []).length > 0,
+      (dados.indice_fases_2_ano.chart?.series ?? []).length > 0,
+      (dados.indice_fases_3_ano.chart?.series ?? []).length > 0,
+    ].filter((i) => i === true);
+    return _list.length;
+  });
+
+  const totalEstudandesAvaliados = useCallback(() => {
+    let total = 0;
+    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
+      (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
+      0
+    );
+    return total;
+  });
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -387,7 +398,12 @@ export default function DashboardTurmaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={() => { preencheGraficos(); }}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -415,12 +431,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
-              total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
+              total={totalEstudandesAvaliados()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -470,7 +481,8 @@ export default function DashboardTurmaView() {
               />
             )}
           {!isGettingGraphics.value &&
-            (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+            (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
+            _indiceDeFasesCount() > 1 && (
               <IndicesCompostosFasesAlfabetizacaoWidget
                 key="indices_component_geral"
                 ano_escolar="Geral"

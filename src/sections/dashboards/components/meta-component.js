@@ -1,11 +1,12 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-import Stack from '@mui/material/Stack';
+
 import Typography from '@mui/material/Typography';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
+import { Card } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -71,29 +72,27 @@ export default function MetaComponent({ title, total, color = 'primary', sx, ...
   });
 
   return (
-    <Stack
-      height="100%"
-      alignItems="center"
+    <Card
       direction="row"
       sx={{
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-evenly',
         py: 0,
-        borderRadius: 2,
-        textAlign: 'center',
+        px: 0,
         color: `white`,
         backgroundColor: theme.palette[color].main,
         ...sx,
       }}
       {...other}
     >
-      <Typography variant="h2" fontWeight="300">
+      <Typography variant="h3" fontWeight="600">
         {title}
       </Typography>
 
       <Chart type="radialBar" series={[total]} options={chartOptions} height={250} width={190} />
-    </Stack>
+    </Card>
   );
 }
 
