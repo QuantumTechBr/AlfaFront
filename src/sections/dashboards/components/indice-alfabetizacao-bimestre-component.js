@@ -6,8 +6,9 @@ import Card from '@mui/material/Card';
 import Chart, { useChart } from 'src/components/chart';
 import { CardHeader, Grid, Typography } from '@mui/material';
 import { percentageChange } from 'src/utils/functions';
-import { random } from 'lodash';
+import { filter } from 'lodash';
 import './style.css';
+import { useCallback } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -23,10 +24,8 @@ export default function IndiceAlfabetizacaoBimestreComponent({
       zona_nome: item.zona_nome,
       qtd_avaliados: item.qtd_avaliados,
       qtd_alfabetizado: item.qtd_alfabetizado,
-      percent_alfabetizado: [0, 1, 2, 3].map((_, i) =>
-        (item.qtd_alfabetizado[i] ?? 0) == 0
-          ? Math.floor(random(50, 100, false)) // TODO REMOVER TESTE
-          : Math.floor((item.qtd_alfabetizado[i] / item.qtd_avaliados[i]) * 100)
+      percent_alfabetizado: item.qtd_alfabetizado.map((_, i) =>
+        Math.floor(((item.qtd_alfabetizado[i] ?? 0) / (item.qtd_avaliados[i] ?? 0)) * 100)
       ),
     };
     return _retorno;
@@ -61,31 +60,45 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
   const colorLinha = '#FFBF00';
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
+  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined);
+
   const chartSeries = [
-    {
-      name: 'Alfabetizados 1º Bi',
-      type: 'column',
-
-      data: [dados.percent_alfabetizado[0]],
-    },
-    {
-      name: 'Alfabetizados 2º Bi',
-      type: 'column',
-
-      data: [null, dados.percent_alfabetizado[1]],
-    },
-    {
-      name: 'Alfabetizados 3º Bi',
-      type: 'column',
-
-      data: [null, null, dados.percent_alfabetizado[2]],
-    },
-    {
-      name: 'Alfabetizados 4º Bi',
-      type: 'column',
-
-      data: [null, null, null, dados.percent_alfabetizado[3]],
-    },
+    ...(hasData(0)
+      ? [
+          {
+            name: 'Alfabetizados 1º Bi',
+            type: 'column',
+            data: [dados.percent_alfabetizado[0]],
+          },
+        ]
+      : []),
+    ...(hasData(1)
+      ? [
+          {
+            name: 'Alfabetizados 2º Bi',
+            type: 'column',
+            data: [null, dados.percent_alfabetizado[1]],
+          },
+        ]
+      : []),
+    ...(hasData(2)
+      ? [
+          {
+            name: 'Alfabetizados 3º Bi',
+            type: 'column',
+            data: [null, null, dados.percent_alfabetizado[2]],
+          },
+        ]
+      : []),
+    ...(hasData(3)
+      ? [
+          {
+            name: 'Alfabetizados 4º Bi',
+            type: 'column',
+            data: [null, null, null, dados.percent_alfabetizado[3]],
+          },
+        ]
+      : []),
     {
       name: 'Avanço',
       type: 'line',
@@ -103,7 +116,15 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
     },
 
     xaxis: {
-      categories: ['1º Bi', '2º Bi', '3º Bi', '4º Bi'],
+      categories: _.filter(
+        [
+          ...(hasData(0) ? ['1º Bi'] : [null]),
+          ...(hasData(1) ? ['2º Bi'] : [null]),
+          ...(hasData(2) ? ['3º Bi'] : [null]),
+          ...(hasData(3) ? ['4º Bi'] : [null]),
+        ],
+        (v) => v !== null
+      ),
     },
     plotOptions: {
       bar: {
@@ -145,7 +166,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
             let _percentPrev = _percents[opts.dataPointIndex - 1];
             let _percent = value;
             let _difference = percentageChange(_percentPrev, _percent);
-            if(_difference == 0) return '';
+            if (_difference == 0 || _difference == Infinity) return '';
             _difference = _difference > 0 ? `+${Math.floor(_difference)}` : Math.ceil(_difference);
             return _difference + '%';
           }
