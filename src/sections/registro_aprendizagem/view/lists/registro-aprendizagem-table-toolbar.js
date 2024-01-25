@@ -27,6 +27,7 @@ export default function RegistroAprendizagemTableToolbar({
   turmaOptions,
   bimestreOptions,
   disciplinaOptions,
+  export_type,
 }) {
   // if(typeof filters.anoLetivo === 'number'){
   //   filters.anoLetivo = anoLetivoOptions.filter((item) => item.ano == filters.anoEscolar)[0];
@@ -287,12 +288,23 @@ export default function RegistroAprendizagemTableToolbar({
           onClick={() => {
             let exportFilters = { ...filters, export: 'csv' };
             let query = new URLSearchParams(exportFilters).toString();
-            registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {
-              saveCSVFile(
-                'Avaliação de Fases do Desenvolvimento da Leitura e da Escrita',
-                csvFile.data
-              );
-            });
+
+            if (export_type == `fase`) {
+              registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {
+                saveCSVFile(
+                  'Avaliação de Fases do Desenvolvimento da Leitura e da Escrita',
+                  csvFile.data
+                );
+              });
+            }
+            else if (export_type == `diagnostico`) {
+              registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
+                saveCSVFile(
+                  'Avaliação Diagnóstica',
+                  csvFile.data
+                );
+              });
+            }
             popover.onClose();
           }}
         >
@@ -310,4 +322,5 @@ RegistroAprendizagemTableToolbar.propTypes = {
   anoLetivoOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
+  export_type: PropTypes.string,
 };
