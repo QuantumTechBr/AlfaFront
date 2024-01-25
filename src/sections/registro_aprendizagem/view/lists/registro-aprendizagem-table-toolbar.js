@@ -14,6 +14,8 @@ import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -269,13 +271,13 @@ export default function RegistroAprendizagemTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -283,31 +285,21 @@ export default function RegistroAprendizagemTableToolbar({
       >
         <MenuItem
           onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Imprimir
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {
+              saveCSVFile(
+                'Avaliação de Fases do Desenvolvimento da Leitura e da Escrita',
+                csvFile.data
+              );
+            });
             popover.onClose();
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }

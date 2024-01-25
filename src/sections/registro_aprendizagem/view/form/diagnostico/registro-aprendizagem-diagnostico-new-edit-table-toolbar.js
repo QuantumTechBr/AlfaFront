@@ -15,6 +15,8 @@ import Select from '@mui/material/Select';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import turmaMethods from 'src/sections/turma/turma-repository';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -23,13 +25,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   onFilters,
   promoOptions,
   turma,
-  handleTurma
-  }) {
+  handleTurma,
+}) {
   const popover = usePopover();
   const [turmas, setTurmas] = useState([]);
 
   useEffect(() => {
-    turmaMethods.getAllTurmas().then(turmas => {
+    turmaMethods.getAllTurmas().then((turmas) => {
       setTurmas(turmas.data);
     });
   }, []);
@@ -77,13 +79,14 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
             value={turma}
             onChange={handleTurma}
             input={<OutlinedInput label="Turma" />}
-            renderValue={(selected) => ` ${selected.ano_escolar}º ${selected.nome}` }
+            renderValue={(selected) => ` ${selected.ano_escolar}º ${selected.nome}`}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
-          >{turmas.map((option) => (
+          >
+            {turmas.map((option) => (
               <MenuItem key={option.id} value={option}>
                 {` ${option.ano_escolar}º ${option.nome}`}
               </MenuItem>
@@ -91,7 +94,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           </Select>
         </FormControl>
 
-       <FormControl
+        <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 200 },
@@ -111,13 +114,21 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
-             <MenuItem key='promo_vazio' value=''>
-                <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes('')} />
-                Não Preenchido
-              </MenuItem>
+            <MenuItem key="promo_vazio" value="">
+              <Checkbox
+                disableRipple
+                size="small"
+                checked={filters.promo_ano_anterior.includes('')}
+              />
+              Não Preenchido
+            </MenuItem>
             {promoOptions.map((option) => (
               <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.promo_ano_anterior.includes(option)} />
+                <Checkbox
+                  disableRipple
+                  size="small"
+                  checked={filters.promo_ano_anterior.includes(option)}
+                />
                 {option}
               </MenuItem>
             ))}
@@ -139,13 +150,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
+          </IconButton>
         </Stack>
       </Stack>
 
-      {/* <CustomPopover
+      <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -153,31 +164,21 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
       >
         <MenuItem
           onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Imprimir
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
+            registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
+              saveCSVFile(
+                'Avaliação Diagnóstica',
+                csvFile.data
+              );
+            });
             popover.onClose();
           }}
         >
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover> */}
+      </CustomPopover>
     </>
   );
 }
