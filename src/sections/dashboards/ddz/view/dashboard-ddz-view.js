@@ -69,6 +69,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
+import { anos_metas } from 'src/_mock/assets';
 
 export default function DashboardDDZView() {
   const ICON_SIZE = 65;
@@ -119,29 +120,25 @@ export default function DashboardDDZView() {
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
             .map((escolaTurmas, key) => {
               let _alunos = escolaTurmas.reduce(
-                (acc, i) =>
-                  acc + (Array.isArray(i.qtd_alunos) ? _.last(i.qtd_alunos) : i.qtd_alunos),
+                (acc, i) => acc + (_.isArray(i.qtd_alunos) ? _.last(i.qtd_alunos) : i.qtd_alunos),
                 0
               );
 
               let _avaliados = escolaTurmas.reduce(
                 (acc, i) =>
-                  acc +
-                  (Array.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados),
+                  acc + (_.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados),
                 0
               );
               let _alfabetizados = escolaTurmas.reduce(
                 (acc, i) =>
                   acc +
-                  (Array.isArray(i.qtd_alfabetizado)
-                    ? _.last(i.qtd_alfabetizado)
-                    : i.qtd_alfabetizado),
+                  (_.isArray(i.qtd_alfabetizado) ? _.last(i.qtd_alfabetizado) : i.qtd_alfabetizado),
                 0
               );
               let _nao_alfabetizados = escolaTurmas.reduce(
                 (acc, i) =>
                   acc +
-                  (Array.isArray(i.qtd_nao_alfabetizado)
+                  (_.isArray(i.qtd_nao_alfabetizado)
                     ? _.last(i.qtd_nao_alfabetizado)
                     : i.qtd_nao_alfabetizado),
                 0
@@ -149,9 +146,7 @@ export default function DashboardDDZView() {
               let _deixou_de_frequentar = escolaTurmas.reduce(
                 (acc, i) =>
                   acc +
-                  (Array.isArray(i.qtd_nao_avaliado)
-                    ? _.last(i.qtd_nao_avaliado)
-                    : i.qtd_nao_avaliado),
+                  (_.isArray(i.qtd_nao_avaliado) ? _.last(i.qtd_nao_avaliado) : i.qtd_nao_avaliado),
                 0
               );
               return {
@@ -247,13 +242,6 @@ export default function DashboardDDZView() {
     }
   }, []);
 
-  const filtroReset = () => {
-    setFilters({
-      anoLetivo: first(anosLetivos),
-      zona: zonaFiltro,
-    });
-  };
-
   // TABLE GRID
 
   const TABLE_HEAD = [
@@ -325,6 +313,20 @@ export default function DashboardDDZView() {
     return total;
   });
 
+  const calculaMeta = () => {
+    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    return _meta;
+  };
+
+  const getTotalAlfabetizados = () => {
+    let _soma = _.sumBy(dados.grid_escolas, (s) => s.alfabetizados);
+    return _soma;
+  };
+  const getTotalAvaliados = (ano) => {
+    let _soma = _.sumBy(dados.grid_escolas, (s) => s.avaliados);
+    return _soma;
+  };
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -366,10 +368,6 @@ export default function DashboardDDZView() {
               >
                 Aplicar filtros
               </Button>
-
-              <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
-                Limpar
-              </Button>
             </Grid>
           </Stack>
 
@@ -404,7 +402,15 @@ export default function DashboardDDZView() {
             />
           </Grid>
           <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+            {!isGettingGraphics.value && (
+              <MetaComponent
+                title="Meta"
+                subtitle="para a média geral da DDZ"
+                meta={calculaMeta()}
+                alfabetizados={getTotalAlfabetizados()}
+                total={getTotalAvaliados()}
+              ></MetaComponent>
+            )}
           </Grid>
 
           {!!isGettingGraphics.value && (
