@@ -23,8 +23,8 @@ export function randomColor() {
 }
 
 export function saveCSVFile(filename, data) {
-  var BOM = "\uFEFF";
-  data = BOM + data;
+  // ADD BOM (Codificação)
+  data = "\uFEFF" + data;
   var blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
   if (navigator.msSaveBlob) {
     // IE 10+
