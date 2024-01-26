@@ -124,8 +124,8 @@ export default function DashboardTurmaView() {
         ...payloadFilters,
         turma: anoEscolar
           ? _turmasPorAno
-          : filters.turma.length
-          ? filters.turma.map((t) => t.id)
+          : payloadFilters.turma.length
+          ? payloadFilters.turma.map((t) => t.id ?? t)
           : null,
       })
       .then((response) => {
