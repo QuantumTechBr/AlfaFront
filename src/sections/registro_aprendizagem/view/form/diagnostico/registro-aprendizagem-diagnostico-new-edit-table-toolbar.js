@@ -13,10 +13,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
-import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import turmaMethods from 'src/sections/turma/turma-repository';
-import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-import { saveCSVFile } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -27,7 +24,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   turma,
   handleTurma,
 }) {
-  const popover = usePopover();
   const [turmas, setTurmas] = useState([]);
 
   useEffect(() => {
@@ -64,7 +60,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
         }}
         sx={{
           p: 2.5,
-          pr: { xs: 2.5, md: 1 },
         }}
       >
         <FormControl
@@ -149,36 +144,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               ),
             }}
           />
-
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
         </Stack>
       </Stack>
-
-      <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
-            registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
-              saveCSVFile(
-                'Avaliação Diagnóstica',
-                csvFile.data
-              );
-            });
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
-      </CustomPopover>
     </>
   );
 }
