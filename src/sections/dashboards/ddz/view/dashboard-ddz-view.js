@@ -94,7 +94,6 @@ export default function DashboardDDZView() {
   });
 
   const [dados, setDados] = useState({
-    total_usuarios_ativos: {},
     total_alunos_avaliados: null,
     //
     grid_escolas: [],
@@ -113,30 +112,66 @@ export default function DashboardDDZView() {
       };
 
       await Promise.all([
-        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_usuarios_ativos: response.data,
-          }));
-        }),
-
         //
         dashboardsMethods.getDashboardGridEscolas(fullFilters).then((response) => {
           // adequação dos dados
           let result = _(response.data)
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
-            .map((escolaTurmas, key) => ({
-              escola_nome: key,
-              registros: escolaTurmas,
-              escola_id: escolaTurmas[0]?.escola_id,
-              //
-              turmas: escolaTurmas.length,
-              alunos: escolaTurmas.reduce((acc, i) => acc + i.qtd_alunos, 0),
-              avaliados: escolaTurmas.reduce((acc, i) => acc + i.qtd_avaliados, 0),
-              alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_alfabetizado, 0),
-              nao_alfabetizados: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
-              deixou_de_frequentar: escolaTurmas.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
-            }))
+            .map((escolaTurmas, key) => {
+              let _alunos = escolaTurmas.reduce(
+                (acc, i) =>
+                  acc + (Array.isArray(i.qtd_alunos) ? _.last(i.qtd_alunos) : i.qtd_alunos),
+                0
+              );
+
+              let _avaliados = escolaTurmas.reduce(
+                (acc, i) =>
+                  acc +
+                  (Array.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados),
+                0
+              );
+              let _alfabetizados = escolaTurmas.reduce(
+                (acc, i) =>
+                  acc +
+                  (Array.isArray(i.qtd_alfabetizado)
+                    ? _.last(i.qtd_alfabetizado)
+                    : i.qtd_alfabetizado),
+                0
+              );
+              let _nao_alfabetizados = escolaTurmas.reduce(
+                (acc, i) =>
+                  acc +
+                  (Array.isArray(i.qtd_nao_alfabetizado)
+                    ? _.last(i.qtd_nao_alfabetizado)
+                    : i.qtd_nao_alfabetizado),
+                0
+              );
+              let _deixou_de_frequentar = escolaTurmas.reduce(
+                (acc, i) =>
+                  acc +
+                  (Array.isArray(i.qtd_nao_avaliado)
+                    ? _.last(i.qtd_nao_avaliado)
+                    : i.qtd_nao_avaliado),
+                0
+              );
+              return {
+                escola_nome: key,
+                registros: escolaTurmas,
+                escola_id: escolaTurmas[0]?.escola_id,
+                //
+                turmas: escolaTurmas.length,
+                alunos: _alunos,
+                avaliados: _avaliados,
+                alfabetizados: _alfabetizados,
+                nao_alfabetizados: _nao_alfabetizados,
+                deixou_de_frequentar: _deixou_de_frequentar,
+                //
+                indice_alfabetizacao:
+                  _avaliados > 0
+                    ? Number(`${((_alfabetizados / _avaliados) * 100).toFixed(0)}`)
+                    : _avaliados,
+              };
+            })
             .value();
 
           setDados((prevState) => ({
@@ -233,9 +268,7 @@ export default function DashboardDDZView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = {
-    escola: '',
-  };
+  const defaultTableFilters = { escola: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -285,6 +318,12 @@ export default function DashboardDDZView() {
       ],
     };
   };
+
+  const totalEstudandesGeral = useCallback(() => {
+    let total = 0;
+    total = _.sumBy(dados.grid_escolas ?? [], (ddz) => ddz.alunos);
+    return total;
+  });
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -336,8 +375,8 @@ export default function DashboardDDZView() {
 
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Usuários Ativos"
-              total={dados.total_usuarios_ativos.total}
+              title="Total de Estudantes"
+              total={totalEstudandesGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -382,10 +421,6 @@ export default function DashboardDDZView() {
                   return {
                     ...e,
                     title: e.escola_nome,
-                    indice_alfabetizacao:
-                      e.avaliados > 0
-                        ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
-                        : e.avaliados,
                   };
                 }),
               ]}
@@ -536,8 +571,8 @@ function Row(props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>Ano - Turma</TableCell>
-                    <TableCell>Alunos</TableCell>
-                    <TableCell>Alunos avaliados</TableCell>
+                    <TableCell>Estudandes</TableCell>
+                    <TableCell>Avaliados</TableCell>
                     <TableCell>Alfabetizados</TableCell>
                     <TableCell>Não alfabetizados</TableCell>
                     <TableCell>Deixou de frequentar</TableCell>
@@ -558,8 +593,8 @@ function Row(props) {
                       <TableCell width="110">{registro.qtd_alunos}</TableCell>
                       <TableCell width="110">{registro.qtd_avaliados}</TableCell>
                       <TableCell width="110">{registro.qtd_alfabetizado}</TableCell>
-                      <TableCell width="110">{registro.qtd_nao_alfabetizado}</TableCell>
-                      <TableCell width="110">{registro.qtd_nao_avaliado}</TableCell>
+                      <TableCell width="160">{registro.qtd_nao_alfabetizado}</TableCell>
+                      <TableCell width="180">{registro.qtd_nao_avaliado}</TableCell>
                       <TableCell width="77"></TableCell>
                     </StyledTableRow>
                   ))}

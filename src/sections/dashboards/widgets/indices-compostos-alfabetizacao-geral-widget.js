@@ -24,7 +24,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
           <Grid xs={12} lg={7} xl={8}>
             <GraficoHorizontalChart
               title={title_indice_alfabetizacao}
-              height={385}
+              height={418}
               chart={{
                 series: indice_alfabetizacao.map((ia) => {
                   return {

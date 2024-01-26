@@ -74,7 +74,7 @@ export default function GraficoHorizontalChart({
           if (val == 0) return '';
           return `${val ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
-        return `${val ?? 0}%` ;
+        return `${val ?? 0}%`;
       },
       dropShadow: {
         enabled: true,
@@ -149,7 +149,7 @@ export default function GraficoHorizontalChart({
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={series.length * 41 + 42}
+            height={((series.length * 41) + 94)}
           />
         </Scrollbar>
       </Card>
