@@ -445,7 +445,7 @@ export default function DashboardTurmaView() {
           </Stack>
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Alunos"
+              title="Total de Estudantes"
               total={totalEstudandesGeral()}
               icon={
                 <Iconify
