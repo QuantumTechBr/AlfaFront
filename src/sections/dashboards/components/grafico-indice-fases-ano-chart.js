@@ -23,7 +23,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
   ...other
 }) {
   const theme = useTheme();
-  const { series, options, height = 340 } = chart;
+  const { series, options, height = 345 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {

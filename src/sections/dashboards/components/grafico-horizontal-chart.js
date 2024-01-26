@@ -111,7 +111,7 @@ export default function GraficoHorizontalChart({
       },
     },
     grid: {
-      padding: { top: 0, bottom: 0 },
+      padding: { top: -15, bottom: -15 },
       row: {
         colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
@@ -149,7 +149,7 @@ export default function GraficoHorizontalChart({
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={((series.length * 41) + 94)}
+            height={((series.length * 41) + 94) - 15}
           />
         </Scrollbar>
       </Card>

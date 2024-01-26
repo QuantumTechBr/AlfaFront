@@ -121,7 +121,7 @@ export default function IndiceAlfabetizacaoComponent({
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        height={338}
+        height={343}
         sx={{ mb: 1 }}
       />
 
