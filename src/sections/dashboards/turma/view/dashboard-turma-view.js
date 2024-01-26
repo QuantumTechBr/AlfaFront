@@ -490,6 +490,7 @@ export default function DashboardTurmaView() {
                 dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
                   <MetaComponent
                     title="Meta"
+                    subtitle={`sobre a meta de ${anos_metas[anoHasIndiceDeFases()]}% alfabetizados`}
                     meta={anos_metas[anoHasIndiceDeFases()]}
                     alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
                     total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}

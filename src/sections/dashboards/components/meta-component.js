@@ -11,11 +11,12 @@ import { Box, Card } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function MetaComponent({
+  color = 'primary',
   title,
+  subtitle,
   meta,
   alfabetizados,
   total,
-  color = 'primary',
   sx,
   ...other
 }) {
@@ -23,8 +24,10 @@ export default function MetaComponent({
 
   // CALCULO DO TOTAL DA META
   let _percentAlfabetizados = (alfabetizados / total) * 100;
-  let _percentDaMeta = +(_percentAlfabetizados / meta * 100).toFixed(2);
-  if(_percentDaMeta > 100) { _percentDaMeta = 100; }
+  let _percentDaMeta = +((_percentAlfabetizados / meta) * 100).toFixed(2);
+  if (_percentDaMeta > 100) {
+    _percentDaMeta = 100;
+  }
 
   const chartOptions = useChart({
     chart: {
@@ -105,7 +108,7 @@ export default function MetaComponent({
           {title}
         </Typography>
         <Typography variant="body2" fontWeight="500">
-          sobre a meta de {meta}% alfabetizados
+          {subtitle}
         </Typography>
       </Box>
 
@@ -122,9 +125,10 @@ export default function MetaComponent({
 
 MetaComponent.propTypes = {
   color: PropTypes.string,
-  sx: PropTypes.object,
   title: PropTypes.string,
+  subtitle: PropTypes.string,
   meta: PropTypes.number,
   alfabetizados: PropTypes.number,
   total: PropTypes.number,
+  sx: PropTypes.object,
 };
