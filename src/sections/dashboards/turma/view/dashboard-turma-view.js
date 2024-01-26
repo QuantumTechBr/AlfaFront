@@ -340,15 +340,19 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
-  const _indiceDeFasesCount = function (ano) {
+  const indiceDeFasesCount = function (ano) {
     let _list = [];
     anos_options.forEach((option) => {
       let _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
-      _list[+option] = _series.length > 0;
+      _list[+option] = _series.length;
     });
 
     if (ano) return _list[+ano];
-    return _list.filter((i) => i === true).length;
+    return _list;
+  };
+
+  const countHasIndiceDeFases = function () {
+    return indiceDeFasesCount().filter((i) => i > 0).length;
   };
 
   const totalEstudandesAvaliados = useCallback(() => {
@@ -452,7 +456,7 @@ export default function DashboardTurmaView() {
             />
           </Grid>
           <Grid xs={12} md={4}>
-            {!isGettingGraphics.value && _indiceDeFasesCount() == 1 && (
+            {!isGettingGraphics.value && countHasIndiceDeFases() == 1 && (
               <MetaComponent title="Meta" total={76}></MetaComponent>
             )}
           </Grid>
@@ -462,15 +466,14 @@ export default function DashboardTurmaView() {
             </Grid>
           )}
           {!isGettingGraphics.value &&
-            anos_options.map((_option) => {
-              if (_indiceDeFasesCount(_option) > 0) {
-                let option = +_option;
+            anos_options.map((ano) => {
+              if (indiceDeFasesCount(ano) > 0) {
                 return (
                   <IndicesCompostosFasesAlfabetizacaoWidget
-                    key={`indices_component_${option}_ano`}
-                    ano_escolar={option}
-                    indice_fases={dados[`indice_fases_${option}_ano`]}
-                    indice_alfabetizacao={dados[`indice_aprovacao_${option}_ano`]}
+                    key={`indices_component_${+ano}_ano`}
+                    ano_escolar={+ano}
+                    indice_fases={dados[`indice_fases_${+ano}_ano`]}
+                    indice_alfabetizacao={dados[`indice_aprovacao_${+ano}_ano`]}
                   />
                 );
               }
@@ -478,7 +481,7 @@ export default function DashboardTurmaView() {
           ,
           {!isGettingGraphics.value &&
             (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
-            _indiceDeFasesCount() > 1 && (
+            countHasIndiceDeFases() > 1 && (
               <IndicesCompostosFasesAlfabetizacaoWidget
                 key="indices_component_geral"
                 ano_escolar="Geral"
