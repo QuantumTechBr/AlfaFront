@@ -303,15 +303,15 @@ export default function DashboardDDZView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: dados.grid_escolas.reduce((acc, i) => acc + i.alfabetizados, 0),
+              amount: _.sumBy(dados.grid_escolas, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: dados.grid_escolas.reduce((acc, i) => acc + i.nao_alfabetizados, 0),
+              amount: _.sumBy(dados.grid_escolas, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: dados.grid_escolas.reduce((acc, i) => acc + i.deixou_de_frequentar, 0),
+              amount: _.sumBy(dados.grid_escolas, (s) => s.deixou_de_frequentar),
             },
           ],
         },

@@ -304,15 +304,15 @@ export default function DashboardEscolaView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: dados.grid_professores.reduce((acc, i) => acc + i.alfabetizados, 0),
+              amount: _.sumBy(dados.grid_professores, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: dados.grid_professores.reduce((acc, i) => acc + i.nao_alfabetizados, 0),
+              amount: _.sumBy(dados.grid_professores, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: dados.grid_professores.reduce((acc, i) => acc + i.deixou_de_frequentar, 0),
+              amount: _.sumBy(dados.grid_professores, (s) => s.deixou_de_frequentar),
             },
           ],
         },
