@@ -62,6 +62,7 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
+import { anos_metas } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -100,20 +101,32 @@ export default function DashboardRedeView() {
 
       await Promise.all([
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
-          let result = response.data.map((i) => ({
-            ...i,
-            alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados,
-            alfabetizados: Array.isArray(i.qtd_alfabetizado)
+          let result = response.data.map((i) => {
+            let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            let _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado,
-            nao_alfabetizados: Array.isArray(i.qtd_nao_alfabetizado)
+              : i.qtd_alfabetizado;
+            let _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
               ? _.last(i.qtd_nao_alfabetizado)
-              : i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: Array.isArray(i.qtd_nao_avaliado)
+              : i.qtd_nao_alfabetizado;
+            let _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
               ? _.last(i.qtd_nao_avaliado)
-              : i.qtd_nao_avaliado,
-          }));
+              : i.qtd_nao_avaliado;
+
+            return {
+              ...i,
+              alunos: i.qtd_alunos,
+              avaliados: _avaliados,
+              alfabetizados: _alfabetizados,
+              nao_alfabetizados: _nao_alfabetizados,
+              deixou_de_frequentar: _deixou_de_frequentar,
+              //
+              indice_alfabetizacao:
+                _avaliados > 0
+                  ? Number(`${((_alfabetizados / _avaliados) * 100).toFixed(0)}`)
+                  : _avaliados,
+            };
+          });
 
           setDados((prevState) => ({
             ...prevState,
@@ -177,12 +190,6 @@ export default function DashboardRedeView() {
     });
   }, []);
 
-  const filtroReset = () => {
-    setFilters({
-      anoLetivo: first(anosLetivos),
-    });
-  };
-
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
@@ -197,9 +204,7 @@ export default function DashboardRedeView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = {
-    zona: '',
-  };
+  const defaultTableFilters = { zona: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -256,6 +261,20 @@ export default function DashboardRedeView() {
     return total;
   });
 
+  const calculaMeta = () => {
+    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    return _meta;
+  };
+
+  const getTotalAlfabetizados = () => {
+    let _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
+    return _soma;
+  };
+  const getTotalAvaliados = (ano) => {
+    let _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
+    return _soma;
+  };
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -296,10 +315,6 @@ export default function DashboardRedeView() {
               >
                 Aplicar filtros
               </Button>
-
-              <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
-                Limpar
-              </Button>
             </Grid>
           </Stack>
 
@@ -333,8 +348,17 @@ export default function DashboardRedeView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+
+          <Grid xs={12} md={4}>
+            {!isGettingGraphics.value && (
+              <MetaComponent
+                title="Meta"
+                subtitle="Meta geral da rede"
+                meta={calculaMeta()}
+                alfabetizados={getTotalAlfabetizados()}
+                total={getTotalAvaliados()}
+              ></MetaComponent>
+            )}
           </Grid>
 
           {!!isGettingGraphics.value && (
@@ -360,10 +384,6 @@ export default function DashboardRedeView() {
                   return {
                     ...e,
                     title: e.zona_nome,
-                    indice_alfabetizacao:
-                      e.avaliados > 0
-                        ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
-                        : e.avaliados,
                   };
                 }),
               ]}
