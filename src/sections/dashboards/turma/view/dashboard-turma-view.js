@@ -27,7 +27,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
 
 // _mock
-import { anos_options } from 'src/_mock/assets';
+import { anos_metas, anos_options } from 'src/_mock/assets';
 
 // assets
 import { RegistroAprendizagemFases } from 'src/_mock';
@@ -355,6 +355,16 @@ export default function DashboardTurmaView() {
     return indiceDeFasesCount().filter((i) => i > 0).length;
   };
 
+  const anoHasIndiceDeFases = function () {
+    let _ano;
+    indiceDeFasesCount().forEach((value, index) => {
+      if (value > 0) {
+        _ano = index;
+      }
+    });
+    return _ano;
+  };
+
   const totalEstudandesAvaliados = useCallback(() => {
     let total = 0;
     total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
@@ -456,9 +466,23 @@ export default function DashboardTurmaView() {
             />
           </Grid>
           <Grid xs={12} md={4}>
-            {!isGettingGraphics.value && countHasIndiceDeFases() == 1 && (
-              <MetaComponent title="Meta" total={76}></MetaComponent>
-            )}
+            {!isGettingGraphics.value &&
+              countHasIndiceDeFases() == 1 &&
+              dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
+                <MetaComponent
+                  title="Meta"
+                  meta={anos_metas[anoHasIndiceDeFases()]}
+                  alfabetizados={
+                    dados[
+                      `indice_aprovacao_${anoHasIndiceDeFases()}_ano`
+                    ]?.categories[0]?.series.filter((s) => (s.name = 'Alfabetizados'))[0].amount
+                  }
+                  total={_.sumBy(
+                    dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories[0]?.series,
+                    (s) => s.amount
+                  )}
+                ></MetaComponent>
+              )}
           </Grid>
           {!!isGettingGraphics.value && (
             <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">

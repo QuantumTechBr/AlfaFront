@@ -10,8 +10,21 @@ import { Card } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function MetaComponent({ title, total, color = 'primary', sx, ...other }) {
+export default function MetaComponent({
+  title,
+  meta,
+  alfabetizados,
+  total,
+  color = 'primary',
+  sx,
+  ...other
+}) {
   const theme = useTheme();
+
+  // CALCULO DO TOTAL DA META
+  let _percentAlfabetizados = (alfabetizados / total) * 100;
+  let _percentDaMeta = +(_percentAlfabetizados / meta * 100).toFixed(2);
+  if(_percentDaMeta > 100) { _percentDaMeta = 100; }
 
   const chartOptions = useChart({
     chart: {
@@ -91,7 +104,13 @@ export default function MetaComponent({ title, total, color = 'primary', sx, ...
         {title}
       </Typography>
 
-      <Chart type="radialBar" series={[total]} options={chartOptions} height={250} width={190} />
+      <Chart
+        type="radialBar"
+        series={[_percentDaMeta]}
+        options={chartOptions}
+        height={250}
+        width={190}
+      />
     </Card>
   );
 }
@@ -100,5 +119,7 @@ MetaComponent.propTypes = {
   color: PropTypes.string,
   sx: PropTypes.object,
   title: PropTypes.string,
+  meta: PropTypes.number,
+  alfabetizados: PropTypes.number,
   total: PropTypes.number,
 };
