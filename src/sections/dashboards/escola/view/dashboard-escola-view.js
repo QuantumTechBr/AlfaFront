@@ -253,11 +253,11 @@ export default function DashboardEscolaView() {
     { id: 'ano_escolar', label: 'Ano', width: 110, notsortable: true },
     { id: 'turma_nome', label: 'Turma', width: 110, notsortable: true },
     { id: 'turno', label: 'Turno', width: 110, notsortable: true },
-    { id: 'alunos', label: 'Alunos', width: 110, notsortable: true },
-    { id: 'avaliados', label: 'Alunos avaliados', width: 110, notsortable: true },
+    { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
+    { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
-    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 110, notsortable: true },
-    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 110, notsortable: true },
+    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 160, notsortable: true },
+    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 180, notsortable: true },
     { id: '', width: 88, notsortable: true },
   ];
 
