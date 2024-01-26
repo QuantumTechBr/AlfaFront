@@ -161,14 +161,6 @@ export default function GraficoIndiceFaseAnoColunasChart({
     let _percentFaseAdequada = Math.floor((_totalFaseAdequada / total_avaliados) * 100);
     _percentFaseAdequada = _percentFaseAdequada <= 100 ? _percentFaseAdequada : 100;
 
-    console.log(
-      _faseAdequada,
-      _indexOfFaseList,
-      _faseListToSum,
-      _totalFaseAdequada,
-      _percentFaseAdequada
-    );
-
     return _percentFaseAdequada;
   });
 
