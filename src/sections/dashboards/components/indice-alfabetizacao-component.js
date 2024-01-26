@@ -53,18 +53,17 @@ export default function IndiceAlfabetizacaoComponent({
 
   const chartOptions = useChart({
     chart: { toolbar: { show: true } },
+    grid: {
+      padding: { top: 15, bottom: 10 },
+    },
     labels: indice_alfabetizacao.map((element) => element.name),
     plotOptions: {
       pie: {
         donut: {
           labels: {
             show: true,
-            name: {
-              fontSize: '14px',
-            },
-            value: {
-              fontSize: '24px',
-            },
+            name: { fontSize: '14px' },
+            value: { fontSize: '24px' },
             total: { show: true },
           },
         },
@@ -77,14 +76,10 @@ export default function IndiceAlfabetizacaoComponent({
         return fPercent(val.toFixed(2));
         // return fPercent(Math.floor(val));
       },
-      dropShadow: {
-        enabled: false,
-      },
+      dropShadow: { enabled: false },
     },
 
-    legend: {
-      show: false,
-    },
+    legend: { show: false },
     colors: colors,
     title: {
       text: title,
@@ -126,7 +121,7 @@ export default function IndiceAlfabetizacaoComponent({
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        height={305}
+        height={338}
         sx={{ mb: 1 }}
       />
 

@@ -500,6 +500,7 @@ export default function DashboardTurmaView() {
                   <IndicesCompostosFasesAlfabetizacaoWidget
                     key={`indices_component_${+ano_escolar}_ano`}
                     ano_escolar={+ano_escolar}
+                    total_avaliados={totalEstudandesAvaliadosGeral()}
                     indice_fases={_indice_fases}
                     indice_alfabetizacao={_indice_alfabetizacao}
                   />
@@ -512,7 +513,6 @@ export default function DashboardTurmaView() {
             countHasIndiceDeFases() > 1 && (
               <IndicesCompostosFasesAlfabetizacaoWidget
                 key="indices_component_geral"
-                ano_escolar="Geral"
                 indice_fases={dados.indice_fases_geral}
                 indice_alfabetizacao={dados.indice_aprovacao_geral}
               />

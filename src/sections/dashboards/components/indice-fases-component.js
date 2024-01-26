@@ -16,6 +16,7 @@ export default function IndiceFasesComponent({
   title_indice_fases,
   indice_fases,
   ano_escolar,
+  total_avaliados,
   ...other
 }) {
   const total_estudantes = indice_fases.chart.series.reduce((total, item) => total + item.value, 0);
@@ -76,6 +77,7 @@ export default function IndiceFasesComponent({
             ano_escolar={ano_escolar}
             title={title_indice_fases}
             chart={indice_fases.chart ?? { series: [] }}
+            total_avaliados={total_avaliados}
           />
         </Grid>
 
@@ -97,4 +99,5 @@ IndiceFasesComponent.propTypes = {
   title_indice_fases: PropTypes.string,
   indice_fases: PropTypes.object,
   ano_escolar: PropTypes.number,
+  total_avaliados: PropTypes.number,
 };
