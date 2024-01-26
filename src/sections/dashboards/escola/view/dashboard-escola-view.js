@@ -63,6 +63,7 @@ import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
+import { anos_metas } from 'src/_mock/assets';
 
 export default function DashboardEscolaView() {
   const ICON_SIZE = 65;
@@ -326,6 +327,20 @@ export default function DashboardEscolaView() {
     return total;
   });
 
+  const calculaMeta = () => {
+    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    return _meta;
+  };
+
+  const getTotalAlfabetizados = () => {
+    let _soma = _.sumBy(dados.grid_professores, (s) => s.alfabetizados);
+    return _soma;
+  };
+  const getTotalAvaliados = (ano) => {
+    let _soma = _.sumBy(dados.grid_professores, (s) => s.avaliados);
+    return _soma;
+  };
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -405,8 +420,17 @@ export default function DashboardEscolaView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+          
+          <Grid xs={12} md={4}>
+            {!isGettingGraphics.value && (
+              <MetaComponent
+                title="Meta"
+                subtitle="para a média entre as séries"
+                meta={calculaMeta()}
+                alfabetizados={getTotalAlfabetizados()}
+                total={getTotalAvaliados()}
+              ></MetaComponent>
+            )}
           </Grid>
 
           {!!isGettingGraphics.value && (
