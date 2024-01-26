@@ -92,7 +92,6 @@ export default function DashboardEscolaView() {
   });
 
   const [dados, setDados] = useState({
-    total_usuarios_ativos: {},
     total_alunos_avaliados: null,
     //
     grid_professores: [],
@@ -112,26 +111,35 @@ export default function DashboardEscolaView() {
       };
 
       await Promise.all([
-        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_usuarios_ativos: response.data,
-          }));
-        }),
-
         //
         dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
           // adequação dos dados
-          let result = response.data.map((i) => ({
-            ...i,
-            alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
-            alfabetizados: Array.isArray(i.qtd_alfabetizado)
-              ? sum(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado,
-            nao_alfabetizados: i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: i.qtd_nao_avaliado,
-          }));
+          let result = response.data.map((i) => {
+            let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            let _alfabetizados = _.isArray(i.qtd_alfabetizado)
+              ? _.last(i.qtd_alfabetizado)
+              : i.qtd_alfabetizado;
+            let _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
+              ? _.last(i.qtd_nao_alfabetizado)
+              : i.qtd_nao_alfabetizado;
+            let _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
+              ? _.last(i.qtd_nao_avaliado)
+              : i.qtd_nao_avaliado;
+
+            return {
+              ...i,
+              alunos: i.qtd_alunos,
+              avaliados: _avaliados,
+              alfabetizados: _alfabetizados,
+              nao_alfabetizados: _nao_alfabetizados,
+              deixou_de_frequentar: _deixou_de_frequentar,
+              //
+              indice_alfabetizacao:
+                _avaliados > 0
+                  ? Number(`${((_alfabetizados / _avaliados) * 100).toFixed(0)}`)
+                  : _avaliados,
+            };
+          });
 
           setDados((prevState) => ({
             ...prevState,
@@ -261,9 +269,7 @@ export default function DashboardEscolaView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = {
-    professor: '',
-  };
+  const defaultTableFilters = { professor: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -313,6 +319,12 @@ export default function DashboardEscolaView() {
       ],
     };
   };
+
+  const totalEstudandesGeral = useCallback(() => {
+    let total = 0;
+    total = _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
+    return total;
+  });
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -365,8 +377,8 @@ export default function DashboardEscolaView() {
 
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Usuários Ativos"
-              total={dados.total_usuarios_ativos.total}
+              title="Total de Estudantes"
+              total={totalEstudandesGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -411,10 +423,6 @@ export default function DashboardEscolaView() {
                   return {
                     ...e,
                     title: `${e.turma_ano_escolar} ${e.turma_nome}`,
-                    indice_alfabetizacao:
-                      e.avaliados > 0
-                        ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
-                        : e.avaliados,
                   };
                 }),
               ]}
