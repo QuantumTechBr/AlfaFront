@@ -26,6 +26,9 @@ import { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
 
+// _mock
+import { anos_options } from 'src/_mock/assets';
+
 // assets
 import { RegistroAprendizagemFases } from 'src/_mock';
 
@@ -73,20 +76,19 @@ export default function DashboardTurmaView() {
     bimestre: '',
   });
 
-  const [dados, setDados] = useState({
+  let _objDados = {
     total_usuarios_ativos: {},
-
-    indice_fases_1_ano: {},
-    indice_aprovacao_1_ano: {},
-    indice_fases_2_ano: {},
-    indice_aprovacao_2_ano: {},
-    indice_fases_3_ano: {},
-    indice_aprovacao_3_ano: {},
     indice_fases_geral: {},
     indice_aprovacao_geral: {},
-
     desempenho_alunos: {},
+  };
+
+  (anos_options ?? []).forEach((option) => {
+    Object.assign(_objDados, { [`indice_fases_${option}_ano`]: {} });
+    Object.assign(_objDados, { [`indice_aprovacao_${option}_ano`]: {} });
   });
+
+  const [dados, setDados] = useState(_objDados);
 
   const getFormattedSeries = (series) => {
     let formattedSeries = [];
@@ -104,8 +106,13 @@ export default function DashboardTurmaView() {
     return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
   };
 
-  const getIndiceFases = async (anoEscolar, fullFilters) => {
-    if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
+  const getIndiceFases = async (anoEscolar, payloadFilters) => {
+    let _turmasPorAno = getTurmasPorAnoEscolar(anoEscolar);
+    if (payloadFilters.turma && payloadFilters.turma.length) {
+      _turmasPorAno = _turmasPorAno.filter((e) => payloadFilters.turma.includes(e));
+    }
+
+    if (anoEscolar && _turmasPorAno.length == 0) {
       setDados((prevState) => ({
         ...prevState,
         [`indice_fases_${anoEscolar}_ano`]: {},
@@ -115,9 +122,9 @@ export default function DashboardTurmaView() {
 
     dashboardsMethods
       .getDashboardIndiceFases({
-        ...fullFilters,
+        ...payloadFilters,
         turma: anoEscolar
-          ? getTurmasPorAnoEscolar(anoEscolar)
+          ? _turmasPorAno
           : filters.turma.length
           ? filters.turma.map((t) => t.id)
           : null,
@@ -134,7 +141,7 @@ export default function DashboardTurmaView() {
       });
     dashboardsMethods
       .getDashboardIndiceAprovacao({
-        ...fullFilters,
+        ...payloadFilters,
         turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
       })
       .then((response) => {
@@ -152,7 +159,7 @@ export default function DashboardTurmaView() {
     async (_filters) => {
       let _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
-      const fullFilters = {
+      const payloadFilters = {
         ano_letivo: [
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
@@ -167,9 +174,9 @@ export default function DashboardTurmaView() {
       await Promise.all([
         dashboardsMethods
           .getDashboardTotalUsuariosAtivos({
-            ano_letivo: fullFilters.ano_letivo,
-            ddz: fullFilters.ddz,
-            escola: fullFilters.escola,
+            ano_letivo: payloadFilters.ano_letivo,
+            ddz: payloadFilters.ddz,
+            escola: payloadFilters.escola,
           })
           .then((response) => {
             setDados((prevState) => ({
@@ -179,18 +186,18 @@ export default function DashboardTurmaView() {
           }),
 
         // ## INDICE DE FASES
-        getIndiceFases(1, fullFilters),
-        getIndiceFases(2, fullFilters),
-        getIndiceFases(3, fullFilters),
-        getIndiceFases(null, fullFilters),
+        getIndiceFases(1, payloadFilters),
+        getIndiceFases(2, payloadFilters),
+        getIndiceFases(3, payloadFilters),
+        getIndiceFases(null, payloadFilters),
 
         // ## DESEMPENHO ALUNO
         dashboardsMethods
           .getDashboardDesempenhoAlunos({
-            ano_letivo: fullFilters.ano_letivo,
-            ddz: fullFilters.ddz,
-            escola: fullFilters.escola,
-            turma: fullFilters.turma,
+            ano_letivo: payloadFilters.ano_letivo,
+            ddz: payloadFilters.ddz,
+            escola: payloadFilters.escola,
+            turma: payloadFilters.turma,
           })
           .then((response) => {
             setDados((prevState) => ({
@@ -333,14 +340,16 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
-  const _indiceDeFasesCount = useCallback(() => {
-    let _list = [
-      (dados.indice_fases_1_ano.chart?.series ?? []).length > 0,
-      (dados.indice_fases_2_ano.chart?.series ?? []).length > 0,
-      (dados.indice_fases_3_ano.chart?.series ?? []).length > 0,
-    ].filter((i) => i === true);
-    return _list.length;
-  });
+  const _indiceDeFasesCount = function (ano) {
+    let _list = [];
+    anos_options.forEach((option) => {
+      let _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
+      _list[+option] = _series.length > 0;
+    });
+
+    if (ano) return _list[+ano];
+    return _list.filter((i) => i === true).length;
+  };
 
   const totalEstudandesAvaliados = useCallback(() => {
     let total = 0;
@@ -412,7 +421,6 @@ export default function DashboardTurmaView() {
               </Button>
             </Grid>
           </Stack>
-
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Usuários Ativos"
@@ -443,43 +451,31 @@ export default function DashboardTurmaView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+          <Grid xs={12} md={4}>
+            {!isGettingGraphics.value && _indiceDeFasesCount() == 1 && (
+              <MetaComponent title="Meta" total={76}></MetaComponent>
+            )}
           </Grid>
-
           {!!isGettingGraphics.value && (
             <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
               <LoadingBox />
             </Grid>
           )}
-
           {!isGettingGraphics.value &&
-            (dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_1_ano"
-                ano_escolar={1}
-                indice_fases={dados.indice_fases_1_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_1_ano}
-              />
-            )}
-          {!isGettingGraphics.value &&
-            (dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_2_ano"
-                ano_escolar={2}
-                indice_fases={dados.indice_fases_2_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_2_ano}
-              />
-            )}
-          {!isGettingGraphics.value &&
-            (dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_3_ano"
-                ano_escolar={3}
-                indice_fases={dados.indice_fases_3_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_3_ano}
-              />
-            )}
+            anos_options.map((_option) => {
+              if (_indiceDeFasesCount(_option) > 0) {
+                let option = +_option;
+                return (
+                  <IndicesCompostosFasesAlfabetizacaoWidget
+                    key={`indices_component_${option}_ano`}
+                    ano_escolar={option}
+                    indice_fases={dados[`indice_fases_${option}_ano`]}
+                    indice_alfabetizacao={dados[`indice_aprovacao_${option}_ano`]}
+                  />
+                );
+              }
+            })}
+          ,
           {!isGettingGraphics.value &&
             (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
             _indiceDeFasesCount() > 1 && (
