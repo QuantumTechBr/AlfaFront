@@ -271,7 +271,9 @@ export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const anos_options = ['1', '2', '3'];
 
-export const anos_metas = {'1': 70, '2': 70, '3': 100 };
+export const anos_metas = {'1': 95, '2': 100, '3': 100 };
+
+export const anos_fase_adequada = {'1': 'Alfabética Parcial', '2': 'Alfabética Completa', '3': 'Alfabética Consolidada' };
 
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
 

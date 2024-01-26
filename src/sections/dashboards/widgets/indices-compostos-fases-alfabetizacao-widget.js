@@ -9,7 +9,11 @@ import { slugify } from 'src/utils/functions';
 import IndiceFasesComponent from '../components/indice-fases-component';
 import IndiceAlfabetizacaoComponent from '../components/indice-alfabetizacao-component';
 
-export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, indice_fases, indice_alfabetizacao }) {
+export default function IndicesCompostosFasesAlfabetizacaoWidget({
+  ano_escolar,
+  indice_fases,
+  indice_alfabetizacao,
+}) {
   let titulo_completo = ano_escolar;
   if (typeof ano_escolar === 'number') {
     titulo_completo += `º ano`;
@@ -23,6 +27,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({ ano_escolar, 
         <Grid xs={12} lg={7} xl={8}>
           <IndiceFasesComponent
             key={`indice_fases_component_${slugify(title_indice_fases)}`}
+            ano_escolar={ano_escolar}
             title_indice_fases={title_indice_fases}
             indice_fases={indice_fases}
           />

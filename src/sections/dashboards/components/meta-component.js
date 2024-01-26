@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Card } from '@mui/material';
+import { Box, Card } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -100,9 +100,14 @@ export default function MetaComponent({
       }}
       {...other}
     >
-      <Typography variant="h3" fontWeight="600">
-        {title}
-      </Typography>
+      <Box>
+        <Typography variant="h3" fontWeight="600">
+          {title}
+        </Typography>
+        <Typography variant="body2" fontWeight="500">
+          sobre a meta de {meta}% alfabetizados
+        </Typography>
+      </Box>
 
       <Chart
         type="radialBar"

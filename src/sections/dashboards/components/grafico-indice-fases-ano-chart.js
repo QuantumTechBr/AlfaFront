@@ -7,11 +7,17 @@ import { bgGradient } from 'src/theme/css';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { RegistroAprendizagemFasesColors } from 'src/_mock';
+import { RegistroAprendizagemFasesColors, anos_fase_adequada } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
-export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
+export default function GraficoIndiceFaseAnoColunasChart({
+  title,
+  subheader,
+  chart,
+  ano_escolar,
+  ...other
+}) {
   const theme = useTheme();
   const { series, options, height = 320 } = chart;
 
@@ -143,9 +149,9 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
       <Box {...other}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
-          <Box sx={{ width: 235, mt: 2 }}>
-            <Typography fontSize={15} mb={0.8} fontWeight="700">
-              Fase adequada
+          <Box sx={{ width: 260, mt: 2 }}>
+            <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
+              Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
             </Typography>
             <LinearProgress
               value={76}
@@ -154,17 +160,17 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
               sx={{
                 height: 26,
                 borderRadius: 13,
-                bgcolor: alpha(theme.palette.common.black, 0.08),
+                // bgcolor: alpha(theme.palette.common.black, 0.08),
                 span: {
                   borderRadius: '13px !important',
-                  ...bgGradient({
-                    direction: 'to right',
-                    startColor: lighten(theme.palette.primary.main, 0.3),
-                    endColor: theme.palette.primary.light,
-                  }),
+                  // ...bgGradient({
+                  //   direction: 'to right',
+                  //   startColor: lighten(theme.palette.primary.main, 0.3),
+                  //   endColor: theme.palette.primary.light,
+                  // }),
                   '&::before': {
-                    color: theme.palette.common.black,
-                    fontWeight: 800,
+                    color: theme.palette.common.white,
+                    fontWeight: 700,
                     content: '"76%"',
                     top: 2,
                     display: 'block',
@@ -195,8 +201,9 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
   );
 }
 
-GraficoColunasChart.propTypes = {
+GraficoIndiceFaseAnoColunasChart.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
+  ano_escolar: PropTypes.number,
 };

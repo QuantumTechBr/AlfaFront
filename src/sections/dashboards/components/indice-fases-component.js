@@ -9,10 +9,15 @@ import { slugify } from 'src/utils/functions';
 
 import Typography from '@mui/material/Typography';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
-import GraficoColunasChart from './grafico-colunas-chart';
+import GraficoIndiceFaseAnoColunasChart from './grafico-indice-fases-ano-chart';
 import { Card, LinearProgress } from '@mui/material';
 
-export default function IndiceFasesComponent({ title_indice_fases, indice_fases, ...other }) {
+export default function IndiceFasesComponent({
+  title_indice_fases,
+  indice_fases,
+  ano_escolar,
+  ...other
+}) {
   const total_estudantes = indice_fases.chart.series.reduce((total, item) => total + item.value, 0);
 
   const getFasesEmLinha = () => {
@@ -67,7 +72,8 @@ export default function IndiceFasesComponent({ title_indice_fases, indice_fases,
     <Card>
       <Grid container>
         <Grid xs={12} lg={10} xl>
-          <GraficoColunasChart
+          <GraficoIndiceFaseAnoColunasChart
+            ano_escolar={ano_escolar}
             title={title_indice_fases}
             chart={indice_fases.chart ?? { series: [] }}
           />
@@ -90,4 +96,5 @@ export default function IndiceFasesComponent({ title_indice_fases, indice_fases,
 IndiceFasesComponent.propTypes = {
   title_indice_fases: PropTypes.string,
   indice_fases: PropTypes.object,
+  ano_escolar: PropTypes.number,
 };
