@@ -405,7 +405,7 @@ export default function DashboardDDZView() {
             {!isGettingGraphics.value && (
               <MetaComponent
                 title="Meta"
-                subtitle="para a média geral da DDZ"
+                subtitle="entre a média das séries"
                 meta={calculaMeta()}
                 alfabetizados={getTotalAlfabetizados()}
                 total={getTotalAvaliados()}

@@ -425,7 +425,7 @@ export default function DashboardEscolaView() {
             {!isGettingGraphics.value && (
               <MetaComponent
                 title="Meta"
-                subtitle="para a média entre as séries"
+                subtitle="entre a média das séries"
                 meta={calculaMeta()}
                 alfabetizados={getTotalAlfabetizados()}
                 total={getTotalAvaliados()}

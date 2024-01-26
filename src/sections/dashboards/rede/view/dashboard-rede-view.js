@@ -354,7 +354,7 @@ export default function DashboardRedeView() {
             {!isGettingGraphics.value && (
               <MetaComponent
                 title="Meta"
-                subtitle="para média geral da rede"
+                subtitle="entre a média das séries"
                 meta={calculaMeta()}
                 alfabetizados={getTotalAlfabetizados()}
                 total={getTotalAvaliados()}
