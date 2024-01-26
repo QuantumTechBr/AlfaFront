@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-import _, { sum } from 'lodash';
+import _ from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -62,6 +62,7 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
+import { anos_metas } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -81,7 +82,6 @@ export default function DashboardRedeView() {
   });
 
   const [dados, setDados] = useState({
-    total_usuarios_ativos: {},
     total_alunos_avaliados: null,
     //
     grid_ddz: [],
@@ -100,25 +100,34 @@ export default function DashboardRedeView() {
       };
 
       await Promise.all([
-        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_usuarios_ativos: response.data,
-          }));
-        }),
-
-        //
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
-          let result = response.data.map((i) => ({
-            ...i,
-            alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
-            alfabetizados: Array.isArray(i.qtd_alfabetizado)
-              ? sum(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado,
-            nao_alfabetizados: i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: i.qtd_nao_avaliado,
-          }));
+          // adequação dos dados
+          let result = response.data.map((i) => {
+            let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            let _alfabetizados = _.isArray(i.qtd_alfabetizado)
+              ? _.last(i.qtd_alfabetizado)
+              : i.qtd_alfabetizado;
+            let _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
+              ? _.last(i.qtd_nao_alfabetizado)
+              : i.qtd_nao_alfabetizado;
+            let _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
+              ? _.last(i.qtd_nao_avaliado)
+              : i.qtd_nao_avaliado;
+
+            return {
+              ...i,
+              alunos: i.qtd_alunos,
+              avaliados: _avaliados,
+              alfabetizados: _alfabetizados,
+              nao_alfabetizados: _nao_alfabetizados,
+              deixou_de_frequentar: _deixou_de_frequentar,
+              //
+              indice_alfabetizacao:
+                _avaliados > 0
+                  ? Number(`${((_alfabetizados / _avaliados) * 100).toFixed(0)}`)
+                  : _avaliados,
+            };
+          });
 
           setDados((prevState) => ({
             ...prevState,
@@ -182,29 +191,21 @@ export default function DashboardRedeView() {
     });
   }, []);
 
-  const filtroReset = () => {
-    setFilters({
-      anoLetivo: first(anosLetivos),
-    });
-  };
-
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
     { id: 'ddz', label: 'DDZ', notsortable: true },
     { id: 'escolae', label: 'Escolas', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
-    { id: 'alunos', label: 'Alunos', width: 110, notsortable: true },
-    { id: 'avaliados', label: 'Alunos avaliados', width: 110, notsortable: true },
+    { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
+    { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
-    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 110, notsortable: true },
-    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 110, notsortable: true },
+    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 160, notsortable: true },
+    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 180, notsortable: true },
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = {
-    zona: '',
-  };
+  const defaultTableFilters = { zona: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -239,20 +240,40 @@ export default function DashboardRedeView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + sum(i.qtd_alfabetizado), 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.deixou_de_frequentar),
             },
           ],
         },
       ],
     };
+  };
+
+  const totalEstudandesGeral = useCallback(() => {
+    let total = 0;
+    total = _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
+    return total;
+  });
+
+  const calculaMeta = () => {
+    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    return _meta;
+  };
+
+  const getTotalAlfabetizados = () => {
+    let _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
+    return _soma;
+  };
+  const getTotalAvaliados = (ano) => {
+    let _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
+    return _soma;
   };
 
   return (
@@ -295,17 +316,13 @@ export default function DashboardRedeView() {
               >
                 Aplicar filtros
               </Button>
-
-              <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
-                Limpar
-              </Button>
             </Grid>
           </Stack>
 
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Usuários Ativos"
-              total={dados.total_usuarios_ativos.total}
+              title="Total de Estudantes"
+              total={totalEstudandesGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -332,8 +349,17 @@ export default function DashboardRedeView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+
+          <Grid xs={12} md={4}>
+            {!isGettingGraphics.value && (
+              <MetaComponent
+                title="Meta"
+                subtitle="entre a média das séries"
+                meta={calculaMeta()}
+                alfabetizados={getTotalAlfabetizados()}
+                total={getTotalAvaliados()}
+              ></MetaComponent>
+            )}
           </Grid>
 
           {!!isGettingGraphics.value && (
@@ -359,10 +385,6 @@ export default function DashboardRedeView() {
                   return {
                     ...e,
                     title: e.zona_nome,
-                    indice_alfabetizacao:
-                      e.avaliados > 0
-                        ? Number(`${((e.alfabetizados / e.avaliados) * 100).toFixed(0)}`)
-                        : e.avaliados,
                   };
                 }),
               ]}

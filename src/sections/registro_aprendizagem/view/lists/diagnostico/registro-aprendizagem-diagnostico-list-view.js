@@ -377,6 +377,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             anoLetivoOptions={anosLetivos}
             turmaOptions={_turmasFiltered}
             escolaOptions={escolas}
+            export_type='diagnostico'
           />
 
           {canReset && (

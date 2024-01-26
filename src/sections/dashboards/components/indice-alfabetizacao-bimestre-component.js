@@ -4,10 +4,12 @@ import Card from '@mui/material/Card';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { CardHeader, Grid, Typography } from '@mui/material';
+import { CardHeader, Grid } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { percentageChange } from 'src/utils/functions';
-import { random } from 'lodash';
+import _ from 'lodash';
 import './style.css';
+import { useCallback } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -23,10 +25,8 @@ export default function IndiceAlfabetizacaoBimestreComponent({
       zona_nome: item.zona_nome,
       qtd_avaliados: item.qtd_avaliados,
       qtd_alfabetizado: item.qtd_alfabetizado,
-      percent_alfabetizado: [0, 1, 2, 3].map((_, i) =>
-        (item.qtd_alfabetizado[i] ?? 0) == 0
-          ? Math.floor(random(50, 100, false)) // TODO REMOVER TESTE
-          : Math.floor((item.qtd_alfabetizado[i] / item.qtd_avaliados[i]) * 100)
+      percent_alfabetizado: item.qtd_alfabetizado.map((_, i) =>
+        Math.floor(((item.qtd_alfabetizado[i] ?? 0) / (item.qtd_avaliados[i] ?? 0)) * 100)
       ),
     };
     return _retorno;
@@ -36,7 +36,7 @@ export default function IndiceAlfabetizacaoBimestreComponent({
     <Card {...other} sx={{ pb: 2 }}>
       <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
-      <Grid container>
+      <Grid container justifyContent={'space-around'}>
         {dados.map((item, index) => {
           return (
             <IndiceAlfabetizacaoBimestreUnicoComponent
@@ -58,34 +58,51 @@ IndiceAlfabetizacaoBimestreComponent.propTypes = {
 //
 
 export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other }) {
+  const theme = useTheme();
+
   const colorLinha = '#FFBF00';
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
+  const qtd_bimestres = dados.percent_alfabetizado.length;
+  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined);
+
   const chartSeries = [
-    {
-      name: 'Alfabetizados 1º Bi',
-      type: 'column',
-
-      data: [dados.percent_alfabetizado[0]],
-    },
-    {
-      name: 'Alfabetizados 2º Bi',
-      type: 'column',
-
-      data: [null, dados.percent_alfabetizado[1]],
-    },
-    {
-      name: 'Alfabetizados 3º Bi',
-      type: 'column',
-
-      data: [null, null, dados.percent_alfabetizado[2]],
-    },
-    {
-      name: 'Alfabetizados 4º Bi',
-      type: 'column',
-
-      data: [null, null, null, dados.percent_alfabetizado[3]],
-    },
+    ...(hasData(0)
+      ? [
+          {
+            name: 'Alfabetizados 1º Bi',
+            type: 'column',
+            data: [dados.percent_alfabetizado[0]],
+          },
+        ]
+      : []),
+    ...(hasData(1)
+      ? [
+          {
+            name: 'Alfabetizados 2º Bi',
+            type: 'column',
+            data: [null, dados.percent_alfabetizado[1]],
+          },
+        ]
+      : []),
+    ...(hasData(2)
+      ? [
+          {
+            name: 'Alfabetizados 3º Bi',
+            type: 'column',
+            data: [null, null, dados.percent_alfabetizado[2]],
+          },
+        ]
+      : []),
+    ...(hasData(3)
+      ? [
+          {
+            name: 'Alfabetizados 4º Bi',
+            type: 'column',
+            data: [null, null, null, dados.percent_alfabetizado[3]],
+          },
+        ]
+      : []),
     {
       name: 'Avanço',
       type: 'line',
@@ -98,12 +115,21 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
     markers: { size: 5 },
     colors: colors,
     chart: {
+      toolbar: { show: true },
       stacked: true,
       stackOnlyBar: true,
     },
 
     xaxis: {
-      categories: ['1º Bi', '2º Bi', '3º Bi', '4º Bi'],
+      categories: _.filter(
+        [
+          ...(hasData(0) ? ['1º Bi'] : [null]),
+          ...(hasData(1) ? ['2º Bi'] : [null]),
+          ...(hasData(2) ? ['3º Bi'] : [null]),
+          ...(hasData(3) ? ['4º Bi'] : [null]),
+        ],
+        (v) => v !== null
+      ),
     },
     plotOptions: {
       bar: {
@@ -129,23 +155,23 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       },
       style: {
         fontSize: '12px',
-        colors: ['#fff', '#fff', '#fff', '#fff', '#000'],
+        colors: [..._.fill(_.range(qtd_bimestres - 1), '#FFF', 0, qtd_bimestres - 1), '#000'],
       },
       formatter: function (value, opts) {
         if (value === null || value == 0) return '';
-        if (opts.seriesIndex <= 3) {
-          if (opts.dataPointIndex <= 3) {
+        if (opts.seriesIndex <= qtd_bimestres - 1) {
+          if (opts.dataPointIndex <= qtd_bimestres - 1) {
             return value + '%';
           }
         }
 
-        if (opts.seriesIndex > 3) {
+        if (opts.seriesIndex == qtd_bimestres) {
           if (opts.dataPointIndex > 0) {
             let _percents = opts.w.config.series[opts.seriesIndex].data;
             let _percentPrev = _percents[opts.dataPointIndex - 1];
             let _percent = value;
             let _difference = percentageChange(_percentPrev, _percent);
-            if(_difference == 0) return '';
+            if (_difference == 0 || _difference == Infinity) return '';
             _difference = _difference > 0 ? `+${Math.floor(_difference)}` : Math.ceil(_difference);
             return _difference + '%';
           }
@@ -154,10 +180,21 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       },
     },
     stroke: {
-      width: [4, 4, 4, 4, 4],
-      colors: ['transparent', 'transparent', 'transparent', 'transparent', colorLinha], // TODO USE LODASH FILL
+      width: _.fill(_.range(qtd_bimestres + 1), 4, 0, qtd_bimestres + 1),
+      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha], // TODO USE LODASH FILL
       curve: 'straight',
       lineCap: 'round',
+    },
+    title: {
+      text: dados.zona_nome,
+      offsetX: 13,
+      align: 'center',
+      style: {
+        fontSize: '13px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
     },
 
     fill: {
@@ -186,9 +223,6 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
 
   return (
     <Grid item xs={12} lg={3} sx={{ my: 2 }}>
-      <Typography fontSize={13} textAlign={'center'} mb={0.8} fontWeight="600">
-        {dados.zona_nome}
-      </Typography>
       <Chart
         dir="ltr"
         width="100%"

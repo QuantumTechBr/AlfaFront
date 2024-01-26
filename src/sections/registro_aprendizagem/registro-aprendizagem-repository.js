@@ -13,12 +13,14 @@ export const insertRegistroAprendizagemDiagnostico = payload => axios.post(endpo
 export const getAllRegistrosAprendizagemDiagnostico = ({turmaId='', nome='', periodo='', promoAnoAnterior='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?turma=${turmaId}&nome=${nome}&periodo=${periodo}&promo_ano_anterior=${promoAnoAnterior}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.diagnostico.update.concat(id), payload);
 export const getListIdTurmaRegistroAprendizagemDiagnostico = ({turmaId='', periodo=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.idsTurmaList.concat(`/?turma=${turmaId}&periodo=${periodo}`))
+export const exportFileDiagnosticoList = (query) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?`).concat(query));
 
 export const insertRegistroAprendizagemFase = payload => axios.post(endpoints.registro_aprendizagem.fase.post, payload);
 export const getAllRegistrosAprendizagemFase = ({turmaId='', bimestreId='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?turma=${turmaId}&bimestre=${bimestreId}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemFaseById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.fase.update.concat(id), payload);
 export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.registro_aprendizagem.fase.get_by_id.concat(id));
 export const getListIdTurmaRegistroAprendizagemFase = ({turmaId='', bimestreId=''}) => axios.get(endpoints.registro_aprendizagem.fase.idsTurmaList.concat(`/?turma=${turmaId}&bimestre=${bimestreId}`))
+export const exportFileFaseList = (query) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?`).concat(query));
 
 const registroAprendizagemMethods = {
     insertRegistroAprendizagem,
@@ -31,11 +33,13 @@ const registroAprendizagemMethods = {
     getAllRegistrosAprendizagemDiagnostico,
     updateRegistroAprendizagemDiagnosticoById,
     getListIdTurmaRegistroAprendizagemDiagnostico,
+    exportFileDiagnosticoList,
     insertRegistroAprendizagemFase,
     getAllRegistrosAprendizagemFase,
     updateRegistroAprendizagemFaseById,
     getRegistroAprendizagemFaseById,
     getListIdTurmaRegistroAprendizagemFase,
+    exportFileFaseList,
 };
 
 export default registroAprendizagemMethods;

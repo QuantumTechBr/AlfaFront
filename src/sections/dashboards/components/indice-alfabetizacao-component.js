@@ -4,7 +4,8 @@ import Card from '@mui/material/Card';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Box, CardHeader, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { slugify } from 'src/utils/functions';
 import { fPercent } from 'src/utils/format-number';
 
@@ -17,6 +18,8 @@ export default function IndiceAlfabetizacaoComponent({
   options,
   ...other
 }) {
+  const theme = useTheme();
+
   const totalItems = indice_alfabetizacao.reduce((total, item) => total + item.amount, 0);
   indice_alfabetizacao.forEach((element) => {
     element.porcentagem = Math.round((element.amount / totalItems) * 100);
@@ -49,18 +52,18 @@ export default function IndiceAlfabetizacaoComponent({
   };
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true } },
+    grid: {
+      padding: { top: 15, bottom: 10 },
+    },
     labels: indice_alfabetizacao.map((element) => element.name),
     plotOptions: {
       pie: {
         donut: {
           labels: {
             show: true,
-            name: {
-              fontSize: '14px',
-            },
-            value: {
-              fontSize: '24px',
-            },
+            name: { fontSize: '14px' },
+            value: { fontSize: '24px' },
             total: { show: true },
           },
         },
@@ -73,15 +76,21 @@ export default function IndiceAlfabetizacaoComponent({
         return fPercent(val.toFixed(2));
         // return fPercent(Math.floor(val));
       },
-      dropShadow: {
-        enabled: false,
-      },
+      dropShadow: { enabled: false },
     },
 
-    legend: {
-      show: false,
-    },
+    legend: { show: false },
     colors: colors,
+    title: {
+      text: title,
+      offsetX: 13,
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
+    },
     tooltip: { enabled: false },
     // stroke: {
     //   show: true,
@@ -105,16 +114,14 @@ export default function IndiceAlfabetizacaoComponent({
   });
 
   return (
-    <Card {...other} sx={{ pb: 2 }}>
-      <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
-
+    <Card {...other} sx={{ pt: 3, pb: 2 }}>
       <Chart
         dir="ltr"
         width={'100%'}
         type="donut"
         series={chartSeries}
         options={chartOptions}
-        height={300}
+        height={343}
         sx={{ mb: 1 }}
       />
 
