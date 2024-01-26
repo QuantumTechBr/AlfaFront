@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-import _, { sum } from 'lodash';
+import _ from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -81,7 +81,6 @@ export default function DashboardRedeView() {
   });
 
   const [dados, setDados] = useState({
-    total_usuarios_ativos: {},
     total_alunos_avaliados: null,
     //
     grid_ddz: [],
@@ -100,24 +99,20 @@ export default function DashboardRedeView() {
       };
 
       await Promise.all([
-        dashboardsMethods.getDashboardTotalUsuariosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_usuarios_ativos: response.data,
-          }));
-        }),
-
-        //
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           let result = response.data.map((i) => ({
             ...i,
             alunos: i.qtd_alunos,
-            avaliados: Array.isArray(i.qtd_avaliados) ? sum(i.qtd_avaliados) : i.qtd_avaliados,
+            avaliados: Array.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados,
             alfabetizados: Array.isArray(i.qtd_alfabetizado)
-              ? sum(i.qtd_alfabetizado)
+              ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado,
-            nao_alfabetizados: i.qtd_nao_alfabetizado,
-            deixou_de_frequentar: i.qtd_nao_avaliado,
+            nao_alfabetizados: Array.isArray(i.qtd_nao_alfabetizado)
+              ? _.last(i.qtd_nao_alfabetizado)
+              : i.qtd_nao_alfabetizado,
+            deixou_de_frequentar: Array.isArray(i.qtd_nao_avaliado)
+              ? _.last(i.qtd_nao_avaliado)
+              : i.qtd_nao_avaliado,
           }));
 
           setDados((prevState) => ({
@@ -194,11 +189,11 @@ export default function DashboardRedeView() {
     { id: 'ddz', label: 'DDZ', notsortable: true },
     { id: 'escolae', label: 'Escolas', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
-    { id: 'alunos', label: 'Alunos', width: 110, notsortable: true },
-    { id: 'avaliados', label: 'Alunos avaliados', width: 110, notsortable: true },
+    { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
+    { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
-    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 110, notsortable: true },
-    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 110, notsortable: true },
+    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 160, notsortable: true },
+    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 180, notsortable: true },
     { id: '', width: 88, notsortable: true },
   ];
 
@@ -239,21 +234,27 @@ export default function DashboardRedeView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + sum(i.qtd_alfabetizado), 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + i.qtd_nao_alfabetizado, 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: dados.grid_ddz.reduce((acc, i) => acc + i.qtd_nao_avaliado, 0),
+              amount: _.sumBy(dados.grid_ddz, (s) => s.deixou_de_frequentar),
             },
           ],
         },
       ],
     };
   };
+
+  const totalEstudandesGeral = useCallback(() => {
+    let total = 0;
+    total = _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
+    return total;
+  });
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -304,8 +305,8 @@ export default function DashboardRedeView() {
 
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Usuários Ativos"
-              total={dados.total_usuarios_ativos.total}
+              title="Total de Estudantes"
+              total={totalEstudandesGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
