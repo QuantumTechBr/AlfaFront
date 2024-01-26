@@ -473,18 +473,31 @@ export default function DashboardTurmaView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4}>
-            {!isGettingGraphics.value &&
-              countHasIndiceDeFases() == 1 &&
-              dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
-                <MetaComponent
-                  title="Meta"
-                  meta={anos_metas[anoHasIndiceDeFases()]}
-                  alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
-                  total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
-                ></MetaComponent>
+          {!isGettingGraphics.value && (
+            <Grid xs={12} md={4}>
+              {countHasIndiceDeFases() != 1 && (
+                <Typography
+                  textAlign="center"
+                  alignItems="center"
+                  variant="body2"
+                  sx={{ padding: 4, height: '100%', display: 'flex' }}
+                >
+                  A meta é exibida apenas com único ano escolar (série) selecionada no filtro
+                  Ano-Turma.
+                </Typography>
               )}
-          </Grid>
+              {countHasIndiceDeFases() == 1 &&
+                dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
+                  <MetaComponent
+                    title="Meta"
+                    meta={anos_metas[anoHasIndiceDeFases()]}
+                    alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
+                    total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
+                  ></MetaComponent>
+                )}
+            </Grid>
+          )}
+
           {(!!isGettingGraphics.value || !contextReady.value) && (
             <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
               <LoadingBox />
