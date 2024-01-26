@@ -146,13 +146,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         preparado.onTrue(); 
       }
       profissionais.data.map((profissional) => {
-        if (profissional.funcao.nome == "PROFESSOR") {
+        // if (profissional.funcao.nome == "PROFESSOR") {
           let pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
           lp.push(pro)
-        }
+        // }
       });
       setListaProfissionais(lp);
     }).catch((error) => {

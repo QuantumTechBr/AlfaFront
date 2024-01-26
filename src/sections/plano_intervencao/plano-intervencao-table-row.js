@@ -22,13 +22,13 @@ import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import parse from 'date-fns/parse';
 import planoIntervencaoMethods from './plano-intervencao-repository';
+import VisualizaPlanoIntervencao from './plano-intervencao-modal-visualiza-plano';
 
 
 // ----------------------------------------------------------------------
 
-export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }) {
+export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }){
   let { id, nome, responsavel, inicio_previsto, status, termino_previsto, ano_escolar } = row;
-  console.log(row)
 
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
@@ -74,9 +74,21 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
     }
   }
 
+  const visualizaPlano = useBoolean();
+
+  const closeVisualizaPlano = (retorno = null) => {
+    visualizaPlano.onFalse();
+  };
+
+  const handleClickRow = () => {
+    visualizaPlano.onTrue();
+  }
+  
+
   return (
     <>
-      <TableRow hover selected={selected}>
+      <TableRow hover selected={selected} onClick={handleClickRow}>
+
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
@@ -120,6 +132,8 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
           </IconButton>
         </TableCell>
       </TableRow>
+
+      <VisualizaPlanoIntervencao open={visualizaPlano.value} onClose={closeVisualizaPlano} currentPlano={id}/>
 
       <CustomPopover
         open={popover.open}
