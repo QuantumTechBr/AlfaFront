@@ -36,7 +36,7 @@ export default function IndiceAlfabetizacaoBimestreComponent({
     <Card {...other} sx={{ pb: 2 }}>
       <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
-      <Grid container>
+      <Grid container justifyContent={'space-around'}>
         {dados.map((item, index) => {
           return (
             <IndiceAlfabetizacaoBimestreUnicoComponent
