@@ -22,7 +22,7 @@ import { useSearchParams } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
-import { first, last } from 'lodash';
+import _, { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
 
@@ -326,7 +326,7 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
-  const indiceDeFasesCount = (ano) => {
+  const indiceDeFasesCount = useCallback((ano) => {
     let _list = [];
     anos_options.forEach((option) => {
       let _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
@@ -335,13 +335,13 @@ export default function DashboardTurmaView() {
 
     if (ano) return _list[+ano];
     return _list;
-  };
+ });
 
   const countHasIndiceDeFases = () => {
     return indiceDeFasesCount().filter((i) => i > 0).length;
   };
 
-  const anoHasIndiceDeFases = () => {
+  const anoHasIndiceDeFases = useCallback((ano) => {
     let _ano;
     indiceDeFasesCount().forEach((value, index) => {
       if (value > 0) {
@@ -349,20 +349,20 @@ export default function DashboardTurmaView() {
       }
     });
     return _ano;
-  };
+   });
 
-  const getAlfabetizadosAno = (ano) => {
+  const getAlfabetizadosAno = useCallback((ano) => {
     let _series = dados[`indice_aprovacao_${ano}_ano`]?.categories[0]?.series ?? [];
     let _amount = _series.filter((s) => s.name == 'Alfabetizado')[0]?.amount ?? 0;
     return _amount;
-  };
+  });
 
-  const getIndiceDeAprovacaoAno = (ano) => {
+  const getIndiceDeAprovacaoAno = useCallback((ano) => {
     return _.sumBy(
       dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories[0]?.series,
       (s) => s.amount
     );
-  };
+  });
 
   const totalEstudandesGeral = useCallback(() => {
     let total = 0;
@@ -476,7 +476,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             {!isGettingGraphics.value && (
               <>
-                {countHasIndiceDeFases() != 1 && (
+                {countHasIndiceDeFases() > 1 && (
                   <Typography
                     textAlign="center"
                     alignItems="center"
