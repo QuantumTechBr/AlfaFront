@@ -101,6 +101,7 @@ export default function DashboardRedeView() {
 
       await Promise.all([
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
+          // adequação dos dados
           let result = response.data.map((i) => {
             let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
             let _alfabetizados = _.isArray(i.qtd_alfabetizado)
@@ -353,7 +354,7 @@ export default function DashboardRedeView() {
             {!isGettingGraphics.value && (
               <MetaComponent
                 title="Meta"
-                subtitle="Meta geral da rede"
+                subtitle="para média geral da rede"
                 meta={calculaMeta()}
                 alfabetizados={getTotalAlfabetizados()}
                 total={getTotalAvaliados()}
