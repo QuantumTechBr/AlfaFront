@@ -401,7 +401,7 @@ export default function DashboardDDZView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
+          <Grid xs={12} md={4}>
             {!isGettingGraphics.value && (
               <MetaComponent
                 title="Meta"
