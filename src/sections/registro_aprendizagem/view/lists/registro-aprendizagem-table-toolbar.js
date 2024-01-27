@@ -289,7 +289,7 @@ export default function RegistroAprendizagemTableToolbar({
             let exportFilters = Object.assign({}, filters);
             exportFilters.turma = exportFilters.turma.map((item) => item.id);
             exportFilters.escola = exportFilters.escola.map((item) => item.id);
-            
+
             exportFilters = { ...exportFilters, export: 'csv' };
             let query = new URLSearchParams(exportFilters).toString();
 
