@@ -91,7 +91,6 @@ export default function PlanoIntervencaoListView() {
 
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
-      console.log(planos)
       setTableData(planos.data);
       preparado.onTrue();
       }).catch((error) => {
