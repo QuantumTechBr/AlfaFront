@@ -286,7 +286,11 @@ export default function RegistroAprendizagemTableToolbar({
       >
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
+            let exportFilters = Object.assign({}, filters);
+            exportFilters.turma = exportFilters.turma.map((item) => item.id);
+            exportFilters.escola = exportFilters.escola.map((item) => item.id);
+
+            exportFilters = { ...exportFilters, export: 'csv' };
             let query = new URLSearchParams(exportFilters).toString();
 
             if (export_type == `fase`) {
@@ -296,13 +300,9 @@ export default function RegistroAprendizagemTableToolbar({
                   csvFile.data
                 );
               });
-            }
-            else if (export_type == `diagnostico`) {
+            } else if (export_type == `diagnostico`) {
               registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
-                saveCSVFile(
-                  'Avaliação Diagnóstica',
-                  csvFile.data
-                );
+                saveCSVFile('Avaliação Diagnóstica', csvFile.data);
               });
             }
             popover.onClose();
