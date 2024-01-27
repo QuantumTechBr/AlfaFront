@@ -384,7 +384,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
       });
       let mensagem = arrayMsg.join(' ');
-      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
+      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
       console.error(error);
     }
   });

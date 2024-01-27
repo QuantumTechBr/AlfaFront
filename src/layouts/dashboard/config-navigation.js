@@ -129,7 +129,7 @@ export function useNavData() {
         icon: ICONS.alfaBookAccount,
         children: [
           {
-            title: t('Dianóstica'), 
+            title: t('Diagnóstica'), 
             path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
           },
           {
@@ -242,7 +242,7 @@ export function useNavData() {
           icon: ICONS.alfaBookAccount,
           children: [
             {
-              title: t('Dianóstica'), 
+              title: t('Diagnóstica'), 
               path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
             },
             {
@@ -285,7 +285,7 @@ export function useNavData() {
       if (checkPermissaoModulo("plano_intervencao","acesso")) {
         items.push({
           title: t('Plano de Intervenção'),
-          path: paths.dashboard.plano_de_intervencao.list,
+          path: paths.dashboard.plano_intervencao.list,
           icon: ICONS.folder,
         });
       }
