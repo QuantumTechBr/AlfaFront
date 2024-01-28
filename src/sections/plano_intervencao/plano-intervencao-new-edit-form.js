@@ -466,22 +466,26 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       return (hab.find((option) => option.id == habId)?.nome);
     }).join(', ');
 
+  const renderValueZona = (selected) => 
+    selected.map((zonaId) => {
+      return zonas.find((option) => option.id == zonaId)?.nome;
+  }).join(', ');
 
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
       return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  }).join(', ');
 
-    const renderValueTurma = (selected) => 
+  const renderValueTurma = (selected) => 
     selected.map((turmaId) => {
       let turma = turmas.find((option) => option.id == turmaId);
       return turma?.ano_escolar.concat('º ', turma?.nome);
-    }).join(', '); 
+  }).join(', '); 
 
   const renderValueAluno = (selected) => 
     selected.map((alunoId) => {
       return alunos.find((option) => option.id == alunoId)?.nome;
-    }).join(', ');  
+  }).join(', ');  
 
   const concluiPlano = async () => {
     await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, {status: 'Concluído'}).catch((error) => {
@@ -532,17 +536,17 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             value={filters.zonas}
             onChange={handleFilterZona}
             input={<OutlinedInput fullWidth label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
+            renderValue={renderValueZona}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {zonas?.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.zonas.includes(option)} />
-                {option.nome}
+            {zonas?.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id}>
+                <Checkbox disableRipple size="small" checked={filters.zonas.includes(zona.id)} />
+                {zona.nome}
               </MenuItem>
             ))}
           </Select>
