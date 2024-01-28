@@ -22,7 +22,7 @@ export default function PlanoIntervencaoTableToolbar({
   onFilters,
   //
   roleOptions,
-  ddzOptions,
+  zonaOptions,
   escolaOptions,
 }) {
   const popover = usePopover();
@@ -44,10 +44,10 @@ export default function PlanoIntervencaoTableToolbar({
     [onFilters]
   );
 
-  const handleFilterDdz = useCallback(
+  const handleFilterZona = useCallback(
     (event) => {
       onFilters(
-        'ddz',
+        'zona',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -74,6 +74,11 @@ export default function PlanoIntervencaoTableToolbar({
       return escolaOptions.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
 
+
+  const renderValueZona = (selected) => 
+    selected.map((zonaId) => {
+      return zonaOptions.find((option) => option.id == zonaId)?.nome;
+    }).join(', ');
   return (
     <>
       <Stack
@@ -88,36 +93,8 @@ export default function PlanoIntervencaoTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 140 },
-          }}
-        >
-          <InputLabel>Função</InputLabel>
 
-          <Select
-            multiple
-            value={filters.role}
-            onChange={handleFilterRole}
-            input={<OutlinedInput label="Função" />}
-            renderValue={renderValueFuncao}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {roleOptions.map((funcao) => (
-              <MenuItem key={funcao.id} value={funcao.id}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.id)} />
-                {funcao.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-       {/* <FormControl
+       <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 100 },
@@ -127,24 +104,24 @@ export default function PlanoIntervencaoTableToolbar({
 
           <Select
             multiple
-            value={filters.ddz}
-            onChange={handleFilterDdz}
+            value={filters.zona}
+            onChange={handleFilterZona}
             input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueZona}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
+            {zonaOptions.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                <Checkbox disableRipple size="small" checked={filters.zona.includes(option.id)} />
+                {option?.nome}
               </MenuItem>
             ))}
           </Select>
-            </FormControl>*/}
+            </FormControl>
 
         <FormControl
           sx={{
@@ -175,7 +152,7 @@ export default function PlanoIntervencaoTableToolbar({
           </Select>
         </FormControl>
 
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+        {/* <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
             value={filters.nome}
@@ -190,10 +167,10 @@ export default function PlanoIntervencaoTableToolbar({
             }}
           />
 
-          {/* <IconButton onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
-        </Stack>
+          </IconButton>
+        </Stack> */}
       </Stack>
 
       {/* <CustomPopover

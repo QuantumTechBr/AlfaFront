@@ -28,7 +28,7 @@ import VisualizaPlanoIntervencao from './plano-intervencao-modal-visualiza-plano
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }){
-  let { id, nome, responsavel, inicio_previsto, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
@@ -45,6 +45,18 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  let mostra_aplicacao = ''
+
+  if (aplicacao?.alunos?.length > 0) {
+    mostra_aplicacao = 'Alunos';
+  } else if (aplicacao?.turmas?.length > 0) {
+    mostra_aplicacao = 'Turmas';
+  } else if (aplicacao?.escolas?.length > 0) {
+    mostra_aplicacao = 'Escolas';
+  } else if (aplicacao?.zonas?.length > 0) {
+    mostra_aplicacao = 'Zonas';
+  }
 
   const newDeleteRow = () => {
     onDeleteRow();
@@ -69,8 +81,11 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
     }
     if (hoje > date_inicio && hoje < date_termino) {
       return 'Em Andamento Dentro do Prazo';
+    } else if (hoje < date_inicio) {
+      return 'Criado';
     } else {
       return 'Em Andamento Fora do Prazo';
+
     }
   }
 
@@ -87,31 +102,34 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
 
   return (
     <>
-      <TableRow hover selected={selected} onClick={handleClickRow}>
+      <TableRow hover selected={selected} >
 
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsavel.nome}</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{responsavel.nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{date_inicio.toLocaleDateString('pt-br')}</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{date_inicio.toLocaleDateString('pt-br')}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{date_termino.toLocaleDateString('pt-br')}</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{date_termino.toLocaleDateString('pt-br')}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{mostra_aplicacao}</TableCell>
 
-        <TableCell>
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
+
+        <TableCell onClick={handleClickRow}>
           <Label
             variant="filled"
             color={
               (retornoStatus() === 'Concluído' && 'success') ||
               (retornoStatus() === 'Em Andamento Dentro do Prazo' && 'warning') ||
               (retornoStatus() === 'Em Andamento Fora do Prazo' && 'error') ||
+              (retornoStatus() === 'Criado' && 'info') ||
               'default'
             }
           >

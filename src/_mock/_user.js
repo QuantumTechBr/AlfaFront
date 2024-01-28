@@ -10,6 +10,14 @@ export const USER_STATUS_OPTIONS = [
   { value: 'false', label: 'Inativo' },
 ];
 
+export const PLANO_STATUS_OPTIONS = [
+  { value: 'all', label: 'Todos' },
+  { value: 'Criado', label: 'Criado' },
+  { value: 'Em Andamento Dentro do Prazo', label: 'Em Andamento Dentro do Prazo' },
+  { value: 'Em Andamento Fora do Prazo', label: 'Em Andamento Fora do Prazo' },
+  { value: 'Concluído', label: 'Concluído' },
+];
+
 export const _userAbout = {
   id: _mock.id(1),
   role: _mock.role(1),

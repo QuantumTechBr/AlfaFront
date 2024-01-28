@@ -69,6 +69,9 @@ import habilidadeMethods from '../habilidade/habilidade-repository';
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 import Label from 'src/components/label';
 import Typography from '@mui/material/Typography';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { TurmasContext } from '../turma/context/turma-context';
 
 
 // ----------------------------------------------------------------------
@@ -83,6 +86,9 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     const [allHab, setAllHab] = useState([]);
     const [documentos, setDocumentos] = useState([]);
     const [plano, setPlano] = useState({});
+    const { escolas, buscaEscolas } = useContext(EscolasContext);
+    const { zonas, buscaZonas } = useContext(ZonasContext);
+    const { turmas, buscaTurmas } = useContext(TurmasContext);
   
     useEffect(() => {
         planoIntervencaoMethods.getPlanoIntervencaoById(currentPlano).then((retorno) => {
@@ -96,8 +102,20 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         }).catch((error) => {
             setErrorMsg('Erro de comunicação com a API de habilidades');
         });
+        buscaEscolas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas');
+          preparado.onTrue();
+        });
+        buscaTurmas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turmas');
+          preparado.onTrue();
+        });
+        buscaZonas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de zonas');
+          preparado.onTrue();
+        });
         buscaDocumentos();
-        preparado.onTrue()
+        // preparado.onTrue()
     }, []);
 
     const buscaDocumentos = async () => {
@@ -127,33 +145,56 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const mostrarAplicacao = () => {
     let list_retorno = [];
     let aplicacao = '';
+    console.log(turmas)
     if (plano?.aplicacao?.alunos?.length > 0) {
-        plano.aplicacao.alunos.map((aluno) => {
-            list_retorno.push(`- ${aluno.nome} `)
+        plano.aplicacao.alunos.map((alunoId) => {
+          turmas.map((turma) => {
+            turma?.turmas_alunos?.map((ta) => {
+              if (ta?.aluno?.id == alunoId) {
+                list_retorno.push(`- ${ta.aluno?.nome} `);
+              }
+            })
+          })
         })
         aplicacao = 'Alunos '
-    }
+    } else
     if (plano?.aplicacao?.escolas?.length > 0) {
-        plano.aplicacao.escolas.map((escola) => {
-            list_retorno.push(`- ${escola.nome} `)
+        plano.aplicacao.escolas.map((escolaId) => {
+          escolas.map((escola) => {
+            if (escola.id == escolaId) {
+              list_retorno.push(`- ${escola.nome} `);
+            }
+          })
         })
         aplicacao = 'Escolas '
-    }
+    } else
     if (plano?.aplicacao?.turmas?.length > 0) {
-        plano.aplicacao.turmas.map((turma) => {
-            list_retorno.push(`- ${turma.nome} `)
+        plano.aplicacao.turmas.map((turmaId) => {
+          turmas.map((turma) => {
+            if (turma.id == turmaId) {
+              list_retorno.push(`- ${turma.nome} `);
+            }
+          })
         })
         aplicacao = 'Turmas '
-    }
+    } else
     if (plano?.aplicacao?.zonas?.length > 0) {
-        plano.aplicacao.zonas.map((zona) => {
-            list_retorno.push(`- ${zona.nome} `)
+        plano.aplicacao.zonas.map((zonaId) => {
+          zonas.map((zona) => {
+            if (zona.id == zonaId) {
+              list_retorno.push(`- ${zona.nome} `);              
+            }
+          })
         })
         aplicacao = 'Zonas '
     }
-    list_retorno.push('-');
     return (
-        <Typography>{aplicacao.concat(...list_retorno)}</Typography>
+        <div>
+          <Typography>{aplicacao}<br></br></Typography>
+          {list_retorno.map((li) => (
+            <Typography>{li}<br></br></Typography>
+          ))}
+        </div>
     )
   }
 
@@ -170,15 +211,6 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     )
   }
 
-  const mostrarAnexos = () => {
-    documentos.map((doc) => {
-
-    })
-
-    return (
-<a href="https://www.w3schools.com">Visit W3Schools.com!</a>
-    )
-  }
 
   return (
     <Dialog
@@ -215,6 +247,9 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                 gridTemplateColumns={{
                   xs: 'repeat(1, 1fr)',
                   sm: 'repeat(4, 1fr)',
+                }}
+                sx={{
+                  minHeight: 450
                 }}
               >
                 <div>

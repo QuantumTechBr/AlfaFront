@@ -20,7 +20,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
+import { _userList, USER_STATUS_OPTIONS, PLANO_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -51,12 +51,13 @@ import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filte
 import planoIntervencaoMethods from '../plano-intervencao-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import NovoPlanoIntervencaoForm from '../plano-intervencao-modal-form';
+import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Variáveis a melhorar', width: 200 },
@@ -64,6 +65,7 @@ const TABLE_HEAD = [
   { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
   { id: 'data_termino', label: 'Término previsto', width: 80 },
   { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
+  { id: 'aplicacao', label: 'Aplicação', width: 80 },
   { id: 'status', label: 'Status', width: 80 },
   { id: 'farol', label: 'Farol', width: 50 },
   { id: '', width: 88 },
@@ -72,7 +74,7 @@ const TABLE_HEAD = [
 const defaultFilters = {
   nome: '',
   role: [],
-  ddz: [],
+  zona: [],
   escola: [],
   status: 'all',
 };
@@ -87,23 +89,28 @@ export default function PlanoIntervencaoListView() {
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const preparado = useBoolean(false);
 
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
       setTableData(planos.data);
       preparado.onTrue();
-      }).catch((error) => {
+    }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de planos');
         preparado.onTrue();
-      })
-      buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-        preparado.onTrue();
-      });
-      buscaFuncoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de funções');
-        preparado.onTrue();
+    })
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+      preparado.onTrue();
+    });
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+      preparado.onTrue();
+    });
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
+      preparado.onTrue();
     });
   }, []);
 
@@ -220,6 +227,7 @@ export default function PlanoIntervencaoListView() {
     novoPlano.onFalse();
   };
 
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -255,7 +263,7 @@ export default function PlanoIntervencaoListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          {/* <Tabs
+          <Tabs
             value={filters.status}
             onChange={handleFilterStatus}
             sx={{
@@ -263,7 +271,7 @@ export default function PlanoIntervencaoListView() {
               boxShadow: (theme) => `inset 0 -2px 0 0 ${alpha(theme.palette.grey[500], 0.08)}`,
             }}
           >
-            {STATUS_OPTIONS.map((tab) => (
+            {PLANO_STATUS_OPTIONS.map((tab) => (
               <Tab
                 key={tab.value}
                 iconPosition="end"
@@ -275,45 +283,46 @@ export default function PlanoIntervencaoListView() {
                       ((tab.value === 'all' || tab.value === filters.status) && 'filled') || 'soft'
                     }
                     color={
-                      (tab.value === 'true' && 'success') ||
-                      (tab.value === 'pending' && 'warning') ||
-                      (tab.value === 'false' && 'error') ||
+                      (tab.value === 'Concluído' && 'success') ||
+                      (tab.value === 'Em Andamento Dentro do Prazo' && 'warning') ||
+                      (tab.value === 'Em Andamento Fora do Prazo' && 'error') ||
+                      (tab.value === 'Criado' && 'info') ||
                       'default'
                     }
                   >
                     {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
+                    {tab.value === 'Concluído' &&
+                      tableData.filter((plano) => filtraStatus(plano) === 'Concluído').length}
+                    {tab.value === 'Em Andamento Dentro do Prazo' &&
+                      tableData.filter((plano) => filtraStatus(plano) === 'Em Andamento Dentro do Prazo').length}
+                    {tab.value === 'Em Andamento Fora do Prazo' &&
+                      tableData.filter((plano) => filtraStatus(plano) === 'Em Andamento Fora do Prazo').length}
+                    {tab.value === 'Criado' &&
+                      tableData.filter((plano) => filtraStatus(plano) === 'Criado').length}
                   </Label>
                 }
               />
             ))}
-          </Tabs> */}
-{/* 
-          <UserTableToolbar
+          </Tabs>
+
+          <PlanoIntervencaoTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            roleOptions={funcoes}
+            zonaOptions={zonas}
             escolaOptions={escolas}
           />
 
           {canReset && (
-            <UserTableFiltersResult
+            <PlanoIntervencaoTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
               results={dataFiltered.length}
-              roleOptions={funcoes}
+              zonaOptions={zonas}
               escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )} */}
+          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
@@ -425,8 +434,27 @@ export default function PlanoIntervencaoListView() {
 
 // ----------------------------------------------------------------------
 
+const filtraStatus = (plano) => {
+  let date_inicio = parse(plano?.inicio_previsto, 'yyyy-MM-dd', new Date())
+
+  let date_termino = parse(plano?.termino_previsto, 'yyyy-MM-dd', new Date())
+
+  const hoje = new Date()
+
+  if (plano?.status == 'Concluído') {
+    return 'Concluído'
+  }
+  if (hoje > date_inicio && hoje < date_termino) {
+    return 'Em Andamento Dentro do Prazo';
+  } else if (hoje < date_inicio) {
+    return 'Criado';
+  } else {
+    return 'Em Andamento Fora do Prazo';
+  }
+}
+
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, status, role, ddz, escola } = filters;
+  const { nome, status, role, zona, escola } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -435,6 +463,28 @@ function applyFilter({ inputData, comparator, filters }) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
+
+  const filtraEscola = (plano) => {
+    let aplicacao = plano?.aplicacao || '';
+    let encontrado = new Boolean();
+    aplicacao?.escolas?.map((esc) => {
+      if (escola.includes(esc)) {
+        encontrado.value = true;
+      }
+    })
+    return encontrado.value
+  }
+
+  const filtraZona = (plano) => {
+    let aplicacao = plano?.aplicacao || '';
+    let encontrado = new Boolean();
+    aplicacao?.zonas?.map((zon) => {
+      if (zona.includes(zon)) {
+        encontrado.value = true;
+      }
+    })
+    return encontrado.value
+  }
 
   inputData = stabilizedThis.map((el) => el[0]);
 
@@ -445,7 +495,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
+    inputData = inputData.filter((plano) => filtraStatus(plano) === status);
   }
 
   if (role.length) {
@@ -453,7 +503,11 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
+    inputData = inputData.filter((plano) => filtraEscola(plano));
+  }
+
+  if (zona.length) {
+    inputData = inputData.filter((plano) => filtraZona(plano));
   }
 
   return inputData;
