@@ -1,0 +1,19 @@
+.apexcharts-line-series.apexcharts-plot-series > g.apexcharts-datalabels:last-child {
+  transform: translateY(-13px);
+}
+.apexcharts-line-series.apexcharts-plot-series
+  > g.apexcharts-datalabels:last-child
+  > .apexcharts-data-labels
+  rect {
+  fill: #ffbf00 !important;
+  color: #262626 !important;
+  border: 1px solid #e1a900;
+  opacity: 1;
+}
+
+.apexcharts-line-series.apexcharts-plot-series
+  > g.apexcharts-datalabels:last-child
+  > .apexcharts-data-labels
+  text {
+  fill: #313131 !important;
+}

@@ -22,9 +22,12 @@ import { useSearchParams } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
-import { first, last } from 'lodash';
+import _, { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
+
+// _mock
+import { anos_metas, anos_options } from 'src/_mock/assets';
 
 // assets
 import { RegistroAprendizagemFases } from 'src/_mock';
@@ -73,21 +76,18 @@ export default function DashboardTurmaView() {
     bimestre: '',
   });
 
-  const [dados, setDados] = useState({
-    total_usuarios_ativos: {},
-    total_alunos_ativos: {},
-
-    indice_fases_1_ano: {},
-    indice_aprovacao_1_ano: {},
-    indice_fases_2_ano: {},
-    indice_aprovacao_2_ano: {},
-    indice_fases_3_ano: {},
-    indice_aprovacao_3_ano: {},
+  let _objDados = {
     indice_fases_geral: {},
     indice_aprovacao_geral: {},
-
     desempenho_alunos: {},
+  };
+
+  (anos_options ?? []).forEach((option) => {
+    Object.assign(_objDados, { [`indice_fases_${option}_ano`]: {} });
+    Object.assign(_objDados, { [`indice_aprovacao_${option}_ano`]: {} });
   });
+
+  const [dados, setDados] = useState(_objDados);
 
   const getFormattedSeries = (series) => {
     let formattedSeries = [];
@@ -105,8 +105,13 @@ export default function DashboardTurmaView() {
     return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
   };
 
-  const getIndiceFases = async (anoEscolar, fullFilters) => {
-    if (anoEscolar && getTurmasPorAnoEscolar(anoEscolar).length == 0) {
+  const getIndiceFases = async (anoEscolar, payloadFilters) => {
+    let _turmasPorAno = getTurmasPorAnoEscolar(anoEscolar);
+    if (payloadFilters.turma && payloadFilters.turma.length) {
+      _turmasPorAno = _turmasPorAno.filter((e) => payloadFilters.turma.includes(e));
+    }
+
+    if (anoEscolar && _turmasPorAno.length == 0) {
       setDados((prevState) => ({
         ...prevState,
         [`indice_fases_${anoEscolar}_ano`]: {},
@@ -116,11 +121,11 @@ export default function DashboardTurmaView() {
 
     dashboardsMethods
       .getDashboardIndiceFases({
-        ...fullFilters,
+        ...payloadFilters,
         turma: anoEscolar
-          ? getTurmasPorAnoEscolar(anoEscolar)
-          : filters.turma.length
-          ? filters.turma.map((t) => t.id)
+          ? _turmasPorAno
+          : payloadFilters.turma.length
+          ? payloadFilters.turma.map((t) => t.id ?? t)
           : null,
       })
       .then((response) => {
@@ -135,7 +140,7 @@ export default function DashboardTurmaView() {
       });
     dashboardsMethods
       .getDashboardIndiceAprovacao({
-        ...fullFilters,
+        ...payloadFilters,
         turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
       })
       .then((response) => {
@@ -153,7 +158,7 @@ export default function DashboardTurmaView() {
     async (_filters) => {
       let _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
-      const fullFilters = {
+      const payloadFilters = {
         ano_letivo: [
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
@@ -166,38 +171,19 @@ export default function DashboardTurmaView() {
       };
 
       await Promise.all([
-        dashboardsMethods
-          .getDashboardTotalUsuariosAtivos({
-            ano_letivo: fullFilters.ano_letivo,
-            ddz: fullFilters.ddz,
-            escola: fullFilters.escola,
-          })
-          .then((response) => {
-            setDados((prevState) => ({
-              ...prevState,
-              total_usuarios_ativos: response.data,
-            }));
-          }),
-        dashboardsMethods.getDashboardTotalAlunosAtivos(fullFilters).then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_ativos: response.data,
-          }));
-        }),
-
         // ## INDICE DE FASES
-        getIndiceFases(1, fullFilters),
-        getIndiceFases(2, fullFilters),
-        getIndiceFases(3, fullFilters),
-        getIndiceFases(null, fullFilters),
+        getIndiceFases(1, payloadFilters),
+        getIndiceFases(2, payloadFilters),
+        getIndiceFases(3, payloadFilters),
+        getIndiceFases(null, payloadFilters),
 
         // ## DESEMPENHO ALUNO
         dashboardsMethods
           .getDashboardDesempenhoAlunos({
-            ano_letivo: fullFilters.ano_letivo,
-            ddz: fullFilters.ddz,
-            escola: fullFilters.escola,
-            turma: fullFilters.turma,
+            ano_letivo: payloadFilters.ano_letivo,
+            ddz: payloadFilters.ddz,
+            escola: payloadFilters.escola,
+            turma: payloadFilters.turma,
           })
           .then((response) => {
             setDados((prevState) => ({
@@ -340,6 +326,62 @@ export default function DashboardTurmaView() {
     novaAvaliacao.onFalse();
   };
 
+  const indiceDeFasesCount = useCallback((ano) => {
+    let _list = [];
+    anos_options.forEach((option) => {
+      let _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
+      _list[+option] = _series.length;
+    });
+
+    if (ano) return _list[+ano];
+    return _list;
+ });
+
+  const countHasIndiceDeFases = () => {
+    return indiceDeFasesCount().filter((i) => i > 0).length;
+  };
+
+  const anoHasIndiceDeFases = useCallback((ano) => {
+    let _ano;
+    indiceDeFasesCount().forEach((value, index) => {
+      if (value > 0) {
+        _ano = index;
+      }
+    });
+    return _ano;
+   });
+
+  const getAlfabetizadosAno = useCallback((ano) => {
+    let _series = dados[`indice_aprovacao_${ano}_ano`]?.categories[0]?.series ?? [];
+    let _amount = _series.filter((s) => s.name == 'Alfabetizado')[0]?.amount ?? 0;
+    return _amount;
+  });
+
+  const getIndiceDeAprovacaoAno = useCallback((ano) => {
+    return _.sumBy(
+      dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories[0]?.series,
+      (s) => s.amount
+    );
+  });
+
+  const totalEstudandesGeral = useCallback(() => {
+    let total = 0;
+    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
+      (acc, item) => acc + item.value,
+      0
+    );
+    return total;
+  });
+
+  const totalEstudandesAvaliadosGeral = useCallback(() => {
+    let total = 0;
+    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
+      (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
+      0
+    );
+    return total;
+  });
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -387,7 +429,12 @@ export default function DashboardTurmaView() {
               />
             </Grid>
             <Grid xs={12} md="auto">
-              <Button variant="contained" onClick={preencheGraficos}>
+              <Button
+                variant="contained"
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
                 Aplicar filtros
               </Button>
 
@@ -396,11 +443,10 @@ export default function DashboardTurmaView() {
               </Button>
             </Grid>
           </Stack>
-
           <Grid xs={12} md={4}>
             <NumeroComponent
-              title="Total de Usuários Ativos"
-              total={dados.total_usuarios_ativos.total}
+              title="Total de Estudantes"
+              total={totalEstudandesGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -415,12 +461,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              percent={dados.total_alunos_ativos.percent}
-              total={dados.total_alunos_ativos.total}
-              chart={{
-                colors: [theme.palette.info.light, theme.palette.info.main],
-                series: dados.total_alunos_ativos.chart?.series ?? [],
-              }}
+              total={totalEstudandesAvaliadosGeral()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -432,48 +473,64 @@ export default function DashboardTurmaView() {
               }
             />
           </Grid>
-          <Grid xs={12} md={4} alignSelf="">
-            <MetaComponent title="Meta" total={76}></MetaComponent>
+          <Grid xs={12} md={4}>
+            {!isGettingGraphics.value && (
+              <>
+                {countHasIndiceDeFases() > 1 && (
+                  <Typography
+                    textAlign="center"
+                    alignItems="center"
+                    variant="body2"
+                    sx={{ padding: 4, height: '100%', display: 'flex' }}
+                  >
+                    A meta é exibida apenas com único ano escolar (série) selecionado no filtro
+                    Ano-Turma.
+                  </Typography>
+                )}
+                {countHasIndiceDeFases() == 1 &&
+                  dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
+                    <MetaComponent
+                      title="Meta"
+                      subtitle={`sobre a meta de ${
+                        anos_metas[anoHasIndiceDeFases()]
+                      }% alfabetizados`}
+                      meta={anos_metas[anoHasIndiceDeFases()]}
+                      alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
+                      total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
+                    ></MetaComponent>
+                  )}
+              </>
+            )}
           </Grid>
 
-          {!!isGettingGraphics.value && (
+          {(!!isGettingGraphics.value || !contextReady.value) && (
             <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
               <LoadingBox />
             </Grid>
           )}
+          {!isGettingGraphics.value &&
+            anos_options.map((ano_escolar) => {
+              if (indiceDeFasesCount(ano_escolar) > 0) {
+                let _indice_fases = dados[`indice_fases_${+ano_escolar}_ano`];
+                let _indice_alfabetizacao = dados[`indice_aprovacao_${+ano_escolar}_ano`];
+
+                return (
+                  <IndicesCompostosFasesAlfabetizacaoWidget
+                    key={`indices_component_${+ano_escolar}_ano`}
+                    ano_escolar={+ano_escolar}
+                    total_avaliados={totalEstudandesAvaliadosGeral()}
+                    indice_fases={_indice_fases}
+                    indice_alfabetizacao={_indice_alfabetizacao}
+                  />
+                );
+              }
+            })}
 
           {!isGettingGraphics.value &&
-            (dados.indice_fases_1_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_1_ano"
-                ano_escolar={1}
-                indice_fases={dados.indice_fases_1_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_1_ano}
-              />
-            )}
-          {!isGettingGraphics.value &&
-            (dados.indice_fases_2_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_2_ano"
-                ano_escolar={2}
-                indice_fases={dados.indice_fases_2_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_2_ano}
-              />
-            )}
-          {!isGettingGraphics.value &&
-            (dados.indice_fases_3_ano.chart?.series ?? []).length > 0 && (
-              <IndicesCompostosFasesAlfabetizacaoWidget
-                key="indices_component_3_ano"
-                ano_escolar={3}
-                indice_fases={dados.indice_fases_3_ano}
-                indice_alfabetizacao={dados.indice_aprovacao_3_ano}
-              />
-            )}
-          {!isGettingGraphics.value &&
-            (dados.indice_fases_geral.chart?.series ?? []).length > 0 && (
+            (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
+            countHasIndiceDeFases() > 1 && (
               <IndicesCompostosFasesAlfabetizacaoWidget
                 key="indices_component_geral"
-                ano_escolar="Geral"
                 indice_fases={dados.indice_fases_geral}
                 indice_alfabetizacao={dados.indice_aprovacao_geral}
               />

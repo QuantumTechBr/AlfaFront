@@ -8,7 +8,6 @@ import { slugify } from 'src/utils/functions';
 
 import GraficoHorizontalChart from '../components/grafico-horizontal-chart';
 import IndiceAlfabetizacaoComponent from '../components/indice-alfabetizacao-component';
-import { random } from 'lodash';
 
 export default function IndicesCompostosAlfabetizacaoGeralWidget({
   title,
@@ -25,22 +24,22 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
           <Grid xs={12} lg={7} xl={8}>
             <GraficoHorizontalChart
               title={title_indice_alfabetizacao}
-              height={418}
+              height={423}
               chart={{
                 series: indice_alfabetizacao.map((ia) => {
                   return {
                     x: ia.title,
                     y: ia.indice_alfabetizacao,
                     alfabetizados: ia.alfabetizados,
-                    goals: [
-                      {
-                        name: 'Meta',
-                        value: random(90, 99, false),
-                        strokeWidth: 3,
-                        strokeDashArray: 0,
-                        strokeColor: '#775DD0',
-                      },
-                    ],
+                    // goals: [
+                    //   {
+                    //     name: 'Meta',
+                    //     value: _.random(90, 100, false), 
+                    //     strokeWidth: 3,
+                    //     strokeDashArray: 0,
+                    //     strokeColor: '#775DD0',
+                    //   },
+                    // ],
                   };
                 }),
               }}
@@ -53,7 +52,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
             0 && (
             <Grid xs={12} lg={5} xl={4}>
               <IndiceAlfabetizacaoComponent
-                key={`indice_alfabetizacao_geral_component_${slugify(
+                key={`indice_alfabetizacao_component_${slugify(
                   title_indice_alfabetizacao_geral
                 )}`}
                 title={title_indice_alfabetizacao_geral}

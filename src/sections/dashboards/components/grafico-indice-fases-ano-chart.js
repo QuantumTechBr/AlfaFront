@@ -1,19 +1,29 @@
 import PropTypes from 'prop-types';
 
+import { useCallback } from 'react';
+
 // @mui
-import { LinearProgress, Box, Stack, Typography } from '@mui/material';
+import { LinearProgress, Box, Stack, Typography, CardHeader } from '@mui/material';
 import { lighten, alpha, useTheme } from '@mui/material/styles';
 import { bgGradient } from 'src/theme/css';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { RegistroAprendizagemFasesColors } from 'src/_mock';
+import { RegistroAprendizagemFasesColors, anos_fase_adequada, fases_options } from 'src/_mock';
+import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function GraficoColunasChart({ title, subheader, chart, ...other }) {
+export default function GraficoIndiceFaseAnoColunasChart({
+  title,
+  subheader,
+  chart,
+  ano_escolar,
+  total_avaliados,
+  ...other
+}) {
   const theme = useTheme();
-  const { series, options, height = 320 } = chart;
+  const { series, options, height = 345 } = chart;
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {
@@ -28,6 +38,7 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
   ];
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true, offsetY: 7 } },
     legend: {
       show: false,
     },
@@ -59,17 +70,12 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
     },
     xaxis: {
       categories: series.map((i) => i.label),
-      labels: {
-        show: true,
-      },
+      labels: { show: true },
     },
     yaxis: {
-      labels: {
-        labels: {
-          show: true,
-        },
-        // todo add 0-100
-      },
+      labels: { show: true },
+      min: 0,
+      max: 100,
     },
 
     tooltip: {
@@ -137,37 +143,55 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
     ...options,
   });
 
+  const totalFaseAdequada = useCallback((_faseListToSum = []) => {
+    let total = 0;
+    total = (chart.series ?? []).reduce(
+      (acc, item) => acc + (_faseListToSum.includes(item.label) ? item.value : 0),
+      0
+    );
+    return total;
+  });
+
+  const calculoFaseAdequada = useCallback(() => {
+    const _faseAdequada = anos_fase_adequada[ano_escolar];
+    const _indexOfFaseList = fases_options.indexOf(_faseAdequada);
+    const _faseListToSum = _.slice(fases_options, _indexOfFaseList, fases_options.length);
+    const _totalFaseAdequada = totalFaseAdequada(_faseListToSum);
+
+    let _percentFaseAdequada = Math.floor((_totalFaseAdequada / total_avaliados) * 100);
+    _percentFaseAdequada = _percentFaseAdequada <= 100 ? _percentFaseAdequada : 100;
+
+    return _percentFaseAdequada;
+  });
+
   return (
     <>
       <Box {...other}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-            {title}
-          </Typography>
-
-          <Box sx={{ width: 235 }}>
-            <Typography fontSize={15} mb={0.8} fontWeight="700">
-              Fase adequada
+          <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
+          {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
+            <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
+              Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
             </Typography>
             <LinearProgress
-              value={76}
+              value={calculoFaseAdequada()}
               variant="determinate"
               color="primary"
               sx={{
                 height: 26,
                 borderRadius: 13,
-                bgcolor: alpha(theme.palette.common.black, 0.08),
+                // bgcolor: alpha(theme.palette.common.black, 0.08),
                 span: {
                   borderRadius: '13px !important',
-                  ...bgGradient({
-                    direction: 'to right',
-                    startColor: lighten(theme.palette.primary.main, 0.3),
-                    endColor: theme.palette.primary.light,
-                  }),
+                  // ...bgGradient({
+                  //   direction: 'to right',
+                  //   startColor: lighten(theme.palette.primary.main, 0.3),
+                  //   endColor: theme.palette.primary.light,
+                  // }),
                   '&::before': {
-                    color: theme.palette.common.black,
-                    fontWeight: 800,
-                    content: '"76%"',
+                    color: theme.palette.common.white,
+                    fontWeight: 700,
+                    content: `"${calculoFaseAdequada()}%"`,
                     top: 2,
                     display: 'block',
                     right: 6,
@@ -181,7 +205,7 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
                 },
               }}
             />
-          </Box>
+          </Box>)}
         </Stack>
 
         <Chart
@@ -197,8 +221,10 @@ export default function GraficoColunasChart({ title, subheader, chart, ...other 
   );
 }
 
-GraficoColunasChart.propTypes = {
+GraficoIndiceFaseAnoColunasChart.propTypes = {
   chart: PropTypes.object,
   subheader: PropTypes.string,
   title: PropTypes.string,
+  ano_escolar: PropTypes.number,
+  total_avaliados: PropTypes.number,
 };
