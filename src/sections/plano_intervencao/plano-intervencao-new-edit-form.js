@@ -43,6 +43,7 @@ import {
   USER_STATUS_OPTIONS, 
   _ddzs, 
   anos_options, 
+  permissao_values,
   fases_options,
   aplicacao_options,
 } from 'src/_mock';
@@ -71,7 +72,7 @@ import alunoMethods from '../aluno/aluno-repository';
 import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/view';
-
+import { AuthContext } from 'src/auth/context/alfa';
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 // ----------------------------------------------------------------------
 const filtros = {
@@ -84,7 +85,7 @@ const filtros = {
   alunos: [],
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
-
+  const { user } = useContext(AuthContext);
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -103,6 +104,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [habilidades_3ano, setHabilidades_3ano] = useState([]);
   const [documentosAntigos, setDocumentosAntigos] = useState([]);
   const [documentosAntigosSelecionados, setDocumentosAntigosSelecionados] = useState([]);
+  const [zonasUsuario, setZonasUsuario] = useState([]);
+  const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
+  const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
   
   let aplicarInicial = '';
   let colunasDocumentosAntigos = [
@@ -200,16 +204,30 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
     buscaTurmas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
     });
-
-    
-    
+    let maxPU = 'PROFESSOR'
+    for (let index = 0; index < user?.permissao_usuario?.length; index++) { // AQUI DEFINIMOS A MAIOR PERMISSAO QUE O USUARIO TEM
+      maxPU = permissao_values[maxPU] < permissao_values[user?.permissao_usuario[index].nome] ? user?.permissao_usuario[index].nome : maxPU
+    }
+    setMaxPermissaoUsuario(maxPU);
+    let buscandoZona = [];
+    if (permissao_values[maxPU] >= 6) { // COM BASE NA MAIOR PERMISSAO QUE O USUARIO TEM, MONTAMOS QUAIS ZONAS PODEM SER ESCOLHIDAS PARA APLICAR O PLANO
+      buscaZonas().then(zonas => setZonasUsuario(zonas)).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      });
+    } else {
+      user?.funcao_usuario?.map((fu) => {
+        buscandoZona.push(fu.zona)
+      })
+      setZonasUsuario(buscandoZona);
+      if (permissao_values[maxPU] < 5) { // RETIRAMOS A OPÇÃO DE APLICAR PLANO A ZONAS 
+        setAOF(aplicacao_options.slice(1)) 
+      }
+    }
   }, []);
+
 
   useEffect(() => {
     if (url.includes('/new/')) {
@@ -521,6 +539,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
   }
 
+
+
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
       return (
@@ -543,8 +563,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
               },
             }}
           >
-            {zonas?.map((zona) => (
-              <MenuItem key={zona.id} value={zona.id}>
+            {zonasUsuario?.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id} >
                 <Checkbox disableRipple size="small" checked={filters.zonas.includes(zona.id)} />
                 {zona.nome}
               </MenuItem>
@@ -729,7 +749,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 />
 
                 <RHFSelect name="aplicar" label="Aplicar Plano a...">
-                  {aplicacao_options.map((aplicar) => (
+                  {aplicacao_options_filtrado.map((aplicar) => (
                     <MenuItem key={aplicar} value={aplicar}>
                       {aplicar}
                     </MenuItem>

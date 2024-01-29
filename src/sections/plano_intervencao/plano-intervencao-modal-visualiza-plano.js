@@ -92,7 +92,6 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   
     useEffect(() => {
         planoIntervencaoMethods.getPlanoIntervencaoById(currentPlano).then((retorno) => {
-            console.log(retorno.data)
             setPlano(retorno.data)
           }).catch((error) => {
             setErrorMsg('Erro de comunicação com a API de planos');
@@ -145,7 +144,6 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const mostrarAplicacao = () => {
     let list_retorno = [];
     let aplicacao = '';
-    console.log(turmas)
     if (plano?.aplicacao?.alunos?.length > 0) {
         plano.aplicacao.alunos.map((alunoId) => {
           turmas.map((turma) => {
@@ -158,25 +156,25 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         })
         aplicacao = 'Alunos '
     } else
-    if (plano?.aplicacao?.escolas?.length > 0) {
-        plano.aplicacao.escolas.map((escolaId) => {
-          escolas.map((escola) => {
-            if (escola.id == escolaId) {
-              list_retorno.push(`- ${escola.nome} `);
-            }
-          })
-        })
-        aplicacao = 'Escolas '
-    } else
     if (plano?.aplicacao?.turmas?.length > 0) {
         plano.aplicacao.turmas.map((turmaId) => {
           turmas.map((turma) => {
             if (turma.id == turmaId) {
-              list_retorno.push(`- ${turma.nome} `);
+              list_retorno.push(`- ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${turma.escola.nome})`);
             }
           })
         })
         aplicacao = 'Turmas '
+    } else
+    if (plano?.aplicacao?.escolas?.length > 0) {
+      plano.aplicacao.escolas.map((escolaId) => {
+        escolas.map((escola) => {
+          if (escola.id == escolaId) {
+            list_retorno.push(`- ${escola.nome} `);
+          }
+        })
+      })
+      aplicacao = 'Escolas '
     } else
     if (plano?.aplicacao?.zonas?.length > 0) {
         plano.aplicacao.zonas.map((zonaId) => {

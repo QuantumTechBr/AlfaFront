@@ -104,10 +104,10 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de escolas');
       preparado.onTrue();
     });
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
-      preparado.onTrue();
-    });
+    // buscaFuncoes().catch((error) => {
+    //   setErrorMsg('Erro de comunicação com a API de funções');
+    //   preparado.onTrue();
+    // });
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
