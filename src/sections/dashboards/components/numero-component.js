@@ -4,13 +4,18 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 // utils
 import { fNumber } from 'src/utils/format-number';
+import { useTheme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
 export default function NumeroComponent({ title, total, icon, sx, ...other }) {
+  const theme = useTheme();
+
   return (
     <Card
-      sx={{
+    direction="row"
+    sx={{
+        height:"100%",
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -22,8 +27,8 @@ export default function NumeroComponent({ title, total, icon, sx, ...other }) {
       {...other}
     >
       <Box>
-        <Box sx={{ mb: 1, typography: 'h2', fontWeight: 400 }}>{fNumber(total)}</Box>
-        <Box sx={{ color: 'text.primary', typography: 'h5', fontWeight: 400 }}>{title}</Box>
+        <Box sx={{ typography: 'h3', fontWeight: 600 }}>{fNumber(total)}</Box>
+        <Box sx={{ color: 'text.primary', typography: 'h6', fontWeight: 700 }}>{title}</Box>
       </Box>
 
       <Box

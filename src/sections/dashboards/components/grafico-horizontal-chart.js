@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 
 // @mui
-import { Card, Stack, Typography } from '@mui/material';
+import { Card } from '@mui/material';
 import { useTheme, alpha } from '@mui/material/styles';
 
 // components
@@ -30,6 +30,7 @@ export default function GraficoHorizontalChart({
   ];
 
   const chartOptions = useChart({
+    chart: { toolbar: { show: true } },
     states: {
       hover: {
         filter: {
@@ -52,7 +53,7 @@ export default function GraficoHorizontalChart({
       showForSingleSeries: true,
       customLegendItems: ['Atual', 'Meta'],
       markers: {
-        fillColors: ['#00E396', '#775DD0'],
+        fillColors: [theme.palette.primary.main, '#775DD0'],
       },
     },
     plotOptions: {
@@ -62,7 +63,7 @@ export default function GraficoHorizontalChart({
         borderRadius: 13,
       },
     },
-    colors: [theme.palette.primary.light],
+    colors: [theme.palette.primary.main],
 
     dataLabels: {
       enabled: true,
@@ -73,7 +74,7 @@ export default function GraficoHorizontalChart({
           if (val == 0) return '';
           return `${val ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
-        return val;
+        return `${val ?? 0}%`;
       },
       dropShadow: {
         enabled: true,
@@ -99,9 +100,18 @@ export default function GraficoHorizontalChart({
         },
       },
     },
-
+    title: {
+      text: title,
+      offsetX: 13,
+      style: {
+        fontSize: '18px',
+        fontWeight: 'bold',
+        fontFamily: theme.typography.fontFamily,
+        color: 'inherit',
+      },
+    },
     grid: {
-      padding: { top: -20, bottom: 0 },
+      padding: { top: -15, bottom: -15 },
       row: {
         colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
         opacity: 0.5,
@@ -113,6 +123,7 @@ export default function GraficoHorizontalChart({
       strokeWidth: 2,
       colors: ['transparent'],
     },
+    yaxis: { show: true, min: 0, max: 100 },
 
     fill: {
       type: 'gradient',
@@ -131,20 +142,14 @@ export default function GraficoHorizontalChart({
 
   return (
     <>
-      <Card {...other} sx={{ pb: 2, height: height }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight="400" sx={{ mb: 0, p: 3 }}>
-            {title}
-          </Typography>
-        </Stack>
-
+      <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
         <Scrollbar>
           <Chart
             width={'100%'}
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={(series.length * (41)) + 42}
+            height={((series.length * 41) + 94) - 15}
           />
         </Scrollbar>
       </Card>

@@ -266,6 +266,7 @@ export default function RegistroAprendizagemFaseListView() {
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
             bimestreOptions={bimestres}
+            export_type='fase'
           />
 
           {canReset && (

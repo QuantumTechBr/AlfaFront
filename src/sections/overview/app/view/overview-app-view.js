@@ -1,4 +1,5 @@
 'use client';
+import { useEffect } from 'react';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -11,14 +12,17 @@ export default function OverviewAppView() {
   const { checkFuncao } = useAuthContext();
   const router = useRouter();
 
-  if (checkFuncao('SUPERADMIN')) {
-    router.push(`${paths.dashboard.root}/dash-rede`);
-  } else if (checkFuncao('ASSESSOR DDZ')) {
-    router.push(`${paths.dashboard.root}/dash-ddz`);
-  } else if (checkFuncao('DIRETOR')) {
-    router.push(`${paths.dashboard.root}/dash-escola`);
-  } else if (checkFuncao('PROFESSOR')) {
-    router.push(`${paths.dashboard.root}/dash-turma`);
-  }
+  useEffect(() => {
+    if (checkFuncao('SUPERADMIN')) {
+      router.push(`${paths.dashboard.root}/dash-rede`);
+    } else if (checkFuncao('ASSESSOR DDZ')) {
+      router.push(`${paths.dashboard.root}/dash-ddz`);
+    } else if (checkFuncao('DIRETOR')) {
+      router.push(`${paths.dashboard.root}/dash-escola`);
+    } else if (checkFuncao('PROFESSOR')) {
+      router.push(`${paths.dashboard.root}/dash-turma`);
+    }
+  }, []);
+
   return;
 }

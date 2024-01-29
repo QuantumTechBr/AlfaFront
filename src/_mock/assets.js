@@ -281,6 +281,10 @@ export const permissao_values = {
 
 export const anos_options = ['1', '2', '3'];
 
+export const anos_metas = {'1': 95, '2': 100, '3': 100 };
+
+export const anos_fase_adequada = {'1': 'Alfabética Parcial', '2': 'Alfabética Completa', '3': 'Alfabética Consolidada' };
+
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
 
 export const fases_options = ['', 'Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
