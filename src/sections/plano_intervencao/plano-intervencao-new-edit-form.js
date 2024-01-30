@@ -43,6 +43,7 @@ import {
   USER_STATUS_OPTIONS, 
   _ddzs, 
   anos_options, 
+  permissao_values,
   fases_options,
   aplicacao_options,
 } from 'src/_mock';
@@ -71,7 +72,7 @@ import alunoMethods from '../aluno/aluno-repository';
 import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/view';
-
+import { AuthContext } from 'src/auth/context/alfa';
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 // ----------------------------------------------------------------------
 const filtros = {
@@ -84,7 +85,7 @@ const filtros = {
   alunos: [],
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
-
+  const { user } = useContext(AuthContext);
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -103,6 +104,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [habilidades_3ano, setHabilidades_3ano] = useState([]);
   const [documentosAntigos, setDocumentosAntigos] = useState([]);
   const [documentosAntigosSelecionados, setDocumentosAntigosSelecionados] = useState([]);
+  const [zonasUsuario, setZonasUsuario] = useState([]);
+  const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
+  const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
   
   let aplicarInicial = '';
   let colunasDocumentosAntigos = [
@@ -146,13 +150,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         preparado.onTrue(); 
       }
       profissionais.data.map((profissional) => {
-        if (profissional.funcao.nome == "PROFESSOR") {
+        // if (profissional.funcao.nome == "PROFESSOR") {
           let pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
           lp.push(pro)
-        }
+        // }
       });
       setListaProfissionais(lp);
     }).catch((error) => {
@@ -200,16 +204,30 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
     buscaTurmas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
     });
-
-    
-    
+    let maxPU = 'PROFESSOR'
+    for (let index = 0; index < user?.permissao_usuario?.length; index++) { // AQUI DEFINIMOS A MAIOR PERMISSAO QUE O USUARIO TEM
+      maxPU = permissao_values[maxPU] < permissao_values[user?.permissao_usuario[index].nome] ? user?.permissao_usuario[index].nome : maxPU
+    }
+    setMaxPermissaoUsuario(maxPU);
+    let buscandoZona = [];
+    if (permissao_values[maxPU] >= 6) { // COM BASE NA MAIOR PERMISSAO QUE O USUARIO TEM, MONTAMOS QUAIS ZONAS PODEM SER ESCOLHIDAS PARA APLICAR O PLANO
+      buscaZonas().then(zonas => setZonasUsuario(zonas)).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      });
+    } else {
+      user?.funcao_usuario?.map((fu) => {
+        buscandoZona.push(fu.zona)
+      })
+      setZonasUsuario(buscandoZona);
+      if (permissao_values[maxPU] < 5) { // RETIRAMOS A OPÇÃO DE APLICAR PLANO A ZONAS 
+        setAOF(aplicacao_options.slice(1)) 
+      }
+    }
   }, []);
+
 
   useEffect(() => {
     if (url.includes('/new/')) {
@@ -384,7 +402,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
       });
       let mensagem = arrayMsg.join(' ');
-      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
+      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
@@ -466,22 +484,26 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       return (hab.find((option) => option.id == habId)?.nome);
     }).join(', ');
 
+  const renderValueZona = (selected) => 
+    selected.map((zonaId) => {
+      return zonas.find((option) => option.id == zonaId)?.nome;
+  }).join(', ');
 
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
       return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  }).join(', ');
 
-    const renderValueTurma = (selected) => 
+  const renderValueTurma = (selected) => 
     selected.map((turmaId) => {
       let turma = turmas.find((option) => option.id == turmaId);
       return turma?.ano_escolar.concat('º ', turma?.nome);
-    }).join(', '); 
+  }).join(', '); 
 
   const renderValueAluno = (selected) => 
     selected.map((alunoId) => {
       return alunos.find((option) => option.id == alunoId)?.nome;
-    }).join(', ');  
+  }).join(', ');  
 
   const concluiPlano = async () => {
     await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, {status: 'Concluído'}).catch((error) => {
@@ -517,6 +539,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
   }
 
+
+
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
       return (
@@ -532,17 +556,17 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             value={filters.zonas}
             onChange={handleFilterZona}
             input={<OutlinedInput fullWidth label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
+            renderValue={renderValueZona}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {zonas?.map((option) => (
-              <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.zonas.includes(option)} />
-                {option.nome}
+            {zonasUsuario?.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id} >
+                <Checkbox disableRipple size="small" checked={filters.zonas.includes(zona.id)} />
+                {zona.nome}
               </MenuItem>
             ))}
           </Select>
@@ -725,7 +749,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 />
 
                 <RHFSelect name="aplicar" label="Aplicar Plano a...">
-                  {aplicacao_options.map((aplicar) => (
+                  {aplicacao_options_filtrado.map((aplicar) => (
                     <MenuItem key={aplicar} value={aplicar}>
                       {aplicar}
                     </MenuItem>

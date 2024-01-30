@@ -269,6 +269,16 @@ export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
+export const permissao_values = {
+  'PROFESSOR' : 1,
+  'DIRETOR' : 2,
+  'ASSESSOR DE GESTÃO' : 3,
+  'ASSESSOR DDZ' : 4,
+  'COORDENADOR DE GESTÃO' : 5,
+  'ADMIN' : 6,
+  'SUPERADMIN' : 7,
+}
+
 export const anos_options = ['1', '2', '3'];
 
 export const anos_metas = {'1': 95, '2': 100, '3': 100 };

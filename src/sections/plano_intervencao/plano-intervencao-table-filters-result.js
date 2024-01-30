@@ -18,21 +18,29 @@ export default function PlanoIntervencaoTableFiltersResult({
   results,
   roleOptions,
   escolaOptions,
+  zonaOptions,
   ...other
 }) {
 
   const funcoesSelecionadas = [];
   const escolasSelecionadas = [];
+  const zonasSelecionadas = [];
 
-  roleOptions.map((funcao) => {
-    if(filters.role?.includes(funcao.id)) {
-      funcoesSelecionadas.push(funcao)
-    }
-  })
+  // roleOptions.map((funcao) => {
+  //   if(filters.role?.includes(funcao.id)) {
+  //     funcoesSelecionadas.push(funcao)
+  //   }
+  // })
 
   escolaOptions.map((escola) => {
     if(filters.escola?.includes(escola.id)) {
       escolasSelecionadas.push(escola)
+    }
+  })
+
+  zonaOptions.map((zona) => {
+    if(filters.zona?.includes(zona.id)) {
+      zonasSelecionadas.push(zona)
     }
   })
 
@@ -50,9 +58,9 @@ export default function PlanoIntervencaoTableFiltersResult({
     onFilters('role', newValue);
   };
 
-  const handleRemoveDdz = (inputValue) => {
-    const newValue = filters.ddz.filter((item) => item !== inputValue);
-    onFilters('ddz', newValue);
+  const handleRemoveZona = (inputValue) => {
+    const newValue = filters.zona.filter((item) => item !== inputValue);
+    onFilters('zona', newValue);
   };
   
   const handleRemoveEscola = (inputValue) => {
@@ -74,28 +82,28 @@ export default function PlanoIntervencaoTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.status !== 'all' && (
           <Block label="Status:">
-            <Chip size="small" label={filters.status ? 'Ativo' : 'Inativo'} onDelete={handleRemoveStatus} />
+            <Chip size="small" label={filters?.status} onDelete={handleRemoveStatus} />
           </Block>
         )}
 
-        {filters.nome !== '' && (
+        {/* {filters.nome !== '' && (
           <Block label="Nome:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
-        )}
+        )} */}
 
-        {!!funcoesSelecionadas.length && (
+        {/* {!!funcoesSelecionadas.length && (
           <Block label="Função:">
             {funcoesSelecionadas.map((item) => (
               <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveRole(item.id)} />
             ))}
           </Block>
-        )}
+        )} */}
 
-        {!!filters.ddz.length && (
+        {!!filters.zona.length && (
           <Block label="DDZ:">
-            {filters.ddz.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
+            {zonasSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveZona(item.id)} />
             ))}
           </Block>
         )}

@@ -25,7 +25,7 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  let { id, nome, responsavel, inicio_previsto, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
@@ -40,6 +40,18 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
   const quickEdit = useBoolean();
 
   const popover = usePopover();
+
+  let mostra_aplicacao = ''
+
+  if (aplicacao?.alunos?.length > 0) {
+    mostra_aplicacao = 'Alunos';
+  } else if (aplicacao?.turmas?.length > 0) {
+    mostra_aplicacao = 'Turmas';
+  } else if (aplicacao?.escolas?.length > 0) {
+    mostra_aplicacao = 'Escolas';
+  } else if (aplicacao?.zonas?.length > 0) {
+    mostra_aplicacao = 'Zonas';
+  }
 
   const newDeleteRow = () => {
     onDeleteRow();
@@ -56,10 +68,12 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
     }
     if (hoje > date_inicio && hoje < date_termino) {
       return 'Em Andamento Dentro do Prazo';
+    } else if (hoje < date_inicio) {
+      return 'Criado';
     } else {
       return 'Em Andamento Fora do Prazo';
-    }
 
+    }
   }
 
   return (
@@ -79,6 +93,8 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{mostra_aplicacao}</TableCell>
+
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
 
         <TableCell>
@@ -88,6 +104,7 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
               (retornoStatus() === 'Concluído' && 'success') ||
               (retornoStatus() === 'Em Andamento Dentro do Prazo' && 'warning') ||
               (retornoStatus() === 'Em Andamento Fora do Prazo' && 'error') ||
+              (retornoStatus() === 'Criado' && 'info') ||
               'default'
             }
           >

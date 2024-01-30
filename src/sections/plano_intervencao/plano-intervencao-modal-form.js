@@ -74,9 +74,9 @@ const TABLE_HEAD = [
   { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
   { id: 'data_termino', label: 'Término previsto', width: 80 },
   { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
+  { id: 'aplicacao', label: 'Aplicação', width: 80 },
   { id: 'status', label: 'Status', width: 80 },
   { id: 'farol', label: 'Farol', width: 50 },
-  
 ];
 
 const filtros = {
