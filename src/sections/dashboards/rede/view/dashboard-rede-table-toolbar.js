@@ -89,7 +89,7 @@ export default function DashboardRedeTableToolbar({
               onChange={handleFilterAnoEscolar}
               input={<OutlinedInput fullWidth label="Ano Escolar" />}
               renderValue={(selected) =>
-                `${_.sortBy(selected, [(o) => o])
+                `${_.sortBy(selected, [(opt) => opt])
                   .map((value) => `${value}º`)
                   .join(', ')} anos`
               }
