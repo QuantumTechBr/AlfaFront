@@ -64,6 +64,7 @@ const TABLE_HEAD = [
   { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'periodo', label: 'Período', width: 105 },
   { id: 'escola_nome', label: 'Escola' },
+  { id: 'atualizado_por', label: 'Atualizado Por' },
   { id: '', width: 88 },
 ];
 
