@@ -24,6 +24,7 @@ import { styled } from '@mui/material/styles';
 // contexts
 import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // components
 import { RouterLink } from 'src/routes/components';
@@ -72,6 +73,7 @@ export default function DashboardRedeView() {
 
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
@@ -79,6 +81,8 @@ export default function DashboardRedeView() {
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
+    turma: [],
+    anoEscolar: [],
   });
 
   const [dados, setDados] = useState({
@@ -87,6 +91,10 @@ export default function DashboardRedeView() {
     grid_ddz: [],
     desempenho_alunos: {},
   });
+
+  const getTurmasPorAnoEscolar = (anoEscolar) => {
+    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+  };
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -97,6 +105,11 @@ export default function DashboardRedeView() {
         ano_letivo: [
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id,
         ],
+        turma: _.flatten(
+          filters.anoEscolar.map((aE) => {
+            return getTurmasPorAnoEscolar(aE);
+          })
+        ),
       };
 
       await Promise.all([
@@ -163,7 +176,7 @@ export default function DashboardRedeView() {
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
       preparacaoInicialRunned.onTrue();
-      Promise.all([buscaAnosLetivos()]).then(() => {
+      Promise.all([buscaAnosLetivos(), buscaTurmas()]).then(() => {
         contextReady.onTrue();
       });
     }
@@ -184,12 +197,6 @@ export default function DashboardRedeView() {
       preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
-
-  useEffect(() => {
-    setFilters({
-      anoLetivo: '',
-    });
-  }, []);
 
   // TABLE GRID
   const router = useRouter();
@@ -291,120 +298,130 @@ export default function DashboardRedeView() {
           </Grid>
         </Stack>
 
-        <Grid container spacing={3}>
-          <Stack
-            flexGrow={1}
-            direction="row"
-            alignItems="center"
-            justifyContent="start"
-            width="100%"
-            sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
-          >
-            <Grid xs={12} md="auto">
-              <DashboardRedeTableToolbar
-                filters={filters}
-                onFilters={handleFilters}
-                anoLetivoOptions={anosLetivos}
+        {!contextReady.value && (
+          <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+            <LoadingBox />
+          </Grid>
+        )}
+
+        {!!contextReady.value && (
+          <Grid container spacing={3}>
+            <Stack
+              flexGrow={1}
+              direction="row"
+              alignItems="center"
+              justifyContent="start"
+              width="100%"
+              sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
+            >
+              <Grid xs={12} md="auto">
+                <DashboardRedeTableToolbar
+                  filters={filters}
+                  onFilters={handleFilters}
+                  anoLetivoOptions={anosLetivos}
+                  anoEscolarOptions={[1, 2, 3]}
+                />
+              </Grid>
+              <Grid xs={12} md="auto">
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    preencheGraficos();
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
+              </Grid>
+            </Stack>
+
+            <Grid xs={12} md={4}>
+              <NumeroComponent
+                title="Total de Estudantes"
+                total={totalEstudandesGeral()}
+                icon={
+                  <Iconify
+                    width={ICON_SIZE}
+                    icon="bi:people-fill"
+                    sx={{
+                      color: theme.palette['primary'].main,
+                    }}
+                  />
+                }
               />
             </Grid>
-            <Grid xs={12} md="auto">
-              <Button
-                variant="contained"
-                onClick={() => {
-                  preencheGraficos();
-                }}
-              >
-                Aplicar filtros
-              </Button>
+            <Grid xs={12} md={4}>
+              <NumeroComponent
+                title="Total de Estudantes Avaliados"
+                total={dados.total_alunos_avaliados ?? 0}
+                icon={
+                  <Iconify
+                    width={ICON_SIZE}
+                    icon="bi:people-fill"
+                    sx={{
+                      color: theme.palette['primary'].main,
+                    }}
+                  />
+                }
+              />
             </Grid>
-          </Stack>
 
-          <Grid xs={12} md={4}>
-            <NumeroComponent
-              title="Total de Estudantes"
-              total={totalEstudandesGeral()}
-              icon={
-                <Iconify
-                  width={ICON_SIZE}
-                  icon="bi:people-fill"
-                  sx={{
-                    color: theme.palette['primary'].main,
-                  }}
-                />
-              }
-            />
-          </Grid>
-          <Grid xs={12} md={4}>
-            <NumeroComponent
-              title="Total de Estudantes Avaliados"
-              total={dados.total_alunos_avaliados ?? 0}
-              icon={
-                <Iconify
-                  width={ICON_SIZE}
-                  icon="bi:people-fill"
-                  sx={{
-                    color: theme.palette['primary'].main,
-                  }}
-                />
-              }
-            />
-          </Grid>
+            <Grid xs={12} md={4}>
+              {!isGettingGraphics.value && (
+                <MetaComponent
+                  title="Meta"
+                  subtitle="entre a média das séries"
+                  meta={calculaMeta()}
+                  alfabetizados={getTotalAlfabetizados()}
+                  total={getTotalAvaliados()}
+                ></MetaComponent>
+              )}
+            </Grid>
 
-          <Grid xs={12} md={4}>
-            {!isGettingGraphics.value && (
-              <MetaComponent
-                title="Meta"
-                subtitle="entre a média das séries"
-                meta={calculaMeta()}
-                alfabetizados={getTotalAlfabetizados()}
-                total={getTotalAvaliados()}
-              ></MetaComponent>
+            {!!isGettingGraphics.value && (
+              <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+                <LoadingBox />
+              </Grid>
             )}
-          </Grid>
 
-          {!!isGettingGraphics.value && (
-            <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
-              <LoadingBox />
-            </Grid>
-          )}
+            {!isGettingGraphics.value && (
+              <Grid xs={12}>
+                <IndiceAlfabetizacaoBimestreComponent
+                  title={'Índice de alfabetização - Bimestre'}
+                  grid_ddz={dados.grid_ddz}
+                ></IndiceAlfabetizacaoBimestreComponent>
+              </Grid>
+            )}
 
-          {!isGettingGraphics.value && (
-            <Grid xs={12}>
-              <IndiceAlfabetizacaoBimestreComponent
-                title={'Índice de alfabetização - Bimestre'}
-                grid_ddz={dados.grid_ddz}
-              ></IndiceAlfabetizacaoBimestreComponent>
-            </Grid>
-          )}
-
-          {!isGettingGraphics.value && (
-            <IndicesCompostosAlfabetizacaoGeralWidget
-              title="por DDZ"
-              indice_alfabetizacao={[
-                ...dados.grid_ddz.map((e) => {
-                  return {
-                    ...e,
-                    title: e.zona_nome,
-                  };
-                }),
-              ]}
-              indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-            />
-          )}
-
-          {!isGettingGraphics.value && (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-            <Grid xs={12}>
-              <DesempenhoAlunosWidget
-                title="Desempenho dos Estudantes - Índice de fases"
-                subheader={dados.desempenho_alunos.subheader}
-                chart={dados.desempenho_alunos.chart}
+            {!isGettingGraphics.value && (
+              <IndicesCompostosAlfabetizacaoGeralWidget
+                title="por DDZ"
+                indice_alfabetizacao={[
+                  ...dados.grid_ddz.map((e) => {
+                    return {
+                      ...e,
+                      title: e.zona_nome,
+                    };
+                  }),
+                ]}
+                indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
               />
-            </Grid>
-          )}
-        </Grid>
+            )}
+
+            {!isGettingGraphics.value &&
+              (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                <Grid xs={12}>
+                  <DesempenhoAlunosWidget
+                    title="Desempenho dos Estudantes - Índice de fases"
+                    subheader={dados.desempenho_alunos.subheader}
+                    chart={dados.desempenho_alunos.chart}
+                  />
+                </Grid>
+              )}
+          </Grid>
+        )}
       </Grid>
 
-      {!isGettingGraphics.value && (
+      {!!contextReady.value && !isGettingGraphics.value && (
         <Card sx={{ mt: 3, mb: 4 }}>
           <CardHeader title="DDZs" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />

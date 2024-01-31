@@ -20,13 +20,17 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   ...other
 }) {
   const dados = grid_ddz.map((item) => {
+    let _percentCalc = (altabetizados, avaliados) => {
+      let _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
+      return !Number.isNaN(_calculed) ? _calculed : 0;
+    };
     let _retorno = {
       zona_id: item.zona_id,
       zona_nome: item.zona_nome,
       qtd_avaliados: item.qtd_avaliados,
       qtd_alfabetizado: item.qtd_alfabetizado,
-      percent_alfabetizado: item.qtd_alfabetizado.map((_, i) =>
-        Math.floor(((item.qtd_alfabetizado[i] ?? 0) / (item.qtd_avaliados[i] ?? 0)) * 100)
+      percent_alfabetizado: item.qtd_alfabetizado.map((itemOnIndex, i) =>
+        _percentCalc(item.qtd_alfabetizado[i], item.qtd_avaliados[i])
       ),
     };
     return _retorno;
