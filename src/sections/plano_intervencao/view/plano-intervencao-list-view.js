@@ -61,6 +61,7 @@ import parse from 'date-fns/parse';
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Variáveis a melhorar', width: 200 },
+  { id: 'acao', label: 'Ação', width: 300 },
   { id: 'responsavel', label: 'Responsável pela ação', width: 300 },
   { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
   { id: 'data_termino', label: 'Término previsto', width: 80 },

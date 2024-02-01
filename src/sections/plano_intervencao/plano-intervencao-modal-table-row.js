@@ -25,7 +25,7 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  let { id, nome, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
@@ -84,6 +84,8 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{acao}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{responsavel?.nome}</TableCell>
 

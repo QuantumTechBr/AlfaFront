@@ -293,6 +293,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const defaultValues = useMemo(
     () => ({
       responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
+      acao: currentPlano?.acao || '',
       ano_escolar: currentPlano?.ano_escolar || '',
       inicio_previsto: inicioPrevisto,
       termino_previsto: terminoPrevisto,
@@ -362,6 +363,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       let terminoPrev = new Date(data.termino_previsto);
       let aplicacao = listaIdsAplicacao;
       let toSend = {
+        acao: data.acao,
         responsavel_id: data.responsavel.id,
         aplicacao,
         ano_escolar: parseInt(data.ano_escolar),
@@ -741,6 +743,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                       Índice de Alfabetização
                     </MenuItem>
                 </RHFSelect>
+
+                <RHFTextField  name="acao" label="Ação" />
 
                 <RHFAutocomplete
                   name="responsavel"

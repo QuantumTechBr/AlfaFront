@@ -28,7 +28,7 @@ import VisualizaPlanoIntervencao from './plano-intervencao-modal-visualiza-plano
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }){
-  let { id, nome, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
@@ -109,6 +109,8 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
         </TableCell>
 
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
+
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{acao}</TableCell>
 
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{responsavel.nome}</TableCell>
 
