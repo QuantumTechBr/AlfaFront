@@ -41,6 +41,8 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
   ...other
 }) {
   const [files, setFiles] = useState([]);
+
+  const [descricao, setDescricao] = useState([]);
   
   const uploading = useBoolean(false); 
 

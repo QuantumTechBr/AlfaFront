@@ -24,6 +24,7 @@ import PlanoIntervencaoFileManagerTableRow from './plano-intervencao-file-manage
 
 const TABLE_HEAD = [
   { id: 'name', label: 'Nome' },
+  { id: 'descricao', label: 'Descrição', width: 200 },
   { id: 'size', label: 'Tamanho', width: 120 },
   { id: 'type', label: 'Tipo', width: 120 },
   { id: 'modifiedAt', label: 'Modificado', width: 140 },

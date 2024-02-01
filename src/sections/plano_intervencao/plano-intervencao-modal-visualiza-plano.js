@@ -282,7 +282,10 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                     <Label>Anexos</Label>
                     <br></br>
                     {documentos.map((doc) => (
-                        <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a>
+                      <div> 
+                        {doc?.descricao}<br></br>
+                        <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a> 
+                      </div>
                     ))}
                 </div>
                 

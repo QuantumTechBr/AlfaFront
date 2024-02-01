@@ -109,7 +109,7 @@ export default function DashboardDDZView() {
         ano_letivo: [
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
-        ddz: [_filtersToSearch.zona.id],
+        ddz: [_filtersToSearch.zona?.id],
       };
 
       await Promise.all([

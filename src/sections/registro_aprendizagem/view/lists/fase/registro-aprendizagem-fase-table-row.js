@@ -30,6 +30,7 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
     alunos,
     bimestre,
     escola,
+    atualizado_por,
     created_at,
     updated_at,
     deleted_at,
@@ -48,6 +49,7 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{bimestre.ordinal}&ordm;</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por ? atualizado_por : ''}</TableCell>
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Editar" placement="top" arrow>
             <IconButton color="inherit" onClick={onEditRow}>
