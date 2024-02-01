@@ -64,7 +64,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodo}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por?.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Editar" placement="top" arrow>
