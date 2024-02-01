@@ -109,7 +109,7 @@ export default function DashboardDDZView() {
         ano_letivo: [
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
-        ddz: [_filtersToSearch.zona.id],
+        ddz: [_filtersToSearch.zona?.id],
       };
 
       await Promise.all([
@@ -119,36 +119,12 @@ export default function DashboardDDZView() {
           let result = _(response.data)
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
             .map((escolaTurmas, key) => {
-              let _alunos = escolaTurmas.reduce(
-                (acc, i) => acc + (_.isArray(i.qtd_alunos) ? _.last(i.qtd_alunos) : i.qtd_alunos),
-                0
-              );
+              let _alunos = _.sumBy(escolaTurmas, (s) => s.qtd_alunos);
+              let _avaliados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_avaliados));
+              let _alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_alfabetizado));
+              let _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_alfabetizado));
+              let _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_avaliado));
 
-              let _avaliados = escolaTurmas.reduce(
-                (acc, i) =>
-                  acc + (_.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados),
-                0
-              );
-              let _alfabetizados = escolaTurmas.reduce(
-                (acc, i) =>
-                  acc +
-                  (_.isArray(i.qtd_alfabetizado) ? _.last(i.qtd_alfabetizado) : i.qtd_alfabetizado),
-                0
-              );
-              let _nao_alfabetizados = escolaTurmas.reduce(
-                (acc, i) =>
-                  acc +
-                  (_.isArray(i.qtd_nao_alfabetizado)
-                    ? _.last(i.qtd_nao_alfabetizado)
-                    : i.qtd_nao_alfabetizado),
-                0
-              );
-              let _deixou_de_frequentar = escolaTurmas.reduce(
-                (acc, i) =>
-                  acc +
-                  (_.isArray(i.qtd_nao_avaliado) ? _.last(i.qtd_nao_avaliado) : i.qtd_nao_avaliado),
-                0
-              );
               return {
                 escola_nome: key,
                 registros: escolaTurmas,
@@ -597,10 +573,10 @@ function Row(props) {
                         {registro.turma_ano_escolar} {registro.turma_nome}
                       </TableCell>
                       <TableCell width="110">{registro.qtd_alunos}</TableCell>
-                      <TableCell width="110">{registro.qtd_avaliados}</TableCell>
-                      <TableCell width="110">{registro.qtd_alfabetizado}</TableCell>
-                      <TableCell width="160">{registro.qtd_nao_alfabetizado}</TableCell>
-                      <TableCell width="180">{registro.qtd_nao_avaliado}</TableCell>
+                      <TableCell width="110">{_.last(registro.qtd_avaliados)}</TableCell>
+                      <TableCell width="110">{_.last(registro.qtd_alfabetizado)}</TableCell>
+                      <TableCell width="160">{_.last(registro.qtd_nao_alfabetizado)}</TableCell>
+                      <TableCell width="180">{_.last(registro.qtd_nao_avaliado)}</TableCell>
                       <TableCell width="77"></TableCell>
                     </StyledTableRow>
                   ))}
