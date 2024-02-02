@@ -91,7 +91,7 @@ export default function DashboardRedeTableToolbar({
               renderValue={(selected) =>
                 `${_.sortBy(selected, [(opt) => opt])
                   .map((value) => `${value}º`)
-                  .join(', ')} anos`
+                  .join(', ')} ano`
               }
               MenuProps={{
                 PaperProps: {
@@ -106,7 +106,7 @@ export default function DashboardRedeTableToolbar({
                     size="small"
                     checked={filters.anoEscolar.includes(option)}
                   />
-                  {option}º anos
+                  {option}º ano
                 </MenuItem>
               ))}
             </Select>
