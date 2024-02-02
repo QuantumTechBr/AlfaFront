@@ -45,13 +45,6 @@ export default function DashboardDDZTableToolbar({
     [onFilters]
   );
 
-
-  const renderValueTurma = (selected) =>
-    selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ');
-
-  const renderValueEscola = (selected) =>
-    selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
-
   return (
     <>
       <Stack
