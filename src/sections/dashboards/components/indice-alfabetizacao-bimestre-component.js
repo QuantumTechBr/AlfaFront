@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import _ from 'lodash';
+
 // @mui
 import Card from '@mui/material/Card';
 
@@ -7,10 +9,9 @@ import Chart, { useChart } from 'src/components/chart';
 import { CardHeader, Grid } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { percentageChange } from 'src/utils/functions';
-import _ from 'lodash';
-import './style.css';
 import { useCallback } from 'react';
 
+import './style.css';
 // ----------------------------------------------------------------------
 
 export default function IndiceAlfabetizacaoBimestreComponent({
@@ -19,11 +20,13 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   options,
   ...other
 }) {
+  let _percentCalc = (altabetizados, avaliados) => {
+    let _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
+    return !Number.isNaN(_calculed) ? _calculed : 0;
+  };
+
+  let _qtd_bimestres = 0;
   const dados = grid_ddz.map((item) => {
-    let _percentCalc = (altabetizados, avaliados) => {
-      let _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
-      return !Number.isNaN(_calculed) ? _calculed : 0;
-    };
     let _retorno = {
       zona_id: item.zona_id,
       zona_nome: item.zona_nome,
@@ -33,14 +36,31 @@ export default function IndiceAlfabetizacaoBimestreComponent({
         _percentCalc(item.qtd_alfabetizado[i], item.qtd_avaliados[i])
       ),
     };
+
+    _qtd_bimestres = item.qtd_alfabetizado.length;
     return _retorno;
   });
+
+  const indice_geral = {
+    zona_nome: 'Geral',
+    percent_alfabetizado: _.range(_qtd_bimestres).map((index) =>
+      _percentCalc(
+        _.sumBy(dados, (s) => s.qtd_alfabetizado[index]),
+        _.sumBy(dados, (s) => s.qtd_avaliados[index])
+      )
+    ),
+  };
 
   return (
     <Card {...other} sx={{ pb: 2 }}>
       <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
       <Grid container justifyContent={'space-around'}>
+        <IndiceAlfabetizacaoBimestreUnicoComponent
+          key={`indice_alfabetizacao_componente_unico_geral`}
+          dados={indice_geral}
+        ></IndiceAlfabetizacaoBimestreUnicoComponent>
+
         {dados.map((item, index) => {
           return (
             <IndiceAlfabetizacaoBimestreUnicoComponent
