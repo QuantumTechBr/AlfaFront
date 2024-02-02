@@ -214,6 +214,7 @@ export default function RegistroAprendizagemComponenteListView() {
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
             disciplinaOptions={_disciplinas}
+            export_type='componente'
           />
 
           {canReset && (

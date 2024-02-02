@@ -4,6 +4,11 @@ import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Checkbox from '@mui/material/Checkbox';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
@@ -41,14 +46,19 @@ import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
-
+const filtros = {
+  escolasAG: [],
+};
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
 
+  const [filters, setFilters] = useState(filtros);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
+  const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
+  const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -69,6 +79,21 @@ export default function UserNewEditForm({ currentUser }) {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
+
+  useEffect(() => {
+    let idsAC = [];
+    let idAG = '';
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(funcao.id);
+      } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = funcao.id;
+      }
+    });
+    setIdsAssessorCoordenador(idsAC);
+    setIdAssessorGestao(idAG);
+  }, [funcoes]);
+
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -129,7 +154,7 @@ export default function UserNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
-      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return
@@ -139,6 +164,19 @@ export default function UserNewEditForm({ currentUser }) {
             zona_id: data.zona,
           }];
         }
+      } else if (data.funcao == idAssessorGestao) {
+        if (filters.escolasAG.length == 0) {
+          setErrorMsg('Voce deve selecionar uma ou mais escolas');
+        } else {
+          novoUsuario.funcao_usuario = [];
+          filters.escolasAG.map((escolaId) => {
+            novoUsuario.funcao_usuario.push({
+              funcao_id: data.funcao,
+              escola_id: escolaId,
+            })
+          })
+        }
+
       } else {
         if (data.escola == '') {
           setErrorMsg('Voce deve selecionar uma escola');
@@ -181,13 +219,91 @@ export default function UserNewEditForm({ currentUser }) {
     reset(defaultValues)
   }, [currentUser]);
 
-  const assessor = () => {
-    if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-      return true;
+  const handleFilters = useCallback(
+    async (nome, value) => {
+      const novosFiltros = {
+        ...filters,
+        [nome]: value,
+      }
+      setFilters(novosFiltros);
+    },
+    [filters]
+  );
+
+  const handleEscolasAG = useCallback(
+    (event) => {
+      handleFilters(
+        'escolasAG',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [handleFilters]
+  );
+
+  const renderValueEscolasAG = (selected) => 
+    selected.map((escolaId) => {
+      return escolas.find((option) => option.id == escolaId)?.nome;
+    }).join(', ');
+
+  const escolaOuZona = () => {
+    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
+      return (
+        <RHFSelect
+          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+          {zonas.map((zona) => (
+            <MenuItem key={zona.id} value={zona.id}>
+              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
+    } 
+    if ( getValues('funcao') == idAssessorGestao ) {
+      return (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+          }}
+        >      
+          <InputLabel>Escolas</InputLabel>
+          <Select
+            multiple
+            name="escola"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={filters.escolasAG}
+            onChange={handleEscolasAG}
+            input={<OutlinedInput label="Escolas" />}
+            renderValue={renderValueEscolasAG}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {escolas?.map((escola) => (
+              <MenuItem key={escola.id} value={escola.id}>
+                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
+                  {escola.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )
     } else {
-      return false;
+      return (
+        <RHFSelect 
+          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+          {escolas.map((escola) => (
+            <MenuItem key={escola.id} value={escola.id}>
+              {escola.nome}
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
     }
   }
+
+
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -224,25 +340,7 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <RHFSelect sx={{
-                display: !assessor() ? "none" : "inherit"
-              }} id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
-                {zonas.map((zona) => (
-                  <MenuItem key={zona.id} value={zona.id}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect sx={{
-                display: assessor() ? "none" : "inherit"
-              }} id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+              {escolaOuZona()}
 
             </Box>
 

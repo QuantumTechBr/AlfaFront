@@ -46,7 +46,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
   let escolasAssessor = escolas;
-  console.log(currentAluno)
+  // console.log(currentAluno)
   let alunoNascimento = parseISO(currentAluno.data_nascimento);
 
   const NewTurmaSchema = Yup.object().shape({

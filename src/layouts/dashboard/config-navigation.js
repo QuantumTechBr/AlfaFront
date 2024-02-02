@@ -116,7 +116,6 @@ export function useNavData() {
         icon: ICONS.alfaBookAccount,
         children: [
           { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-          { title: t('documentos de intervenção'), path: paths.dashboard.documento_turma },
           // { title: t('frequência'), path: paths.dashboard.blank },
           // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
           // { title: 'Planos de Aulas', path: paths.dashboard.blank },
@@ -130,7 +129,7 @@ export function useNavData() {
         icon: ICONS.alfaBookAccount,
         children: [
           {
-            title: t('Dianóstica'), 
+            title: t('Diagnóstica'), 
             path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
           },
           {
@@ -159,6 +158,13 @@ export function useNavData() {
       {
         title: t('Documentos Administrativos'),
         path: paths.dashboard.documento,
+        icon: ICONS.folder,
+      },
+
+      // Plano de Intervenção
+      {
+        title: t('Plano de Intervenção'),
+        path: paths.dashboard.plano_intervencao.list,
         icon: ICONS.folder,
       },
 
@@ -220,9 +226,6 @@ export function useNavData() {
       if (checkPermissaoModulo("turma","acesso")) {
         turmaModuloChildren.push({ title: 'Lista de Turmas', path: paths.dashboard.turma.list });
       }
-      if (checkPermissaoModulo("documento_turma","acesso")) {
-        turmaModuloChildren.push({ title: 'Documentos de Intervenção', path: paths.dashboard.documento_turma },);
-      }
       if (turmaModuloChildren.length){
         items.push({
           title: 'Turmas',
@@ -239,7 +242,7 @@ export function useNavData() {
           icon: ICONS.alfaBookAccount,
           children: [
             {
-              title: t('Dianóstica'), 
+              title: t('Diagnóstica'), 
               path: paths.dashboard.registro_aprendizagem.root_diagnostico, 
             },
             {
@@ -275,6 +278,14 @@ export function useNavData() {
         items.push({
           title: t('Documentos Administrativos'),
           path: paths.dashboard.documento,
+          icon: ICONS.folder,
+        });
+      }
+
+      if (checkPermissaoModulo("plano_intervencao","acesso")) {
+        items.push({
+          title: t('Plano de Intervenção'),
+          path: paths.dashboard.plano_intervencao.list,
           icon: ICONS.folder,
         });
       }

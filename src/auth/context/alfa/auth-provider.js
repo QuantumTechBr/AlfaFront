@@ -192,6 +192,13 @@ export function AuthProvider({ children }) {
     return moduloPermissao[permissao];
   }
 
+  const checkFuncao = (funcao) => {
+    if (!state.user || !state.user.permissao_usuario) { return null}
+    let permissaoUsuario = state.user.permissao_usuario[0];
+    return permissaoUsuario.nome == funcao;
+    /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
+  }
+
   const memoizedValue = useMemo(
     () => ({
       user: state.user,
@@ -205,7 +212,8 @@ export function AuthProvider({ children }) {
       logout,
       forgotPassword,
       confirmResetPassword,
-      checkPermissaoModulo
+      checkPermissaoModulo,
+      checkFuncao
     }),
     [login, logout, register, forgotPassword, state.user, status]
   );

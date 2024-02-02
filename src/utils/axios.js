@@ -104,6 +104,9 @@ export const endpoints = {
     total_alunos_ativos: '/api/v1/dashboards/total-alunos-ativos',
     total_turmas_ativas: '/api/v1/dashboards/total-turmas-ativas',
     total_usuarios_ativos: '/api/v1/dashboards/total-usuarios-ativos',
+    grid_rede:  '/api/v1/dashboards/grid-rede',
+    grid_escolas:  '/api/v1/dashboards/grid-escolas',
+    grid_professores:  '/api/v1/dashboards/grid-professores',
   },
   disciplina: {
     list: '/api/v1/disciplinas/',
@@ -119,12 +122,12 @@ export const endpoints = {
     update: '/api/v1/documentos/',
     delete: '/api/v1/documentos/',
   },
-  documento_turma: {
-    list: '/api/v1/documento-turma/',
-    post: '/api/v1/documento-turma/',
-    get_by_id: '/api/v1/documento-turma/',
-    update: '/api/v1/documento-turma/',
-    delete: '/api/v1/documento-turma/',
+  documento_intervencao: {
+    list: '/api/v1/documento-intervencao/',
+    post: '/api/v1/documento-intervencao/',
+    get_by_id: '/api/v1/documento-intervencao/',
+    update: '/api/v1/documento-intervencao/',
+    delete: '/api/v1/documento-intervencao/',
   },
   escola: {
     list: '/api/v1/escolas/',
@@ -188,6 +191,13 @@ export const endpoints = {
     get_by_id: '/api/v1/planos-aulas/',
     update: '/api/v1/planos-aulas/',
     delete: '/api/v1/planos-aulas/',
+  },
+  plano_intervencao: {
+    list: '/api/v1/planos-intervencao/',
+    post: '/api/v1/planos-intervencao/',
+    get_by_id: '/api/v1/planos-intervencao/',
+    update: '/api/v1/planos-intervencao/',
+    delete: '/api/v1/planos-intervencao/',
   },
   registro_aprendizagem: {
     list: '/api/v1/registros-aprendizagens/',

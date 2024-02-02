@@ -21,3 +21,30 @@ export function randomColor() {
   // console.log(corAleatoria);
   return corAleatoria;
 }
+
+export function saveCSVFile(filename, data) {
+  // ADD BOM (Codificação)
+  data = "\uFEFF" + data;
+  var blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+  if (navigator.msSaveBlob) {
+    // IE 10+
+    navigator.msSaveBlob(blob, filename);
+  } else {
+    var link = document.createElement('a');
+    if (link.download !== undefined) {
+      // feature detection
+      // Browsers that support HTML5 download attribute
+      var url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  }
+}
+
+export const relativePercentageDifference = (a, b) => 
+  Math.abs( ( ( a - b ) / ( ( a + b ) / 2 ) ) * 100 );
+export const percentageChange = (a, b) => ( b / a * 100 ) - 100;

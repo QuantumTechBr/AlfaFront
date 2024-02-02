@@ -54,6 +54,7 @@ const TABLE_HEAD = [
   { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'bimestre', label: 'Bimestre', width: 80 },
   { id: 'escola', label: 'Escola' },
+  { id: 'atualizado_por', label: 'Atualizado Por' },
   { id: '', width: 72 },
 ];
 
@@ -129,6 +130,7 @@ export default function RegistroAprendizagemFaseListView() {
             alunos: _turma.turmas_alunos.length,
             bimestre: _bimestre,
             escola: _turma.escola.nome,
+            atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : ''
           });
         }
       })
@@ -266,6 +268,7 @@ export default function RegistroAprendizagemFaseListView() {
             escolaOptions={escolas}
             turmaOptions={_turmasFiltered}
             bimestreOptions={bimestres}
+            export_type='fase'
           />
 
           {canReset && (
