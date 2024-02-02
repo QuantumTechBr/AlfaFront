@@ -22,7 +22,6 @@ import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
 
 // contexts
-import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
@@ -43,7 +42,6 @@ import {
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useRouter } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { first } from 'lodash';
@@ -71,7 +69,6 @@ export default function DashboardRedeView() {
   const theme = useTheme();
   const settings = useSettingsContext();
 
-  const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
@@ -199,7 +196,6 @@ export default function DashboardRedeView() {
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   // TABLE GRID
-  const router = useRouter();
   const TABLE_HEAD = [
     { id: 'ddz', label: 'DDZ', notsortable: true },
     { id: 'escolae', label: 'Escolas', notsortable: true },
