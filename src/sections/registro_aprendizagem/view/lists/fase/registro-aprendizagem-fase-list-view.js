@@ -130,6 +130,7 @@ export default function RegistroAprendizagemFaseListView() {
             alunos: _turma.turmas_alunos.length,
             bimestre: _bimestre,
             escola: _turma.escola.nome,
+            atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : ''
           });
         }
       })
