@@ -301,7 +301,9 @@ export default function DashboardDDZView() {
   });
 
   const calculaMeta = () => {
-    let _anos_metas = filters.anoEscolar.length ? _.pickBy(anos_metas, (v,k) => filters.anoEscolar.includes(+k)) : anos_metas;
+    let _anos_metas = filters.anoEscolar.length
+      ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
+      : anos_metas;
     let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
     return _meta;
   };
@@ -398,7 +400,7 @@ export default function DashboardDDZView() {
               />
             </Grid>
             <Grid xs={12} md={4}>
-              {!isGettingGraphics.value && (
+              {!!contextReady.value && !isGettingGraphics.value && (
                 <MetaComponent
                   title="Meta"
                   subtitle="entre a média das séries"

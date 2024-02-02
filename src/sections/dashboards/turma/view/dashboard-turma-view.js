@@ -483,7 +483,7 @@ export default function DashboardTurmaView() {
             />
           </Grid>
           <Grid xs={12} md={4}>
-            {!isGettingGraphics.value && (
+            {!!contextReady.value && !isGettingGraphics.value && (
               <>
                 {countHasIndiceDeFases() > 1 && (
                   <Typography
