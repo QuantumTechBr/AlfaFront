@@ -266,7 +266,8 @@ export default function DashboardRedeView() {
   });
 
   const calculaMeta = () => {
-    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    let _anos_metas = filters.anoEscolar.length ? _.pickBy(anos_metas, (v,k) => filters.anoEscolar.includes(+k)) : anos_metas;
+    let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
     return _meta;
   };
 
