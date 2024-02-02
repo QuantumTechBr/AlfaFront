@@ -195,7 +195,7 @@ export default function DashboardDDZView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, anosLetivos, zonas]);
+  }, [preparacaoInicialRunned, anosLetivos, zonas, turmas]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
