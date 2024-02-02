@@ -127,25 +127,26 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const preencheTabela = () => {
     const promisesList = [];
-    let turmasRegistroInicial = [];
-    let turmasRegistroFinal = [];
     if (!!turmas && turmas?.length) {
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
       const buscaPeriodoInicial = registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
-        .then((listaIdsTurmas) => {
-          if (listaIdsTurmas.data?.length) {
-            turmasRegistroInicial = turmas.filter((turma) =>
-              listaIdsTurmas.data.includes(turma.id)
-            );
-            turmasRegistroInicial = turmasRegistroInicial.map((turma) => {
-              const retorno = { ...turma };
-              retorno.periodo = 'Inicial';
-              retorno.alunos = turma.turmas_alunos?.length;
-              retorno.escola_nome = turma.escola.nome;
-              retorno.ano_letivo = turma.ano.ano;
-              return retorno;
+      .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
+      .then((turmasComRegistros) => {
+          let turmasRegistroInicial = [];
+          if (turmasComRegistros.data?.length) {
+            turmasComRegistros.data.forEach((registro) => {
+              let turma = turmas.find((turma) => turma.id == registro.turma_id);
+              if (turma?.id) {
+                const retorno = { ...turma };
+                retorno.periodo = 'Inicial';
+                retorno.alunos = turma.turmas_alunos?.length;
+                retorno.escola_nome = turma.escola.nome;
+                retorno.ano_letivo = turma.ano.ano;
+                retorno.atualizado_por = registro.atualizado_por;
+
+                turmasRegistroInicial.push(retorno);
+              }
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
           }
@@ -158,16 +159,21 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       promisesList.push(buscaPeriodoInicial);
       const buscaPeriodoFinal = registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Final' })
-        .then((listaIdsTurmas) => {
-          if (listaIdsTurmas.data?.length) {
-            turmasRegistroFinal = turmas.filter((turma) => listaIdsTurmas.data.includes(turma.id));
-            turmasRegistroFinal = turmasRegistroFinal.map((turma) => {
-              const retorno = { ...turma };
-              retorno.periodo = 'Final';
-              retorno.alunos = turma.turmas_alunos?.length;
-              retorno.escola_nome = turma.escola.nome;
-              retorno.ano_letivo = turma.ano.ano;
-              return retorno;
+        .then((turmasComRegistros) => {
+          let turmasRegistroFinal = [];
+          if (turmasComRegistros.data?.length) {
+            turmasComRegistros.data.forEach((registro) => {
+              let turma = turmas.find((turma) => turma.id == registro.turma_id);
+              if (turma?.id) {
+                const retorno = { ...turma };
+                retorno.periodo = 'Final';
+                retorno.alunos = turma.turmas_alunos?.length;
+                retorno.escola_nome = turma.escola.nome;
+                retorno.ano_letivo = turma.ano.ano;
+                retorno.atualizado_por = registro.atualizado_por;
+
+                turmasRegistroFinal.push(retorno);
+              }
             });
             turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
           }
