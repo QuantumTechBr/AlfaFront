@@ -263,7 +263,7 @@ export default function DashboardRedeView() {
     let total = 0;
     total = _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
     return total;
-  });
+  }, [dados]);
 
   const calculaMeta = () => {
     let _anos_metas = filters.anoEscolar.length

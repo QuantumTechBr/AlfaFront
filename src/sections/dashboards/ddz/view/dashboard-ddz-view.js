@@ -298,7 +298,7 @@ export default function DashboardDDZView() {
     let total = 0;
     total = _.sumBy(dados.grid_escolas ?? [], (ddz) => ddz.alunos);
     return total;
-  });
+  }, [dados]);
 
   const calculaMeta = () => {
     let _anos_metas = filters.anoEscolar.length

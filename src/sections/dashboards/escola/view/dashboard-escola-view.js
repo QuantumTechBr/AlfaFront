@@ -341,7 +341,7 @@ export default function DashboardEscolaView() {
     let total = 0;
     total = _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
     return total;
-  });
+  }, [dados]);
 
   const calculaMeta = () => {
     let _anos_metas = filters.anoEscolar.length
