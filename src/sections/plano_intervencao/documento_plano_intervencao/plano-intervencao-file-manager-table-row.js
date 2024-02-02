@@ -5,6 +5,8 @@ import { useState, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import Input from '@mui/material/Input';
+import TextField from '@mui/material/TextField';
 import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
@@ -28,6 +30,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import FileThumbnail from 'src/components/file-thumbnail';
+import { RHFTextField } from 'src/components/hook-form';
 //
 import PlanoIntervencaoFileManagerShareDialog from './plano-intervencao-file-manager-share-dialog';
 import PlanoIntervencaoFileManagerFileDetails from './plano-intervencao-file-manager-file-details';
@@ -38,7 +41,7 @@ import PlanoIntervencaoFileManagerFileDetails from './plano-intervencao-file-man
 export default function PlanoIntervencaoFileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { ano, arquivo, criado_por, updated_at, descricao, created_at, destino, id, nomeArquivo, tamanho } = row;
+  let { ano, arquivo, criado_por, updated_at, descricao, created_at, destino, id, nomeArquivo, tamanho } = row;
 
   const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
@@ -149,7 +152,7 @@ export default function PlanoIntervencaoFileManagerTableRow({ row, selected, onS
         </TableCell>
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>
-          {descricao}
+          <RHFTextField  name={`registros[` + id + `].descricao`} label="" defaultValue={descricao} />
         </TableCell>
 
         <TableCell onClick={handleClick} sx={{ whiteSpace: 'nowrap' }}>

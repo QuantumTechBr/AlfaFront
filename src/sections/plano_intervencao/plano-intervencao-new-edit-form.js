@@ -377,7 +377,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       if (currentPlano) {
         if (newFrom) {
           await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
-            reset();
             enqueueSnackbar('Criado com sucesso!');
             router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
           }).catch((error) => {
@@ -390,14 +389,12 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         }
       } else {
         await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
-          reset();
           enqueueSnackbar('Criado com sucesso!');
           router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
         }).catch((error) => {
           throw error;
         });
       }
-      reset();
       enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
