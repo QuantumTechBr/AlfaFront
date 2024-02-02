@@ -119,14 +119,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
 
   if (currentPlano?.aplicacao) {
-    if (currentPlano.aplicacao.escolas?.length > 0) {
-      aplicarInicial = 'Escolas';
-    } else if (currentPlano.aplicacao.zonas?.length > 0) {
-      aplicarInicial = 'DDZs';
-    } else if (currentPlano.aplicacao.alunos?.length > 0) {
+    if (currentPlano.aplicacao.alunos?.length > 0) {
       aplicarInicial = 'Alunos';
     } else if (currentPlano.aplicacao.turmas?.length > 0) {
       aplicarInicial = 'Turmas';
+    } else if (currentPlano.aplicacao.escolas?.length > 0) {
+      aplicarInicial = 'Escolas';
+    } else if (currentPlano.aplicacao.zonas?.length > 0) {
+      aplicarInicial = 'DDZs';
     }
   }
 
@@ -173,6 +173,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         auto_complete_aluno.push(al)
       });
       setAlunos(auto_complete_aluno)
+      reset();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
