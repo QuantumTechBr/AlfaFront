@@ -23,7 +23,7 @@ import { paths } from 'src/routes/paths';
 import parse from 'date-fns/parse';
 import planoIntervencaoMethods from './plano-intervencao-repository';
 import VisualizaPlanoIntervencao from './plano-intervencao-modal-visualiza-plano';
-
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -33,8 +33,12 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
   let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
   let date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
-
+  
   const hoje = new Date()
+
+  const { checkPermissaoModulo } = useAuthContext();
+
+  const permissaoCadastrar = checkPermissaoModulo("plano_intervencao","cadastrar");
 
   const router = useRouter();
 
@@ -103,10 +107,11 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
   return (
     <>
       <TableRow hover selected={selected} >
-
+        {permissaoCadastrar &&
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
+        } 
 
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>Índice de Alfabetização</TableCell>
 
@@ -140,6 +145,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
 
 
 
+        {permissaoCadastrar &&
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           {/* <Tooltip title="Edição Rápida" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
@@ -150,7 +156,8 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
-        </TableCell>
+        </TableCell> 
+        }
       </TableRow>
 
       <VisualizaPlanoIntervencao open={visualizaPlano.value} onClose={closeVisualizaPlano} currentPlano={id}/>

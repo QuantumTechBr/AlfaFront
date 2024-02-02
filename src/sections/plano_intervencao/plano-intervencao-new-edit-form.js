@@ -73,6 +73,7 @@ import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/view';
 import { AuthContext } from 'src/auth/context/alfa';
+
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 // ----------------------------------------------------------------------
 const filtros = {
@@ -86,6 +87,7 @@ const filtros = {
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
   const { user } = useContext(AuthContext);
+ 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -107,6 +109,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [zonasUsuario, setZonasUsuario] = useState([]);
   const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
   const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
+
   
   let aplicarInicial = '';
   let colunasDocumentosAntigos = [

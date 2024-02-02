@@ -55,6 +55,7 @@ import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import NovoPlanoIntervencaoForm from '../plano-intervencao-modal-form';
 import parse from 'date-fns/parse';
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 
@@ -91,7 +92,11 @@ export default function PlanoIntervencaoListView() {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { checkPermissaoModulo } = useAuthContext();
   const preparado = useBoolean(false);
+
+  const permissaoCadastrar = checkPermissaoModulo("plano_intervencao","cadastrar");
+
 
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
@@ -239,7 +244,7 @@ export default function PlanoIntervencaoListView() {
             { name: 'Planos de Intervenção', href: paths.dashboard.plano_intervencao.list },
             { name: 'Listar' },
           ]}
-          action={
+          action={permissaoCadastrar &&
             <Button
               // component={RouterLink}
               // href={paths.dashboard.plano_intervencao.new}
@@ -357,10 +362,14 @@ export default function PlanoIntervencaoListView() {
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
+                  onSelectAllRows={
+                    permissaoCadastrar ? (
+                    (checked) =>
                     table.onSelectAllRows(
                       checked,
                       tableData.map((row) => row.id)
+                    )) : (
+                      permissaoCadastrar
                     )
                   }
                 />
