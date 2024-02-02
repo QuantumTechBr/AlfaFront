@@ -32,6 +32,7 @@ import IconButton from '@mui/material/IconButton';
 import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // components
 import { RouterLink } from 'src/routes/components';
@@ -83,6 +84,7 @@ export default function DashboardDDZView() {
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
@@ -92,6 +94,7 @@ export default function DashboardDDZView() {
   const [filters, setFilters] = useState({
     anoLetivo: '',
     zona: zonaFiltro,
+    anoEscolar: [],
   });
 
   const [dados, setDados] = useState({
@@ -100,6 +103,10 @@ export default function DashboardDDZView() {
     grid_escolas: [],
     desempenho_alunos: {},
   });
+
+  const getTurmasPorAnoEscolar = (anoEscolar) => {
+    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+  };
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -110,6 +117,11 @@ export default function DashboardDDZView() {
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
         ddz: [_filtersToSearch.zona?.id],
+        turma: _.flatten(
+          filters.anoEscolar.map((aE) => {
+            return getTurmasPorAnoEscolar(aE);
+          })
+        ),
       };
 
       await Promise.all([
@@ -179,7 +191,7 @@ export default function DashboardDDZView() {
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
       preparacaoInicialRunned.onTrue();
-      Promise.all([buscaAnosLetivos(), buscaZonas()]).then(() => {
+      Promise.all([buscaAnosLetivos(), buscaZonas(), buscaTurmas()]).then(() => {
         contextReady.onTrue();
       });
     }
@@ -219,7 +231,6 @@ export default function DashboardDDZView() {
   }, []);
 
   // TABLE GRID
-
   const TABLE_HEAD = [
     { id: 'collapse', label: '', notsortable: true },
     { id: 'escola', label: 'Escola', notsortable: true },
@@ -333,6 +344,7 @@ export default function DashboardDDZView() {
                 onFilters={handleFilters}
                 anoLetivoOptions={anosLetivos}
                 ddzOptions={zonas}
+                anoEscolarOptions={[1, 2, 3]}
               />
             </Grid>
             <Grid xs={12} md="auto">
