@@ -335,7 +335,7 @@ export default function DashboardTurmaView() {
 
     if (ano) return _list[+ano];
     return _list;
- });
+  });
 
   const countHasIndiceDeFases = () => {
     return indiceDeFasesCount().filter((i) => i > 0).length;
@@ -349,7 +349,7 @@ export default function DashboardTurmaView() {
       }
     });
     return _ano;
-   });
+  });
 
   const getAlfabetizadosAno = useCallback((ano) => {
     let _series = dados[`indice_aprovacao_${ano}_ano`]?.categories[0]?.series ?? [];
@@ -364,23 +364,32 @@ export default function DashboardTurmaView() {
     );
   });
 
-  const totalEstudandesGeral = useCallback(() => {
-    let total = 0;
-    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
-      (acc, item) => acc + item.value,
-      0
-    );
-    return total;
-  });
+  const getTotalEstudandes = useCallback(
+    (ano_escolar) => {
+      let total = 0;
+      let _indice_fases = ano_escolar
+        ? dados[`indice_fases_${+ano_escolar}_ano`]
+        : dados.indice_fases_geral;
+      total = (_indice_fases.chart?.series ?? []).reduce((acc, item) => acc + item.value, 0);
+      return total;
+    },
+    [dados]
+  );
 
-  const totalEstudandesAvaliadosGeral = useCallback(() => {
-    let total = 0;
-    total = (dados.indice_fases_geral.chart?.series ?? []).reduce(
-      (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
-      0
-    );
-    return total;
-  });
+  const getTotalEstudandesAvaliados = useCallback(
+    (ano_escolar) => {
+      let total = 0;
+      let _indice_fases = ano_escolar
+        ? dados[`indice_fases_${+ano_escolar}_ano`]
+        : dados.indice_fases_geral;
+      total = (_indice_fases.chart?.series ?? []).reduce(
+        (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
+        0
+      );
+      return total;
+    },
+    [dados]
+  );
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -446,7 +455,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes"
-              total={totalEstudandesGeral()}
+              total={getTotalEstudandes()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -461,7 +470,7 @@ export default function DashboardTurmaView() {
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes Avaliados"
-              total={totalEstudandesAvaliadosGeral()}
+              total={getTotalEstudandesAvaliados()}
               icon={
                 <Iconify
                   width={ICON_SIZE}
@@ -518,7 +527,7 @@ export default function DashboardTurmaView() {
                   <IndicesCompostosFasesAlfabetizacaoWidget
                     key={`indices_component_${+ano_escolar}_ano`}
                     ano_escolar={+ano_escolar}
-                    total_avaliados={totalEstudandesAvaliadosGeral()}
+                    total_avaliados={getTotalEstudandesAvaliados(ano_escolar)}
                     indice_fases={_indice_fases}
                     indice_alfabetizacao={_indice_alfabetizacao}
                   />

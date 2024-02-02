@@ -294,7 +294,7 @@ export default function DashboardDDZView() {
     };
   };
 
-  const totalEstudandesGeral = useCallback(() => {
+  const getTotalEstudandes = useCallback(() => {
     let total = 0;
     total = _.sumBy(dados.grid_escolas ?? [], (ddz) => ddz.alunos);
     return total;
@@ -310,7 +310,7 @@ export default function DashboardDDZView() {
     let _soma = _.sumBy(dados.grid_escolas, (s) => s.alfabetizados);
     return _soma;
   };
-  const getTotalAvaliados = (ano) => {
+  const getTotalEstudandesAvaliados = () => {
     let _soma = _.sumBy(dados.grid_escolas, (s) => s.avaliados);
     return _soma;
   };
@@ -370,7 +370,7 @@ export default function DashboardDDZView() {
             <Grid xs={12} md={4}>
               <NumeroComponent
                 title="Total de Estudantes"
-                total={totalEstudandesGeral()}
+                total={getTotalEstudandes()}
                 icon={
                   <Iconify
                     width={ICON_SIZE}
@@ -404,7 +404,7 @@ export default function DashboardDDZView() {
                   subtitle="entre a média das séries"
                   meta={calculaMeta()}
                   alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalAvaliados()}
+                  total={getTotalEstudandesAvaliados()}
                 ></MetaComponent>
               )}
             </Grid>
