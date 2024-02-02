@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -12,7 +12,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 
 // components
-import { AuthContext } from 'src/auth/context/alfa';
 import _ from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -23,8 +22,6 @@ export default function DashboardRedeTableToolbar({
   anoLetivoOptions,
   anoEscolarOptions,
 }) {
-  const { user } = useContext(AuthContext);
-
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
     [onFilters]
