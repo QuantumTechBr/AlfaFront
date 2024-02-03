@@ -41,7 +41,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
-
+  const [velhasFuncoes, setVelhasFuncoes] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   
 
@@ -73,6 +73,16 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       liberaSalvar.onFalse()
     }
   }, [permissoes]);
+
+  useEffect(() => {
+    let velhasFunc = [];
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "DIRETOR" || funcao.nome == "PROFESSOR") {
+        velhasFunc.push(funcao)
+      }
+    });
+    setVelhasFuncoes(velhasFunc);
+  }, [funcoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -216,7 +226,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
             <RHFSelect name="funcao" label="Função" value={funcaoUsuario} onChange={handleFuncao}>
-              {funcoes.map((_funcao) => (
+              {velhasFuncoes.map((_funcao) => (
                 <MenuItem key={_funcao.id} value={_funcao.id}>
                   {_funcao.nome}
                 </MenuItem>

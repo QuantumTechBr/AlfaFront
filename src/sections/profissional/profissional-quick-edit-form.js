@@ -35,6 +35,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 export default function ProfissionalQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
   const assessor = useBoolean(false);
+  const [velhasFuncoes, setVelhasFuncoes] = useState([]);
   const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -66,6 +67,16 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
+
+  useEffect(() => {
+    let velhasFunc = [];
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "DIRETOR" || funcao.nome == "PROFESSOR") {
+        velhasFunc.push(funcao)
+      }
+    });
+    setVelhasFuncoes(velhasFunc);
+  }, [funcoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -213,7 +224,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
             <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()} value={funcaoUsuario} onChange={handleFuncao}>
-              {funcoes.map((_funcao) => (
+              {velhasFuncoes.map((_funcao) => (
                 <MenuItem key={_funcao.id} value={_funcao.id}>
                   {_funcao.nome}
                 </MenuItem>

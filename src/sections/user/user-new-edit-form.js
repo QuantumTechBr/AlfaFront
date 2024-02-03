@@ -60,6 +60,8 @@ export default function UserNewEditForm({ currentUser }) {
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
+  const [velhasFuncoes , setVelhasFuncoes] = useState([]);
+
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -83,13 +85,18 @@ export default function UserNewEditForm({ currentUser }) {
   useEffect(() => {
     let idsAC = [];
     let idAG = '';
+    let velhasFunc = [];
     funcoes.map((funcao) => {
       if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
         idsAC.push(funcao.id);
+        if (funcao.nome == "ASSESSOR DDZ") {velhasFunc.push(funcao)}
       } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
         idAG = funcao.id;
+      } else {
+        velhasFunc.push(funcao)
       }
     });
+    setVelhasFuncoes(velhasFunc);
     setIdsAssessorCoordenador(idsAC);
     setIdAssessorGestao(idAG);
   }, [funcoes]);
@@ -325,11 +332,11 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {funcoes.map((funcao) => (
-                  <MenuItem key={funcao.id} value={funcao.id}>
+                {velhasFuncoes.map((funcao) => 
+                  <MenuItem key={funcao.id} value={funcao.id} >
                     {funcao.nome}
                   </MenuItem>
-                ))}
+                )}
               </RHFSelect>
 
               <RHFSelect name="status" label="Status">

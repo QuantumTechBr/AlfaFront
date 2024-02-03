@@ -53,6 +53,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   const [permissoes, setPermissoes] = useState([]);
   const [funcaoProfessor, setFuncaoProfessor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [velhasFuncoes, setVelhasFuncoes] = useState([]);
 
   useEffect(() => {
     buscaFuncoes().then(funcoes => {
@@ -73,6 +74,16 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
+
+  useEffect(() => {
+    let velhasFunc = [];
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "DIRETOR" || funcao.nome == "PROFESSOR") {
+        velhasFunc.push(funcao)
+      }
+    });
+    setVelhasFuncoes(velhasFunc);
+  }, [funcoes]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -224,7 +235,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
                 (<MenuItem key={funcaoProfessor?.id} value={funcaoProfessor?.id}>
                   {funcaoProfessor?.nome}
                 </MenuItem>)
-                : (funcoes.map((funcao) => (
+                : (velhasFuncoes.map((funcao) => (
                   <MenuItem key={funcao.id} value={funcao.id}>
                     {funcao.nome}
                   </MenuItem>
