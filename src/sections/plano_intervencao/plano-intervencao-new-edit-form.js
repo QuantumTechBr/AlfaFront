@@ -73,6 +73,7 @@ import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/view';
 import { AuthContext } from 'src/auth/context/alfa';
+
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 // ----------------------------------------------------------------------
 const filtros = {
@@ -86,6 +87,7 @@ const filtros = {
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
   const { user } = useContext(AuthContext);
+ 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -107,6 +109,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [zonasUsuario, setZonasUsuario] = useState([]);
   const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
   const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
+
   
   let aplicarInicial = '';
   let colunasDocumentosAntigos = [
@@ -119,14 +122,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
 
   if (currentPlano?.aplicacao) {
-    if (currentPlano.aplicacao.escolas?.length > 0) {
-      aplicarInicial = 'Escolas';
-    } else if (currentPlano.aplicacao.zonas?.length > 0) {
-      aplicarInicial = 'DDZs';
-    } else if (currentPlano.aplicacao.alunos?.length > 0) {
+    if (currentPlano.aplicacao.alunos?.length > 0) {
       aplicarInicial = 'Alunos';
     } else if (currentPlano.aplicacao.turmas?.length > 0) {
       aplicarInicial = 'Turmas';
+    } else if (currentPlano.aplicacao.escolas?.length > 0) {
+      aplicarInicial = 'Escolas';
+    } else if (currentPlano.aplicacao.zonas?.length > 0) {
+      aplicarInicial = 'DDZs';
     }
   }
 
@@ -173,6 +176,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         auto_complete_aluno.push(al)
       });
       setAlunos(auto_complete_aluno)
+      reset();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
@@ -293,6 +297,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const defaultValues = useMemo(
     () => ({
       responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
+      acao: currentPlano?.acao || '',
       ano_escolar: currentPlano?.ano_escolar || '',
       inicio_previsto: inicioPrevisto,
       termino_previsto: terminoPrevisto,
@@ -362,6 +367,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       let terminoPrev = new Date(data.termino_previsto);
       let aplicacao = listaIdsAplicacao;
       let toSend = {
+        acao: data.acao,
         responsavel_id: data.responsavel.id,
         aplicacao,
         ano_escolar: parseInt(data.ano_escolar),
@@ -375,7 +381,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       if (currentPlano) {
         if (newFrom) {
           await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
-            reset();
             enqueueSnackbar('Criado com sucesso!');
             router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
           }).catch((error) => {
@@ -388,14 +393,12 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         }
       } else {
         await planoIntervencaoMethods.insertPlanoIntervencao(toSend).then((retorno) => {
-          reset();
           enqueueSnackbar('Criado com sucesso!');
           router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
         }).catch((error) => {
           throw error;
         });
       }
-      reset();
       enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
@@ -741,6 +744,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                       Índice de Alfabetização
                     </MenuItem>
                 </RHFSelect>
+
+                <RHFTextField  name="acao" label="Ação" />
 
                 <RHFAutocomplete
                   name="responsavel"
