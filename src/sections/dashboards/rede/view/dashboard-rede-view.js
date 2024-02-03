@@ -22,7 +22,6 @@ import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
 
 // contexts
-import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
@@ -43,7 +42,6 @@ import {
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useRouter } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
 import { first } from 'lodash';
@@ -71,7 +69,6 @@ export default function DashboardRedeView() {
   const theme = useTheme();
   const settings = useSettingsContext();
 
-  const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
@@ -199,7 +196,6 @@ export default function DashboardRedeView() {
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   // TABLE GRID
-  const router = useRouter();
   const TABLE_HEAD = [
     { id: 'ddz', label: 'DDZ', notsortable: true },
     { id: 'escolae', label: 'Escolas', notsortable: true },
@@ -263,14 +259,17 @@ export default function DashboardRedeView() {
     };
   };
 
-  const totalEstudandesGeral = useCallback(() => {
+  const getTotalEstudandes = useCallback(() => {
     let total = 0;
     total = _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
     return total;
-  });
+  }, [dados]);
 
   const calculaMeta = () => {
-    let _meta = _.sum(_.values(anos_metas)) / _.values(anos_metas).length;
+    let _anos_metas = filters.anoEscolar.length
+      ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
+      : anos_metas;
+    let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
     return _meta;
   };
 
@@ -278,7 +277,7 @@ export default function DashboardRedeView() {
     let _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
     return _soma;
   };
-  const getTotalAvaliados = (ano) => {
+  const getTotalEstudandesAvaliados = () => {
     let _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
     return _soma;
   };
@@ -337,7 +336,7 @@ export default function DashboardRedeView() {
             <Grid xs={12} md={4}>
               <NumeroComponent
                 title="Total de Estudantes"
-                total={totalEstudandesGeral()}
+                total={getTotalEstudandes()}
                 icon={
                   <Iconify
                     width={ICON_SIZE}
@@ -366,13 +365,13 @@ export default function DashboardRedeView() {
             </Grid>
 
             <Grid xs={12} md={4}>
-              {!isGettingGraphics.value && (
+              {!!contextReady.value && !isGettingGraphics.value && (
                 <MetaComponent
                   title="Meta"
                   subtitle="entre a média das séries"
                   meta={calculaMeta()}
                   alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalAvaliados()}
+                  total={getTotalEstudandesAvaliados()}
                 ></MetaComponent>
               )}
             </Grid>

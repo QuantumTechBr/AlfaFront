@@ -22,8 +22,7 @@ export default function DashboardEscolaTableToolbar({
   anoLetivoOptions,
   ddzOptions,
   escolaOptions,
-  anoTurmaOptions,
-  bimestreOptions,
+  anoEscolarOptions,
 }) {
   const { user } = useContext(AuthContext);
 
@@ -52,25 +51,10 @@ export default function DashboardEscolaTableToolbar({
     [onFilters]
   );
 
-  const handleFilterTurma = useCallback(
-    (event) => {
-      onFilters(
-        'turma',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
+  const handleFilterAnoEscolar = useCallback(
+    (event) => onFilters('anoEscolar', event.target.value),
     [onFilters]
   );
-
-  const handleFilterBimestre = useCallback(
-    (event) => {
-      onFilters('bimestre', event.target.value);
-    },
-    [onFilters]
-  );
-
-  const renderValueTurma = (selected) =>
-    selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ');
 
   const renderValueEscola = (selected) =>
     selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
@@ -176,67 +160,41 @@ export default function DashboardEscolaTableToolbar({
           </FormControl>
         )}
 
-        {anoTurmaOptions && (
+        {anoEscolarOptions && (
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 230 },
+              width: { xs: 1, md: 160 },
             }}
           >
-            <InputLabel size="small">Ano - Turma</InputLabel>
-
+            <InputLabel size="small">Ano Escolar</InputLabel>
             <Select
               size="small"
               multiple
-              value={filters.turma}
-              onChange={handleFilterTurma}
-              input={<OutlinedInput fullWidth label="Ano - Turma" />}
-              renderValue={renderValueTurma}
+              value={filters.anoEscolar}
+              onChange={handleFilterAnoEscolar}
+              input={<OutlinedInput fullWidth label="Ano Escolar" />}
+              renderValue={(selected) =>
+                `${_.sortBy(selected, [(opt) => opt])
+                  .map((value) => `${value}º`)
+                  .join(', ')} ano`
+              }
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
                 },
               }}
             >
-              {anoTurmaOptions?.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                  {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
-                    filters.escola.length != 1 ? ` (${option.escola.nome})` : ''
-                  } `}
+              {anoEscolarOptions?.map((option) => (
+                <MenuItem key={`anoEscolarOption_${option}`} value={option}>
+                  <Checkbox
+                    disableRipple
+                    size="small"
+                    checked={filters.anoEscolar.includes(option)}
+                  />
+                  {option}º ano
                 </MenuItem>
               ))}
-            </Select>
-          </FormControl>
-        )}
-
-        {bimestreOptions && (
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 120 },
-            }}
-          >
-            <InputLabel size="small">Bimestre</InputLabel>
-            <Select
-              size="small"
-              value={filters.bimestre}
-              onChange={handleFilterBimestre}
-              input={<OutlinedInput fullWidth label="Bimestre" />}
-              renderValue={(selected) => `${selected.ordinal}º`}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {bimestreOptions.map((option) => {
-                return (
-                  <MenuItem key={`bimestre_${option.id}`} value={option}>
-                    {`${option.ordinal}º`}
-                  </MenuItem>
-                );
-              })}
             </Select>
           </FormControl>
         )}
@@ -251,6 +209,5 @@ DashboardEscolaTableToolbar.propTypes = {
   anoLetivoOptions: PropTypes.array,
   ddzOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
-  anoTurmaOptions: PropTypes.array,
-  bimestreOptions: PropTypes.array,
+  anoEscolarOptions: PropTypes.array,
 };
