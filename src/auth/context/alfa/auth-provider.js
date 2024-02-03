@@ -181,15 +181,17 @@ export function AuthProvider({ children }) {
 
   const checkPermissaoModulo = (nomeModulo, permissao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
-    let permissaoUsuario = state.user.permissao_usuario[0];
-    if (permissaoUsuario.nome == "SUPERADMIN") { return true };
-    let modulosPermitidos = permissaoUsuario.permissao_modulo;
-    if (!modulosPermitidos) { return false; }
-    const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
-      moduloPermissao.modulo.namespace == nomeModulo
-    );
-    if (!moduloPermissao) { return false; }
-    return moduloPermissao[permissao];
+    for (let index = 0; index < state.user.permissao_usuario.length; index++) {
+      if (state.user.permissao_usuario[index].nome == "SUPERADMIN") { return true };
+      let modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
+      if (!modulosPermitidos) { return false; }
+      const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
+        moduloPermissao.modulo.namespace == nomeModulo
+      );
+      if (!moduloPermissao) { return false; }
+      return moduloPermissao[permissao]; 
+    }
+    return false;
   }
 
   const checkFuncao = (funcao) => {

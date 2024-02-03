@@ -271,6 +271,10 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                     <Typography>{plano?.fase}</Typography>
                 </div>
                 <div>
+                    <Label>Ação</Label>
+                    <Typography>{plano?.acao}</Typography>
+                </div>
+                <div>
                     <Label>Responsável</Label>
                     <Typography>{plano?.responsavel?.nome}</Typography>
                 </div>

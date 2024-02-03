@@ -24,7 +24,9 @@ export default function MetaComponent({
 
   // CALCULO DO TOTAL DA META
   let _percentAlfabetizados = (alfabetizados / total) * 100;
-  let _percentDaMeta = +((_percentAlfabetizados / meta) * 100).toFixed(2);
+  let _percentDaMeta = isNaN(_percentAlfabetizados)
+    ? 0
+    : +((_percentAlfabetizados / meta) * 100).toFixed(2);
   if (_percentDaMeta > 100) {
     _percentDaMeta = 100;
   }
