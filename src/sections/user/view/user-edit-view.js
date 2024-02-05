@@ -24,9 +24,23 @@ export default function UserEditView({ id }) {
   const [currentUser, setCurrentUser] = useState({});
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
-      usuario.data.funcao = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].funcao?.id : '';
-      usuario.data.escola = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].escola?.id : '';
-      usuario.data.zona = usuario.data.funcao_usuario.length > 0 ? usuario.data.funcao_usuario[0].zona?.id : '';
+      if (usuario.data.funcao_usuario.length > 0) {
+        for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {
+          let funcao = [];
+          let escola = [];
+          let zona = [];
+          funcao.push(usuario.data.funcao_usuario[index].funcao?.id);
+          escola.push(usuario.data.funcao_usuario[index].escola?.id);
+          zona.push(usuario.data.funcao_usuario[index].zona?.id);
+        }
+        usuario.data.funcao = funcao;
+        usuario.data.escola = escola;
+        usuario.data.zona = zona;
+      } else {
+        usuario.data.funcao = '';
+        usuario.data.escola = '';
+        usuario.data.zona = '';
+      }
       if (usuario.data.length === 0) {
         setWarningMsg('A API retornou uma lista vazia de usuário');
       }

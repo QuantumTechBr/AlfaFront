@@ -62,6 +62,7 @@ export default function UserNewEditForm({ currentUser }) {
 
   const [errorMsg, setErrorMsg] = useState('');
 
+
   useEffect(() => {
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
@@ -217,6 +218,15 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
+    console.log(currentUser)
+    let escIds = [];
+    currentUser?.escola?.map((escolaId) => {
+      escIds.push(escolaId)
+    })
+    let novosFiltros = {
+      escolasAG: escIds
+    }
+    setFilters(novosFiltros);
   }, [currentUser]);
 
   const handleFilters = useCallback(
@@ -229,6 +239,8 @@ export default function UserNewEditForm({ currentUser }) {
     },
     [filters]
   );
+
+  
 
   const handleEscolasAG = useCallback(
     (event) => {
