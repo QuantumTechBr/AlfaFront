@@ -25,17 +25,17 @@ export default function UserEditView({ id }) {
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
       if (usuario.data.funcao_usuario.length > 0) {
-        for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {
-          let funcao = [];
-          let escola = [];
-          let zona = [];
+        let funcao = [];
+        let escola = [];
+        let zona = [];
+        for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {  
           funcao.push(usuario.data.funcao_usuario[index].funcao?.id);
           escola.push(usuario.data.funcao_usuario[index].escola?.id);
           zona.push(usuario.data.funcao_usuario[index].zona?.id);
         }
-        usuario.data.funcao = funcao;
-        usuario.data.escola = escola;
-        usuario.data.zona = zona;
+        usuario.data.funcao = funcao[0] ? funcao[0] : '';
+        usuario.data.escola = escola ? escola : '';
+        usuario.data.zona = zona[0] ? zona[0] : '';
       } else {
         usuario.data.funcao = '';
         usuario.data.escola = '';
