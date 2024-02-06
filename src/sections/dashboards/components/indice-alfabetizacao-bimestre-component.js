@@ -20,14 +20,14 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   options,
   ...other
 }) {
-  let _percentCalc = (altabetizados, avaliados) => {
-    let _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
+  const _percentCalc = (altabetizados, avaliados) => {
+    const _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
     return !Number.isNaN(_calculed) ? _calculed : 0;
   };
 
   let _qtd_bimestres = 0;
   const dados = grid_ddz.map((item) => {
-    let _retorno = {
+    const _retorno = {
       zona_id: item.zona_id,
       zona_nome: item.zona_nome,
       qtd_avaliados: item.qtd_avaliados,
@@ -55,9 +55,9 @@ export default function IndiceAlfabetizacaoBimestreComponent({
     <Card {...other} sx={{ pb: 2 }}>
       <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
-      <Grid container justifyContent={'space-around'}>
+      <Grid container justifyContent="space-around">
         <IndiceAlfabetizacaoBimestreUnicoComponent
-          key={`indice_alfabetizacao_componente_unico_geral`}
+          key="indice_alfabetizacao_componente_unico_geral"
           dados={indice_geral}
         ></IndiceAlfabetizacaoBimestreUnicoComponent>
 
@@ -191,9 +191,9 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
 
         if (opts.seriesIndex == qtd_bimestres) {
           if (opts.dataPointIndex > 0) {
-            let _percents = opts.w.config.series[opts.seriesIndex].data;
-            let _percentPrev = _percents[opts.dataPointIndex - 1];
-            let _percent = value;
+            const _percents = opts.w.config.series[opts.seriesIndex].data;
+            const _percentPrev = _percents[opts.dataPointIndex - 1];
+            const _percent = value;
             let _difference = percentageChange(_percentPrev, _percent);
             if (_difference == 0 || _difference == Infinity) return '';
             _difference = _difference > 0 ? `+${Math.floor(_difference)}` : Math.ceil(_difference);

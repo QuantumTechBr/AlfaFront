@@ -38,10 +38,10 @@ export default function IndicesComponent({
         >
           <Box
             minHeight={52}
-            display={'flex'}
-            justifyContent={'center'}
-            alignItems={'center'}
-            textAlign={'center'}
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            textAlign="center"
             sx={{
               bgcolor: RegistroAprendizagemFasesColors[key],
             }}
@@ -50,7 +50,7 @@ export default function IndicesComponent({
               {value}
             </Typography>
           </Box>
-          <Box px={0} py={0.5} textAlign={'center'}>
+          <Box px={0} py={0.5} textAlign="center">
             <Typography variant="body2">
               {indice_fases.chart.series.find((item) => item.label == value).value}
             </Typography>
@@ -80,32 +80,32 @@ export default function IndicesComponent({
       <Grid flexBasis={0} flexGrow={1}>
         <Box
           minHeight={52}
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          textAlign={'center'}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          textAlign="center"
         >
           <Typography px={0} py={0.5} variant="subtitle2">
             ANO DE ENSINO
           </Typography>
         </Box>
-        <Box px={2} py={0.5} textAlign={'center'}>
+        <Box px={2} py={0.5} textAlign="center">
           <Typography variant="body2">{titulo_completo}</Typography>
         </Box>
       </Grid>
       <Grid flexGrow={1} flexBasis={0}>
         <Box
           minHeight={52}
-          display={'flex'}
-          justifyContent={'center'}
-          alignItems={'center'}
-          textAlign={'center'}
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          textAlign="center"
         >
           <Typography px={0} py={0.5} variant="subtitle2">
             TOTAL DE ESTUDANTES
           </Typography>
         </Box>
-        <Box px={2} py={0.5} textAlign={'center'}>
+        <Box px={2} py={0.5} textAlign="center">
           <Typography variant="body2">{total_estudantes}</Typography>
         </Box>
       </Grid>

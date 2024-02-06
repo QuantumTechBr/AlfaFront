@@ -1,5 +1,6 @@
 import { createContext, useState } from 'react';
 import profissionalMethods from '../profissional-repository';
+import { ProfissionaisContext } from './profissional-context';
 
 export const ProfissionalContext = createContext();
 
@@ -37,7 +38,6 @@ export const ProfissionaisProvider = ({ children }) => {
     return profissionalMethods.getProfissionalById(id).then((response) => {
       return response.data;
     });
-    return null;
   };
 
   return (

@@ -16,7 +16,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
   total_avaliados,
 }) {
   let titulo_completo = ano_escolar;
-  if (!!ano_escolar) {
+  if (!ano_escolar) {
     titulo_completo += `º ano`;
   } else {
     titulo_completo = 'Geral';

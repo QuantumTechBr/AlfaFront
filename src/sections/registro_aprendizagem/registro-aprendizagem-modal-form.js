@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
-import * as Yup from 'yup';
 import { useEffect, useCallback, useMemo, useState, useContext } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -52,7 +50,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -87,9 +84,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.map((turma) => (
-          <MenuItem key={turma.id} value={turma.id}>
-            {turma.ano_escolar}º {turma.nome}
+        {turmas.map((doturma) => (
+          <MenuItem key={doturma.id} value={doturma.id}>
+            {doturma.ano_escolar}º {doturma.nome}
           </MenuItem>
         ))}
       </RHFSelect>
@@ -157,9 +154,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
             {tipo == 'Avaliação de Fase' && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
-                {bimestres.map((bimestre) => (
-                  <MenuItem key={bimestre.id} value={bimestre.id}>
-                    {`${bimestre.ordinal}º Bimestre`}
+                {bimestres.map((dobimestre) => (
+                  <MenuItem key={dobimestre.id} value={dobimestre.id}>
+                    {`${dobimestre.ordinal}º Bimestre`}
                   </MenuItem>
                 ))}
               </RHFSelect>
@@ -168,9 +165,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             {/* DIAGNOSTICO */}
             {tipo == 'Avaliação Diagnóstica' && (
               <RHFSelect name="periodo" label="Período">
-                {_periodos.map((periodo) => (
-                  <MenuItem key={periodo} value={periodo}>
-                    {periodo}
+                {_periodos.map((doperiodo) => (
+                  <MenuItem key={doperiodo} value={doperiodo}>
+                    {doperiodo}
                   </MenuItem>
                 ))}
               </RHFSelect>

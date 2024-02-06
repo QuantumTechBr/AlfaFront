@@ -1,12 +1,9 @@
 import { useMemo } from 'react';
 import useSWR, { mutate } from 'swr';
-// utils
 import { fetcher, endpoints } from 'src/utils/axios';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 import calendarioMethods from 'src/sections/calendario/calendario-repository';
 import { format } from 'date-fns';
-
-// ----------------------------------------------------------------------
 
 const options = {
   revalidateIfStale: false,
@@ -22,10 +19,8 @@ export function useGetEvents() {
   );
 
   const memoizedValue = useMemo(() => {
-    // console.table(data);
     const events = (data?.events ?? data)?.map((event) => {
       if (event.ano) {
-        // console.table(event);
         return convertToEvent(event);
       }
       return event;
@@ -44,9 +39,9 @@ export function useGetEvents() {
 }
 
 function convertToEvent(event) {
-  let data_inicio = new Date(event.data_inicio);
-  let data_final = new Date(event.data_final);
-  let itsAllDay = event.dia_todo ?? false;
+  const data_inicio = new Date(event.data_inicio);
+  const data_final = new Date(event.data_final);
+  const itsAllDay = event.dia_todo ?? false;
   return {
     id: event.id,
     title: event.titulo ?? '_titulo_',
@@ -55,13 +50,10 @@ function convertToEvent(event) {
     start: data_inicio,
     end: data_final,
     description: event.descricao,
-    // COLOR
     color: CALENDAR_COLOR_OPTIONS[0],
     textColor: CALENDAR_COLOR_OPTIONS[0],
   };
 }
-
-// ----------------------------------------------------------------------
 
 export async function createEvent(eventData) {
   const payload = {
@@ -73,7 +65,7 @@ export async function createEvent(eventData) {
     descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
-  let response = await calendarioMethods.insertCalendario(payload);
+  const response = await calendarioMethods.insertCalendario(payload);
 
   /**
    * Work in local
@@ -81,7 +73,6 @@ export async function createEvent(eventData) {
   mutate(
     endpoints.calendar.list,
     (currentData) => {
-      // console.table(currentData);
       const events = [...(currentData.events ?? currentData), convertToEvent(response.data)];
 
       return {
@@ -94,7 +85,6 @@ export async function createEvent(eventData) {
   );
 }
 
-// ----------------------------------------------------------------------
 
 export async function updateEvent(eventData) {
   const payload = {
@@ -108,9 +98,6 @@ export async function updateEvent(eventData) {
   };
   await calendarioMethods.updateCalendarioById(eventData.id, payload);
 
-  /**
-   * Work in local
-   */
   mutate(
     endpoints.calendar.list,
     (currentData) => {
@@ -127,14 +114,9 @@ export async function updateEvent(eventData) {
   );
 }
 
-// ----------------------------------------------------------------------
-
 export async function deleteEvent(eventId) {
   await calendarioMethods.deleteCalendarioById(eventId);
 
-  /**
-   * Work in local
-   */
   mutate(
     endpoints.calendar.list,
     (currentData) => {

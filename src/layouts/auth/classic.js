@@ -60,16 +60,6 @@ export default function AuthClassicLayout({ children, image, title }) {
 
   const upMd = useResponsive('up', 'md');
 
-  /*const renderLogo = (
-    <Logo
-      sx={{
-        zIndex: 9,
-        position: 'absolute',
-        m: { xs: 2, md: 5 },
-      }}
-    />
-  );*/
-
   const renderContent = (
     <Stack
       sx={{
@@ -144,7 +134,7 @@ export default function AuthClassicLayout({ children, image, title }) {
         minHeight: '100vh',
       }}
     >
-      { /*{renderLogo}*/ }
+      { }
 
       {upMd && renderSection}
 

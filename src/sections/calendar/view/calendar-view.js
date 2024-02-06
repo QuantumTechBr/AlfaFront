@@ -13,11 +13,8 @@ import { useState, useEffect, useCallback, useContext } from 'react';
 // @mui
 import { useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import DialogTitle from '@mui/material/DialogTitle';
 // utils
 import { fTimestamp } from 'src/utils/format-time';
@@ -29,7 +26,6 @@ import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
 // api
 import { updateEvent, useGetEvents } from 'src/api/calendar';
 // components
-import Iconify from 'src/components/iconify';
 import { useSettingsContext } from 'src/components/settings';
 //
 import { useCalendar, useEvent } from '../hooks';
@@ -69,13 +65,11 @@ export default function CalendarView() {
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
-    let fullEvents = calendarEvents ?? [];
-    // console.warn('calendarEvents');
-    // console.table(calendarEvents);
+    const fullEvents = calendarEvents ?? [];
 
     // ANOS LETIVOS
     const colorAnoLetivo = CALENDAR_COLOR_OPTIONS[3];
-    if (!!anosLetivos) {
+    if (!anosLetivos) {
       anosLetivos.forEach((anoLetivo) => {
         fullEvents.push({
           id: `anoLetivo_data_inicio_${anoLetivo.id}`,
@@ -109,7 +103,7 @@ export default function CalendarView() {
     // BIMESTRES
     const colorBimestreInicio = CALENDAR_COLOR_OPTIONS[4];
     const colorBimestreFim = CALENDAR_COLOR_OPTIONS[6];
-    if (!!bimestres) {
+    if (!bimestres) {
       bimestres.forEach((bimestre) => {
         // console.table(bimestre);
         fullEvents.push({
@@ -244,7 +238,7 @@ export default function CalendarView() {
               droppable={false}
               selectable={true}
               locales={[ptBrLocale]}
-              locale={'pt-br'}
+              locale="pt-br"
               rerenderDelay={10}
               allDayMaintainDuration
               eventResizableFromStart
@@ -260,11 +254,9 @@ export default function CalendarView() {
               height={smUp ? 'calc(100vh - 175px)' : 'auto'}
               eventDrop={(arg) => {
                 return false;
-                onDropEvent(arg, updateEvent);
               }}
               eventResize={(arg) => {
                 return false;
-                onResizeEvent(arg, updateEvent);
               }}
               plugins={[
                 multiMonthPlugin,

@@ -16,10 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
 import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
-// assets
-import { countries } from 'src/assets/data';
-// components
-import Iconify from 'src/components/iconify';
+
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import userMethods from './user-repository';
@@ -61,8 +58,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
+    permissaoMethods.getAllPermissoes().then(data => {
+      setPermissoes(data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
@@ -107,7 +104,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -176,7 +172,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);

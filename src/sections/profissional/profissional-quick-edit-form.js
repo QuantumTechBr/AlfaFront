@@ -61,8 +61,8 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
+    permissaoMethods.getAllPermissoes().then(_permissoes => {
+      setPermissoes(_permissoes.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
@@ -101,7 +101,6 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -167,7 +166,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return (msg[0]?.charAt(0) || '').toUpperCase() + (msg[0]?.slice(1) || '');
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);

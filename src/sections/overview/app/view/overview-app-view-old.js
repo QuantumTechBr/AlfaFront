@@ -115,6 +115,7 @@ export default function OverviewAppView() {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     dashboardsMethods
       .getDashboardIndiceFases({
         ...fullFilters,

@@ -169,7 +169,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
         />
 
         {series.map((item) => {
-          let preparedData = prepareData(item.data);
+          prepareData(item.data);
           let chartOptionsMod = chartOptionsBase;
           chartOptionsMod.dataLabels.formatter = function (
             value,

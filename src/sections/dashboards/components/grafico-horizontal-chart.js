@@ -67,8 +67,8 @@ export default function GraficoHorizontalChart({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val, opt) {
-        const goals = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex].goals;
+      formatter: (val, opt) => {
+        const { goals } = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex];
 
         if (goals && goals.length) {
           if (val == 0) return '';
@@ -92,7 +92,7 @@ export default function GraficoHorizontalChart({
         highlightDataSeries: false,
       },
       y: {
-        formatter: function (value, opt) {
+        formatter: (value, opt) => {
           return value ?? series[opt.dataPointIndex]?.alfabetizados ?? '-';
         },
         title: {
@@ -141,11 +141,10 @@ export default function GraficoHorizontalChart({
   });
 
   return (
-    <>
-      <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
+    <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
         <Scrollbar>
           <Chart
-            width={'100%'}
+            width="100%"
             type="bar"
             series={chartSeries}
             options={chartOptions}
@@ -153,7 +152,6 @@ export default function GraficoHorizontalChart({
           />
         </Scrollbar>
       </Card>
-    </>
   );
 }
 

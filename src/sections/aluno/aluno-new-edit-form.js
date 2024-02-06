@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useMemo, useEffect, useState, useContext } from 'react';
@@ -155,7 +156,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
       escolasAssessor = escolas.filter((escola) => {
-        escola.zona.id == user.funcao_usuario[0].zona.id
+        return escola.zona.id == user.funcao_usuario[0].zona.id;
       })
     } 
   }, []);

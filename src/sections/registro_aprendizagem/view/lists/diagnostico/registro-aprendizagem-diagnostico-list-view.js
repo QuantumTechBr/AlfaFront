@@ -127,7 +127,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const preencheTabela = () => {
     const promisesList = [];
-    if (!!turmas && turmas?.length) {
+    if (!turmas && turmas?.length) {
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
       const buscaPeriodoInicial = registroAprendizagemMethods
@@ -324,11 +324,11 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const preencheGraficos = async () => {
     console.log('preenche gráficos');
     if (
-      !!anosLetivos &&
+      !anosLetivos &&
       anosLetivos.length > 0 &&
-      !!escolas &&
+      !escolas &&
       escolas.length > 0 &&
-      !!turmas &&
+      !turmas &&
       turmas.length > 0
     ) {
       const fullFilters = {

@@ -208,15 +208,7 @@ export default function PlanoIntervencaoFileManagerFolderItem({
           Copy Link
         </MenuItem>
 
-        {/* <MenuItem
-          onClick={() => {
-            popover.onClose();
-            share.onTrue();
-          }}
-        >
-          <Iconify icon="solar:share-bold" />
-          Disponibilizar
-        </MenuItem> */}
+        {}
 
         <MenuItem
           onClick={() => {
@@ -242,7 +234,7 @@ export default function PlanoIntervencaoFileManagerFolderItem({
         </MenuItem>
       </CustomPopover>
 
-      <PlanoIntervencaoFileDetails
+      <PlanoIntervencaoFileManagerFileDetails
         item={folder}
         favorited={favorite.value}
         onFavorite={favorite.onToggle}

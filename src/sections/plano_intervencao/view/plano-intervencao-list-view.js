@@ -40,11 +40,7 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-//
-// import UserTableRow from '../user-table-row';
-// import UserTableToolbar from '../user-table-toolbar';
-// import UserTableFiltersResult from '../user-table-filters-result';
-//
+
 import PlanoIntervencaoTableRow from '../plano-intervencao-table-row';
 import PlanoIntervencaoTableToolbar from '../plano-intervencao-table-toolbar';
 import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filters-result';
@@ -85,7 +81,7 @@ const defaultFilters = {
 
 export default function PlanoIntervencaoListView() {
 
-  const [_userList, setUserList] = useState([]);
+  const [__userList, setUserList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
@@ -110,10 +106,6 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de escolas');
       preparado.onTrue();
     });
-    // buscaFuncoes().catch((error) => {
-    //   setErrorMsg('Erro de comunicação com a API de funções');
-    //   preparado.onTrue();
-    // });
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
