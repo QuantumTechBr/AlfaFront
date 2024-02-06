@@ -31,12 +31,9 @@
     }
   },
   "eslint": {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
-    "ignoreDuringBuilds": true
+    "ignoreDuringBuilds": false
   },
   "rules": {
-    // Todo: investigate, for each of these rules, whether we want them.
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/ban-tslint-comment": "off",
