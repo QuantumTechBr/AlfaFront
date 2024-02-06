@@ -12,10 +12,6 @@ import { setSession } from '../context/alfa/utils';
 
 const loginPaths = {
   alfa: paths.auth.alfa.login,
-  jwt: paths.auth.jwt.login,
-  auth0: paths.auth.auth0.login,
-  amplify: paths.auth.amplify.login,
-  firebase: paths.auth.firebase.login,
 };
 
 // ----------------------------------------------------------------------
