@@ -51,8 +51,8 @@ export const tokenExpired = (exp) => {
   expiredTimer = setTimeout(() => {
     alert('Token expired');
 
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('expirationDate');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('expirationDate');
 
     window.location.href = paths.auth.alfa.login;
   }, timeLeft);
@@ -62,8 +62,8 @@ export const tokenExpired = (exp) => {
 
 export const setSession = (accessToken, expirationDate) => {
   if (accessToken) {
-    sessionStorage.setItem('accessToken', accessToken);
-    sessionStorage.setItem('expirationDate', expirationDate);
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('expirationDate', expirationDate);
     
     axios.defaults.headers.common.Authorization = `Token ${accessToken}`;
 
@@ -72,7 +72,7 @@ export const setSession = (accessToken, expirationDate) => {
     
     //tokenExpired(expirationDate);
   } else {
-    sessionStorage.removeItem('accessToken');
+    localStorage.removeItem('accessToken');
     delete axios.defaults.headers.common.Authorization;
   }
 };

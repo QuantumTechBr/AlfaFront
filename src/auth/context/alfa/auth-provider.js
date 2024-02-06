@@ -58,8 +58,8 @@ export function AuthProvider({ children }) {
 
   const initialize = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
-      const expirationDate = sessionStorage.getItem('expirationDate');
+      const accessToken = localStorage.getItem(STORAGE_KEY);
+      const expirationDate = localStorage.getItem('expirationDate');
 
       if (accessToken && isValidToken(accessToken)) {
         setSession(accessToken, expirationDate);
@@ -137,7 +137,7 @@ export function AuthProvider({ children }) {
 
     const { accessToken, user } = response.data;
 
-    sessionStorage.setItem(STORAGE_KEY, accessToken);
+    localStorage.setItem(STORAGE_KEY, accessToken);
 
     dispatch({
       type: 'REGISTER',
