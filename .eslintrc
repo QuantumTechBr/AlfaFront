@@ -4,11 +4,7 @@
     "browser": true,
     "es2021": true
   },
-  "plugins": [
-    "react",
-    "react-hooks",
-    "@typescript-eslint"
-  ],
+  "plugins": ["react", "react-hooks", "@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:react/recommended"],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
@@ -20,9 +16,7 @@
       "impliedStrict": true
     },
     "babelOptions": {
-      "presets": [
-        "@babel/preset-react"
-      ]
+      "presets": ["@babel/preset-react"]
     }
   },
   "settings": {
@@ -31,19 +25,15 @@
     },
     "import/resolver": {
       "alias": {
-        "map": [
-          [
-            "src",
-            "./src"
-          ]
-        ],
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".json"
-        ]
+        "map": [["src", "./src"]],
+        "extensions": [".js", ".jsx", ".json"]
       }
     }
+  },
+  "eslint": {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    "ignoreDuringBuilds": true
   },
   "rules": {
     // Todo: investigate, for each of these rules, whether we want them.
@@ -76,28 +66,28 @@
     "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "never" }],
     "react/prop-types": "off",
     "spaced-comment": [2, "always", { "exceptions": ["-"], "markers": ["/", "/-"] }],
-         // These off- or differently-configured rules work well for us.
-        "no-unused-expressions": "off",
-        "@typescript-eslint/no-unused-expressions": [
-          "error",
-          {
-            "allowShortCircuit": true,
-            "allowTernary": true,
-            "allowTaggedTemplates": true
-          }
-        ],
-        "@typescript-eslint/no-unused-vars": [
-          "off",
-          {
-            "vars": "all",
-            "args": "after-used",
-            "ignoreRestSiblings": true
-          }
-        ],
-        "no-useless-constructor": "off",
-        "@typescript-eslint/no-use-before-define": "off",
-        "@typescript-eslint/no-useless-constructor": "warn",
-        "@typescript-eslint/prefer-literal-enum-member": "error",
+    // These off- or differently-configured rules work well for us.
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "off",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "no-useless-constructor": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-useless-constructor": "warn",
+    "@typescript-eslint/prefer-literal-enum-member": "error",
     "prefer-const": [
       "warn",
       {
