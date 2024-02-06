@@ -6,7 +6,7 @@ import { useEffect, useReducer, useCallback, useMemo } from 'react';
 import axios, { endpoints } from 'src/utils/axios';
 //
 import { AuthContext } from './auth-context';
-import { isValidToken, setSession } from './utils';
+import { clearSession, isValidToken, setHeaderSession, setSession } from './utils';
 
 // ----------------------------------------------------------------------
 
@@ -34,12 +34,7 @@ const reducer = (state, action) => {
       user: action.payload.user,
     };
   }
-  if (action.type === 'REGISTER') {
-    return {
-      ...state,
-      user: action.payload.user,
-    };
-  }
+
   if (action.type === 'LOGOUT') {
     return {
       ...state,
@@ -51,18 +46,13 @@ const reducer = (state, action) => {
 
 // ----------------------------------------------------------------------
 
-const STORAGE_KEY = 'accessToken';
-
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const initialize = useCallback(async () => {
     try {
-      const accessToken = localStorage.getItem(STORAGE_KEY);
-      const expirationDate = localStorage.getItem('expirationDate');
-
-      if (accessToken && isValidToken(accessToken)) {
-        setSession(accessToken, expirationDate);
+      if (isValidToken()) {
+        setHeaderSession();
 
         const response = await axios.get(endpoints.auth.me);
 
@@ -112,7 +102,11 @@ export function AuthProvider({ children }) {
     const accessToken = response.data.token;
     const user = response.data.usuario;
     const expiresIn = response.data.expires_in;
-    const expirationDate = Date.now() + expiresIn;
+    const expiresIn_milliseconds =
+      (typeof expiresIn).toUpperCase() == 'STRING'
+        ? Math.floor(parseFloat(expiresIn) * 1000)
+        : expiresIn;
+    const expirationDate = new Date(Date.now() + expiresIn_milliseconds);
 
     setSession(accessToken, expirationDate);
 
@@ -124,32 +118,9 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  // REGISTER
-  const register = useCallback(async (email, password, firstName, lastName) => {
-    const data = {
-      email,
-      password,
-      firstName,
-      lastName,
-    };
-
-    const response = await axios.post(endpoints.auth.register, data);
-
-    const { accessToken, user } = response.data;
-
-    localStorage.setItem(STORAGE_KEY, accessToken);
-
-    dispatch({
-      type: 'REGISTER',
-      payload: {
-        user,
-      },
-    });
-  }, []);
-
   // LOGOUT
   const logout = useCallback(async () => {
-    setSession(null, null);
+    clearSession();
     dispatch({
       type: 'LOGOUT',
     });
@@ -174,6 +145,11 @@ export function AuthProvider({ children }) {
     console.log(response);
     return response;
   }, []);
+
+  // let location = useLocation();
+  // useEffect(() => {
+  //   if (!isValidToken()) logout();
+  // }, [location]);
 
   // ----------------------------------------------------------------------
 
@@ -222,14 +198,13 @@ export function AuthProvider({ children }) {
       unauthenticated: status === 'unauthenticated',
       //
       login,
-      register,
       logout,
       forgotPassword,
       confirmResetPassword,
       checkPermissaoModulo,
       checkFuncao,
     }),
-    [login, logout, register, forgotPassword, state.user, status]
+    [login, logout, forgotPassword, state.user, status]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
