@@ -211,8 +211,8 @@ export default function FileManagerView() {
     async (event) => {
 
         const turmaId = event.target.value;
-        const doturmas = await buscaTurmas();
-        setTurmaSelecionada(doturmas.find((option) => option.id == turmaId));
+        const _turmas = await buscaTurmas();
+        setTurmaSelecionada(_turmas.find((option) => option.id == turmaId));
         buscaDocumentos(turmaId);
     
       },

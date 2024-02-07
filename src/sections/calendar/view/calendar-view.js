@@ -69,7 +69,7 @@ export default function CalendarView() {
 
     // ANOS LETIVOS
     const colorAnoLetivo = CALENDAR_COLOR_OPTIONS[3];
-    if (!anosLetivos) {
+    if (anosLetivos) {
       anosLetivos.forEach((anoLetivo) => {
         fullEvents.push({
           id: `anoLetivo_data_inicio_${anoLetivo.id}`,
@@ -103,7 +103,7 @@ export default function CalendarView() {
     // BIMESTRES
     const colorBimestreInicio = CALENDAR_COLOR_OPTIONS[4];
     const colorBimestreFim = CALENDAR_COLOR_OPTIONS[6];
-    if (!bimestres) {
+    if (bimestres) {
       bimestres.forEach((bimestre) => {
         // console.table(bimestre);
         fullEvents.push({

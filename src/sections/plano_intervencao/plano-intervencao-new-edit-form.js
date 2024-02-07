@@ -157,9 +157,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setErrorMsg('Erro de comunicação com a API de profissionais');
       preparado.onTrue(); 
     })
-    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(doAlunos => {
+    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
       let auto_complete_aluno = []
-      doAlunos.data.results.map((aluno) => {
+      response.data.results.map((aluno) => {
         let al = {
           label: aluno.nome,
           id: aluno.id,

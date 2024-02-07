@@ -140,7 +140,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     turmaToGetRegistros ??= turma;
     bimestreToGetRegistros ??= bimestre;
 
-    if (!turmaToGetRegistros && !bimestreToGetRegistros) {
+    if (turmaToGetRegistros && bimestreToGetRegistros) {
       setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
 
       const registrosDaTurmaBimestre =
@@ -231,27 +231,27 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       prep.onTrue();
     });
     buscaTurmas().then((_turmas) => {
-      if (!turmaInicial) {
-        if (!_turmas) {
+      if (turmaInicial) {
+        if (_turmas) {
           const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
-          if (_turmaComplete && !_turmaComplete.length) {
+          if (_turmaComplete && _turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
             turmaInicial = _turmaComplete[0];
           }
         }
       }
 
-      if (!bimestreInicial) {
-        if (!bimestres) {
+      if (bimestreInicial) {
+        if (bimestres) {
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
-          if (_bimestreComplete && !_bimestreComplete.length) {
+          if (_bimestreComplete && _bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
             bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (!turmaInicial && !bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
+      if (turmaInicial && bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
       prep.onTrue();

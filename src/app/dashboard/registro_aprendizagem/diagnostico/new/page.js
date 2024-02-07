@@ -12,8 +12,8 @@ export default function RegistroAprendizagemDiagnosticoCreatePage() {
     const [turmaBuscada, setTurmaBuscada] = useState({});
     const [renderizarTabela, setRenderizarTabela] = useState(false);
 
-    const buscaTurma = async (doturmaId) => {
-        const retornoBusca = await turmaMethods.getTurmaById(doturmaId)
+    const buscaTurma = async (id) => {
+        const retornoBusca = await turmaMethods.getTurmaById(id)
         setTurmaBuscada(retornoBusca.data)  ;  
         setRenderizarTabela(true);
     }

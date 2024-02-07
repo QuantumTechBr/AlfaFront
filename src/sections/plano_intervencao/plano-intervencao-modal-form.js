@@ -179,8 +179,8 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   const selecionado = useBoolean(false);
 
-  const podeBuscar = (dohabilidades, dofase) => {
-    if (dofase != '' || dohabilidades.length > 0) {
+  const podeBuscar = (_habilidades, _fase) => {
+    if (_fase != '' || _habilidades.length > 0) {
       return true
     }
     return false
@@ -348,9 +348,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             flexShrink: 0,
             sx: { maxWidth: 120 },
           }}>
-              {anos_options.map((doAno) => (
-                <MenuItem key={doAno} value={doAno}>
-                  {doAno}º
+              {anos_options.map((_ano) => (
+                <MenuItem key={_ano} value={_ano}>
+                  {_ano}º
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -386,9 +386,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             </FormControl>
 
             <RHFSelect name="fase" label="Fase">
-                {fases_options.map((doFase) => (
-                  <MenuItem key={doFase} value={doFase} sx={{ height: '34px' }}>
-                    {doFase}
+                {fases_options.map((_fase) => (
+                  <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                    {_fase}
                   </MenuItem>
                 ))}
               </RHFSelect>

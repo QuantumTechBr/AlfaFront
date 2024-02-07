@@ -58,8 +58,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(data => {
-      setPermissoes(data);
+    permissaoMethods.getAllPermissoes().then(response => {
+      setPermissoes(response.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })

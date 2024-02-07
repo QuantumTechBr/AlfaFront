@@ -69,8 +69,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
       cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 120 });
     }
     setTableHead(cabecalho);
-    const dotableData = (alunosTurma == undefined) ? [] : alunosTurma;
-    setTableData(dotableData);
+    setTableData((alunosTurma == undefined) ? [] : alunosTurma);
  
     
   }, [habilidades, alunosTurma]);
