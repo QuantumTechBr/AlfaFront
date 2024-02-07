@@ -127,7 +127,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const preencheTabela = () => {
     const promisesList = [];
-    if (!!turmas && turmas?.length) {
+    if (turmas && turmas.length) {
       setTurmasFiltered(turmas);
       let turmasComRegistroNovo = [];
       const buscaPeriodoInicial = registroAprendizagemMethods
@@ -324,12 +324,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const preencheGraficos = async () => {
     console.log('preenche gráficos');
     if (
-      !!anosLetivos &&
-      anosLetivos.length > 0 &&
-      !!escolas &&
-      escolas.length > 0 &&
-      !!turmas &&
-      turmas.length > 0
+      anosLetivos &&
+      anosLetivos.length &&
+      escolas &&
+      escolas.length &&
+      turmas &&
+      turmas.length
     ) {
       const fullFilters = {
         // ddz: filters.zona.map((item) => item.id),
@@ -375,7 +375,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
 
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
         <Card>
           <RegistroAprendizagemTableToolbar

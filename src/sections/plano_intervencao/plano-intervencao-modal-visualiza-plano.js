@@ -1,70 +1,21 @@
 import PropTypes from 'prop-types';
-import isEqual from 'lodash/isEqual';
-import * as Yup from 'yup';
-import { useEffect, useCallback, useMemo, useState, useContext } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState, useContext } from 'react';
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
 import Card from '@mui/material/Card';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
-import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import Iconify from 'src/components/iconify/iconify';
-import InputLabel from '@mui/material/InputLabel';
-import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Checkbox from '@mui/material/Checkbox';
-import FormControl from '@mui/material/FormControl';
 import { useSettingsContext } from 'src/components/settings';
 // routes
-import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
-import {
-  useTable,
-  getComparator,
-  emptyRows,
-  TableNoData,
-  TableEmptyRows,
-  TableHeadCustom,
-  TableSelectedAction,
-  TablePaginationCustom,
-} from 'src/components/table';
-import TableBody from '@mui/material/TableBody';
-import TableContainer, { List, TextField } from '@mui/material';
-import Tooltip from '@mui/material';
-import Scrollbar from 'src/components/scrollbar';
-import LoadingBox from 'src/components/helpers/loading-box';
-import Table from '@mui/material/Table';
-// _mock
-import { 
-  anos_options, 
-  fases_options,
-  aplicacao_options, 
-} from 'src/_mock';
-
-// components
-import FormProvider, {
-  RHFSelect,
-  RHFSwitch,
-  RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
-} from 'src/components/hook-form';
 
 import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';
 
 import { useBoolean } from 'src/hooks/use-boolean';
 import planoIntervencaoMethods from './plano-intervencao-repository';
-import Alert from '@mui/material/Alert';
 import habilidadeMethods from '../habilidade/habilidade-repository';
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 import Label from 'src/components/label';
@@ -189,8 +140,8 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     return (
         <div>
           <Typography>{aplicacao}<br></br></Typography>
-          {list_retorno.map((li) => (
-            <Typography>{li}<br></br></Typography>
+           {list_retorno.map((li, index) => (
+            <Typography key={index}>{li}<br></br></Typography>
           ))}
         </div>
     )
@@ -285,10 +236,10 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                 <div>
                     <Label>Anexos</Label>
                     <br></br>
-                    {documentos.map((doc) => (
-                      <div> 
+                    {documentos.map((doc, index) => (
+                      <div key={index}>
                         {doc?.descricao}<br></br>
-                        <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a> 
+                        <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a>
                       </div>
                     ))}
                 </div>

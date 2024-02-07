@@ -118,7 +118,7 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
 
       <Chart
         dir="ltr"
-        width={'100%'}
+        width="100%"
         type="bar"
         series={chartSeries}
         options={chartOptions}

@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
@@ -10,49 +9,34 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DataGrid } from '@mui/x-data-grid';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 // assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSelect,
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
   RHFAutocomplete,
 } from 'src/components/hook-form';
 import { 
-  _roles, 
-  USER_STATUS_OPTIONS, 
-  _ddzs, 
   anos_options, 
   permissao_values,
   fases_options,
   aplicacao_options,
 } from 'src/_mock';
 import planoIntervencaoMethods from './plano-intervencao-repository';
-import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import { TurmasContext } from '../turma/context/turma-context';
-import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -66,8 +50,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import profissionalMethods from '../profissional/profissional-repository';
 import { useBoolean } from 'src/hooks/use-boolean';
-import Autocomplete from '@mui/material/Autocomplete';
-import { TextField } from '@mui/material';
 import alunoMethods from '../aluno/aluno-repository';
 import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -166,9 +148,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setErrorMsg('Erro de comunicação com a API de profissionais');
       preparado.onTrue(); 
     })
-    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(alunos => {
+    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
       let auto_complete_aluno = []
-      alunos.data.results.map((aluno) => {
+      response.data.results.map((aluno) => {
         let al = {
           label: aluno.nome,
           id: aluno.id,
@@ -180,11 +162,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
-    habilidadeMethods.getAllHabilidades().then((retorno) => {
+    habilidadeMethods.getAllHabilidades().then((response) => {
       let hab1ano = [];
       let hab2ano = [];
       let hab3ano = [];
-      retorno.data.map((habilidade) => {
+      response.data.map((habilidade) => {
         if (habilidade.ano_escolar == 1) {
           hab1ano.push(habilidade);
           return
@@ -198,7 +180,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
           return
         }
       })
-      setAllHab(retorno.data);
+      setAllHab(response.data);
       setHabilidades_1ano(hab1ano);
       setHabilidades_2ano(hab2ano);
       setHabilidades_3ano(hab3ano);
@@ -218,7 +200,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     setMaxPermissaoUsuario(maxPU);
     let buscandoZona = [];
     if (permissao_values[maxPU] >= 6) { // COM BASE NA MAIOR PERMISSAO QUE O USUARIO TEM, MONTAMOS QUAIS ZONAS PODEM SER ESCOLHIDAS PARA APLICAR O PLANO
-      buscaZonas().then(zonas => setZonasUsuario(zonas)).catch((error) => {
+      buscaZonas().then(_zonas => setZonasUsuario(_zonas)).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de zonas');
       });
     } else {
@@ -311,7 +293,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -402,7 +383,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return ((msg[0] && msg[0].charAt(0))?.toUpperCase() ?? '') + (msg[0]?.slice(1) ?? '');
       });
       let mensagem = arrayMsg.join(' ');
       currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
@@ -732,9 +713,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
 
                 <RHFSelect name="fase" label="Fase">
-                  {fases_options.map((fase) => (
-                    <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
-                      {fase}
+                  {fases_options.map((_fase) => (
+                    <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                      {_fase}
                     </MenuItem>
                   ))}
                 </RHFSelect>
@@ -754,9 +735,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 />
 
                 <RHFSelect name="aplicar" label="Aplicar Plano a...">
-                  {aplicacao_options_filtrado.map((aplicar) => (
-                    <MenuItem key={aplicar} value={aplicar}>
-                      {aplicar}
+                  {aplicacao_options_filtrado.map((_aplicar) => (
+                    <MenuItem key={_aplicar} value={_aplicar}>
+                      {_aplicar}
                     </MenuItem>
                   ))}
                 </RHFSelect>
