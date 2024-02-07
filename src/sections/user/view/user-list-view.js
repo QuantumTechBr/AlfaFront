@@ -91,15 +91,28 @@ export default function UserListView() {
         preparado.onTrue();
       }
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
+        let funcao = [];
+        let zona = [];
+        let escola = [];
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
-          usuariosNaoDeletados[i].funcao = usuariosNaoDeletados[i].funcao_usuario[0].funcao?.id;
-          usuariosNaoDeletados[i].escola = usuariosNaoDeletados[i].funcao_usuario[0].escola?.id;
-          usuariosNaoDeletados[i].zona = usuariosNaoDeletados[i].funcao_usuario[0].zona?.id;
+          for (let index = 0; index < usuariosNaoDeletados[i].funcao_usuario.length; index++) {  
+            funcao.push(usuariosNaoDeletados[i].funcao_usuario[index].funcao?.id);
+            escola.push(usuariosNaoDeletados[i].funcao_usuario[index].escola?.id);
+            zona.push(usuariosNaoDeletados[i].funcao_usuario[index].zona?.id);
+          }
+          usuariosNaoDeletados[i].funcao = funcao[0] ? funcao[0] : '';
+          usuariosNaoDeletados[i].escola = escola ? escola : '';
+          usuariosNaoDeletados[i].zona = zona[0] ? zona[0] : '';
+        } else {
+          usuariosNaoDeletados[i].funcao = '';
+          usuariosNaoDeletados[i].escola = '';
+          usuariosNaoDeletados[i].zona = '';
         }
+        usuariosNaoDeletados[i].status = usuariosNaoDeletados[i].status.toString();
       }
-      usuariosNaoDeletados.map((usuario => {
-        usuario.status = usuario.status.toString()
-      }))
+      // usuariosNaoDeletados.map((usuario => {
+      //   usuario.status = usuario.status.toString()
+      // }))
       setUserList(usuariosNaoDeletados);
       setTableData(usuariosNaoDeletados);
       preparado.onTrue();
