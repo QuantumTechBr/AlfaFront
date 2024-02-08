@@ -332,9 +332,9 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
             <RHFSelect name="funcao" label="Função">
-                {funcoes.map((funcao) => (
-                  <MenuItem key={funcao.id} value={funcao.id}>
-                    {funcao.nome}
+                {funcoes.map((_funcao) => (
+                  <MenuItem key={_funcao.id} value={_funcao.id}>
+                    {_funcao.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
