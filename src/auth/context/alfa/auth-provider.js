@@ -198,7 +198,7 @@ export function AuthProvider({ children }) {
       checkPermissaoModulo,
       checkFuncao,
     }),
-    [state.user, status, login, register, logout, forgotPassword, confirmResetPassword, checkPermissaoModulo, checkFuncao]
+    [state.user, status, login, logout, forgotPassword, confirmResetPassword, checkPermissaoModulo, checkFuncao]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;
