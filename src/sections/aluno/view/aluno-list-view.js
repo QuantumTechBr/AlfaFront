@@ -122,8 +122,10 @@ export default function AlunoListView() {
         setWarningMsg('A API retornou uma lista vazia de estudantes');
         preparado.onTrue();
       } else {
-        let listaAlunos = alunos.data.results
+        let listaAlunos = alunos.data.results;
         setAlunoList([...oldAlunoList, ...listaAlunos]);
+        setTableData([...oldAlunoList, ...listaAlunos]);
+        preparado.onTrue();
       }
       setCountAlunos(alunos.data.count);
     }).catch((error) => {
@@ -153,81 +155,81 @@ export default function AlunoListView() {
     });
   };
 
-  const preencheTabela = async () => {
-    let _alunosTableData = [];
-    let promises = [];
-    if (!preparado.value && alunoList.length) {
-      const idAnoLetivoAtual = anosLetivos.map((ano) => {
-        if (ano.status === "NÃO FINALIZADO") {
-          return ano.id;
-        }
-      }).filter(Boolean)
-      alunoList.forEach( async (aluno) => {
-        if (aluno?.alunos_turmas.length) {
-          const alunoTurma = aluno.alunos_turmas.find((alunoTurma) => { 
-            const turmaEncontrada = turmas.find((turma) => {
-              return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
-            });
-            return turmaEncontrada ? true : false;
-          });
-          if(alunoTurma && aluno.fase == undefined) {
-            let registroFaseDoAlunoPromise = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
-              setErrorMsg('Erro de comunicação com a API de Registros Aprendizagem Fase');
-              preparado.onTrue();
-            });
-            promises.push(registroFaseDoAlunoPromise);
-            let registroFaseDoAluno = await registroFaseDoAlunoPromise;
-            let indiceMaisNovo = 0;
-            let maiorBimestre = 0;
-            for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
-              if (registroFaseDoAluno.data[index].bimestre.ordinal > maiorBimestre) {
-                maiorBimestre = registroFaseDoAluno.data[index].bimestre.ordinal;
-                indiceMaisNovo = index;
-              }
-            }
-            aluno.fase = registroFaseDoAluno.data[indiceMaisNovo]?.resultado || ''
-          }
-        }
-        let alunoTurma = [];
-        aluno.alunos_turmas.forEach((turma_id) => {
-          alunoTurma  = turmas.map((turma) => {
-            if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
-              return turma;
-            }
-          }).filter(Boolean)          
-        })
+  // const preencheTabela = async () => {
+  //   let _alunosTableData = [];
+  //   let promises = [];
+  //   if (!preparado.value && alunoList.length) {
+  //     const idAnoLetivoAtual = anosLetivos.map((ano) => {
+  //       if (ano.status === "NÃO FINALIZADO") {
+  //         return ano.id;
+  //       }
+  //     }).filter(Boolean)
+  //     alunoList.forEach( async (aluno) => {
+  //       if (aluno?.alunos_turmas.length) {
+  //         const alunoTurma = aluno.alunos_turmas.find((alunoTurma) => { 
+  //           const turmaEncontrada = turmas.find((turma) => {
+  //             return turma.ano.status === "NÃO FINALIZADO" && turma.id == alunoTurma.turma
+  //           });
+  //           return turmaEncontrada ? true : false;
+  //         });
+  //         if(alunoTurma && aluno.fase == undefined) {
+  //           let registroFaseDoAlunoPromise = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({ alunoTurmaId: alunoTurma.id}).catch((error) => {
+  //             setErrorMsg('Erro de comunicação com a API de Registros Aprendizagem Fase');
+  //             preparado.onTrue();
+  //           });
+  //           promises.push(registroFaseDoAlunoPromise);
+  //           let registroFaseDoAluno = await registroFaseDoAlunoPromise;
+  //           let indiceMaisNovo = 0;
+  //           let maiorBimestre = 0;
+  //           for (let index = 0; index < registroFaseDoAluno.data.length; index++) {
+  //             if (registroFaseDoAluno.data[index].bimestre.ordinal > maiorBimestre) {
+  //               maiorBimestre = registroFaseDoAluno.data[index].bimestre.ordinal;
+  //               indiceMaisNovo = index;
+  //             }
+  //           }
+  //           aluno.fase = registroFaseDoAluno.data[indiceMaisNovo]?.resultado || ''
+  //         }
+  //       }
+  //       let alunoTurma = [];
+  //       aluno.alunos_turmas.forEach((turma_id) => {
+  //         alunoTurma  = turmas.map((turma) => {
+  //           if (turma.id === turma_id.turma && turma.ano.status === "NÃO FINALIZADO") {
+  //             return turma;
+  //           }
+  //         }).filter(Boolean)          
+  //       })
         
-        let alunoEscola = [];
-        aluno.alunoEscolas.forEach((aluno_escola) => {
-          alunoEscola = escolas.map((escola) => {
-            if (aluno_escola.ano === idAnoLetivoAtual[0] && escola.id === aluno_escola.escola) {
-              return escola;
-            }
-          }).filter(Boolean) 
-        })
-        _alunosTableData.push({
-          id: aluno?.id || '',
-          nome: aluno?.nome || '',
-          matricula: aluno?.matricula || '',
-          data_nascimento: aluno?.data_nascimento,
-          ano: alunoTurma[0]?.ano_escolar || '',
-          turma: alunoTurma[0] ? alunoTurma[0] : '',
-          turno: alunoTurma[0]?.turno.toLowerCase() || '',
-          escola: alunoEscola[0] ? alunoEscola[0] : '',
-          fase: aluno?.fase || '',
-        });
-      });
-      if(promises.length) {
-        Promise.all(promises).then(()=> {
-          setTableData(_alunosTableData);
-          preparado.onTrue();    
-        });
-      } else {
-        setTableData(_alunosTableData);
-        preparado.onTrue();
-      }
-    }
-  };
+  //       let alunoEscola = [];
+  //       aluno.alunoEscolas.forEach((aluno_escola) => {
+  //         alunoEscola = escolas.map((escola) => {
+  //           if (aluno_escola.ano === idAnoLetivoAtual[0] && escola.id === aluno_escola.escola) {
+  //             return escola;
+  //           }
+  //         }).filter(Boolean) 
+  //       })
+  //       _alunosTableData.push({
+  //         id: aluno?.id || '',
+  //         nome: aluno?.nome || '',
+  //         matricula: aluno?.matricula || '',
+  //         data_nascimento: aluno?.data_nascimento,
+  //         ano: alunoTurma[0]?.ano_escolar || '',
+  //         turma: alunoTurma[0] ? alunoTurma[0] : '',
+  //         turno: alunoTurma[0]?.turno.toLowerCase() || '',
+  //         escola: alunoEscola[0] ? alunoEscola[0] : '',
+  //         fase: aluno?.fase || '',
+  //       });
+  //     });
+  //     if(promises.length) {
+  //       Promise.all(promises).then(()=> {
+  //         setTableData(_alunosTableData);
+  //         preparado.onTrue();    
+  //       });
+  //     } else {
+  //       setTableData(_alunosTableData);
+  //       preparado.onTrue();
+  //     }
+  //   }
+  // };
 
   const onChangePage = async (event, newPage) => {
     if (alunoList.length < (newPage+1)*table.rowsPerPage) {
@@ -247,9 +249,9 @@ export default function AlunoListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
-  useEffect(() => {
-    preencheTabela();
-  }, [anosLetivos, turmas, escolas, alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  // useEffect(() => {
+  //   preencheTabela();
+  // }, [anosLetivos, turmas, escolas, alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
 
   // const dataFiltered = applyFilter({

@@ -61,8 +61,8 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
-      escola: currentAluno?.escola.id || '',
-      turma: currentAluno?.turma.id || '',
+      escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
+      turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
     [currentAluno]
   );
