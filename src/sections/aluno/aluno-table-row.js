@@ -23,16 +23,18 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano, turma, turno, escola, fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+  const { id, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
   let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
 
+  console.log(row);
+
   let ano_escolar = '';
 
-  if (ano === '') {
-    ano_escolar = ano;
+  if (turma_ano_escolar === '') {
+    ano_escolar = turma_ano_escolar;
   } else {
-    ano_escolar = ano.concat('º ');
+    ano_escolar = turma_ano_escolar.concat('º ');
   }
 
   const confirm = useBoolean();
@@ -55,13 +57,13 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma?.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma_nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turno}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turma_turno}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola_nome}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{fase}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{resultado_fase}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
 
