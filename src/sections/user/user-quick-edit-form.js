@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { useEffect, useState, useContext } from 'react';
+import { useCallback, useEffect, useState, useContext } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -26,31 +26,38 @@ import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
-import permissaoMethods from '../permissao/permissao-repository';
+import { PermissoesContext } from '../permissao/context/permissao-context';
 import { useBoolean } from 'src/hooks/use-boolean';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Checkbox from '@mui/material/Checkbox';
 
 
+
+const filtros = {
+  escolasAG: [],
+};
 // ----------------------------------------------------------------------
 
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  const assessor = useBoolean(false);
+
+  const [filters, setFilters] = useState(filtros);
   const liberaSalvar = useBoolean(true);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [permissoes, setPermissoes] = useState([]);
+  const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
+  const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
+  const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
   
-
+  
   useEffect(() => {
-    if (currentUser.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-      assessor.onTrue()
-    } else {
-      assessor.onFalse()
-    }
     buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
@@ -60,13 +67,33 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
-    
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissões');
+    buscaPermissoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissoes');
+    });
+    let escIds = [];
+    currentUser?.escola?.map((escolaId) => {
+      escIds.push(escolaId)
     })
+    let novosFiltros = {
+      escolasAG: escIds
+    }
+    console.log(novosFiltros)
+    setFilters(novosFiltros);
+    
   }, []);
+  useEffect(() => {
+    let idsAC = [];
+    let idAG = '';
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(funcao.id);
+      } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = funcao.id;
+      }
+    });
+    setIdsAssessorCoordenador(idsAC);
+    setIdAssessorGestao(idAG);
+  }, [funcoes]);
 
   useEffect(() => {
     if (permissoes.length > 0) {
@@ -104,10 +131,15 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const {
     reset,
     handleSubmit,
+    watch,
     formState: { isSubmitting },
     setValue,
     getValues,
   } = methods;
+
+  const values = watch();
+
+  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -128,7 +160,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           status: data.status,
         }
       }
-      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return
@@ -138,6 +170,19 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             zona_id: data.zona,
           }];
         }
+      } else if (data.funcao == idAssessorGestao) {
+        if (filters.escolasAG.length == 0) {
+          setErrorMsg('Voce deve selecionar uma ou mais escolas');
+        } else {
+          novoUsuario.funcao_usuario = [];
+          filters.escolasAG.map((escolaId) => {
+            novoUsuario.funcao_usuario.push({
+              funcao_id: data.funcao,
+              escola_id: escolaId,
+            })
+          })
+        }
+
       } else {
         if (data.escola == '') {
           setErrorMsg('Voce deve selecionar uma escola');
@@ -152,10 +197,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao?.id]
-      console.log(funcoes)
-      console.log(permissoes)
-      console.log(funcao)
-      console.log(permissao)
+
       await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
         throw error;
       });   
@@ -174,17 +216,94 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     }
   });
 
-  const handleFuncao = (event) => {
-    setValue('funcao', event.target.value)
-    if (event.target.value == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-      assessor.onTrue()
-    } else {
-      assessor.onFalse()
-    }
-    setFuncaoUsuario(event.target.value)
-    return
-  }
+  useEffect(()  => {
+    reset(defaultValues)
+  }, [currentUser]);
 
+
+  const handleFilters = useCallback(
+    async (nome, value) => {
+      const novosFiltros = {
+        ...filters,
+        [nome]: value,
+      }
+      setFilters(novosFiltros);
+    },
+    [filters]
+  );
+  
+  const handleEscolasAG = useCallback(
+    (event) => {
+      handleFilters(
+        'escolasAG',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [handleFilters]
+  );
+
+  const renderValueEscolasAG = (selected) => 
+    selected.map((escolaId) => {
+      return escolas.find((option) => option.id == escolaId)?.nome;
+    }).join(', ');
+
+  const escolaOuZona = () => {
+    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
+      return (
+        <RHFSelect
+          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+          {zonas.map((zona) => (
+            <MenuItem key={zona.id} value={zona.id}>
+              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
+    } 
+    if ( getValues('funcao') == idAssessorGestao ) {
+      return (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+          }}
+        >      
+          <InputLabel>Escolas</InputLabel>
+          <Select
+            multiple
+            name="escola"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={filters.escolasAG}
+            onChange={handleEscolasAG}
+            input={<OutlinedInput label="Escolas" />}
+            renderValue={renderValueEscolasAG}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {escolas?.map((escola) => (
+              <MenuItem key={escola.id} value={escola.id}>
+                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
+                  {escola.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )
+    } else {
+      return (
+        <RHFSelect 
+          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+          {escolas.map((escola) => (
+            <MenuItem key={escola.id} value={escola.id}>
+              {escola.nome}
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
+    }
+  }
 
   return (
     <Dialog
@@ -215,13 +334,13 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="email" label="Email" />
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="funcao" label="Função" value={funcaoUsuario} onChange={handleFuncao}>
-              {funcoes.map((_funcao) => (
-                <MenuItem key={_funcao.id} value={_funcao.id}>
-                  {_funcao.nome}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            <RHFSelect name="funcao" label="Função">
+                {funcoes.map((funcao) => (
+                  <MenuItem key={funcao.id} value={funcao.id}>
+                    {funcao.nome}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
             <RHFSelect name="status" label="Status">
               {USER_STATUS_OPTIONS.map((status) => (
@@ -231,25 +350,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
               ))}
             </RHFSelect>
 
-              <RHFSelect sx={{
-                display: !assessor.value ? "none" : "inherit"
-              }} id={`zona_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
-                {zonas.map((zona) => (
-                  <MenuItem key={zona.id} value={zona.id}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect sx={{
-                display: assessor.value ? "none" : "inherit"
-              }} id={`escola_`+`${currentUser.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+            {escolaOuZona()}
 
           </Box>
         </DialogContent>

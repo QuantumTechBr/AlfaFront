@@ -42,7 +42,7 @@ import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
-import permissaoMethods from '../permissao/permissao-repository';
+import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
@@ -56,11 +56,12 @@ export default function UserNewEditForm({ currentUser }) {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [permissoes, setPermissoes] = useState([]);
+  const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
+
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -72,12 +73,9 @@ export default function UserNewEditForm({ currentUser }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
-    
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissões');
-    })
+    buscaPermissoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissoes');
+    });
   }, []);
 
   useEffect(() => {
@@ -134,6 +132,8 @@ export default function UserNewEditForm({ currentUser }) {
   } = methods;
 
   const values = watch();
+
+  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -217,7 +217,21 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
+    let escIds = [];
+    currentUser?.escola?.map((escolaId) => {
+      escIds.push(escolaId)
+    })
+    let novosFiltros = {
+      escolasAG: escIds
+    }
+    setFilters(novosFiltros);
   }, [currentUser]);
+  
+  useEffect(()  => {
+    setFilters(filtros);
+    setValue('escola', '');
+    setValue('zona', '');
+  }, [funcao]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -229,7 +243,7 @@ export default function UserNewEditForm({ currentUser }) {
     },
     [filters]
   );
-
+  
   const handleEscolasAG = useCallback(
     (event) => {
       handleFilters(
