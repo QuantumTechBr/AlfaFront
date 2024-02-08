@@ -27,8 +27,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   const [turmas, setTurmas] = useState([]);
 
   useEffect(() => {
-    turmaMethods.getAllTurmas().then((turmas) => {
-      setTurmas(turmas.data);
+    turmaMethods.getAllTurmas().then((response) => {
+      setTurmas(response.data);
     });
   }, []);
 

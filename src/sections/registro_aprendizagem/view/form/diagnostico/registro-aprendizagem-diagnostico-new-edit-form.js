@@ -11,7 +11,7 @@ import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider from 'src/components/hook-form';
-import { _habilidades, _roles, _ddzs, _escolas, habilidades_options } from 'src/_mock';
+import { _habilidades, habilidades_options } from 'src/_mock';
 import { useEffect, useState } from 'react';
 import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
@@ -140,9 +140,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
       <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
-        {habilidades_options.map((hab) => (
+        {habilidades_options.map((hab,index) => (
           hab === '' ? ('') :
           (<Label
+            key={index}
             variant="soft"
             color={(hab === 'D' && 'success') ||
               (hab === 'DP' && 'warning') ||

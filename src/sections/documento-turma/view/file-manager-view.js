@@ -6,8 +6,6 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 // utils
 import { fTimestamp } from 'src/utils/format-time';
 // _mock
@@ -16,7 +14,6 @@ import { _allFiles, FILE_TYPE_OPTIONS } from 'src/_mock';
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Iconify from 'src/components/iconify';
-import EmptyContent from 'src/components/empty-content';
 import { fileFormat } from 'src/components/file-thumbnail';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
@@ -28,18 +25,15 @@ import FileManagerGridView from '../file-manager-grid-view';
 import FileManagerFiltersResult from '../file-manager-filters-result';
 import FileManagerNewFolderDialog from '../file-manager-new-folder-dialog';
 import documentoTurmaMethods from '../documento-turma-repository';
-import { Box, CircularProgress } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import MenuItem from '@mui/material/MenuItem';
-import Checkbox from '@mui/material/Checkbox';
 
 // Cash
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import turmaMethods from 'src/sections/turma/turma-repository';
 
 // ----------------------------------------------------------------------
 
@@ -188,11 +182,10 @@ export default function FileManagerView() {
   );
 
   
-  const handleSelectEscola = useCallback(
-    async (event) => {
+  const handleSelectEscola = useCallback((event) => {
         const escolaId = typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value;
-        const escolas = await buscaEscolas();
-        const turmas = await buscaTurmas();
+        // const escolas = await buscaEscolas(); // TODO remove... redundante? context já trouxe
+        // const turmas = await buscaTurmas(); // TODO remove... redundante? context já trouxe
         const escolaNova = escolas.find((option) => option.id == escolaId);
         setEscolaSelecionada(escolaNova);
         const turmaEscola = turmas.find(turma => turma.escola.id == escolaId);
@@ -211,8 +204,8 @@ export default function FileManagerView() {
   const handleSelectTurma = useCallback(
     async (event) => {
         const turmaId = event.target.value;
-        const turmas = await buscaTurmas();
-        setTurmaSelecionada(turmas.find((option) => option.id == turmaId));
+        const _turmas = await buscaTurmas();
+        setTurmaSelecionada(_turmas.find((option) => option.id == turmaId));
         buscaDocumentos(turmaId);
     },
     []

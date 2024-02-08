@@ -162,15 +162,11 @@ export function AuthProvider({ children }) {
       return null;
     }
     for (let index = 0; index < state.user.permissao_usuario.length; index++) {
-      if (state.user.permissao_usuario[index].nome == 'SUPERADMIN') {
-        return true;
-      }
-      let modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
-      if (!modulosPermitidos) {
-        return false;
-      }
-      const moduloPermissao = modulosPermitidos.find(
-        (moduloPermissao) => moduloPermissao.modulo.namespace == nomeModulo
+      if (state.user.permissao_usuario[index].nome == 'SUPERADMIN') { return true }
+      const modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
+      if (!modulosPermitidos) { return false; }
+      const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
+        moduloPermissao.modulo.namespace == nomeModulo
       );
       if (!moduloPermissao) {
         return false;
@@ -181,10 +177,8 @@ export function AuthProvider({ children }) {
   };
 
   const checkFuncao = (funcao) => {
-    if (!state.user || !state.user.permissao_usuario) {
-      return null;
-    }
-    let permissaoUsuario = state.user.permissao_usuario[0];
+    if (!state.user || !state.user.permissao_usuario) { return null}
+    const permissaoUsuario = state.user.permissao_usuario[0];
     return permissaoUsuario.nome == funcao;
     /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
   };
@@ -204,7 +198,7 @@ export function AuthProvider({ children }) {
       checkPermissaoModulo,
       checkFuncao,
     }),
-    [login, logout, forgotPassword, state.user, status]
+    [state.user, status, login, register, logout, forgotPassword, confirmResetPassword, checkPermissaoModulo, checkFuncao]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

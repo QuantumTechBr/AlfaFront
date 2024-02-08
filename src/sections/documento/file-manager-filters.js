@@ -169,7 +169,7 @@ export default function FileManagerFilters({
           />
         }
       >
-        {!!filters.startDate && !!filters.endDate
+        {filters.startDate && filters.endDate
           ? shortDateLabel(filters.startDate, filters.endDate)
           : 'Selecionar Data'}
       </Button>
@@ -182,7 +182,7 @@ export default function FileManagerFilters({
         onChangeEndDate={handleFilterEndDate}
         open={openDateRange}
         onClose={onCloseDateRange}
-        selected={!!filters.startDate && !!filters.endDate}
+        selected={filters.startDate && filters.endDate}
         error={dateError}
       />
     </>
@@ -196,12 +196,6 @@ export default function FileManagerFilters({
       sx={{ width: 1 }}
     >
       {renderFilterName}
-{/* 
-      <Stack spacing={1} direction="row" alignItems="center" justifyContent="flex-end" flexGrow={1}>
-        {renderFilterDate}
-
-        {renderFilterType}
-      </Stack> */}
     </Stack>
   );
 }

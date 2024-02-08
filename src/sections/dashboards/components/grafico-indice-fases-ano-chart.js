@@ -4,8 +4,7 @@ import { useCallback } from 'react';
 
 // @mui
 import { LinearProgress, Box, Stack, Typography, CardHeader } from '@mui/material';
-import { lighten, alpha, useTheme } from '@mui/material/styles';
-import { bgGradient } from 'src/theme/css';
+import { useTheme } from '@mui/material/styles';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
@@ -165,59 +164,57 @@ export default function GraficoIndiceFaseAnoColunasChart({
   });
 
   return (
-    <>
-      <Box {...other}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
-          {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
-            <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
-              Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
-            </Typography>
-            <LinearProgress
-              value={calculoFaseAdequada()}
-              variant="determinate"
-              color="primary"
-              sx={{
-                height: 26,
-                borderRadius: 13,
-                // bgcolor: alpha(theme.palette.common.black, 0.08),
-                span: {
-                  borderRadius: '13px !important',
-                  // ...bgGradient({
-                  //   direction: 'to right',
-                  //   startColor: lighten(theme.palette.primary.main, 0.3),
-                  //   endColor: theme.palette.primary.light,
-                  // }),
-                  '&::before': {
-                    color: theme.palette.common.white,
-                    fontWeight: 700,
-                    content: `"${calculoFaseAdequada()}%"`,
-                    top: 2,
-                    display: 'block',
-                    right: 6,
-                    zIndex: 1,
-                    position: 'absolute',
-                  },
-                },
+    <Box {...other}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
+        {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
+          <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
+            Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
+          </Typography>
+          <LinearProgress
+            value={calculoFaseAdequada()}
+            variant="determinate"
+            color="primary"
+            sx={{
+              height: 26,
+              borderRadius: 13,
+              // bgcolor: alpha(theme.palette.common.black, 0.08),
+              span: {
+                borderRadius: '13px !important',
+                // ...bgGradient({
+                //   direction: 'to right',
+                //   startColor: lighten(theme.palette.primary.main, 0.3),
+                //   endColor: theme.palette.primary.light,
+                // }),
                 '&::before': {
-                  bgcolor: 'divider',
-                  opacity: 1,
+                  color: theme.palette.common.white,
+                  fontWeight: 700,
+                  content: `"${calculoFaseAdequada()}%"`,
+                  top: 2,
+                  display: 'block',
+                  right: 6,
+                  zIndex: 1,
+                  position: 'absolute',
                 },
-              }}
-            />
-          </Box>)}
-        </Stack>
+              },
+              '&::before': {
+                bgcolor: 'divider',
+                opacity: 1,
+              },
+            }}
+          />
+        </Box>)}
+      </Stack>
 
-        <Chart
-          dir="ltr"
-          width={'100%'}
-          type="bar"
-          series={chartSeries}
-          options={chartOptions}
-          height={height}
-        />
-      </Box>
-    </>
+      <Chart
+        dir="ltr"
+        width="100%"
+        type="bar"
+        series={chartSeries}
+        options={chartOptions}
+        height={height}
+      />
+    </Box>
   );
 }
 

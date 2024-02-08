@@ -225,30 +225,10 @@ export default function ZonaListView() {
           }}
         />
 
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          {/* <ZonaTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            //roleOptions={_roles}
-            ddzOptions={_ddzs}
-            escolaOptions={escolas}
-          /> */}
-
-          {/* {canReset && (
-            <ZonaTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )} */}
-
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <TableSelectedAction
               dense={table.dense}

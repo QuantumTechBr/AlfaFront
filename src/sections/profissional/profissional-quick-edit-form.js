@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+// import { yupResolver } from '@hookform/resolvers/yup';
 import { useEffect, useState, useContext } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -15,11 +15,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
-// assets
-import { countries } from 'src/assets/data';
+import { USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import userMethods from '../user/user-repository';
@@ -60,8 +57,8 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
+    permissaoMethods.getAllPermissoes().then(response => {
+      setPermissoes(response.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
@@ -156,7 +153,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return (msg[0]?.charAt(0) || '').toUpperCase() + (msg[0]?.slice(1) || '');
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
