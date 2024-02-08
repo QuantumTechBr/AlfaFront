@@ -9,12 +9,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 // routes
@@ -146,10 +143,10 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     turmaToGetRegistros ??= turma;
     bimestreToGetRegistros ??= bimestre;
 
-    if (!!turmaToGetRegistros && !!bimestreToGetRegistros) {
+    if (turmaToGetRegistros && bimestreToGetRegistros) {
       setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
 
-      let registrosDaTurmaBimestre =
+      const registrosDaTurmaBimestre =
         await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaToGetRegistros.id,
           bimestreId: bimestreToGetRegistros.id,
@@ -159,7 +156,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         });
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
-        let _newRegistros = [];
+        const _newRegistros = [];
         _turma.turmas_alunos.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
             registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
@@ -212,7 +209,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           return
         }
       }
-      let item = { ...retornoPadrao, ...formItem };
+      const item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       return item;
@@ -237,27 +234,27 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       prep.onTrue();
     });
     buscaTurmas().then((_turmas) => {
-      if (!!turmaInicial) {
-        if (!!_turmas) {
+      if (turmaInicial) {
+        if (_turmas) {
           const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
-          if (_turmaComplete && !!_turmaComplete.length) {
+          if (_turmaComplete && _turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
             turmaInicial = _turmaComplete[0];
           }
         }
       }
 
-      if (!!bimestreInicial) {
-        if (!!bimestres) {
+      if (bimestreInicial) {
+        if (bimestres) {
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
-          if (_bimestreComplete && !!_bimestreComplete.length) {
+          if (_bimestreComplete && _bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
             bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
+      if (turmaInicial && bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
       prep.onTrue();
@@ -265,104 +262,102 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <CustomBreadcrumbs
-          heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Avaliações de Fase',
-              href: paths.dashboard.registro_aprendizagem.root_fase,
-            },
-            { name: 'Avaliação de Fase' },
-          ]}
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <CustomBreadcrumbs
+        heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Avaliações de Fase',
+            href: paths.dashboard.registro_aprendizagem.root_fase,
+          },
+          { name: 'Avaliação de Fase' },
+        ]}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
 
-        <FormProvider methods={methods} onSubmit={onSubmit}>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-          <Card>
-            <RegistroAprendizagemFaseFormTableToolbar
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+        <Card>
+          <RegistroAprendizagemFaseFormTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            turmaOptions={turmas}
+            bimestreOptions={bimestres}
+          />
+
+          {canReset && (
+            <RegistroAprendizagemFaseFormTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
-              turmaOptions={turmas}
-              bimestreOptions={bimestres}
+              onResetFilters={handleResetFilters}
+              results={dataFiltered.length}
+              sx={{ p: 2.5, pt: 0 }}
             />
+          )}
 
-            {canReset && (
-              <RegistroAprendizagemFaseFormTableFiltersResult
-                filters={filters}
-                onFilters={handleFilters}
-                onResetFilters={handleResetFilters}
-                results={dataFiltered.length}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+              <Scrollbar>
+              {!prep.value ? (
+                <LoadingBox />
+              ) : (
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    onSort={table.onSort}
+                  />
+                  
 
-              <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-                <Scrollbar>
-                {!prep.value ? (
-                  <LoadingBox />
-                ) : (
-                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                    <TableHeadCustom
-                      order={table.order}
-                      orderBy={table.orderBy}
-                      headLabel={TABLE_HEAD}
-                      onSort={table.onSort}
+                  <TableBody>
+                    {dataFiltered.map((row, index) => {
+                      return (
+                        <RegistroAprendizagemFaseFormTableRow
+                          key={row.id}
+                          row={row}
+                          bimestres={bimestres}
+                        />
+                      );
+                    })}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
-                    
 
-                    <TableBody>
-                      {dataFiltered.map((row, index) => {
-                        return (
-                          <RegistroAprendizagemFaseFormTableRow
-                            key={row.id}
-                            row={row}
-                            bimestres={bimestres}
-                          />
-                        );
-                      })}
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table> )}
+              </Scrollbar>
+            </TableContainer>                  
 
-                      <TableEmptyRows
-                        height={denseHeight}
-                        emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                      />
+          <TablePaginationCustom
+            hidden
+            count={dataFiltered.length}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
+            dense={false}
+          />
+        </Card>
 
-                      <TableNoData notFound={notFound} />
-                    </TableBody>
-                  </Table> )}
-                </Scrollbar>
-              </TableContainer>                  
-
-            <TablePaginationCustom
-              hidden
-              count={dataFiltered.length}
-              page={table.page}
-              rowsPerPage={table.rowsPerPage}
-              onPageChange={table.onChangePage}
-              onRowsPerPageChange={table.onChangeRowsPerPage}
-              dense={false}
-            />
-          </Card>
-
-          <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
-            <Grid alignItems="center" xs={3}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                Salvar informações
-              </LoadingButton>
-            </Grid>
-          </Stack>
-        </FormProvider>
-      </Container>
-    </>
+        <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
+          <Grid alignItems="center" xs={3}>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Salvar informações
+            </LoadingButton>
+          </Grid>
+        </Stack>
+      </FormProvider>
+    </Container>
   );
 }
 

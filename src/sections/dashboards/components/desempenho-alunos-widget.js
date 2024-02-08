@@ -182,7 +182,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
         />
 
         {series.map((item) => {
-          let preparedData = prepareData(item.data);
+          const preparedData = prepareData(item.data);
           let chartOptionsMod = chartOptionsBase;
           chartOptionsMod.dataLabels.formatter = function (
             value,

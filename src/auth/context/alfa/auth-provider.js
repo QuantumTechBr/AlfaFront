@@ -6,7 +6,7 @@ import { useEffect, useReducer, useCallback, useMemo } from 'react';
 import axios, { endpoints } from 'src/utils/axios';
 //
 import { AuthContext } from './auth-context';
-import { isValidToken, setSession } from './utils';
+import { clearSession, isValidToken, setHeaderSession, setSession } from './utils';
 
 // ----------------------------------------------------------------------
 
@@ -34,12 +34,7 @@ const reducer = (state, action) => {
       user: action.payload.user,
     };
   }
-  if (action.type === 'REGISTER') {
-    return {
-      ...state,
-      user: action.payload.user,
-    };
-  }
+
   if (action.type === 'LOGOUT') {
     return {
       ...state,
@@ -51,21 +46,16 @@ const reducer = (state, action) => {
 
 // ----------------------------------------------------------------------
 
-const STORAGE_KEY = 'accessToken';
-
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   const initialize = useCallback(async () => {
     try {
-      const accessToken = sessionStorage.getItem(STORAGE_KEY);
-      const expirationDate = sessionStorage.getItem('expirationDate')
-
-      if (accessToken && isValidToken(accessToken)) {
-        setSession(accessToken, expirationDate);
+      if (isValidToken()) {
+        setHeaderSession();
 
         const response = await axios.get(endpoints.auth.me);
-        
+
         const user = response.data;
 
         dispatch({
@@ -104,15 +94,19 @@ export function AuthProvider({ children }) {
       senha,
     };
 
-    const response = await axios.post(endpoints.auth.login, data).catch(erro => {
-      console.log("login erro");
+    const response = await axios.post(endpoints.auth.login, data).catch((erro) => {
+      console.log('login erro');
       logout();
       throw erro;
     });
     const accessToken = response.data.token;
     const user = response.data.usuario;
-    const expiresIn = response.data.expires_in
-    const expirationDate = Date.now() + expiresIn;
+    const expiresIn = response.data.expires_in;
+    const expiresIn_milliseconds =
+      (typeof expiresIn).toUpperCase() == 'STRING'
+        ? Math.floor(parseFloat(expiresIn) * 1000)
+        : expiresIn;
+    const expirationDate = new Date(Date.now() + expiresIn_milliseconds);
 
     setSession(accessToken, expirationDate);
 
@@ -124,32 +118,9 @@ export function AuthProvider({ children }) {
     });
   }, []);
 
-  // REGISTER
-  const register = useCallback(async (email, password, firstName, lastName) => {
-    const data = {
-      email,
-      password,
-      firstName,
-      lastName,
-    };
-
-    const response = await axios.post(endpoints.auth.register, data);
-
-    const { accessToken, user } = response.data;
-
-    sessionStorage.setItem(STORAGE_KEY, accessToken);
-
-    dispatch({
-      type: 'REGISTER',
-      payload: {
-        user,
-      },
-    });
-  }, []);
-
   // LOGOUT
   const logout = useCallback(async () => {
-    setSession(null, null);
+    clearSession();
     dispatch({
       type: 'LOGOUT',
     });
@@ -157,21 +128,28 @@ export function AuthProvider({ children }) {
 
   // FORGOT PASSWORD
   const forgotPassword = useCallback(async (email) => {
-    const response = await axios.post(endpoints.auth.reset_password, {email}).catch(erro => {
-      console.log("forgot password erro");
+    const response = await axios.post(endpoints.auth.reset_password, { email }).catch((erro) => {
+      console.log('forgot password erro');
       throw erro;
     });
     console.log(response);
-  }, []); 
+  }, []);
 
   const confirmResetPassword = useCallback(async (senha, token) => {
-    const response = await axios.post(endpoints.auth.reset_confirm, {senha, token}).catch(erro => {
-      console.log("confirm reset password erro");
-      throw erro;
-    });
+    const response = await axios
+      .post(endpoints.auth.reset_confirm, { senha, token })
+      .catch((erro) => {
+        console.log('confirm reset password erro');
+        throw erro;
+      });
     console.log(response);
     return response;
-  }, [])
+  }, []);
+
+  // let location = useLocation();
+  // useEffect(() => {
+  //   if (!isValidToken()) logout();
+  // }, [location]);
 
   // ----------------------------------------------------------------------
 
@@ -180,26 +158,30 @@ export function AuthProvider({ children }) {
   const status = state.loading ? 'loading' : checkAuthenticated;
 
   const checkPermissaoModulo = (nomeModulo, permissao) => {
-    if (!state.user || !state.user.permissao_usuario) { return null}
+    if (!state.user || !state.user.permissao_usuario) {
+      return null;
+    }
     for (let index = 0; index < state.user.permissao_usuario.length; index++) {
-      if (state.user.permissao_usuario[index].nome == "SUPERADMIN") { return true };
-      let modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
+      if (state.user.permissao_usuario[index].nome == 'SUPERADMIN') { return true }
+      const modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
       if (!modulosPermitidos) { return false; }
       const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
         moduloPermissao.modulo.namespace == nomeModulo
       );
-      if (!moduloPermissao) { return false; }
-      return moduloPermissao[permissao]; 
+      if (!moduloPermissao) {
+        return false;
+      }
+      return moduloPermissao[permissao];
     }
     return false;
-  }
+  };
 
   const checkFuncao = (funcao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
-    let permissaoUsuario = state.user.permissao_usuario[0];
+    const permissaoUsuario = state.user.permissao_usuario[0];
     return permissaoUsuario.nome == funcao;
     /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
-  }
+  };
 
   const memoizedValue = useMemo(
     () => ({
@@ -210,14 +192,13 @@ export function AuthProvider({ children }) {
       unauthenticated: status === 'unauthenticated',
       //
       login,
-      register,
       logout,
       forgotPassword,
       confirmResetPassword,
       checkPermissaoModulo,
-      checkFuncao
+      checkFuncao,
     }),
-    [login, logout, register, forgotPassword, state.user, status]
+    [state.user, status, login, register, logout, forgotPassword, confirmResetPassword, checkPermissaoModulo, checkFuncao]
   );
 
   return <AuthContext.Provider value={memoizedValue}>{children}</AuthContext.Provider>;

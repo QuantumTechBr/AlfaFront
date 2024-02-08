@@ -225,8 +225,8 @@ export default function AlunoListView() {
       } else {
         setTableData(_alunosTableData);
         preparado.onTrue();
-      };
-    };
+      }
+    }
   };
 
   const onChangePage = async (event, newPage) => {

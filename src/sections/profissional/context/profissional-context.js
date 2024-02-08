@@ -37,7 +37,6 @@ export const ProfissionaisProvider = ({ children }) => {
     return profissionalMethods.getProfissionalById(id).then((response) => {
       return response.data;
     });
-    return null;
   };
 
   return (

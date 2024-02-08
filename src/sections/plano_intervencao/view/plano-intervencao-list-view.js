@@ -18,9 +18,8 @@ import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
 // _mock
-import { _userList, USER_STATUS_OPTIONS, PLANO_STATUS_OPTIONS, _ddzs } from 'src/_mock';
+import { PLANO_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -40,11 +39,7 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
-//
-// import UserTableRow from '../user-table-row';
-// import UserTableToolbar from '../user-table-toolbar';
-// import UserTableFiltersResult from '../user-table-filters-result';
-//
+
 import PlanoIntervencaoTableRow from '../plano-intervencao-table-row';
 import PlanoIntervencaoTableToolbar from '../plano-intervencao-table-toolbar';
 import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filters-result';
@@ -85,7 +80,6 @@ const defaultFilters = {
 
 export default function PlanoIntervencaoListView() {
 
-  const [_userList, setUserList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 

@@ -25,7 +25,6 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 // _mock
 import {
-  _roles,
   JOB_SKILL_OPTIONS,
   JOB_BENEFIT_OPTIONS,
   JOB_EXPERIENCE_OPTIONS,
@@ -79,7 +78,7 @@ export default function JobNewEditForm({ currentJob }) {
       content: currentJob?.content || '',
       employmentTypes: currentJob?.employmentTypes || [],
       experience: currentJob?.experience || '1 year exp',
-      role: currentJob?.role || _roles[1],
+      role: currentJob?.role || '',
       skills: currentJob?.skills || [],
       workingSchedule: currentJob?.workingSchedule || [],
       locations: currentJob?.locations || [],
@@ -195,7 +194,7 @@ export default function JobNewEditForm({ currentJob }) {
               <RHFAutocomplete
                 name="role"
                 autoHighlight
-                options={_roles.map((option) => option)}
+                options={[]}
                 getOptionLabel={(option) => option}
                 renderOption={(props, option) => (
                   <li {...props} key={option}>

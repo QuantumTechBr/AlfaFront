@@ -15,7 +15,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // _mock
 import {
   _jobs,
-  _roles,
   JOB_SORT_OPTIONS,
   JOB_BENEFIT_OPTIONS,
   JOB_EXPERIENCE_OPTIONS,
@@ -134,7 +133,7 @@ export default function JobListView() {
           onResetFilters={handleResetFilters}
           //
           locationOptions={countries}
-          roleOptions={_roles}
+          roleOptions={[]}
           benefitOptions={JOB_BENEFIT_OPTIONS.map((option) => option.label)}
           experienceOptions={['all', ...JOB_EXPERIENCE_OPTIONS.map((option) => option.label)]}
           employmentTypeOptions={JOB_EMPLOYMENT_TYPE_OPTIONS.map((option) => option.label)}

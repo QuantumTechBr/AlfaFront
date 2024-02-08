@@ -140,9 +140,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      escolasAssessor = escolas.filter((escola) => {
-        escola.zona.id == user.funcao_usuario[0].zona.id
-      })
+      escolasAssessor = escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
     } 
   }, []);
 

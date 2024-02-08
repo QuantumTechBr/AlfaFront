@@ -87,9 +87,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.map((turma) => (
-          <MenuItem key={turma.id} value={turma.id}>
-            {turma.ano_escolar}º {turma.nome}
+        {turmas.map((_turma) => (
+          <MenuItem key={_turma.id} value={_turma.id}>
+            {_turma.ano_escolar}º {_turma.nome}
           </MenuItem>
         ))}
       </RHFSelect>
@@ -157,9 +157,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
             {tipo == 'Avaliação de Fase' && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
-                {bimestres.map((bimestre) => (
-                  <MenuItem key={bimestre.id} value={bimestre.id}>
-                    {`${bimestre.ordinal}º Bimestre`}
+               {bimestres.map((_bimestre) => (
+                  <MenuItem key={_bimestre.id} value={_bimestre.id}>
+                    {`${_bimestre.ordinal}º Bimestre`}
                   </MenuItem>
                 ))}
               </RHFSelect>
@@ -168,9 +168,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             {/* DIAGNOSTICO */}
             {tipo == 'Avaliação Diagnóstica' && (
               <RHFSelect name="periodo" label="Período">
-                {_periodos.map((periodo) => (
-                  <MenuItem key={periodo} value={periodo}>
-                    {periodo}
+                {_periodos.map((_periodo) => (
+                  <MenuItem key={_periodo} value={_periodo}>
+                    {_periodo}
                   </MenuItem>
                 ))}
               </RHFSelect>

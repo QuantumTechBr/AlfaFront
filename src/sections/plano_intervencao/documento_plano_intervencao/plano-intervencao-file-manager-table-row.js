@@ -43,7 +43,7 @@ export default function PlanoIntervencaoFileManagerTableRow({ row, selected, onS
 
   let { ano, arquivo, criado_por, updated_at, descricao, created_at, destino, id, nomeArquivo, tamanho } = row;
 
-  const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
+  const regex = /[^/\\&\\?]+\.\w{3,4}(?=([\\?&].*$|$))/;
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nome ? `${nome.split('.').pop()}` : ''
 
@@ -281,7 +281,6 @@ export default function PlanoIntervencaoFileManagerTableRow({ row, selected, onS
 
       <PlanoIntervencaoFileManagerShareDialog
         open={share.value}
-        // shared={shared}
         inviteEmail={inviteEmail}
         onChangeInvite={handleChangeInvite}
         onCopyLink={handleCopy}

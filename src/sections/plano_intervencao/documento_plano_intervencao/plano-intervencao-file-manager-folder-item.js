@@ -242,7 +242,7 @@ export default function PlanoIntervencaoFileManagerFolderItem({
         </MenuItem>
       </CustomPopover>
 
-      <PlanoIntervencaoFileDetails
+      <PlanoIntervencaoFileManagerFileDetails
         item={folder}
         favorited={favorite.value}
         onFavorite={favorite.onToggle}

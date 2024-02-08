@@ -37,7 +37,6 @@ export const TurmasProvider = ({ children }) => {
     return turmaMethods.getTurmaById(id).then((response) => {
       return response.data;
     });
-    return null;
   };
 
   return (
