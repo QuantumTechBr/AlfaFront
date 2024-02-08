@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import InputLabel from '@mui/material/InputLabel';
@@ -14,30 +14,17 @@ import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSelect,
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
 } from 'src/components/hook-form';
-import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -81,11 +68,11 @@ export default function UserNewEditForm({ currentUser }) {
   useEffect(() => {
     let idsAC = [];
     let idAG = '';
-    funcoes.map((funcao) => {
-      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(funcao.id);
-      } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = funcao.id;
+    funcoes.map((_funcao) => {
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(_funcao.id);
+      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = _funcao.id;
       }
     });
     setIdsAssessorCoordenador(idsAC);
@@ -207,7 +194,7 @@ export default function UserNewEditForm({ currentUser }) {
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
@@ -339,9 +326,9 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {funcoes.map((funcao) => (
-                  <MenuItem key={funcao.id} value={funcao.id}>
-                    {funcao.nome}
+                {funcoes.map((_funcao) => (
+                  <MenuItem key={_funcao.id} value={_funcao.id}>
+                    {_funcao.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>

@@ -15,11 +15,8 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
-// assets
-import { countries } from 'src/assets/data';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import userMethods from './user-repository';
@@ -84,11 +81,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   useEffect(() => {
     let idsAC = [];
     let idAG = '';
-    funcoes.map((funcao) => {
-      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(funcao.id);
-      } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = funcao.id;
+    funcoes.map((_funcao) => {
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(_funcao.id);
+      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = _funcao.id;
       }
     });
     setIdsAssessorCoordenador(idsAC);
@@ -208,7 +205,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
