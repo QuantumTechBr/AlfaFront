@@ -25,7 +25,6 @@ export default function AuthGuard({ children }) {
 
   const checkValidAuth = useCallback(() => {
     if (isValidToken() && authenticated) {
-      console.log(`check authenticated: ${authenticated}`);
       setHeaderSession();
       setChecked(true);
     } else {
