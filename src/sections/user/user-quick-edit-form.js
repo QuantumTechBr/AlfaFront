@@ -121,7 +121,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -191,8 +191,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
           }];
         }
       }
-      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao?.id]
 
       await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {

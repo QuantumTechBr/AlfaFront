@@ -52,7 +52,7 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 

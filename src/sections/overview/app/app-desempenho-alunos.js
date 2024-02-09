@@ -169,13 +169,14 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
         />
 
         {series.map((item) => {
-          const preparedData = prepareData(item.data);
+          const _preparedData = prepareData(item.data);
+          setPreparedData(_preparedData);
           let chartOptionsMod = chartOptionsBase;
           chartOptionsMod.dataLabels.formatter = function (
             value,
             { _series, seriesIndex, dataPointIndex, w }
           ) {
-            return `${preparedData[seriesIndex].porcentagem[dataPointIndex]}%`;
+            return `${_preparedData[seriesIndex].porcentagem[dataPointIndex]}%`;
           };
           let chartOptions = useChart(chartOptionsBase);
           return (
