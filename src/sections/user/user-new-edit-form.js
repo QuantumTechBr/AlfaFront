@@ -102,7 +102,7 @@ export default function UserNewEditForm({ currentUser }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -175,8 +175,8 @@ export default function UserNewEditForm({ currentUser }) {
           }];
         }
       }
-      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {

@@ -161,7 +161,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -174,7 +174,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     formState: { isSubmitting },
   } = methods;
 
-  //useEffect(() => {
+  // useEffect(() => {
   //  const subscription = watch((values, { name, type }) => {
   //    if (type == 'change' && name == 'ano') {
   //      setFilters(filtros)
@@ -182,7 +182,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   //  });
   //
   //  return () => subscription.unsubscribe();
-  //}, [setFilters, watch]);
+  // }, [setFilters, watch]);
 
   const values = watch();
 

@@ -42,7 +42,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   }
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 

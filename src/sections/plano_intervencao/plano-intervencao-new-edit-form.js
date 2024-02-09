@@ -448,7 +448,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     [handleFilters]
   );
 
-  //const handleFilterAluno = useCallback(
+  // const handleFilterAluno = useCallback(
   //  (event) => {
   //    handleFilters(
   //      'alunos',
@@ -456,7 +456,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   //    );
   //  },
   //  [handleFilters]
-  //);
+  // );
 
   const handleSelectDocumentoAntigo = (event) => {
     setDocumentosAntigosSelecionados(event);

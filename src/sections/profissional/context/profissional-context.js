@@ -40,8 +40,8 @@ export const ProfissionaisProvider = ({ children }) => {
   };
 
   return (
-    <ProfissionaisContext.Provider value={{ profissionais, buscaProfissionais, buscaProfissionalPorId }}>
+    <ProfissionalContext.Provider value={{ profissionais, buscaProfissionais, buscaProfissionalPorId }}>
       {children}
-    </ProfissionaisContext.Provider>
+    </ProfissionalContext.Provider>
   );
 };

@@ -83,7 +83,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 

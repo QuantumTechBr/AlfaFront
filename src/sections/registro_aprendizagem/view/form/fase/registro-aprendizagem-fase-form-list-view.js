@@ -121,7 +121,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   }, []);
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues: initialFormValues,
   });
 

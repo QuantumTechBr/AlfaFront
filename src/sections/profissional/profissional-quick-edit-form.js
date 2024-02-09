@@ -87,7 +87,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
