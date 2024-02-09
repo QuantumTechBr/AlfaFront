@@ -30,9 +30,9 @@
       }
     }
   },
-  "eslint": {
-    "ignoreDuringBuilds": false
-  },
+  // "eslint": {
+  //   "ignoreDuringBuilds": false
+  // },
   "rules": {
     "@typescript-eslint/array-type": "off",
     "@typescript-eslint/ban-ts-comment": "off",

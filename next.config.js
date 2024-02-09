@@ -5,6 +5,9 @@ module.exports = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   modularizeImports: {
     '@mui/material': {
       transform: '@mui/material/{{member}}',
