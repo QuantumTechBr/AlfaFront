@@ -6,7 +6,7 @@ module.exports = {
     ignoreBuildErrors: true,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   modularizeImports: {
     '@mui/material': {
