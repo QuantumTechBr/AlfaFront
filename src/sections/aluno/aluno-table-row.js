@@ -34,7 +34,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
   if (turma_ano_escolar === '') {
     ano_escolar = turma_ano_escolar;
   } else {
-    ano_escolar = turma_ano_escolar.concat('º ');
+    ano_escolar = (turma_ano_escolar) ? turma_ano_escolar.concat('º ') : '';
   }
 
   const confirm = useBoolean();

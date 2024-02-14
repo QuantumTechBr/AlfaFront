@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useCallback, useEffect } from 'react';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import CardHeader from '@mui/material/CardHeader';
@@ -14,13 +13,15 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
 import { fNumber } from 'src/utils/format-number';
 
-import last from 'lodash/last';
 import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function DesempenhoAlunosWidget({ title, subheader, chart, ...other }) {
-  const theme = useTheme();
+  const popover = usePopover();
+
+  const [series, setSeries] = useState([]);
+  const [seriesYearData, setSeriesYearData] = useState('');
 
   if (chart === undefined) {
     return <>Carregando...</>;
@@ -28,18 +29,13 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
 
   const colors = Object.values(RegistroAprendizagemFasesColors);
 
-  const { categories: bimestres, series, options } = chart;
+  const { categories: bimestres, series: chartSeries, options } = chart;
 
-  const popover = usePopover();
-
-  const [seriesYearData, setSeriesYearData] = useState();
-  const [preparedData, setPreparedData] = useState();
-
-  const chartOptionsBase = {
+  const chartOptions = useChart({
     chart: { toolbar: { show: true } },
     colors: colors,
     xaxis: {
-      categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
+      categories: bimestres.map((_bimestre) => _bimestre.replace(`-`, `º `)),
       labels: {
         style: {
           fontSize: '14px',
@@ -65,6 +61,9 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
       style: {
         fontSize: '14px',
         colors: ['#fff'],
+      },
+      formatter: (value, opts) => {
+        return `${opts.config.series[opts.seriesIndex].porcentagem[opts.dataPointIndex]}%`;
       },
     },
     stroke: {
@@ -99,7 +98,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
       horizontalAlign: 'left',
     },
     ...options,
-  };
+  });
 
   const handleChangeSeries = useCallback(
     (newValue) => {
@@ -108,12 +107,6 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     [popover]
   );
-
-  useEffect(() => {
-    if (series.length) {
-      setSeriesYearData(`${last(series)?.year}`);
-    }
-  }, [series]);
 
   const prepareData = useCallback((originalData) => {
     const newData = [];
@@ -148,7 +141,24 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     return newData;
   }, []);
 
-  if (series.length == 0) {
+  useEffect(() => {
+    if (chartSeries.length) {
+      const _series = chartSeries.map((item) => {
+        item.data = prepareData(item.data);
+        return item;
+      });
+      setSeries(_series);
+    }
+  }, [chartSeries, prepareData]);
+
+  useEffect(() => {
+    if (chartSeries.length) {
+      const _lastYear = _.last(chartSeries)?.year;
+      setSeriesYearData(`${_lastYear}`);
+    }
+  }, [chartSeries]);
+
+  if (chartSeries.length == 0) {
     return <>Sem dados para exibir.</>;
   }
 
@@ -181,32 +191,18 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
           }
         />
 
-        {series.map((item) => {
-          const _preparedData = prepareData(item.data);
-          setPreparedData(_preparedData);
-          let chartOptionsMod = chartOptionsBase;
-          chartOptionsMod.dataLabels.formatter = function (
-            value,
-            { _series, seriesIndex, dataPointIndex, w }
-          ) {
-            return `${_preparedData[seriesIndex].porcentagem[dataPointIndex]}%`;
-          };
-          let chartOptions = useChart(chartOptionsBase);
-          return (
-            <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-              {item.year === seriesYearData && (
-                <Chart
-                  dir="ltr"
-                  type="bar"
-                  height={364}
-                  series={preparedData}
-                  options={chartOptions}
-                  width="100%"
-                />
-              )}
-            </Box>
-          );
-        })}
+        {series.length && series.find((item) => item.year === seriesYearData) && (
+          <Box sx={{ mt: 3, mx: 3 }}>
+            <Chart
+              dir="ltr"
+              type="bar"
+              height={364}
+              series={series.find((item) => item.year === seriesYearData).data}
+              options={chartOptions}
+              width="100%"
+            />
+          </Box>
+        )}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>

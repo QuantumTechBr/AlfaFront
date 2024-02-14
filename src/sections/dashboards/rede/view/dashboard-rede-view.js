@@ -407,11 +407,11 @@ export default function DashboardRedeView() {
             )}
 
             {!isGettingGraphics.value &&
-              (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+              dados.desempenho_alunos.chart && dados.desempenho_alunos && dados.desempenho_alunos.chart.series && (
                 <Grid xs={12}>
                   <DesempenhoAlunosWidget
                     title="Desempenho dos Estudantes - Índice de fases"
-                    subheader={dados.desempenho_alunos.subheader}
+                    subheader={dados.desempenho_alunos.subheader ?? ''}
                     chart={dados.desempenho_alunos.chart}
                   />
                 </Grid>
