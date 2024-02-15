@@ -9,7 +9,7 @@ import { fNumber } from 'src/utils/format-number';
 // components
 import Scrollbar from 'src/components/scrollbar';
 import { useChart } from 'src/components/chart';
-import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
+import ChartColumnStacked from 'src/sections/overview/app/chart-column-stacked';
 import { _disciplinas } from 'src/_mock';
 
 export default function AppAvaliacaoComponente({ title, subheader, list = [], ...other }) {
