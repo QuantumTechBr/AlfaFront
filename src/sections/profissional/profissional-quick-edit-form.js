@@ -75,7 +75,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
     }
     setFilters(novosFiltros);
     
-  }, []);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, currentUser]);
   useEffect(() => {
     let idsAC = [];
     let idAG = '';
