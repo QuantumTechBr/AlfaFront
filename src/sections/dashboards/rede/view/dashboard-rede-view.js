@@ -179,9 +179,6 @@ export default function DashboardRedeView() {
     }
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
 
-  useEffect(() => {
-    preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -193,7 +190,13 @@ export default function DashboardRedeView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [anosLetivos, contextReady.value, filters, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
+
+
 
   // TABLE GRID
   const TABLE_HEAD = [
