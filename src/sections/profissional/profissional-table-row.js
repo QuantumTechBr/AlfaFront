@@ -58,7 +58,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
 
-  }, []);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas]);
 
   const profissionalRender = profissional.toLowerCase();
 

@@ -54,7 +54,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(() => {
     buscaFuncoes().then(_funcoes => {
-      setFuncaoProfessor(_funcoes.find(funcao => funcao.nome == "PROFESSOR"))
+      setFuncaoProfessor(_funcoes.find(_funcao => _funcao.nome == "PROFESSOR"))
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
@@ -220,7 +220,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     setFilters(filtros);
     setValue('escola', '');
     setValue('zona', '');
-  }, [funcao]);
+  }, [funcao, setValue]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -337,9 +337,9 @@ export default function ProfissionalNewEditForm({ currentUser }) {
                 (<MenuItem key={funcaoProfessor?.id} value={funcaoProfessor?.id}>
                   {funcaoProfessor?.nome}
                 </MenuItem>)
-                : (funcoes.map((funcao) => (
-                  <MenuItem key={funcao.id} value={funcao.id}>
-                    {funcao.nome}
+                : (funcoes.map((_funcao) => (
+                  <MenuItem key={_funcao.id} value={_funcao.id}>
+                    {_funcao.nome}
                   </MenuItem>
                 )))
                 }

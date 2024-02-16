@@ -218,7 +218,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         setAOF(aplicacao_options.slice(1)) 
       }
     }
-  }, [buscaEscolas, buscaTurmas, buscaZonas, user?.funcao_usuario, user?.permissao_usuario]);
+  }, [buscaEscolas, buscaTurmas, buscaZonas, user?.funcao_usuario, user?.permissao_usuario, reset]);
 
 
   useEffect(() => {

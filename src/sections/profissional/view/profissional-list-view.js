@@ -215,7 +215,7 @@ export default function ProfissionalListView() {
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
-  }, [defaultFilters]);
+  }, []);
 
   return (
     <>

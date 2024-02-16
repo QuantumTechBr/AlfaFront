@@ -213,7 +213,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentUser]);
+  }, [currentUser, defaultValues, reset]);
 
 
   const handleFilters = useCallback(
