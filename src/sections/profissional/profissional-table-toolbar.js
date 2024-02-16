@@ -189,8 +189,8 @@ export default function ProfissionalTableToolbar({
 
         <MenuItem
           onClick={() => {
-            const exportFilters = { ...filters, export: 'csv' };
-            const query = new URLSearchParams(exportFilters).toString();
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
             profissionalMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Profissionais', csvFile.data);
             });

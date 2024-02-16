@@ -34,7 +34,7 @@ export default function ProfissionalEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de usuários');
     })
-  }, [id]);
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
