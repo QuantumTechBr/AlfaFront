@@ -91,9 +91,9 @@ export default function UserListView() {
         preparado.onTrue();
       }
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        const funcao = [];
-        const zona = [];
-        const escola = [];
+        let funcao = [];
+        let zona = [];
+        let escola = [];
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
           for (let index = 0; index < usuariosNaoDeletados[i].funcao_usuario.length; index++) {  
             funcao.push(usuariosNaoDeletados[i].funcao_usuario[index].funcao?.id);
@@ -128,7 +128,7 @@ export default function UserListView() {
         setErrorMsg('Erro de comunicação com a API de funções');
         preparado.onTrue();
     });
-  }, [buscaEscolas, buscaFuncoes, preparado]);
+  }, []);
 
   const table = useTable();
 

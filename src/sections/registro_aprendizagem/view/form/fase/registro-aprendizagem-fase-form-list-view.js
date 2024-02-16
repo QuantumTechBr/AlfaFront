@@ -139,7 +139,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const formValues = watch();
   const { turma, bimestre } = formValues;
 
-  const getRegistros = useCallback(async (turmaToGetRegistros, bimestreToGetRegistros) => {
+  const getRegistros = async (turmaToGetRegistros, bimestreToGetRegistros) => {
     turmaToGetRegistros ??= turma;
     bimestreToGetRegistros ??= bimestre;
 
@@ -179,7 +179,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         prep.onTrue();
       });
     }
-  }, [bimestre, buscaTurmaPorId, prep, setValue, turma]);
+  };
 
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
@@ -190,7 +190,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     });
 
     return () => subscription.unsubscribe();
-  }, [turmas, bimestres, watch, getRegistros, prep]);
+  }, [turmas, bimestres, watch, getRegistros]);
 
   const onSubmit = handleSubmit(async (data) => {
     const retornoPadrao = {
@@ -234,34 +234,32 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       prep.onTrue();
     });
     buscaTurmas().then((_turmas) => {
-      let _turmaInicialFull;
       if (turmaInicial) {
         if (_turmas) {
           const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
           if (_turmaComplete && _turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
-            _turmaInicialFull = _turmaComplete[0];
+            turmaInicial = _turmaComplete[0];
           }
         }
       }
 
-      let _bimestreInicialFull;
       if (bimestreInicial) {
         if (bimestres) {
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
           if (_bimestreComplete && _bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
-            _bimestreInicialFull = _bimestreComplete[0];
+            bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (_turmaInicialFull && _bimestreInicialFull) getRegistros(_turmaInicialFull, _bimestreInicialFull);
+      if (turmaInicial && bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
       prep.onTrue();
     });
-  }, [prep, getRegistros, turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
+  }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

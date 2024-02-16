@@ -47,7 +47,7 @@ export default function AppAvaliacaoComponente({ title, subheader, list = [], ..
     },
     dataLabels: {
       enabled: true,
-      formatter: (value, { _series_, seriesIndex, dataPointIndex, w }) => {
+      formatter: function (value, { _series_, seriesIndex, dataPointIndex, w }) {
         return list[seriesIndex].data[dataPointIndex];
       },
       offsetY: 0,

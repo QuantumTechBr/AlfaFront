@@ -36,7 +36,7 @@ export default function AuthGuard({ children }) {
       const href = `${loginPath}?${searchParams}`;
       router.replace(href);
     }
-  }, [logout, authenticated, method, router]);
+  }, [authenticated, method, router]);
 
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -44,12 +44,12 @@ export default function AuthGuard({ children }) {
     const url = pathname + searchParams.toString();
     // console.log(`url is : ${url}`);
     if(authenticated) checkValidAuth();
-  }, [ pathname, searchParams, authenticated, checkValidAuth]);
+  }, [pathname, searchParams]);
 
   useEffect(() => {
     checkValidAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkValidAuth]);
+  }, []);
 
   if (!checked) {
     return null;

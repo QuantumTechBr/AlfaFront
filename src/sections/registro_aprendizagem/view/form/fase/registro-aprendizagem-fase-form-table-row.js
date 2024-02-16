@@ -20,7 +20,6 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
-import { useCallback } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -31,14 +30,14 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const desabilita = useBoolean(false);
   const { id: aluno_turma_id, aluno } = row;
   const { control, getValues, setValue } = useFormContext();
-  const resultado = getValues('registros[' + aluno_turma_id + '].resultado');
-  const turmaId = getValues('turma.id')
-  const bimestreId = getValues('bimestre.id')
+  let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
+  let turmaId = getValues('turma.id')
+  let bimestreId = getValues('bimestre.id')
   const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
   const bimestreAnterior = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
   const [resultadoPrevio, setResultadoPrevio] = useState("")
 
-  const disableCheckbox = useCallback(() => {
+  const disableCheckbox = () => {
     if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
       return false
     }
@@ -47,9 +46,9 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     } else {
       return false;
     }
-  }, [getValues, user, aluno_turma_id]);
+  }
 
-  const preparacaoInicial = useCallback(async () => {
+  const preparacaoInicial = async () => {
     if (disableCheckbox()) {
       desabilita.onTrue()
     }
@@ -59,23 +58,23 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
         bimestreId: bimestreAnterior.id,
       });
     }
-  }, [disableCheckbox, desabilita, bimestreAnterior, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, turmaId]);
+  }
 
-  const ResultadoPrevio = useCallback(async ({ alunoTurmaId }) => {
-    const rp = await melhorResultadoAlunoTurma({
+  const ResultadoPrevio = async ({ alunoTurmaId }) => {
+    let rp = await melhorResultadoAlunoTurma({
       alunoTurmaId: alunoTurmaId,
     });
     setResultadoPrevio(rp)
-  }, [melhorResultadoAlunoTurma, setResultadoPrevio]);
+  }
 
   useEffect(() => {
     preparacaoInicial() 
-  }, [preparacaoInicial]);
+  }, []);
 
   useEffect(() => {
     if (registroAprendizagemFase.length > 0) {
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
-        const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+        let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
             ResultadoPrevio({alunoTurmaId: aluno_turma_id});
@@ -88,7 +87,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       }    
       
     }
-  }, [ResultadoPrevio, aluno_turma_id, bimestreAnterior, registroAprendizagemFase, row.aluno.id, user?.permissao_usuario]);
+  }, [registroAprendizagemFase]);
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
@@ -114,7 +113,8 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }
 
   return (
-    <TableRow hover>
+    <>
+      <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
           <Tooltip key={`tooltip_${aluno_turma_id}`} title={'Registro único da avaliação: ' + aluno_turma_id}>
             <span>{row.aluno.nome}</span>
@@ -167,6 +167,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
           <RHFTextField disabled={desabilita.value} name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>
       </TableRow>
+    </>
   );
 }
 

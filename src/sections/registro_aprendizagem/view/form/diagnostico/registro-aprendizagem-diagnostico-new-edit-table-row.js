@@ -13,35 +13,35 @@ import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
 import { FormControl, Tooltip } from '@mui/material';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  let { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
 
   const [mapResultados, setMapResultados] = useState([]);
   const { control } = useFormContext();
 
-  const preparacaoInicial = useCallback(async () => {
+  const preparacaoInicial = async () => {
     if (periodo == 'Final') {
       MapResultados();
     }
-  }, [periodo, MapResultados]);
+  }
 
-  const MapResultados = useCallback(async () => {
-    const mp = await mapResultadosAlunoTurmaInicial({
+  const MapResultados = async () => {
+    let mp = await mapResultadosAlunoTurmaInicial({
       alunoTurmaId: id,
     });
     setMapResultados(mp)
-  }, [id, setMapResultados, mapResultadosAlunoTurmaInicial]);
+  }
 
   useEffect(() => {
     preparacaoInicial() 
-  }, [preparacaoInicial]);
+  }, []);
 
   const mapDesabilitarMenuItem = {
     '' : 5,
@@ -77,7 +77,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }
 
   return (
-    <TableRow hover selected={selected}>
+    <>
+      <TableRow hover selected={selected}>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {row.aluno.nome}  
@@ -134,6 +135,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
           );
         })}
       </TableRow>
+    </>
   );
 }
 

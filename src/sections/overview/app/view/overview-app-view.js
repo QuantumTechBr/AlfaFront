@@ -22,7 +22,7 @@ export default function OverviewAppView() {
     } else if (checkFuncao('PROFESSOR')) {
       router.push(`${paths.dashboard.root}/dash-turma`);
     }
-  }, [checkFuncao, router]);
+  }, []);
 
   return;
 }

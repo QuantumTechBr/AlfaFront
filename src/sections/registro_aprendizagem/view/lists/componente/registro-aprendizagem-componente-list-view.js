@@ -85,7 +85,7 @@ export default function RegistroAprendizagemComponenteListView() {
     // });
     setRegistroAprendizagemList(_registrosAprendizagemComponente);
     setTableData(_registrosAprendizagemComponente);
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+  }, []);
 
   const table = useTable();
 
@@ -146,7 +146,7 @@ export default function RegistroAprendizagemComponenteListView() {
         [nome]: value,
       }));
     },
-    [table, turmas]
+    [table]
   );
 
   const handleDeleteRow = useCallback(

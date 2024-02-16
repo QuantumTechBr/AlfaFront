@@ -67,7 +67,7 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
 
   const handleUpload = async () => {
     let response;
-    const promises = [];
+    let promises = [];
 
     
     try {
@@ -75,7 +75,7 @@ export default function PlanoIntervencaoFileManagerNewFolderDialog({
       files.forEach(async file => {
       
         
-        const formData = new FormData();
+        let formData = new FormData();
         
         formData.append('plano_id', planoId);
         formData.append('arquivo', file)

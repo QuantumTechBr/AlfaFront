@@ -55,7 +55,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
 
     dataLabels: {
       enabled: true,
-      formatter: (val) => {
+      formatter: function (val) {
         return `${val}%`;
       },
       dropShadow: {
@@ -84,7 +84,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
         highlightDataSeries: true,
       },
       y: {
-        formatter: (value, { _series, seriesIndex, dataPointIndex, w }) => {
+        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
           return series[dataPointIndex]?.value ?? '-';
         },
         title: {
@@ -110,7 +110,9 @@ export default function GraficoIndiceFaseAnoColunasChart({
           columnDelimiter: ',',
           headerCategory: 'category',
           headerValue: 'value',
-          dateFormatter: (timestamp) => new Date(timestamp).toDateString()
+          dateFormatter(timestamp) {
+            return new Date(timestamp).toDateString();
+          },
         },
         svg: {
           filename: undefined,
@@ -141,11 +143,13 @@ export default function GraficoIndiceFaseAnoColunasChart({
   });
 
   const totalFaseAdequada = useCallback((_faseListToSum = []) => {
-    return (chart.series ?? []).reduce(
+    let total = 0;
+    total = (chart.series ?? []).reduce(
       (acc, item) => acc + (_faseListToSum.includes(item.label) ? item.value : 0),
       0
     );
-  }, [chart.series]);
+    return total;
+  });
 
   const calculoFaseAdequada = useCallback(() => {
     const _faseAdequada = anos_fase_adequada[ano_escolar];
@@ -157,7 +161,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
     _percentFaseAdequada = _percentFaseAdequada <= 100 ? _percentFaseAdequada : 100;
 
     return _percentFaseAdequada;
-  }, [ano_escolar, totalFaseAdequada, total_avaliados]);
+  });
 
   return (
     <Box {...other}>

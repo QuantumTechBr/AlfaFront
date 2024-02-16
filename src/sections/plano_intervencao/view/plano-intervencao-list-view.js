@@ -112,7 +112,7 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
     });
-  }, [buscaEscolas, buscaZonas, preparado]);
+  }, []);
 
   const table = useTable();
 
@@ -439,9 +439,9 @@ export default function PlanoIntervencaoListView() {
 // ----------------------------------------------------------------------
 
 const filtraStatus = (plano) => {
-  const date_inicio = parse(plano?.inicio_previsto, 'yyyy-MM-dd', new Date())
+  let date_inicio = parse(plano?.inicio_previsto, 'yyyy-MM-dd', new Date())
 
-  const date_termino = parse(plano?.termino_previsto, 'yyyy-MM-dd', new Date())
+  let date_termino = parse(plano?.termino_previsto, 'yyyy-MM-dd', new Date())
 
   const hoje = new Date()
 
@@ -469,8 +469,8 @@ function applyFilter({ inputData, comparator, filters }) {
   });
 
   const filtraEscola = (plano) => {
-    const aplicacao = plano?.aplicacao || '';
-    const encontrado = new Boolean();
+    let aplicacao = plano?.aplicacao || '';
+    let encontrado = new Boolean();
     aplicacao?.escolas?.map((esc) => {
       if (escola.includes(esc)) {
         encontrado.value = true;
@@ -480,8 +480,8 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   const filtraZona = (plano) => {
-    const aplicacao = plano?.aplicacao || '';
-    const encontrado = new Boolean();
+    let aplicacao = plano?.aplicacao || '';
+    let encontrado = new Boolean();
     aplicacao?.zonas?.map((zon) => {
       if (zona.includes(zon)) {
         encontrado.value = true;

@@ -72,8 +72,8 @@ export default function CalendarForm({ currentEvent, onClose }) {
   const dateError = values.start && values.end ? values.start > values.end : false;
 
   const onSubmit = handleSubmit(async (data) => {
-    const dateStart = new Date(data?.start);
-    const ano = anosLetivos.find((anoLetivo) => anoLetivo.ano === dateStart.getFullYear());
+    let dateStart = new Date(data?.start);
+    let ano = anosLetivos.find((anoLetivo) => anoLetivo.ano === dateStart.getFullYear());
     const eventData = {
       ... (currentEvent?.id ? {id: currentEvent?.id } : {}), // uuidv4()
       editavel: true,

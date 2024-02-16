@@ -65,7 +65,9 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
 
     dataLabels: {
       enabled: true,
-      formatter:  (val) => `${val}%`,
+      formatter: function (val) {
+        return `${val}%`;
+      },
       dropShadow: {
         enabled: true,
       },
@@ -99,7 +101,9 @@ export default function AppIndiceAprovacao({ title, subheader, series, options, 
         highlightDataSeries: true,
       },
       y: {
-        formatter: (value, opts) => series[opts.dataPointIndex]?.amount ?? '-',
+        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
+          return series[dataPointIndex]?.amount ?? '-';
+        },
         title: {
           formatter: (s) => 'Quantidade: ',
         },

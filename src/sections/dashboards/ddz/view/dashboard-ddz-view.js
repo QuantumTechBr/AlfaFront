@@ -104,14 +104,13 @@ export default function DashboardDDZView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = useCallback((anoEscolar) =>{ 
+  const getTurmasPorAnoEscolar = (anoEscolar) => {
     return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  }, [turmas]);
-  
+  };
 
   const preencheGraficos = useCallback(
     async (_filters) => {
-      const _filtersToSearch = _filters ?? filters;
+      let _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
@@ -129,14 +128,14 @@ export default function DashboardDDZView() {
         //
         dashboardsMethods.getDashboardGridEscolas(fullFilters).then((response) => {
           // adequação dos dados
-          const result = _(response.data)
+          let result = _(response.data)
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
             .map((escolaTurmas, key) => {
-              const _alunos = _.sumBy(escolaTurmas, (s) => s.qtd_alunos);
-              const _avaliados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_avaliados));
-              const _alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_alfabetizado));
-              const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_alfabetizado));
-              const _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_avaliado));
+              let _alunos = _.sumBy(escolaTurmas, (s) => s.qtd_alunos);
+              let _avaliados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_avaliados));
+              let _alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_alfabetizado));
+              let _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_alfabetizado));
+              let _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_avaliado));
 
               return {
                 escola_nome: key,
@@ -176,7 +175,7 @@ export default function DashboardDDZView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
+    [dados, filters, zonas, anosLetivos, contextReady.value]
   );
 
   const handleFilters = useCallback(
@@ -186,7 +185,7 @@ export default function DashboardDDZView() {
         [campo]: value,
       }));
     },
-    [setFilters]
+    [setFilters, setZonaFiltro, zonas]
   );
 
   const preparacaoInicial = useCallback(() => {
@@ -196,7 +195,7 @@ export default function DashboardDDZView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady], buscaAnosLetivos, buscaTurmas, buscaZonas, contextReady.value);
+  }, [preparacaoInicialRunned, anosLetivos, zonas, turmas]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
@@ -204,7 +203,7 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      const _filters = {
+      let _filters = {
         ...filters,
         zona: zonas.find((z) => z.id == initialZona),
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
@@ -212,7 +211,7 @@ export default function DashboardDDZView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, anosLetivos, filters,initialZona, preencheGraficos, zonas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
@@ -229,7 +228,7 @@ export default function DashboardDDZView() {
         zona: _zonaFiltro,
       }));
     }
-  }, [user]);
+  }, []);
 
   // TABLE GRID
   const TABLE_HEAD = [
@@ -271,7 +270,7 @@ export default function DashboardDDZView() {
     [table]
   );
 
-  const reduceAlfabetizacaoGeral = () => {
+  const reduceAlfabetizacaoGeral = function () {
     return {
       hasSeries: true,
       categories: [
@@ -296,18 +295,27 @@ export default function DashboardDDZView() {
   };
 
   const getTotalEstudandes = useCallback(() => {
-    return _.sumBy(dados.grid_escolas ?? [], (ddz) => ddz.alunos);
+    let total = 0;
+    total = _.sumBy(dados.grid_escolas ?? [], (ddz) => ddz.alunos);
+    return total;
   }, [dados]);
 
   const calculaMeta = () => {
-    const _anos_metas = filters.anoEscolar.length
+    let _anos_metas = filters.anoEscolar.length
       ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
       : anos_metas;
-    return _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
+    let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
+    return _meta;
   };
 
-  const getTotalAlfabetizados = () => _.sumBy(dados.grid_escolas, (s) => s.alfabetizados);
-  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_escolas, (s) => s.avaliados);
+  const getTotalAlfabetizados = () => {
+    let _soma = _.sumBy(dados.grid_escolas, (s) => s.alfabetizados);
+    return _soma;
+  };
+  const getTotalEstudandesAvaliados = () => {
+    let _soma = _.sumBy(dados.grid_escolas, (s) => s.avaliados);
+    return _soma;
+  };
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -424,8 +432,8 @@ export default function DashboardDDZView() {
               />
             )}
 
-            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
-              (dados.desempenho_alunos.chart.series ?? []).length > 0 && (
+            {!isGettingGraphics.value &&
+              (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
                 <Grid xs={12}>
                   <DesempenhoAlunosWidget
                     title="Desempenho dos Estudantes - Índice de fases"

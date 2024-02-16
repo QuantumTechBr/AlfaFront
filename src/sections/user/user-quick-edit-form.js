@@ -67,19 +67,19 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     buscaPermissoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
-    const escIds = [];
+    let escIds = [];
     currentUser?.escola?.map((escolaId) => {
       escIds.push(escolaId)
     })
-    const novosFiltros = {
+    let novosFiltros = {
       escolasAG: escIds
     }
     console.log(novosFiltros)
     setFilters(novosFiltros);
     
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, currentUser]);
+  }, []);
   useEffect(() => {
-    const idsAC = [];
+    let idsAC = [];
     let idAG = '';
     funcoes.map((_funcao) => {
       if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
@@ -96,7 +96,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     if (permissoes.length > 0) {
       liberaSalvar.onFalse()
     }
-  }, [permissoes, liberaSalvar]);
+  }, [permissoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -204,10 +204,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
+      let arrayMsg = Object.values(error).map((msg) => {
         return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
       });
-      const mensagem = arrayMsg.join(' ');
+      let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -215,7 +215,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [defaultValues, reset]);
+  }, [currentUser]);
 
 
   const handleFilters = useCallback(

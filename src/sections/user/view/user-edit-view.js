@@ -25,9 +25,9 @@ export default function UserEditView({ id }) {
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
       if (usuario.data.funcao_usuario.length > 0) {
-        const funcao = [];
-        const escola = [];
-        const zona = [];
+        let funcao = [];
+        let escola = [];
+        let zona = [];
         for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {  
           funcao.push(usuario.data.funcao_usuario[index].funcao?.id);
           escola.push(usuario.data.funcao_usuario[index].escola?.id);
@@ -48,7 +48,7 @@ export default function UserEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de usuários');
     })
-  }, [id]);
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

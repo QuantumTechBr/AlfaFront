@@ -40,7 +40,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nome ? `${nome.split('.').pop()}` : ''
 
-  const tamanhoString = tamanho ? String(tamanho) : '0';
+  let tamanhoString = tamanho ? String(tamanho) : '0';
 
   const { enqueueSnackbar } = useSnackbar();
 

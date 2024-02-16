@@ -76,7 +76,8 @@ export default function DashboardTurmaTableToolbar({
     selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
 
   return (
-    <Stack
+    <>
+      <Stack
         spacing={1}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
@@ -237,6 +238,7 @@ export default function DashboardTurmaTableToolbar({
           </FormControl>
         )}
       </Stack>
+    </>
   );
 }
 

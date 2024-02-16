@@ -33,7 +33,7 @@ export default function AlunoEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de estudantes');
     });
-  }, [id]);
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

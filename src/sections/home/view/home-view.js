@@ -13,7 +13,7 @@ export default function HomeView() {
     setTimeout(() => {
       router.replace('/dashboard');
     }, 150);
-  }, [router]);
+  }, []);
 
-  return;
+  return <></>;
 }

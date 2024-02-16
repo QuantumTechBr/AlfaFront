@@ -25,11 +25,11 @@ import parse from 'date-fns/parse';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
-  const date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
+  let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
-  const date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
+  let date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
 
   const hoje = new Date()
 
@@ -77,7 +77,8 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
   }
 
   return (
-    <TableRow hover selected={selected}>
+    <>
+      <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
@@ -112,6 +113,9 @@ export default function PlanoIntervencaoModalTableRow({ row, selected, onEditRow
           </Label>
         </TableCell>
       </TableRow>
+
+      
+    </>
   );
 }
 

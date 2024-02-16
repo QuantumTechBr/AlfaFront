@@ -180,8 +180,8 @@ export default function TurmaTableToolbar({
 
         <MenuItem
           onClick={() => {
-            const exportFilters = { ...filters, export: 'csv' };
-            const query = new URLSearchParams(exportFilters).toString();
+            let exportFilters = { ...filters, export: 'csv' };
+            let query = new URLSearchParams(exportFilters).toString();
             turmaMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Turmas', csvFile.data);
             });

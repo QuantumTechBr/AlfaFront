@@ -28,11 +28,11 @@ import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }){
-  const { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
+  let { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
 
-  const date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
+  let date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
-  const date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
+  let date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
   
   const hoje = new Date()
 
