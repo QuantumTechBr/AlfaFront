@@ -218,7 +218,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         setAOF(aplicacao_options.slice(1)) 
       }
     }
-  }, [buscaEscolas, buscaTurmas, buscaZonas, preparado, reset, user?.funcao_usuario, user?.permissao_usuario]);
+  }, [buscaEscolas, buscaTurmas, buscaZonas, user?.funcao_usuario, user?.permissao_usuario]);
 
 
   useEffect(() => {
@@ -227,7 +227,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         preparado.onTrue();
       }        
     }
-  }, [allHab, preparado, url])
+  }, [allHab])
 
   useEffect(()  => {
     if (currentPlano) {
@@ -272,7 +272,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         })
       }
     }
-  }, [currentPlano, habilidades_1ano, habilidades_2ano, habilidades_3ano, newFrom, preparado]);
+  }, [currentPlano]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -514,7 +514,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setHab(habilidades_3ano);
     }
     setFilters(filtros);
-  }, [ano_escolar, habilidades_1ano, habilidades_2ano, habilidades_3ano]);
+  }, [ano_escolar]);
 
   useEffect(() => {
     const novoFiltro = filters;

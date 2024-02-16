@@ -66,7 +66,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         });
         buscaDocumentos();
         // preparado.onTrue()
-    }, [buscaDocumentos, buscaEscolas, buscaTurmas, buscaZonas, currentPlano, preparado]);
+    }, [buscaDocumentos, buscaEscolas, buscaTurmas, buscaZonas]);
 
     const buscaDocumentos = useCallback(async () => {
         setWarningMsg('');

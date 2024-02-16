@@ -261,10 +261,6 @@ export default function DashboardTurmaView() {
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, buscaBimestres, contextReady]);
 
   useEffect(() => {
-    preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
-
-  useEffect(() => {
     if (contextReady.value) {
       const _turma = turmas.filter((t) => t.id == initialTurma);
       const _escola = escolas.filter((e) => e.id == _turma[0]?.escola.id);
@@ -280,7 +276,7 @@ export default function DashboardTurmaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, anosLetivos, zonas, escolas, turmas, filters, bimestres, preencheGraficos, initialTurma]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     let _zonaFiltro = [];
@@ -300,6 +296,10 @@ export default function DashboardTurmaView() {
       bimestre: '',
     });
   }, [user?.funcao_usuario]);
+
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   const filtroReset = () => {
     setFilters({

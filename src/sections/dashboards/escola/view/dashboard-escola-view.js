@@ -218,10 +218,6 @@ export default function DashboardEscolaView() {
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
 
   useEffect(() => {
-    preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
-
-  useEffect(() => {
     if (contextReady.value) {
       const _escola = escolas.filter((e) => e.id == initialEscola);
 
@@ -236,7 +232,7 @@ export default function DashboardEscolaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, zonaFiltro, escolaFiltro, escolas, anosLetivos, filters, initialEscola, preencheGraficos, zonas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
@@ -260,6 +256,10 @@ export default function DashboardEscolaView() {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   const filtroReset = () => {
     setFilters({

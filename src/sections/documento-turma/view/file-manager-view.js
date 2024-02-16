@@ -142,7 +142,7 @@ export default function FileManagerView() {
       }
       preparado.onTrue()
     })
-  }, [buscaDocumentos, buscaEscolas, buscaTurmas, preparado]);
+  }, [buscaDocumentos, buscaEscolas, buscaTurmas]);
 
   const buscaDocumentos = useCallback(async (turmaId) => {
     setWarningMsg('');

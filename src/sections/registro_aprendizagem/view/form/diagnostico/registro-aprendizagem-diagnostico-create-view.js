@@ -81,7 +81,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
     });
-  }, [_turma.ano_escolar, _turma.id, _turma.turmas_alunos, periodo, prep]);
+  }, [_turma, periodo]);
 
   const handleTurma = useCallback(async (event) => {
     const novaTurma = event.target.value;

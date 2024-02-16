@@ -89,10 +89,9 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
 
 
   useEffect(() => {
-    
     buscaDocumentos();
     preparado.onTrue()
-  }, [buscaDocumentos, preparado]);
+  }, [buscaDocumentos]);
 
   const buscaDocumentos = useCallback(async () => {
     setWarningMsg('');
@@ -176,9 +175,8 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     if(event) {
       buscaDocumentos().then(retorno => setTableData(retorno));
     }
-    
     upload.onFalse();
-  }, [buscaDocumentos, upload])
+  }, [buscaDocumentos])
 
   const renderFilters = (
     <Stack

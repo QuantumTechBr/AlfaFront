@@ -112,7 +112,7 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
     });
-  }, [buscaEscolas, buscaZonas, preparado]);
+  }, [buscaEscolas, buscaZonas]);
 
   const table = useTable();
 

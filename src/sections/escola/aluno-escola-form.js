@@ -110,7 +110,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
       });
     }
-  }, [buscaAnosLetivos, escola.id, getAllAlunos, open]);
+  }, [buscaAnosLetivos, getAllAlunos]);
 
   const onSearchAlunos = useCallback((event) => {
     setSearchAlunosInput(event.target.value);

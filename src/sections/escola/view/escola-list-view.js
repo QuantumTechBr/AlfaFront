@@ -91,7 +91,7 @@ export default function EscolaListView() {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-  }, [buscaEscolas, buscaZonas, preparado]);
+  }, [buscaEscolas, buscaZonas]);
   
   const table = useTable();
 

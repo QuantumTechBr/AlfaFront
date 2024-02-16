@@ -237,7 +237,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       setHab(habilidades_3ano);
     }
     setFilters(filtros);
-  }, [ano, habilidades_1ano, habilidades_2ano, habilidades_3ano]);
+  }, [ano]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {

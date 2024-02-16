@@ -146,7 +146,7 @@ export default function RegistroAprendizagemFaseListView() {
   useEffect(() => {
     prep.onFalse();
     preencheTabela();
-  }, [anosLetivos, turmas, bimestres, prep, preencheTabela]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [anosLetivos, turmas, bimestres, preencheTabela]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const dataFiltered = applyFilter({
     inputData: tableData,

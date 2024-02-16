@@ -196,11 +196,7 @@ export default function DashboardDDZView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady], buscaAnosLetivos, buscaTurmas, buscaZonas, contextReady.value);
-
-  useEffect(() => {
-    preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -212,7 +208,7 @@ export default function DashboardDDZView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, anosLetivos, filters,initialZona, preencheGraficos, zonas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
@@ -230,6 +226,10 @@ export default function DashboardDDZView() {
       }));
     }
   }, [user]);
+
+  useEffect(() => {
+    preparacaoInicial(); // chamada unica
+  }, [preparacaoInicial]);
 
   // TABLE GRID
   const TABLE_HEAD = [

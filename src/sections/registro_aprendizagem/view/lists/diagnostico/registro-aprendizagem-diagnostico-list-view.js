@@ -200,7 +200,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     preparacaoInicial();
     preencheTabela();
     preencheGraficos();
-  }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered, preparacaoInicial, preencheTabela, preencheGraficos]);
+  }, [turmas, preparacaoInicial, preencheTabela, preencheGraficos]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,

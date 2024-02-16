@@ -190,7 +190,7 @@ export default function DashboardRedeView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
