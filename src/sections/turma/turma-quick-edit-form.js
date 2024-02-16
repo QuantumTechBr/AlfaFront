@@ -43,7 +43,7 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de Anos Letivos');
     });
-  }, [buscaEscolas, buscaAnosLetivos])
+  }, [])
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),

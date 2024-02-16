@@ -94,7 +94,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   
   let aplicarInicial = '';
-  const colunasDocumentosAntigos = [
+  let colunasDocumentosAntigos = [
     // { field: 'id', headerName: 'ID', width: 70 },
     { field: 'nomeArquivo', headerName: 'Nome', width: 500 },
     { field: 'tamanho', headerName: 'Tamanho', width: 120 },
@@ -115,34 +115,28 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
   }
 
+  let inicioPrevisto = new Date('01-01-2000');
+  if (currentPlano) {
+    inicioPrevisto = parseISO(currentPlano.inicio_previsto);
+  }
 
-
-  const inicioPrevisto = useMemo(()=> {
-    if (currentPlano) {
-      return parseISO(currentPlano.inicio_previsto);
-    }
-    return new Date('01-01-2000');
-  }, [currentPlano]) ;
-  
-  const terminoPrevisto = useMemo(()=> {
-    if (currentPlano) {
-      return parseISO(currentPlano.termino_previsto);
-    }
-    return new Date('01-01-2000');
-  }, [currentPlano]) ;
+  let terminoPrevisto = new Date('01-01-2000');
+  if (currentPlano) {
+    terminoPrevisto = parseISO(currentPlano.termino_previsto);
+  }
 
 
   useEffect(() => {
     preparado.onFalse();
     profissionalMethods.getAllProfissionais().then(profissionais => {
-      const lp = []
+      let lp = []
       if (profissionais.data.length == 0) {
         setWarningMsg('A API retornou uma lista vazia de profissionais');
         preparado.onTrue(); 
       }
       profissionais.data.map((profissional) => {
         // if (profissional.funcao.nome == "PROFESSOR") {
-          const pro = {
+          let pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
@@ -155,9 +149,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       preparado.onTrue(); 
     })
     alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
-      const auto_complete_aluno = []
+      let auto_complete_aluno = []
       response.data.results.map((aluno) => {
-        const al = {
+        let al = {
           label: aluno.nome,
           id: aluno.id,
         }
@@ -169,9 +163,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
     habilidadeMethods.getAllHabilidades().then((response) => {
-      const hab1ano = [];
-      const hab2ano = [];
-      const hab3ano = [];
+      let hab1ano = [];
+      let hab2ano = [];
+      let hab3ano = [];
       response.data.map((habilidade) => {
         if (habilidade.ano_escolar == 1) {
           hab1ano.push(habilidade);
@@ -204,7 +198,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       maxPU = permissao_values[maxPU] < permissao_values[user?.permissao_usuario[index].nome] ? user?.permissao_usuario[index].nome : maxPU
     }
     setMaxPermissaoUsuario(maxPU);
-    const buscandoZona = [];
+    let buscandoZona = [];
     if (permissao_values[maxPU] >= 6) { // COM BASE NA MAIOR PERMISSAO QUE O USUARIO TEM, MONTAMOS QUAIS ZONAS PODEM SER ESCOLHIDAS PARA APLICAR O PLANO
       buscaZonas().then(_zonas => setZonasUsuario(_zonas)).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de zonas');
@@ -218,7 +212,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         setAOF(aplicacao_options.slice(1)) 
       }
     }
-  }, [buscaEscolas, buscaTurmas, buscaZonas, preparado, reset, user?.funcao_usuario, user?.permissao_usuario]);
+  }, []);
 
 
   useEffect(() => {
@@ -227,7 +221,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         preparado.onTrue();
       }        
     }
-  }, [allHab, preparado, url])
+  }, [allHab])
 
   useEffect(()  => {
     if (currentPlano) {
@@ -272,7 +266,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         })
       }
     }
-  }, [currentPlano, habilidades_1ano, habilidades_2ano, habilidades_3ano, newFrom, preparado]);
+  }, [currentPlano]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -295,7 +289,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       fase: currentPlano?.fase || '',
       habilidades_plano_intervencao: currentPlano?.habilidades_plano_intervencao || filters.habilidades,
     }),
-    [aplicarInicial, currentPlano?.acao, currentPlano?.ano_escolar, currentPlano?.aplicacao, currentPlano?.fase, currentPlano?.habilidades_plano_intervencao, currentPlano.responsavel, currentPlano?.status, filters.habilidades, inicioPrevisto, terminoPrevisto]
+    [currentPlano]
   );
 
   const methods = useForm({
@@ -330,7 +324,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      const listaIdsAplicacao = {
+      let listaIdsAplicacao = {
         zonas: [],
         escolas: [],
         turmas: [],
@@ -350,10 +344,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
           listaIdsAplicacao.alunos.push(aluno.id)
         })
       }
-      const inicioPrev = new Date(data.inicio_previsto);
-      const terminoPrev = new Date(data.termino_previsto);
-      const aplicacao = listaIdsAplicacao;
-      const toSend = {
+      let inicioPrev = new Date(data.inicio_previsto);
+      let terminoPrev = new Date(data.termino_previsto);
+      let aplicacao = listaIdsAplicacao;
+      let toSend = {
         acao: data.acao,
         responsavel_id: data.responsavel.id,
         aplicacao,
@@ -388,10 +382,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       }
       enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
+      let arrayMsg = Object.values(error).map((msg) => {
         return ((msg[0] && msg[0].charAt(0))?.toUpperCase() ?? '') + (msg[0]?.slice(1) ?? '');
       });
-      const mensagem = arrayMsg.join(' ');
+      let mensagem = arrayMsg.join(' ');
       currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -399,7 +393,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentPlano, defaultValues, reset]);
+  }, [currentPlano]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -486,7 +480,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const renderValueTurma = (selected) => 
     selected.map((turmaId) => {
-      const turma = turmas.find((option) => option.id == turmaId);
+      let turma = turmas.find((option) => option.id == turmaId);
       return turma?.ano_escolar.concat('º ', turma?.nome);
   }).join(', '); 
 
@@ -514,16 +508,16 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setHab(habilidades_3ano);
     }
     setFilters(filtros);
-  }, [ano_escolar, habilidades_1ano, habilidades_2ano, habilidades_3ano]);
+  }, [ano_escolar]);
 
   useEffect(() => {
-    const novoFiltro = filters;
+    let novoFiltro = filters;
     novoFiltro.escolas = [];
     novoFiltro.zonas = [];
     novoFiltro.alunos = [];
     novoFiltro.turmas = [];
     setFilters(novoFiltro);
-  }, [aplicar, filters]);
+  }, [aplicar]);
 
   const telaDocumento = () => {
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));

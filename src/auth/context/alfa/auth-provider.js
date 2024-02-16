@@ -83,13 +83,9 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  // LOGOUT
-  const logout = useCallback(async () => {
-    clearSession();
-    dispatch({
-      type: 'LOGOUT',
-    });
-  }, []);
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   // LOGIN
   const login = useCallback(async (login, senha) => {
@@ -120,7 +116,15 @@ export function AuthProvider({ children }) {
         user,
       },
     });
-  }, [logout]);
+  }, []);
+
+  // LOGOUT
+  const logout = useCallback(async () => {
+    clearSession();
+    dispatch({
+      type: 'LOGOUT',
+    });
+  }, []);
 
   // FORGOT PASSWORD
   const forgotPassword = useCallback(async (email) => {
@@ -147,17 +151,13 @@ export function AuthProvider({ children }) {
   //   if (!isValidToken()) logout();
   // }, [location]);
 
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
-
   // ----------------------------------------------------------------------
 
   const checkAuthenticated = state.user ? 'authenticated' : 'unauthenticated';
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const checkPermissaoModulo = useCallback((nomeModulo, permissao) => {
+  const checkPermissaoModulo = (nomeModulo, permissao) => {
     if (!state.user || !state.user.permissao_usuario) {
       return null;
     }
@@ -174,14 +174,14 @@ export function AuthProvider({ children }) {
       return moduloPermissao[permissao];
     }
     return false;
-  }, [state.user]);
+  };
 
-  const checkFuncao = useCallback((funcao) => {
+  const checkFuncao = (funcao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
     const permissaoUsuario = state.user.permissao_usuario[0];
     return permissaoUsuario.nome == funcao;
     /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
-  }, [state.user]);
+  };
 
   const memoizedValue = useMemo(
     () => ({

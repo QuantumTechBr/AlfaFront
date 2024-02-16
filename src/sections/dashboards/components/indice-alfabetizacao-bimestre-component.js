@@ -88,7 +88,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
   const qtd_bimestres = dados.percent_alfabetizado.length;
-  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined, [dados.percent_alfabetizado]);
+  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined);
 
   const chartSeries = [
     ...(hasData(0)
@@ -181,7 +181,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
         fontSize: '12px',
         colors: [..._.fill(_.range(qtd_bimestres - 1), '#FFF', 0, qtd_bimestres - 1), '#000'],
       },
-      formatter:  (value, opts) => {
+      formatter: function (value, opts) {
         if (value === null || value == 0) return '';
         if (opts.seriesIndex <= qtd_bimestres - 1) {
           if (opts.dataPointIndex <= qtd_bimestres - 1) {

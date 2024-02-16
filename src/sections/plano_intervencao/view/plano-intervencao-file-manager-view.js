@@ -92,9 +92,9 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     
     buscaDocumentos();
     preparado.onTrue()
-  }, [buscaDocumentos, preparado]);
+  }, []);
 
-  const buscaDocumentos = useCallback(async () => {
+  const buscaDocumentos = async () => {
     setWarningMsg('');
     setErrorMsg('');
     preparado.onFalse();
@@ -112,7 +112,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     }).finally(() => preparado.onTrue());
 
     return consultaAtual;
-  }, [preparado, documentos, planoId]);
+  };
 
   const handleFilters = useCallback(
     (name, value) => {
@@ -178,7 +178,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
     }
     
     upload.onFalse();
-  }, [buscaDocumentos, upload])
+  }, [])
 
   const renderFilters = (
     <Stack

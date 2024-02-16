@@ -1,22 +1,39 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
+import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
+import Typography from '@mui/material/Typography';
+import FormControlLabel from '@mui/material/FormControlLabel';
+// utils
+import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
+// assets
+import { countries } from 'src/assets/data';
 // components
+import Label from 'src/components/label';
+import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFTextField } from 'src/components/hook-form';
+import FormProvider, {
+  RHFSelect,
+  RHFSwitch,
+  RHFTextField,
+  RHFUploadAvatar,
+  RHFAutocomplete,
+} from 'src/components/hook-form';
 // _mock
-import { _anosSerie, _turnos } from 'src/_mock';
+import { _anosSerie, _turnos, USER_STATUS_OPTIONS } from 'src/_mock';
 
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
@@ -101,7 +118,7 @@ export default function ZonaNewEditForm({ currentZona }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [defaultValues, reset]);
+  }, [currentZona]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>

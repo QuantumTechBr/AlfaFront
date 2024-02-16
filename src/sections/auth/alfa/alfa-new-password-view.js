@@ -158,19 +158,23 @@ export default function AlfaNewPasswordView() {
   );
 
   const msgNoSecret = (
-    <Typography variant="body2" sx={{ my: 5 }}>
-      Link incorreto. 
-      <br/>
-      Tente novamente o link enviado para o seu email.
-      <br/>
-      Se não funcionar, entre em contato com o suporte.
-    </Typography>
+    <>
+      <Typography variant="body2" sx={{ my: 5 }}>
+        Link incorreto. 
+        <br/>
+        Tente novamente o link enviado para o seu email.
+        <br/>
+        Se não funcionar, entre em contato com o suporte.
+      </Typography>
+    </>
   )
 
   const msgSuccess = (
-    <Typography variant="body2" sx={{ my: 5 }}>
-      Senha alterada com sucesso.
-    </Typography>
+    <>
+      <Typography variant="body2" sx={{ my: 5 }}>
+        Senha alterada com sucesso.
+      </Typography>
+    </>
   )
 
   return (

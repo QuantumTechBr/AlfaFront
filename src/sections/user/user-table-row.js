@@ -24,7 +24,7 @@ import { paths } from 'src/routes/paths';
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  let { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
   const funcaoNome = funcao_usuario?.length > 0 ? funcao_usuario[0].funcao.nome : ''
 

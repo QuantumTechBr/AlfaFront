@@ -31,7 +31,7 @@ export default function PlanoIntervencaoCreateFromView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de planos de intervenção');
     })
-  }, [id]);
+  }, []);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
