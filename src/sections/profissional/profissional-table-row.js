@@ -34,6 +34,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const user = {
     id: row.id,
@@ -97,18 +98,22 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   const renderEscola = () => {
     let list_retorno = []
-    for (let index = 0; index < escolas.length; index++) {
-      for (let i = 0; i < escola.length; index++) {
+    for (let index = 0; index < escolas?.length; index++) {
+      for (let i = 0; i < escola?.length; i++) {
         if (escolas[index]?.id == escola[i]) {
           list_retorno.push(`- ${escolas[index].nome} `)
         }
       }
     }
-    list_retorno.push('-');
     return(
-      <Typography>{"".concat(...list_retorno)}</Typography>
+    <div>
+           {list_retorno.map((li, index) => (
+            <Typography key={index}>{li}<br></br></Typography>
+          ))}
+    </div>
   )
   }
+
 
   return (
     <>
