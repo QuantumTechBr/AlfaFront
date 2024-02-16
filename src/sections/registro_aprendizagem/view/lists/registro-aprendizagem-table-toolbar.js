@@ -291,7 +291,7 @@ export default function RegistroAprendizagemTableToolbar({
             exportFilters.escola = exportFilters.escola.map((item) => item.id);
 
             exportFilters = { ...exportFilters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const query = new URLSearchParams(exportFilters).toString();
 
             if (export_type == `fase`) {
               registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {

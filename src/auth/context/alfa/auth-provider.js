@@ -116,7 +116,7 @@ export function AuthProvider({ children }) {
         user,
       },
     });
-  }, []);
+  }, [logout]);
 
   // LOGOUT
   const logout = useCallback(async () => {
@@ -157,7 +157,7 @@ export function AuthProvider({ children }) {
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const checkPermissaoModulo = (nomeModulo, permissao) => {
+  const checkPermissaoModulo = useCallback((nomeModulo, permissao) => {
     if (!state.user || !state.user.permissao_usuario) {
       return null;
     }
@@ -174,14 +174,14 @@ export function AuthProvider({ children }) {
       return moduloPermissao[permissao];
     }
     return false;
-  };
+  }, [state.user]);
 
-  const checkFuncao = (funcao) => {
+  const checkFuncao = useCallback((funcao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
     const permissaoUsuario = state.user.permissao_usuario[0];
     return permissaoUsuario.nome == funcao;
     /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
-  };
+  }, [state.user]);
 
   const memoizedValue = useMemo(
     () => ({

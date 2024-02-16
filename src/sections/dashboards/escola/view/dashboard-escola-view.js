@@ -103,13 +103,13 @@ export default function DashboardEscolaView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = (anoEscolar) => {
+  const getTurmasPorAnoEscolar = useCallback((anoEscolar) => {
     return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  };
+  }, [turmas]);
 
   const preencheGraficos = useCallback(
     async (_filters) => {
-      let _filtersToSearch = _filters ?? filters;
+      const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
@@ -128,15 +128,15 @@ export default function DashboardEscolaView() {
         //
         dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
           // adequação dos dados
-          let result = response.data.map((i) => {
-            let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
-            let _alfabetizados = _.isArray(i.qtd_alfabetizado)
+          const result = response.data.map((i) => {
+            const _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            const _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado;
-            let _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
+            const _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
               ? _.last(i.qtd_nao_alfabetizado)
               : i.qtd_nao_alfabetizado;
-            let _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
+            const _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
               ? _.last(i.qtd_nao_avaliado)
               : i.qtd_nao_avaliado;
 
@@ -173,7 +173,7 @@ export default function DashboardEscolaView() {
 
       isGettingGraphics.onFalse();
     },
-    [dados, filters, anosLetivos, zonas, escolas, contextReady.value]
+    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
   );
 
   const handleFilters = useCallback(
@@ -215,7 +215,7 @@ export default function DashboardEscolaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, anosLetivos, zonas, escolas, turmas]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
@@ -223,9 +223,9 @@ export default function DashboardEscolaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      let _escola = escolas.filter((e) => e.id == initialEscola);
+      const _escola = escolas.filter((e) => e.id == initialEscola);
 
-      let _filters = {
+      const _filters = {
         ...filters,
         ...(_escola.length > 0 ? { escola: _escola } : {}),
         ...(zonaFiltro.length && _escola.length == 0
@@ -236,7 +236,7 @@ export default function DashboardEscolaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, zonaFiltro, escolaFiltro, escolas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, zonaFiltro, escolaFiltro, escolas, anosLetivos, filters, initialEscola, preencheGraficos, zonas]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
@@ -259,7 +259,7 @@ export default function DashboardEscolaView() {
         escola: _escolaFiltro,
       }));
     }
-  }, []);
+  }, [user]);
 
   const filtroReset = () => {
     setFilters({
@@ -313,7 +313,7 @@ export default function DashboardEscolaView() {
     [table]
   );
 
-  const reduceAlfabetizacaoGeral = function () {
+  const reduceAlfabetizacaoGeral = () => {
     return {
       hasSeries: true,
       categories: [
@@ -338,27 +338,18 @@ export default function DashboardEscolaView() {
   };
 
   const getTotalEstudandes = useCallback(() => {
-    let total = 0;
-    total = _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
-    return total;
+    return _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
   }, [dados]);
 
   const calculaMeta = () => {
-    let _anos_metas = filters.anoEscolar.length
+    const _anos_metas = filters.anoEscolar.length
       ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
       : anos_metas;
-    let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
-    return _meta;
+    return _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
   };
 
-  const getTotalAlfabetizados = () => {
-    let _soma = _.sumBy(dados.grid_professores, (s) => s.alfabetizados);
-    return _soma;
-  };
-  const getTotalEstudandesAvaliados = () => {
-    let _soma = _.sumBy(dados.grid_professores, (s) => s.avaliados);
-    return _soma;
-  };
+  const getTotalAlfabetizados = () => _.sumBy(dados.grid_professores, (s) => s.alfabetizados);
+  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_professores, (s) => s.avaliados);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -481,7 +472,7 @@ export default function DashboardEscolaView() {
               />
             )}
 
-            {!isGettingGraphics.value &&
+            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
               (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
                 <Grid xs={12}>
                   <DesempenhoAlunosWidget
@@ -592,32 +583,30 @@ function Row(props) {
     },
   }));
   return (
-    <>
-      <StyledTableRow
-        key={`tableStyledRowDash_${row.key}`}
-        sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
-      >
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.professor}</TableCell>
-        <TableCell>{row.turma_ano_escolar}º</TableCell>
-        <TableCell>{row.turma_nome}</TableCell>
-        <TableCell>{row.turma_turno}</TableCell>
-        <TableCell>{row.alunos}</TableCell>
-        <TableCell>{row.avaliados}</TableCell>
-        <TableCell>{row.alfabetizados}</TableCell>
-        <TableCell>{row.nao_alfabetizados}</TableCell>
-        <TableCell>{row.deixou_de_frequentar}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          <Button
-            color="primary"
-            variant="contained"
-            size="small"
-            component={RouterLink}
-            href={`${paths.dashboard.root}/dash-turma/?turma=${row.turma_id ?? ''}`}
-          >
-            Ver mais
-          </Button>
-        </TableCell>
-      </StyledTableRow>
-    </>
+    <StyledTableRow
+      key={`tableStyledRowDash_${row.key}`}
+      sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
+    >
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.professor}</TableCell>
+      <TableCell>{row.turma_ano_escolar}º</TableCell>
+      <TableCell>{row.turma_nome}</TableCell>
+      <TableCell>{row.turma_turno}</TableCell>
+      <TableCell>{row.alunos}</TableCell>
+      <TableCell>{row.avaliados}</TableCell>
+      <TableCell>{row.alfabetizados}</TableCell>
+      <TableCell>{row.nao_alfabetizados}</TableCell>
+      <TableCell>{row.deixou_de_frequentar}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <Button
+          color="primary"
+          variant="contained"
+          size="small"
+          component={RouterLink}
+          href={`${paths.dashboard.root}/dash-turma/?turma=${row.turma_id ?? ''}`}
+        >
+          Ver mais
+        </Button>
+      </TableCell>
+    </StyledTableRow>
   );
 }

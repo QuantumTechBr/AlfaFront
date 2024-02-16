@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useCallback } from 'react';
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
 import Card from '@mui/material/Card';
@@ -66,9 +66,9 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         });
         buscaDocumentos();
         // preparado.onTrue()
-    }, []);
+    }, [buscaDocumentos, buscaEscolas, buscaTurmas, buscaZonas, currentPlano, preparado]);
 
-    const buscaDocumentos = async () => {
+    const buscaDocumentos = useCallback(async () => {
         setWarningMsg('');
         setErrorMsg('');
         preparado.onFalse();
@@ -84,7 +84,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         }).finally(() => preparado.onTrue());
     
         return consultaAtual;
-      };
+      }, [preparado, currentPlano, documentos]);
     
 
   
@@ -93,7 +93,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const settings = useSettingsContext();
 
   const mostrarAplicacao = () => {
-    let list_retorno = [];
+    const list_retorno = [];
     let aplicacao = '';
     if (plano?.aplicacao?.alunos?.length > 0) {
         plano.aplicacao.alunos.map((alunoId) => {
@@ -148,7 +148,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   }
 
   const retornaHabilidades = () => {
-    let list_retorno = []
+    const list_retorno = []
     allHab.map((habilidade) => {
         if (plano?.habilidades_plano_intervencao?.includes(habilidade.id)) {
             list_retorno.push(`- ${habilidade.nome} `)

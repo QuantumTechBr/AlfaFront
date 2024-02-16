@@ -33,7 +33,7 @@ export const setAlertTokenExpired = (expirationDate) => {
 
   const currentTime = Date.now();
 
-  let timeLeft = expirationDate - currentTime;
+  const timeLeft = expirationDate - currentTime;
   // Test token expires after 10s
   // timeLeft = currentTime + 10000 - currentTime; // ~10s
 

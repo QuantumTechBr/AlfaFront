@@ -28,19 +28,18 @@ export default function AlunoEscolaTableRow({
 }) {
   const { id, nome, data_nascimento, matricula, created_at, updated_at, deleted_at } = row;
 
-  let date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
+  const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
   let _aluno = allAlunos.filter((aluno) => aluno.id == id);
   _aluno = _aluno.length > 0 ? _aluno[0] : null;
-  let outrasEscolas =
+  const outrasEscolas =
     _aluno == null ? [] : _aluno.alunoEscolas.filter((ae) => ae.escola != currentEscola.id);
 
-  let emOutraEscola = outrasEscolas.length > 0;
+  const emOutraEscola = outrasEscolas.length > 0;
   selected = emOutraEscola ? false : selected;
 
   return (
-    <>
-      <TableRow hover selected={selected}>
+    <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox
             {...(emOutraEscola ? { disabled: 'disabled' } : null)}
@@ -53,7 +52,6 @@ export default function AlunoEscolaTableRow({
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
       </TableRow>
-    </>
   );
 }
 

@@ -99,9 +99,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then((retorno) => {
-      let hab1ano = [];
-      let hab2ano = [];
-      let hab3ano = [];
+      const hab1ano = [];
+      const hab2ano = [];
+      const hab3ano = [];
       retorno.data.map((habilidade) => {
         if (habilidade.ano_escolar == 1) {
           hab1ano.push(habilidade);
@@ -237,7 +237,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       setHab(habilidades_3ano);
     }
     setFilters(filtros);
-  }, [ano]);
+  }, [ano, habilidades_1ano, habilidades_2ano, habilidades_3ano]);
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -267,7 +267,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
         table.setSelected(inputValue);
       }
     },
-    [table.selected]
+    [table]
   );
 
   const renderizaTabela = () => {
