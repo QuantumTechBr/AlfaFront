@@ -33,6 +33,7 @@ import Checkbox from '@mui/material/Checkbox';
 
 
 
+
 const filtros = {
   escolasAG: [],
 };
@@ -74,7 +75,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     const novosFiltros = {
       escolasAG: escIds
     }
-    console.log(novosFiltros)
     setFilters(novosFiltros);
     
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, currentUser]);
@@ -193,19 +193,19 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       }
       const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
       const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao?.id]
+      novoUsuario.permissao_usuario_id = [permissao.id]
 
-      await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-        throw error;
-      });   
-      reset() 
-      onClose();
+        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+          throw error;
+        });
+
+      reset();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
+      let arrayMsg = Object.values(error).map((msg) => {
+        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
       const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);

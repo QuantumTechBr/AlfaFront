@@ -1,9 +1,14 @@
 
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect, useState } from 'react';
+import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 // @mui
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import Checkbox from '@mui/material/Checkbox';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
@@ -25,19 +30,25 @@ import userMethods from '../user/user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
-import permissaoMethods from '../permissao/permissao-repository';
+import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
-
+const filtros = {
+  escolasAG: [],
+};
 export default function ProfissionalNewEditForm({ currentUser }) {
   const router = useRouter();
   const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [permissoes, setPermissoes] = useState([]);
+  const [filters, setFilters] = useState(filtros);
+  const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
+  const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
+  const [idAssessorGestao, setIdAssessorGestao] = useState('');
+
   const [funcaoProfessor, setFuncaoProfessor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -53,13 +64,25 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
+    buscaPermissoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissoes');
+    });
 
-    permissaoMethods.getAllPermissoes().then(response => {
-      setPermissoes(response.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissões');
-    })
   }, []);
+
+  useEffect(() => {
+    let idsAC = [];
+    let idAG = '';
+    funcoes.map((_funcao) => {
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(_funcao.id);
+      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = _funcao.id;
+      }
+    });
+    setIdsAssessorCoordenador(idsAC);
+    setIdAssessorGestao(idAG);
+  }, [funcoes]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -92,11 +115,14 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     reset,
     watch,
     getValues,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const values = watch();
+
+  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -117,7 +143,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
-      if (data.funcao == '775bb893-032d-492a-b94b-4909e9c2aeab') {
+      if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return
@@ -127,6 +153,19 @@ export default function ProfissionalNewEditForm({ currentUser }) {
             zona_id: data.zona,
           }];
         }
+      } else if (data.funcao == idAssessorGestao) {
+        if (filters.escolasAG.length == 0) {
+          setErrorMsg('Voce deve selecionar uma ou mais escolas');
+        } else {
+          novoUsuario.funcao_usuario = [];
+          filters.escolasAG.map((escolaId) => {
+            novoUsuario.funcao_usuario.push({
+              funcao_id: data.funcao,
+              escola_id: escolaId,
+            })
+          })
+        }
+
       } else {
         if (data.escola == '') {
           setErrorMsg('Voce deve selecionar uma escola');
@@ -138,8 +177,8 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           }];
         }
       }
-      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
@@ -155,9 +194,9 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.profissional.list);
       console.info('DATA', data);
-    } catch (error) { 
+    } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() : '') + (msg[0]?.slice(1) || '');
+        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
@@ -167,13 +206,103 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
+    let escIds = [];
+    currentUser?.escola?.map((escolaId) => {
+      escIds.push(escolaId)
+    })
+    let novosFiltros = {
+      escolasAG: escIds
+    }
+    setFilters(novosFiltros);
   }, [currentUser]);
+  
+  useEffect(()  => {
+    setFilters(filtros);
+    setValue('escola', '');
+    setValue('zona', '');
+  }, [funcao]);
 
-  const assessor = () => {
-    if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
-      return true;
+  const handleFilters = useCallback(
+    async (nome, value) => {
+      const novosFiltros = {
+        ...filters,
+        [nome]: value,
+      }
+      setFilters(novosFiltros);
+    },
+    [filters]
+  );
+  
+  const handleEscolasAG = useCallback(
+    (event) => {
+      handleFilters(
+        'escolasAG',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [handleFilters]
+  );
+
+  const renderValueEscolasAG = (selected) => 
+    selected.map((escolaId) => {
+      return escolas.find((option) => option.id == escolaId)?.nome;
+    }).join(', ');
+
+  const escolaOuZona = () => {
+    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
+      return (
+        <RHFSelect
+          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+          {zonas.map((zona) => (
+            <MenuItem key={zona.id} value={zona.id}>
+              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
+    } 
+    if ( getValues('funcao') == idAssessorGestao ) {
+      return (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+          }}
+        >      
+          <InputLabel>Escolas</InputLabel>
+          <Select
+            multiple
+            name="escola"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={filters.escolasAG}
+            onChange={handleEscolasAG}
+            input={<OutlinedInput label="Escolas" />}
+            renderValue={renderValueEscolasAG}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {escolas?.map((escola) => (
+              <MenuItem key={escola.id} value={escola.id}>
+                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
+                  {escola.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      )
     } else {
-      return false;
+      return (
+        <RHFSelect 
+          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+          {escolas.map((escola) => (
+            <MenuItem key={escola.id} value={escola.id}>
+              {escola.nome}
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      )
     }
   }
 
@@ -224,25 +353,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <RHFSelect sx={{
-                display: !assessor() ? "none" : "inherit"
-              }} id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
-                {zonas.map((zona) => (
-                  <MenuItem key={zona.id} value={zona.id}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect sx={{
-                display: assessor() ? "none" : "inherit"
-              }} id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+              {escolaOuZona()}
 
             </Box>
 
