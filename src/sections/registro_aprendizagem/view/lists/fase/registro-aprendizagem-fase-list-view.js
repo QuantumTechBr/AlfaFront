@@ -86,7 +86,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
     preencheTabela();
     await Promise.all([
       buscaAnosLetivos().catch((error) => {
@@ -106,11 +106,11 @@ export default function RegistroAprendizagemFaseListView() {
         prep.onTrue();
       }),
     ]);
-  };
+  }, [preencheTabela, buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres, prep]);
 
-  const preencheTabela = async () => {
+  const preencheTabela = useCallback(async () => {
     if (!preparado.value && anosLetivos.length && turmas.length && bimestres.length) {
-      let _registrosAprendizagemFase = [];
+      const _registrosAprendizagemFase = [];
 
       const _turmasComRegistros = await registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({}).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
@@ -118,9 +118,9 @@ export default function RegistroAprendizagemFaseListView() {
       });
 
       _turmasComRegistros.data.forEach((registro) => {
-        let _turma = turmas.find((turma) => turma.id == registro.turma_id);
+        const _turma = turmas.find((turma) => turma.id == registro.turma_id);
         if (_turma?.id) {
-          let _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
+          const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
           _registrosAprendizagemFase.push({
             id: _turma.id,
             ano_letivo: _turma.ano.ano,
@@ -138,15 +138,15 @@ export default function RegistroAprendizagemFaseListView() {
       prep.onTrue();
       preparado.onTrue();
     }
-  };
+  }, [prep, preparado, anosLetivos, bimestres, turmas]);
 
   useEffect(() => {
     preparacaoInicial();
-  }, [setTableData]); // CHAMADA UNICA AO ABRIR
+  }, [preparacaoInicial, setTableData]); // CHAMADA UNICA AO ABRIR
   useEffect(() => {
     prep.onFalse();
     preencheTabela();
-  }, [anosLetivos, turmas, bimestres]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [anosLetivos, turmas, bimestres, prep, preencheTabela]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -181,7 +181,7 @@ export default function RegistroAprendizagemFaseListView() {
         [campo]: value,
       }));
     },
-    [table]
+    [table, turmas]
   );
 
   const handleEditRow = useCallback(
@@ -230,8 +230,7 @@ export default function RegistroAprendizagemFaseListView() {
   };
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <Stack
           direction="row"
           alignItems="center"
@@ -333,7 +332,6 @@ export default function RegistroAprendizagemFaseListView() {
           />
         </Card>
       </Container>
-    </>
   );
 }
 

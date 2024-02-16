@@ -142,9 +142,9 @@ export default function FileManagerView() {
       }
       preparado.onTrue()
     })
-  }, []);
+  }, [buscaDocumentos, buscaEscolas, buscaTurmas, preparado]);
 
-  const buscaDocumentos = async (turmaId) => {
+  const buscaDocumentos = useCallback(async (turmaId) => {
     setWarningMsg('');
     setErrorMsg('');
     preparado.onFalse();
@@ -162,7 +162,7 @@ export default function FileManagerView() {
     }).finally(() => preparado.onTrue());
 
     return consultaAtual;
-  };
+  }, [documentos, preparado]);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {
@@ -198,7 +198,7 @@ export default function FileManagerView() {
           setTableData([]);
         }
     },
-    []
+    [buscaDocumentos, escolas, turmas]
   );
 
   const handleSelectTurma = useCallback(
@@ -208,7 +208,7 @@ export default function FileManagerView() {
         setTurmaSelecionada(_turmas.find((option) => option.id == turmaId));
         buscaDocumentos(turmaId);
     },
-    []
+    [buscaDocumentos, buscaTurmas]
   );
 
 
@@ -266,7 +266,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [])
+  }, [buscaDocumentos, upload])
 
   const renderFilters = (
     <Stack

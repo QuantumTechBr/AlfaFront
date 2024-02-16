@@ -33,7 +33,7 @@ export default function ZonaEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     })
-  }, []);
+  }, [id]);
 
   const nomeBreadcrumbs = currentZona?.nome;
 

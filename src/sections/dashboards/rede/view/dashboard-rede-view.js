@@ -89,9 +89,9 @@ export default function DashboardRedeView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = (anoEscolar) => {
+  const getTurmasPorAnoEscolar = useCallback((anoEscolar) => {
     return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  };
+  }, [turmas]);
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -157,7 +157,7 @@ export default function DashboardRedeView() {
 
       isGettingGraphics.onFalse();
     },
-    [dados, filters, anosLetivos, contextReady.value]
+    [filters, isGettingGraphics, anosLetivos, getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(
@@ -177,7 +177,7 @@ export default function DashboardRedeView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, anosLetivos]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
@@ -193,7 +193,7 @@ export default function DashboardRedeView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [anosLetivos, contextReady.value, filters, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   // TABLE GRID
   const TABLE_HEAD = [
@@ -235,7 +235,7 @@ export default function DashboardRedeView() {
     [table]
   );
 
-  const reduceAlfabetizacaoGeral = function () {
+  const reduceAlfabetizacaoGeral = () => {
     return {
       hasSeries: true,
       categories: [
@@ -260,9 +260,7 @@ export default function DashboardRedeView() {
   };
 
   const getTotalEstudandes = useCallback(() => {
-    let total = 0;
-    total = _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
-    return total;
+    return _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
   }, [dados]);
 
   const calculaMeta = () => {
@@ -406,7 +404,7 @@ export default function DashboardRedeView() {
               />
             )}
 
-            {!isGettingGraphics.value &&
+            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
               dados.desempenho_alunos.chart && dados.desempenho_alunos && dados.desempenho_alunos.chart.series && (
                 <Grid xs={12}>
                   <DesempenhoAlunosWidget
