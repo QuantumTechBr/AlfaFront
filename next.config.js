@@ -1,5 +1,6 @@
 module.exports = {
   output: 'standalone',
+  reactStrictMode: false,
   trailingSlash: true,
   swcMinify: true,
   typescript: {
