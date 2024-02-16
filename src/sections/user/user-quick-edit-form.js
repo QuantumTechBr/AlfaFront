@@ -204,7 +204,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      let arrayMsg = Object.values(error).map((msg) => {
+      const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
       const mensagem = arrayMsg.join(' ');
