@@ -2,7 +2,7 @@
 
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -35,10 +35,12 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
 export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
-  const defaultFilters = {
-    nome: '',
-    promo_ano_anterior: [],
-  };
+  const defaultFilters = useMemo(() => {
+    return {
+      nome: '',
+      promo_ano_anterior: [],
+    }
+  }, []);
   console.log(habilidades)
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -61,7 +63,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   };
 
   useEffect(() => {
-    let cabecalho = [
+    const cabecalho = [
         { id: 'nome', label: 'Nome', width: 150 },
         { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
     ];
@@ -110,11 +112,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
-  }, []);
+  }, [defaultFilters]);
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
 
         <Card>
 
@@ -195,8 +196,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           />
         </Card>
       </Container>
-
-    </>
   );
 }
 

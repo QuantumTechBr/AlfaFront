@@ -58,8 +58,8 @@ export default function PlanoIntervencaoFileManagerTable({
   const [warningMsg, setWarningMsg] = useState('');
 
   const registros = tableData.map(row => {
-    const id = row.id;
-    const descricao = row.descricao
+    const {id} = row;
+    const {descricao} = row
     return {id: {descricao}}
   })
 
@@ -144,13 +144,11 @@ export default function PlanoIntervencaoFileManagerTable({
               )
             }
             action={
-              <>
-                <Tooltip title="Delete">
+              <Tooltip title="Delete">
                   <IconButton color="primary" onClick={onOpenConfirm}>
                     <Iconify icon="solar:trash-bin-trash-bold" />
                   </IconButton>
                 </Tooltip>
-              </>
             }
             sx={{
               pl: 1,

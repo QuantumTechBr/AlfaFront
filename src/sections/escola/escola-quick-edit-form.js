@@ -39,7 +39,7 @@ export default function EscolaQuickEditForm({ currentEscola, open, onClose }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
-  }, [])
+  }, [buscaZonas])
 
   const NewEscolaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),

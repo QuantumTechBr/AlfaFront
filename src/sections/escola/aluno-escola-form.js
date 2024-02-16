@@ -68,12 +68,12 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
-  const getAllAlunos = (id) => {
+  const getAllAlunos = useCallback((id) => {
     alunosMethods
       .getAllAlunos({offset: 0, limit: 10000})
       .then((response) => {
         console.log(response)
-        let _allAlunos = response.data.results;
+        const _allAlunos = response.data.results;
         
         // _allAlunos = sortBy(_allAlunos, (ae) => {
         //   return ae.nome;
@@ -81,9 +81,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
         setAllAlunos(_allAlunos);
 
-        let preSelectedList = _allAlunos
+        const preSelectedList = _allAlunos
           .filter((aluno) => {
-            let encontrados = aluno.alunoEscolas.filter((ae) => ae.escola == escola.id);
+            const encontrados = aluno.alunoEscolas.filter((ae) => ae.escola == escola.id);
             return encontrados.length > 0;
           })
           .map((a) => a.id);
@@ -92,7 +92,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de estudantes');
       });
-  };
+  }, [escola, table]);
 
   const methods = useForm({});
 
@@ -110,7 +110,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
       });
     }
-  }, [open]);
+  }, [buscaAnosLetivos, escola.id, getAllAlunos, open]);
 
   const onSearchAlunos = useCallback((event) => {
     setSearchAlunosInput(event.target.value);
@@ -130,7 +130,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      let idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
+      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
       await escolaMethods
         .updateEscolaById(escola.id, {
           alunoEscolas: table.selected.map((id) => {
@@ -167,11 +167,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {isLoading ? (
-          <>
-            <Box sx={{ pt: 2 }}>
+          <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-          </>
         ) : (
           <>
             <DialogTitle>Definir Estudantes da Escola: {escola.nome}</DialogTitle>

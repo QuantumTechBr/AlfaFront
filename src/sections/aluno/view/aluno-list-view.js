@@ -109,7 +109,7 @@ export default function AlunoListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const buscaAlunos = async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
+  const buscaAlunos = useCallback(async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
     setWarningMsg('');
     setErrorMsg('');
     preparado.onFalse();
@@ -122,7 +122,7 @@ export default function AlunoListView() {
         setWarningMsg('A API retornou uma lista vazia de estudantes');
         preparado.onTrue();
       } else {
-        let listaAlunos = alunos.data.results;
+        const listaAlunos = alunos.data.results;
         setAlunoList([...oldAlunoList, ...listaAlunos]);
         setTableData([...oldAlunoList, ...listaAlunos]);
         preparado.onTrue();
@@ -133,9 +133,9 @@ export default function AlunoListView() {
       console.log(error);
       preparado.onTrue();
     });
-  }
+  }, [preparado, filters]);
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
       await buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
       preparado.onTrue();
@@ -153,7 +153,7 @@ export default function AlunoListView() {
       console.log(error);
       preparado.onTrue();
     });
-  };
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaAlunos, preparado, table.page, table.rowsPerPage]);
 
   // const preencheTabela = async () => {
   //   let _alunosTableData = [];
@@ -244,11 +244,11 @@ export default function AlunoListView() {
     setAlunoList([]);
     setTableData([]);
     buscaAlunos(0, event.target.value);
-  }, []);
+  }, [buscaAlunos, table]);
 
   useEffect(() => {
     preparacaoInicial();
-  }, []); // CHAMADA UNICA AO ABRIR
+  }, [preparacaoInicial]); // CHAMADA UNICA AO ABRIR
   // useEffect(() => {
   //   preencheTabela();
   // }, [anosLetivos, turmas, escolas, alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
@@ -283,7 +283,7 @@ export default function AlunoListView() {
       setAlunoList([]);
       buscaAlunos(table.page, table.rowsPerPage, [], novosFiltros);
     },
-    [table]
+    [table, filters, buscaAlunos]
   );
 
   const handleDeleteRow = useCallback(
@@ -299,7 +299,7 @@ export default function AlunoListView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, buscaTurmas]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -330,7 +330,7 @@ export default function AlunoListView() {
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: tableData.length,
     });
-  }, [tableData.length, dataInPage.length, table, tableData]);
+  }, [dataInPage.length, table, tableData, buscaTurmas]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -352,7 +352,7 @@ export default function AlunoListView() {
     setFilters(resetFilters);
     buscaAlunos(table.page, table.rowsPerPage);
 
-  }, []);
+  }, [buscaAlunos, table.page, table.rowsPerPage]);
 
   // useEffect(() => {
   //   if (tableData.length === alunoList.length && alunoList.length != 0) {

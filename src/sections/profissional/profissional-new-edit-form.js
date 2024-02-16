@@ -59,7 +59,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
-  }, []);
+  }, [buscaEscolas, buscaFuncoes, buscaZonas]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -156,10 +156,10 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       router.push(paths.dashboard.profissional.list);
       console.info('DATA', data);
     } catch (error) { 
-      let arrayMsg = Object.values(error).map((msg) => {
+      const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() : '') + (msg[0]?.slice(1) || '');
       });
-      let mensagem = arrayMsg.join(' ');
+      const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -167,7 +167,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentUser]);
+  }, [currentUser, defaultValues, reset]);
 
   const assessor = () => {
     if (getValues('funcao') == '775bb893-032d-492a-b94b-4909e9c2aeab') {
