@@ -83,9 +83,13 @@ export function AuthProvider({ children }) {
     }
   }, []);
 
-  useEffect(() => {
-    initialize();
-  }, [initialize]);
+  // LOGOUT
+  const logout = useCallback(async () => {
+    clearSession();
+    dispatch({
+      type: 'LOGOUT',
+    });
+  }, []);
 
   // LOGIN
   const login = useCallback(async (login, senha) => {
@@ -118,14 +122,6 @@ export function AuthProvider({ children }) {
     });
   }, [logout]);
 
-  // LOGOUT
-  const logout = useCallback(async () => {
-    clearSession();
-    dispatch({
-      type: 'LOGOUT',
-    });
-  }, []);
-
   // FORGOT PASSWORD
   const forgotPassword = useCallback(async (email) => {
     const response = await axios.post(endpoints.auth.reset_password, { email }).catch((erro) => {
@@ -150,6 +146,10 @@ export function AuthProvider({ children }) {
   // useEffect(() => {
   //   if (!isValidToken()) logout();
   // }, [location]);
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
 
   // ----------------------------------------------------------------------
 
