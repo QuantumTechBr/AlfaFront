@@ -71,7 +71,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   }, [buscaEscolas, buscaFuncoes, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
-    let idsAC = [];
+    const idsAC = [];
     let idAG = '';
     funcoes.map((_funcao) => {
       if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
@@ -206,11 +206,11 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
-    let escIds = [];
+    const escIds = [];
     currentUser?.escola?.map((escolaId) => {
       escIds.push(escolaId)
     })
-    let novosFiltros = {
+    const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);

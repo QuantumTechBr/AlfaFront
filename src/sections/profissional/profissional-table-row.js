@@ -97,7 +97,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   }
 
   const renderEscola = () => {
-    let list_retorno = []
+    const list_retorno = []
     for (let index = 0; index < escolas?.length; index++) {
       for (let i = 0; i < escola?.length; i++) {
         if (escolas[index]?.id == escola[i]) {

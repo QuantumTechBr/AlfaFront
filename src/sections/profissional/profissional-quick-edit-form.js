@@ -66,18 +66,18 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
     buscaPermissoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
-    let escIds = [];
+    const escIds = [];
     currentUser?.escola?.map((escolaId) => {
       escIds.push(escolaId)
     })
-    let novosFiltros = {
+    const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
     
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, currentUser]);
   useEffect(() => {
-    let idsAC = [];
+    const idsAC = [];
     let idAG = '';
     funcoes.map((_funcao) => {
       if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
@@ -202,10 +202,10 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      let arrayMsg = Object.values(error).map((msg) => {
+      const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
-      let mensagem = arrayMsg.join(' ');
+      const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do profissional falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }

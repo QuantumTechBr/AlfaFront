@@ -16,8 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import alunoMethods from './aluno-repository';
-// _mock
-import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
+
 // components
 import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
