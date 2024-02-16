@@ -55,12 +55,12 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [currentProfessoresEscola, setCurrentProfessoresEscola] = useState(null);
 
-  const getProfessoresEscola = (id) => {
+  const getProfessoresEscola = useCallback((id) => {
     profissionalMethods
       .getProfessoresByEscolaId({ escolaId: id })
       .then((professores) => {
-        let professoresEscola = professores.data;
-        let professorTurma = professoresEscola.filter((professor) => professor?.turma[0]?.id === turma.id)
+        const professoresEscola = professores.data;
+        const professorTurma = professoresEscola.filter((professor) => professor?.turma[0]?.id === turma.id)
         if (professorTurma.length > 0) {
           table.setSelected(professorTurma[0].id);
         }
@@ -69,7 +69,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de profissionais');
       });
-  };
+  }, [table, turma.id]);
 
   const methods = useForm({});
 
@@ -84,7 +84,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       setCurrentProfessoresEscola(null);
       getProfessoresEscola(turma.escola.id);
     }
-  }, [open]);
+  }, [open, getProfessoresEscola, turma.escola.id]);
 
   const dataFiltered = applyFilter({
     inputData: currentProfessoresEscola ?? [],
@@ -126,7 +126,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
         table.setSelected(inputValue);
       }
     },
-    [table.selected]
+    [table]
   );
 
   const isLoading = currentProfessoresEscola === undefined || currentProfessoresEscola === null;
@@ -144,14 +144,11 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       <FormProvider methods={methods} onSubmit={onSubmit}>
       <DialogTitle>Definir Professor: {turma?.escola?.nome} {turma?.ano_escolar}º {turma?.nome}</DialogTitle>
       {isLoading ? (
-          <>
-            <Box sx={{ pt: 2 }}>
+          <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-          </>
         ) : (
-          <>
-        <DialogContent>
+          <DialogContent>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
           <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
@@ -185,7 +182,6 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
                 <Typography variant="subtitle2">{table.selected.length > 0 ? 1 : 0} selecionado</Typography>
               </Box>
         </DialogContent>
-        </>
         )}
 
         <DialogActions>

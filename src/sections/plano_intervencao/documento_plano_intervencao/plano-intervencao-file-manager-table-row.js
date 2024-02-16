@@ -41,13 +41,13 @@ import PlanoIntervencaoFileManagerFileDetails from './plano-intervencao-file-man
 export default function PlanoIntervencaoFileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  let { ano, arquivo, criado_por, updated_at, descricao, created_at, destino, id, nomeArquivo, tamanho } = row;
+  const { ano, arquivo, criado_por, updated_at, descricao, created_at, destino, id, nomeArquivo, tamanho } = row;
 
   const regex = /[^/\\&\\?]+\.\w{3,4}(?=([\\?&].*$|$))/;
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nome ? `${nome.split('.').pop()}` : ''
 
-  let tamanhoString = tamanho ? String(tamanho) : '0';
+  const tamanhoString = tamanho ? String(tamanho) : '0';
 
   const { enqueueSnackbar } = useSnackbar();
 

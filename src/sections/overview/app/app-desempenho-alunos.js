@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { useState, useCallback, useEffect } from 'react';
 // @mui
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import MenuItem from '@mui/material/MenuItem';
 import CardHeader from '@mui/material/CardHeader';
@@ -20,25 +19,19 @@ import _ from 'lodash';
 // ----------------------------------------------------------------------
 
 export default function AppDesempenhoAlunos({ title, subheader, chart, ...other }) {
-  const theme = useTheme();
+  const popover = usePopover();
 
-  if (chart === undefined) {
-    return <>Carregando...</>;
-  }
+  const [series, setSeries] = useState([]);
+  const [seriesYearData, setSeriesYearData] = useState('');
 
   const colors = Object.values(RegistroAprendizagemFasesColors);
 
-  const { categories: bimestres, series, options } = chart;
+  const { categories: bimestres, series: chartSeries, options } = chart;
 
-  const popover = usePopover();
-
-  const [seriesYearData, setSeriesYearData] = useState();
-  const [preparedData, setPreparedData] = useState();
-
-  const chartOptionsBase = {
+  const chartOptions = useChart({
     colors: colors,
     xaxis: {
-      categories: bimestres.map((bimestre) => bimestre.replace(`-`, `º `)),
+      categories: bimestres.map((_bimestre) => _bimestre.replace(`-`, `º `)),
       labels: {
         style: {
           fontSize: '14px',
@@ -49,7 +42,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     plotOptions: {
       bar: {
         horizontal: false,
-        columnWidth:50,
+        columnWidth: 50,
         dataLabels: {
           position: 'top',
         },
@@ -57,9 +50,8 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     },
     dataLabels: {
       enabled: true,
-      formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-        // return preparedData[dataPointIndex]?.porcentagem;
-        return 1;
+      formatter: (value, opts) => {
+        return `${opts.config.series[opts.seriesIndex].porcentagem[opts.dataPointIndex]}%`;
       },
       offsetY: 0,
       dropShadow: {
@@ -84,7 +76,7 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
       },
     },
     ...options,
-  };
+  });
 
   const handleChangeSeries = useCallback(
     (newValue) => {
@@ -94,50 +86,67 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
     [popover]
   );
 
+  const prepareData = useCallback(
+    (originalData) => {
+      const newData = [];
+
+      for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
+        const valoresParaFase = originalData.find((item) => item.name == fase);
+        if (valoresParaFase?.data) {
+          newData.push(valoresParaFase);
+        } else {
+          newData.push({
+            name: fase,
+            data: _.times(bimestres.length, _.constant(0)),
+          });
+        }
+      }
+
+      newData.map((itemData) => {
+        itemData.totalBimestre = [];
+        itemData.porcentagem = [];
+        for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
+          const bimestreQuant = newData.reduce(
+            (total, item) => total + item.data[indexBimestre],
+            0
+          );
+          itemData.totalBimestre[indexBimestre] = bimestreQuant;
+
+          itemData.porcentagem[indexBimestre] = Math.round(
+            (itemData.data[indexBimestre] / bimestreQuant) * 100
+          );
+        }
+
+        return itemData;
+      });
+
+      return newData;
+    },
+    [bimestres.length]
+  );
+
   useEffect(() => {
-    if (series.length) {
-      setSeriesYearData(`${last(series)?.year}`);
+    if (chartSeries.length) {
+      const _series = chartSeries.map((item) => {
+        item.data = prepareData(item.data);
+        return item;
+      });
+      setSeries(_series);
     }
-  }, [series]);
+  }, [chartSeries, prepareData]);
 
-  const prepareData = useCallback((originalData) => {
-    const newData = [];
-
-    for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
-      let valoresParaFase = originalData.find((item) => item.name == fase);
-      if (valoresParaFase?.data) {
-        newData.push(valoresParaFase);
-      } else {
-        newData.push({
-          name: fase,
-          data: _.times(bimestres.length, _.constant(0)),
-        });
-      }
+  useEffect(() => {
+    if (chartSeries.length) {
+      const _lastYear = _.last(chartSeries)?.year;
+      setSeriesYearData(`${_lastYear}`);
     }
+  }, [chartSeries]);
 
-    newData.map((itemData) => {
-      itemData.totalBimestre = [];
-      itemData.porcentagem = [];
-      for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
-        let bimestreQuant = newData.reduce((total, item) => total + item.data[indexBimestre], 0);
-        itemData.totalBimestre[indexBimestre] = bimestreQuant;
-
-        itemData.porcentagem[indexBimestre] = Math.round(
-          (itemData.data[indexBimestre] / bimestreQuant) * 100
-        );
-      }
-
-      return itemData;
-    });
-
-    // console.log(newData);
-
-    return newData;
-  }, []);
-
-  if (series.length == 0) {
+  if (chartSeries.length == 0) {
     return <>Sem dados para exibir.</>;
   }
+
+  if (chart === undefined) return <>Carregando...</>;
 
   return (
     <>
@@ -168,32 +177,20 @@ export default function AppDesempenhoAlunos({ title, subheader, chart, ...other 
           }
         />
 
-        {series.map((item) => {
-          const _preparedData = prepareData(item.data);
-          setPreparedData(_preparedData);
-          let chartOptionsMod = chartOptionsBase;
-          chartOptionsMod.dataLabels.formatter = function (
-            value,
-            { _series, seriesIndex, dataPointIndex, w }
-          ) {
-            return `${_preparedData[seriesIndex].porcentagem[dataPointIndex]}%`;
-          };
-          let chartOptions = useChart(chartOptionsBase);
-          return (
-            <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
-              {item.year === seriesYearData && (
-                <Chart
-                  dir="ltr"
-                  type="bar"
-                  height={364}
-                  series={preparedData}
-                  options={chartOptions}
-                  width="100%"
-                />
-              )}
-            </Box>
-          );
-        })}
+        {series.length && series.find((item) => item.year === seriesYearData) && (
+          <Box key={item.year} sx={{ mt: 3, mx: 3 }}>
+            {item.year === seriesYearData && (
+              <Chart
+                dir="ltr"
+                type="bar"
+                height={364}
+                series={series.find((item) => item.year === seriesYearData).data}
+                options={chartOptions}
+                width="100%"
+              />
+            )}
+          </Box>
+        )}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>

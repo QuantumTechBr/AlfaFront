@@ -72,9 +72,7 @@ export default function IndiceAlfabetizacaoComponent({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val) {
-        return fPercent(val.toFixed(2));
-      },
+      formatter: (val) => fPercent(val.toFixed(2)),
       dropShadow: { enabled: false },
     },
 

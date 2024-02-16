@@ -60,7 +60,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
-  }, [])
+  }, [buscaZonas])
 
   const NewEscolaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -124,7 +124,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentEscola]);
+  }, [currentEscola, defaultValues, reset]);
 
   return (
     <>

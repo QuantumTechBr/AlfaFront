@@ -33,7 +33,7 @@ export default function EscolaEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
-  }, []);
+  }, [id]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
