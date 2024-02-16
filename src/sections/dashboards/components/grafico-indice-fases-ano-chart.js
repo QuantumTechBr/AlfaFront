@@ -84,8 +84,8 @@ export default function GraficoIndiceFaseAnoColunasChart({
         highlightDataSeries: true,
       },
       y: {
-        formatter: (value, { _series, seriesIndex, dataPointIndex, w }) => {
-          return series[dataPointIndex]?.value ?? '-';
+        formatter: (value, opts) => {
+          return series[opts.dataPointIndex]?.value ?? '-'; // TODO CHANGE TO opts SERIES opts.config.series
         },
         title: {
           formatter: (s) => 'Quantidade: ',

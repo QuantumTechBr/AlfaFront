@@ -128,7 +128,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   });
 
   useEffect(()  => {
-    buscaEscolas().catch((error) => {
+    buscaEscolas().then((_escolas) => setEscolasAssessor(_escolas)).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {

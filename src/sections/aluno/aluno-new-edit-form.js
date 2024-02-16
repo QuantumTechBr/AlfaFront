@@ -64,7 +64,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
     () => ({
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
-      data_nascimento: alunoNascimento(),
+      data_nascimento: alunoNascimento,
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
@@ -141,10 +141,10 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [defaultValues, reset]);
+  }, [currentAluno, defaultValues, reset]);
 
   useEffect(()  => {
-    buscaEscolas().catch((error) => {
+    buscaEscolas().then((_escolas) => setEscolasAssessor(_escolas)).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {

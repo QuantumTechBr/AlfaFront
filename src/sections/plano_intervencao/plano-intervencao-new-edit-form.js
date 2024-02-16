@@ -295,7 +295,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       fase: currentPlano?.fase || '',
       habilidades_plano_intervencao: currentPlano?.habilidades_plano_intervencao || filters.habilidades,
     }),
-    [aplicarInicial, currentPlano?.acao, currentPlano?.ano_escolar, currentPlano?.aplicacao, currentPlano?.fase, currentPlano?.habilidades_plano_intervencao, currentPlano.responsavel, currentPlano?.status, filters.habilidades, inicioPrevisto, terminoPrevisto]
+    [aplicarInicial, currentPlano, filters.habilidades, inicioPrevisto, terminoPrevisto]
   );
 
   const methods = useForm({
@@ -523,7 +523,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     novoFiltro.alunos = [];
     novoFiltro.turmas = [];
     setFilters(novoFiltro);
-  }, [aplicar, filters]);
+  }, [aplicar]);
 
   const telaDocumento = () => {
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
