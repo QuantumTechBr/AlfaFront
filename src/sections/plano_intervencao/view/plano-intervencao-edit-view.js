@@ -42,7 +42,7 @@ export default function PlanoIntervencaoEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de planos de intervenção');
     })
-  }, []);
+  }, [id]);
   
   const retornoStatus = () => {
     if (status == 'Concluído') {

@@ -60,7 +60,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
     //
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
@@ -68,11 +68,11 @@ export default function TurmaNewEditForm({ currentTurma }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de Anos Letivos');
     });
-  };
+  }, [buscaEscolas, buscaAnosLetivos]);
 
   useEffect(() => {
     preparacaoInicial();
-  }, []);
+  }, [preparacaoInicial]);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -161,7 +161,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   useEffect(() => {
     reset(defaultValues);
-  }, [currentTurma]);
+  }, [defaultValues, reset]);
 
   return (
     <>

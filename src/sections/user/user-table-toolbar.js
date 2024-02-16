@@ -219,8 +219,8 @@ export default function UserTableToolbar({
 
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             userMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Usuários', csvFile.data);
             });

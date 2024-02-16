@@ -70,7 +70,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       })
       setValue('registros', novosRegistros); 
     }
-  }, [alunosTurma, turma]);
+  }, [alunosTurma, setValue, turma]);
 
   const values = watch();
 
@@ -80,10 +80,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     alunosTurma.forEach((itemList) => {
       const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
       const habilidadesRegistroAprendizagem = [];
-      for (let item in dataHabilidades) {
+      for (const item in dataHabilidades) {
         if (typeof (dataHabilidades[item]) == 'string') {
           if (itemList.id_habilidades_registro_aprendizagem) {
-            let encontrada = itemList.id_habilidades_registro_aprendizagem[item];
+            const encontrada = itemList.id_habilidades_registro_aprendizagem[item];
             const habilidadeRegistroAprendizagem = {
               habilidade_id: item,
               nota: dataHabilidades[item],

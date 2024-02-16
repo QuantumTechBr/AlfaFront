@@ -69,26 +69,26 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
-  const getAlunosEscola = (id) => {
+  const getAlunosEscola = useCallback((id) => {
     escolaMethods
       .getAlunosByEscolaId(id)
       .then((escola) => {
-        let alunosEscola = escola.data;
+        const alunosEscola = escola.data;
         // alunosEscola = sortBy(alunosEscola, (ae) => {
         //   return ae.aluno.nome;
         // });
 
         setCurrentAlunosEscola(alunosEscola);
 
-        let selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
-        let alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
-        let preSelectedList = selectedList.filter((alunoId) => alunosIdEscola.includes(alunoId));
+        const selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
+        const alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
+        const preSelectedList = selectedList.filter((alunoId) => alunosIdEscola.includes(alunoId));
         table.setSelected(preSelectedList);
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       });
-  };
+  }, [table, turma.turmas_alunos]);
 
   const methods = useForm({});
 
@@ -103,7 +103,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       setCurrentAlunosEscola(null);
       getAlunosEscola(turma.escola.id);
     }
-  }, [open]);
+  }, [open, getAlunosEscola, turma]);
 
   const onSearchAlunos = useCallback((event) => {
     setSearchAlunosInput(event.target.value);
@@ -159,11 +159,9 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {isLoading ? (
-          <>
-            <Box sx={{ pt: 2 }}>
+          <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-          </>
         ) : (
           <>
             <DialogTitle>
