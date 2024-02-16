@@ -23,7 +23,7 @@ export default function MetaComponent({
   const theme = useTheme();
 
   // CALCULO DO TOTAL DA META
-  let _percentAlfabetizados = (alfabetizados / total) * 100;
+  const _percentAlfabetizados = (alfabetizados / total) * 100;
   let _percentDaMeta = isNaN(_percentAlfabetizados)
     ? 0
     : +((_percentAlfabetizados / meta) * 100).toFixed(2);

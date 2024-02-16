@@ -25,7 +25,7 @@ import parse from 'date-fns/parse';
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
   const { id, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
-  let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
+  const date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
 
   console.log(row);
 

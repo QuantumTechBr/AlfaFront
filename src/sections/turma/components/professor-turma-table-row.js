@@ -21,7 +21,7 @@ import { disableCache } from '@iconify/react';
 // ----------------------------------------------------------------------
 
 export default function ProfessorTurmaTableRow({ row, selected, currentTurma, onSelectRow }) {
-  let { id, profissional, email, escola, funcao, status, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, profissional, email, escola, funcao, status, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
   const emOutraTurma = useBoolean(false)
 
@@ -31,8 +31,7 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
   // selected = emOutraTurma ? false : selected;
  
   return (
-    <>
-      <TableRow hover selected={selected}>
+    <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox 
           disabled={(row.turma.length > 0) && (row.turma[0].id != currentTurma.id) ? true : false} 
@@ -59,7 +58,6 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
           </Label>
         </TableCell>
       </TableRow>
-    </>
   );
 }
 

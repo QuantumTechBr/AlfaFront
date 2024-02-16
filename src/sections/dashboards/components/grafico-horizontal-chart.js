@@ -20,8 +20,6 @@ export default function GraficoHorizontalChart({
   const theme = useTheme();
   const { series, options } = chart;
 
-  if (series === undefined) return;
-
   const chartSeries = [
     {
       name: `Índice`,
@@ -139,10 +137,11 @@ export default function GraficoHorizontalChart({
     },
     ...options,
   });
+  
+  if (series === undefined) return;
 
   return (
-    <>
-      <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
+    <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
         <Scrollbar>
           <Chart
             width="100%"
@@ -153,7 +152,6 @@ export default function GraficoHorizontalChart({
           />
         </Scrollbar>
       </Card>
-    </>
   );
 }
 

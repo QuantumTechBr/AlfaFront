@@ -71,13 +71,13 @@ export default function FileManagerNewFolderDialog({
 
     const anos = await buscaAnosLetivos();
     const anoAtual = new Date().getFullYear();
-    let idAnoLetivoAtual = anos.find(anoLetivo => anoLetivo.ano == anoAtual)?.id;
+    const idAnoLetivoAtual = anos.find(anoLetivo => anoLetivo.ano == anoAtual)?.id;
     
     try {
       files.forEach(async file => {
       
         
-        let formData = new FormData();
+        const formData = new FormData();
         
         formData.append('turma_id', turma.id);
         formData.append('arquivo', file)

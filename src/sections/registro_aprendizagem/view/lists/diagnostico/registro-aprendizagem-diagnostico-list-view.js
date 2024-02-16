@@ -98,7 +98,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const debouncedFilters = useDebounce(filters, 1000);
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
     preencheTabela();
     await Promise.all([
       buscaAnosLetivos().catch((error) => {
@@ -113,19 +113,19 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     ]).finally(() => {
       preparado.onTrue();
     });
-  };
+  }, [buscaAnosLetivos, preencheTabela, buscaEscolas, buscaTurmas, preparado]);
 
   useEffect(() => {
     preparacaoInicial();
     preencheGraficos();
-  }, [setTableData]);
+  }, [preencheGraficos, preparacaoInicial, setTableData]);
 
   useEffect(() => {
     console.log(`debouncedFilters call`);
     preencheGraficos();
-  }, [debouncedFilters]);
+  }, [debouncedFilters, preencheGraficos]);
 
-  const preencheTabela = () => {
+  const preencheTabela = useCallback(() => {
     const promisesList = [];
     if (turmas && turmas.length) {
       setTurmasFiltered(turmas);
@@ -133,10 +133,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const buscaPeriodoInicial = registroAprendizagemMethods
       .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
       .then((turmasComRegistros) => {
-          let turmasRegistroInicial = [];
+          const turmasRegistroInicial = [];
           if (turmasComRegistros.data?.length) {
             turmasComRegistros.data.forEach((registro) => {
-              let turma = turmas.find((turma) => turma.id == registro.turma_id);
+              const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Inicial';
@@ -160,10 +160,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const buscaPeriodoFinal = registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Final' })
         .then((turmasComRegistros) => {
-          let turmasRegistroFinal = [];
+          const turmasRegistroFinal = [];
           if (turmasComRegistros.data?.length) {
             turmasComRegistros.data.forEach((registro) => {
-              let turma = turmas.find((turma) => turma.id == registro.turma_id);
+              const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Final';
@@ -194,13 +194,13 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         setTurmasFiltered(turmasComRegistroNovo);
       });
     }
-  };
+  }, [preparado, turmas]);
 
   useEffect(() => {
     preparacaoInicial();
     preencheTabela();
     preencheGraficos();
-  }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered]);
+  }, [turmas, setTurmasComRegistro, setTableData, setTurmasFiltered, preparacaoInicial, preencheTabela, preencheGraficos]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -239,7 +239,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         [campo]: value,
       }));
     },
-    [table]
+    [table, turmas]
   );
 
   const handleDeleteRow = useCallback(
@@ -321,7 +321,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     avaliacao_diagnostico: {},
   });
 
-  const preencheGraficos = async () => {
+  const preencheGraficos = useCallback(async () => {
     console.log('preenche gráficos');
     if (
       anosLetivos &&
@@ -347,7 +347,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         }),
       ]);
     }
-  };
+  }, [anosLetivos, escolas, turmas, filters]);
 
   return (
     <>

@@ -82,7 +82,7 @@ export default function AlunoTableToolbar({
   const renderValueTurma = (selected) =>
     selected
       .map((turmaId) => {
-        let turma = turmaOptions.find((option) => option.id == turmaId);
+        const turma = turmaOptions.find((option) => option.id == turmaId);
         return turma?.ano_escolar.concat('º ', turma?.nome);
       })
       .join(', ');
@@ -249,8 +249,8 @@ export default function AlunoTableToolbar({
 
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             alunoMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Estudantes', csvFile.data);
             });

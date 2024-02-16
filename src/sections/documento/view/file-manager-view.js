@@ -93,9 +93,9 @@ export default function FileManagerView() {
       }
       setTableData(retorno);
     });
-  }, []);
+  }, [buscaDocumentos]);
 
-  const buscaDocumentos = async ({ force = false } = {}) => {
+  const buscaDocumentos = useCallback(async ({ force = false } = {}) => {
     let returnData = documentos;
     if (force || documentos.length == 0) {
 
@@ -116,7 +116,7 @@ export default function FileManagerView() {
     }
 
     return returnData;
-  };
+  }, [documentos]);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {
@@ -189,7 +189,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [])
+  }, [buscaDocumentos, upload])
 
   const renderFilters = (
     <Stack
