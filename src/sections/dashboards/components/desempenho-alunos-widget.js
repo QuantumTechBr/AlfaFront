@@ -23,10 +23,6 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
   const [series, setSeries] = useState([]);
   const [seriesYearData, setSeriesYearData] = useState('');
 
-  if (chart === undefined) {
-    return <>Carregando...</>;
-  }
-
   const colors = Object.values(RegistroAprendizagemFasesColors);
 
   const { categories: bimestres, series: chartSeries, options } = chart;
@@ -112,7 +108,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     const newData = [];
 
     for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
-      let valoresParaFase = originalData.find((item) => item.name == fase);
+      const valoresParaFase = originalData.find((item) => item.name == fase);
       if (valoresParaFase?.data) {
         newData.push(valoresParaFase);
       } else {
@@ -127,7 +123,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
       itemData.totalBimestre = [];
       itemData.porcentagem = [];
       for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
-        let bimestreQuant = newData.reduce((total, item) => total + item.data[indexBimestre], 0);
+        const bimestreQuant = newData.reduce((total, item) => total + item.data[indexBimestre], 0);
         itemData.totalBimestre[indexBimestre] = bimestreQuant;
 
         itemData.porcentagem[indexBimestre] = Math.round(
@@ -139,7 +135,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     });
 
     return newData;
-  }, []);
+  }, [bimestres.length]);
 
   useEffect(() => {
     if (chartSeries.length) {

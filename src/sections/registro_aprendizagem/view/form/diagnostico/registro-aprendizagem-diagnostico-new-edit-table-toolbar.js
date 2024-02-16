@@ -50,8 +50,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   );
 
   return (
-    <>
-      <Stack
+    <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
@@ -146,7 +145,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           />
         </Stack>
       </Stack>
-    </>
   );
 }
 

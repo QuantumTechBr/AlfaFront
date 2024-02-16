@@ -60,7 +60,7 @@ export default function AppIndiceFases({
       popover.onClose();
       onChangeBimestre(newValue);
     },
-    [popover]
+    [onChangeBimestre, popover]
   );
 
   const chartSeries = [
@@ -88,9 +88,7 @@ export default function AppIndiceFases({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val) {
-        return `${val}%`;
-      },
+      formatter: (val) => `${val}%`,
       offsetY: 0,
       dropShadow: {
         enabled: true,
@@ -120,9 +118,7 @@ export default function AppIndiceFases({
         highlightDataSeries: true,
       },
       y: {
-        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return series[dataPointIndex]?.value ?? '-';
-        },
+        formatter: (value, opts) => series[opts.dataPointIndex]?.value ?? '-',
         title: {
           formatter: (s) => 'Quantidade: ',
         },

@@ -78,7 +78,7 @@ export default function TurmaListView() {
   
   const permissaoCadastrar = checkPermissaoModulo("turma","cadastrar");
 
-  let TABLE_HEAD = [
+  const TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
     { id: 'ano_serie', label: 'Ano', width: 300 },
     { id: 'nome', label: 'Turma', width: 200 },
@@ -111,7 +111,7 @@ export default function TurmaListView() {
       preparado.onTrue();
     });
     
-  }, []);
+  }, [buscaTurmas, buscaEscolas, preparado]);
   
   const table = useTable();
 
@@ -162,7 +162,7 @@ export default function TurmaListView() {
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, buscaTurmas]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -192,7 +192,7 @@ export default function TurmaListView() {
       totalRowsInPage: dataInPage.length,
       totalRowsFiltered: dataFiltered.length,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataFiltered.length, dataInPage.length, table, tableData, buscaTurmas]);
 
   const handleEditRow = useCallback(
     (id) => {
