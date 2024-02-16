@@ -83,8 +83,25 @@ export default function ProfissionalListView() {
         setWarningMsg('A API retornou uma lista vazia de profissionais');
         preparado.onTrue(); 
       }
-      setProfissionalList(profissionais.data);
-      setTableData(profissionais.data);   
+      console.log(profissionais.data)
+      let pros = profissionais.data.filter((profissional) => profissional.funcao_usuario.length > 0);
+
+      for (var i = 0; i < pros.length; i++) {
+        let funcao = [];
+        let zona = [];
+        let escola = [];
+        for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
+          funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+          escola.push(pros[i].funcao_usuario[index].escola?.id);
+          zona.push(pros[i].funcao_usuario[index].zona?.id);
+        }
+        pros[i].funcao = funcao[0] ? funcao[0] : '';
+        pros[i].escola = escola ? escola : '';
+        pros[i].zona = zona[0] ? zona[0] : '';
+        pros[i].status = pros[i].status.toString();
+      }
+      setProfissionalList(pros);
+      setTableData(pros);   
       preparado.onTrue();  
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de profissionais');
@@ -373,11 +390,11 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.funcao.id));
+    inputData = inputData.filter((user) => role.includes(user?.funcao));
   }
 
   if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user?.escola?.id));
+    inputData = inputData.filter((user) => escola.includes(user?.escola));
   }
 
   return inputData;

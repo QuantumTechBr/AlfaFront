@@ -22,7 +22,7 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import userMethods from '../user/user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import permissaoMethods from '../permissao/permissao-repository';
+import { PermissoesContext } from '../permissao/context/permissao-context';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { ZonasContext } from '../zona/context/zona-context';
 import { AuthContext } from 'src/auth/context/alfa';
@@ -36,7 +36,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [permissoes, setPermissoes] = useState([]);
+  const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -57,11 +57,9 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(response => {
-      setPermissoes(response.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissões');
-    })
+    buscaPermissoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissoes');
+    });
   }, []);
 
 
