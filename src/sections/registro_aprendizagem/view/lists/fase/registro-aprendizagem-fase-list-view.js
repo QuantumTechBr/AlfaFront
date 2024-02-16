@@ -142,7 +142,8 @@ export default function RegistroAprendizagemFaseListView() {
 
   useEffect(() => {
     preparacaoInicial();
-  }, [preparacaoInicial, setTableData]); // CHAMADA UNICA AO ABRIR
+  }, [preparacaoInicial]); // CHAMADA UNICA AO ABRIR
+  
   useEffect(() => {
     prep.onFalse();
     preencheTabela();

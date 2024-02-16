@@ -96,7 +96,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
     if (permissoes.length > 0) {
       liberaSalvar.onFalse()
     }
-  }, [permissoes, liberaSalvar]);
+  }, [permissoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -215,7 +215,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [defaultValues, reset]);
+  }, [currentUser, defaultValues, reset]);
 
 
   const handleFilters = useCallback(

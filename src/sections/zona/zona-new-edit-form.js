@@ -101,7 +101,7 @@ export default function ZonaNewEditForm({ currentZona }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [defaultValues, reset]);
+  }, [currentZona, defaultValues, reset]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>

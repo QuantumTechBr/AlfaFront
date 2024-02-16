@@ -84,7 +84,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       setCurrentProfessoresEscola(null);
       getProfessoresEscola(turma.escola.id);
     }
-  }, [open, getProfessoresEscola, turma.escola.id]);
+  }, [open, getProfessoresEscola]);
 
   const dataFiltered = applyFilter({
     inputData: currentProfessoresEscola ?? [],

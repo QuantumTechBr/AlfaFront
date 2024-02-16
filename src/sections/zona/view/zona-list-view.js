@@ -98,7 +98,7 @@ export default function ZonaListView() {
       preparado.onTrue();
     });
     
-  }, [buscaEscolas, buscaZonas, preparado]);
+  }, [buscaEscolas, buscaZonas]);
   
   const table = useTable();
 

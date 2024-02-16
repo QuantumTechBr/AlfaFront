@@ -103,7 +103,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       setCurrentAlunosEscola(null);
       getAlunosEscola(turma.escola.id);
     }
-  }, [open, getAlunosEscola, turma]);
+  }, [open, getAlunosEscola]);
 
   const onSearchAlunos = useCallback((event) => {
     setSearchAlunosInput(event.target.value);

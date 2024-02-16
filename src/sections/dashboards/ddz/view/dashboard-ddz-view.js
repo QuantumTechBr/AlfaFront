@@ -225,7 +225,7 @@ export default function DashboardDDZView() {
         zona: _zonaFiltro,
       }));
     }
-  }, [user]);
+  }, [user?.funcao_usuario]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica

@@ -161,7 +161,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   useEffect(() => {
     reset(defaultValues);
-  }, [defaultValues, reset]);
+  }, [currentTurma, defaultValues, reset]);
 
   return (
     <>

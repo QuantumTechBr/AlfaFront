@@ -255,7 +255,7 @@ export default function DashboardEscolaView() {
         escola: _escolaFiltro,
       }));
     }
-  }, [user]);
+  }, [user?.funcao_usuario]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica

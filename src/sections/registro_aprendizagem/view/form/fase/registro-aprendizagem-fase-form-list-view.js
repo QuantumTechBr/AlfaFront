@@ -190,7 +190,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     });
 
     return () => subscription.unsubscribe();
-  }, [turmas, bimestres, watch, getRegistros, prep]);
+  }, [turmas, bimestres, watch, getRegistros]);
 
   const onSubmit = handleSubmit(async (data) => {
     const retornoPadrao = {
