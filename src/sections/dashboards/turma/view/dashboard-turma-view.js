@@ -195,7 +195,7 @@ export default function DashboardTurmaView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, isGettingGraphics, anosLetivos, bimestres, getIndiceFases]
+    [getIndiceFases]
   );
 
   const handleFilters = useCallback(

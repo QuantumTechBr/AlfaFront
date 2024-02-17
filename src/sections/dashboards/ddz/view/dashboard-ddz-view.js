@@ -176,7 +176,7 @@ export default function DashboardDDZView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
+    [getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(

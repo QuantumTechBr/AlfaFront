@@ -173,7 +173,7 @@ export default function DashboardEscolaView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
+    [getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(
