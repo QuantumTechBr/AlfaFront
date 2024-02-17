@@ -157,7 +157,7 @@ export default function DashboardRedeView() {
 
       isGettingGraphics.onFalse();
     },
-    [getTurmasPorAnoEscolar]
+    [filters, anosLetivos, getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(
@@ -177,7 +177,7 @@ export default function DashboardRedeView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas]);
 
 
   useEffect(() => {
@@ -190,7 +190,7 @@ export default function DashboardRedeView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica

@@ -195,7 +195,7 @@ export default function DashboardTurmaView() {
 
       isGettingGraphics.onFalse();
     },
-    [getIndiceFases]
+    [filters, anosLetivos, getIndiceFases]
   );
 
   const handleFilters = useCallback(
@@ -258,7 +258,7 @@ export default function DashboardTurmaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, buscaBimestres, contextReady]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, buscaBimestres]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -276,7 +276,7 @@ export default function DashboardTurmaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     let _zonaFiltro = [];

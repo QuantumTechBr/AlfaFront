@@ -173,7 +173,7 @@ export default function DashboardEscolaView() {
 
       isGettingGraphics.onFalse();
     },
-    [getTurmasPorAnoEscolar]
+    [filters, anosLetivos, getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(
@@ -215,7 +215,7 @@ export default function DashboardEscolaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -232,7 +232,7 @@ export default function DashboardEscolaView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {

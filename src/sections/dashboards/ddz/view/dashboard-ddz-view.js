@@ -176,7 +176,7 @@ export default function DashboardDDZView() {
 
       isGettingGraphics.onFalse();
     },
-    [getTurmasPorAnoEscolar]
+    [filters, anosLetivos, getTurmasPorAnoEscolar]
   );
 
   const handleFilters = useCallback(
@@ -196,7 +196,7 @@ export default function DashboardDDZView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -208,7 +208,7 @@ export default function DashboardDDZView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, preencheGraficos]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
