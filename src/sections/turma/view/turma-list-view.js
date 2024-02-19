@@ -386,6 +386,9 @@ export default function TurmaListView() {
         </Card>
       </Container>
 
+      {/* TODO TRAZER PARA PÁGINA PRINCIPAL O MODAL, RETIRAR DE CADA LINHA */}
+      {/* <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} /> */}
+
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}

@@ -68,7 +68,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de profissionais');
       });
-  }, [table, turma.id]);
+  }, [table]);
 
   const methods = useForm({});
 

@@ -72,7 +72,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   useEffect(() => {
     preparacaoInicial();
-  }, [preparacaoInicial]);
+  }, []);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),

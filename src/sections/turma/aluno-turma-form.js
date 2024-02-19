@@ -88,7 +88,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       });
-  }, [table, turma.turmas_alunos]);
+  }, [table]);
 
   const methods = useForm({});
 
