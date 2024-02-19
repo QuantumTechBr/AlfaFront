@@ -26,22 +26,24 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const [mapResultados, setMapResultados] = useState([]);
   const { control } = useFormContext();
 
-  const preparacaoInicial = useCallback(async () => {
-    if (periodo == 'Final') {
-      MapResultados();
-    }
-  }, [periodo, MapResultados]);
-
-  const MapResultados = useCallback(async () => {
+  const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
       alunoTurmaId: id,
     });
     setMapResultados(mp)
   }, [id, setMapResultados, mapResultadosAlunoTurmaInicial]);
 
+  const preparacaoInicial = useCallback(async () => {
+    if (periodo == 'Final') {
+      getMapResultados();
+    }
+  }, [periodo, getMapResultados]);
+
+ 
+
   useEffect(() => {
     preparacaoInicial() 
-  }, [preparacaoInicial]);
+  }, []);
 
   const mapDesabilitarMenuItem = {
     '' : 5,

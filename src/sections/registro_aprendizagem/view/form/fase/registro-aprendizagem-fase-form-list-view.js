@@ -261,7 +261,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       setErrorMsg('Erro de comunicação com a API de turmas');
       prep.onTrue();
     });
-  }, [getRegistros, turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
+  }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

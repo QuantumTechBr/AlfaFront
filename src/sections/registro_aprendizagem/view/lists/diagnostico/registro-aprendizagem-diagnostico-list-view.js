@@ -84,7 +84,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  const preparado = useBoolean(false);
+  const contextReady = useBoolean(false);
 
   const [turmasComRegistro, setTurmasComRegistro] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
@@ -99,7 +99,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const debouncedFilters = useDebounce(filters, 1000);
 
   const preparacaoInicial = useCallback(async () => {
-    preencheTabela();
     await Promise.all([
       buscaAnosLetivos().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
@@ -111,14 +110,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
     ]).finally(() => {
-      preparado.onTrue();
+      contextReady.onTrue();
     });
-  }, [buscaAnosLetivos, preencheTabela, buscaEscolas, buscaTurmas, preparado]);
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, contextReady]);
 
-  useEffect(() => {
-    preparacaoInicial();
-    preencheGraficos();
-  }, []);
 
   useEffect(() => {
     console.log(`debouncedFilters call`);
@@ -184,23 +179,28 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           // preparado.onTrue();
         })
         .finally(() => {
-          preparado.onTrue();
+          contextReady.onTrue();
         });
       promisesList.push(buscaPeriodoFinal);
       Promise.all(promisesList).then(() => {
         setTurmasComRegistro(turmasComRegistroNovo);
         setTableData(turmasComRegistroNovo);
-        preparado.onTrue();
+        contextReady.onTrue();
         setTurmasFiltered(turmasComRegistroNovo);
       });
     }
-  }, [preparado, turmas]);
+  }, [contextReady, turmas]);
 
   useEffect(() => {
     preparacaoInicial();
-    preencheTabela();
-    preencheGraficos();
-  }, [turmas, preparacaoInicial, preencheTabela, preencheGraficos]);
+  }, []);
+
+  useEffect(() => {
+    if(contextReady.value){
+      preencheTabela();
+      preencheGraficos();
+    }
+  }, [contextReady.value]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -428,7 +428,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             />
 
             <Scrollbar>
-              {!preparado.value ? (
+              {!contextReady.value ? (
                 <LoadingBox />
               ) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
