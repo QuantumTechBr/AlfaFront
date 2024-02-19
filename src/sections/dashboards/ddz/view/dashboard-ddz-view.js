@@ -111,6 +111,7 @@ export default function DashboardDDZView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
+      console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -196,7 +197,7 @@ export default function DashboardDDZView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
 
   useEffect(() => {
     if (contextReady.value) {

@@ -266,7 +266,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [buscaDocumentos])
+  }, [buscaDocumentos, upload])
 
   const renderFilters = (
     <Stack

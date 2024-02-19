@@ -156,6 +156,7 @@ export default function DashboardTurmaView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
+      console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const payloadFilters = {
@@ -195,7 +196,7 @@ export default function DashboardTurmaView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getIndiceFases]
+    [filters, bimestres, anosLetivos, getIndiceFases, isGettingGraphics]
   );
 
   const handleFilters = useCallback(
@@ -258,7 +259,7 @@ export default function DashboardTurmaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, buscaBimestres]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, buscaBimestres, contextReady]);
 
   useEffect(() => {
     if (contextReady.value) {

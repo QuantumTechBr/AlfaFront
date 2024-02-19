@@ -109,6 +109,7 @@ export default function DashboardEscolaView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
+      console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -173,7 +174,7 @@ export default function DashboardEscolaView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getTurmasPorAnoEscolar]
+    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
   );
 
   const handleFilters = useCallback(
@@ -215,7 +216,7 @@ export default function DashboardEscolaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
 
   useEffect(() => {
     if (contextReady.value) {

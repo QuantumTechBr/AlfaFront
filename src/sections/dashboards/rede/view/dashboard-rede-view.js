@@ -95,6 +95,7 @@ export default function DashboardRedeView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
+      console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
 
       isGettingGraphics.onTrue();
@@ -157,7 +158,7 @@ export default function DashboardRedeView() {
 
       isGettingGraphics.onFalse();
     },
-    [filters, anosLetivos, getTurmasPorAnoEscolar]
+    [filters, anosLetivos, getTurmasPorAnoEscolar, isGettingGraphics]
   );
 
   const handleFilters = useCallback(
@@ -177,7 +178,7 @@ export default function DashboardRedeView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas]);
+  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
 
 
   useEffect(() => {
