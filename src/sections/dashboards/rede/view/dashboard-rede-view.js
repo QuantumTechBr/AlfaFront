@@ -195,7 +195,7 @@ export default function DashboardRedeView() {
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
+  }, []);
 
 
 

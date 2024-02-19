@@ -118,12 +118,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   useEffect(() => {
     preparacaoInicial();
     preencheGraficos();
-  }, [preencheGraficos, preparacaoInicial]);
+  }, []);
 
   useEffect(() => {
     console.log(`debouncedFilters call`);
     preencheGraficos();
-  }, [debouncedFilters, preencheGraficos]);
+  }, [debouncedFilters]);
 
   const preencheTabela = useCallback(() => {
     const promisesList = [];

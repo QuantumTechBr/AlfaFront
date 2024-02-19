@@ -230,7 +230,7 @@ export default function DashboardDDZView() {
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
+  }, []);
 
   // TABLE GRID
   const TABLE_HEAD = [

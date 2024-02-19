@@ -260,7 +260,7 @@ export default function DashboardEscolaView() {
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
+  }, []);
 
   const filtroReset = () => {
     setFilters({

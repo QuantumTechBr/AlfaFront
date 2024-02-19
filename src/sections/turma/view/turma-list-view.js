@@ -111,7 +111,7 @@ export default function TurmaListView() {
       preparado.onTrue();
     });
     
-  }, [buscaTurmas, buscaEscolas]);
+  }, []);
   
   const table = useTable();
 

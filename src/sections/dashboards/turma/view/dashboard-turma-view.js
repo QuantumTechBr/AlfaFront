@@ -300,7 +300,7 @@ export default function DashboardTurmaView() {
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
-  }, [preparacaoInicial]);
+  }, []);
 
   const filtroReset = () => {
     setFilters({

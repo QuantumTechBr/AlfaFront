@@ -128,7 +128,7 @@ export default function UserListView() {
         setErrorMsg('Erro de comunicação com a API de funções');
         preparado.onTrue();
     });
-  }, [buscaEscolas, buscaFuncoes]);
+  }, []);
 
   const table = useTable();
 

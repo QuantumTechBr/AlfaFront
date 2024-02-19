@@ -248,7 +248,7 @@ export default function AlunoListView() {
 
   useEffect(() => {
     preparacaoInicial();
-  }, [preparacaoInicial]); // CHAMADA UNICA AO ABRIR
+  }, []); // CHAMADA UNICA AO ABRIR
   // useEffect(() => {
   //   preencheTabela();
   // }, [anosLetivos, turmas, escolas, alunoList]); // CHAMADA SEMPRE QUE ESTES MUDAREM
