@@ -86,14 +86,6 @@ export default function FileManagerView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
 
-  useEffect(() => {
-    buscaDocumentos({force:true}).then(retorno => {
-      if (retorno.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de documentos');
-      }
-      setTableData(retorno);
-    });
-  }, [buscaDocumentos]);
 
   const buscaDocumentos = useCallback(async ({ force = false } = {}) => {
     let returnData = documentos;
@@ -117,6 +109,16 @@ export default function FileManagerView() {
 
     return returnData;
   }, [documentos]);
+
+  
+  useEffect(() => {
+    buscaDocumentos({force:true}).then(retorno => {
+      if (retorno.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de documentos');
+      }
+      setTableData(retorno);
+    });
+  }, []);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {

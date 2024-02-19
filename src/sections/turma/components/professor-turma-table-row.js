@@ -42,7 +42,7 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcao?.nome ?? '-'}</TableCell>
 
         <TableCell>
           <Label

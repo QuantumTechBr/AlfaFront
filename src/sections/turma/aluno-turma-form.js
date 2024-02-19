@@ -103,7 +103,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       setCurrentAlunosEscola(null);
       getAlunosEscola(turma.escola.id);
     }
-  }, [open, getAlunosEscola]);
+  }, [open]);
 
   const onSearchAlunos = useCallback((event) => {
     setSearchAlunosInput(event.target.value);
@@ -197,7 +197,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                       // console.log(table.selected.includes(row.aluno.id));
                       return(
                       <AlunoTurmaTableRow
-                        key={row.aluno.id}
+                        key={`AlunoTurmaTableRow${row.aluno.id}`}
                         row={row.aluno}
                         currentTurma={turma}
                         selected={table.selected.includes(row.aluno.id)}

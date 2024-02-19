@@ -98,6 +98,27 @@ export default function FileManagerView() {
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
 
+  const buscaDocumentos = useCallback(async (turmaId) => {
+    setWarningMsg('');
+    setErrorMsg('');
+    preparado.onFalse();
+    let returnData = documentos;
+
+    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
+      if (response.data == '' || response.data === undefined) response.data = [];
+
+      setDocumentos(response.data);
+      returnData = response.data;
+      setTableData(response.data);
+      return returnData;
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de documentos');
+    }).finally(() => preparado.onTrue());
+
+    return consultaAtual;
+  }, [documentos, preparado]);
+
+
   useEffect(() => {
     const promises = [];
 
@@ -143,26 +164,6 @@ export default function FileManagerView() {
       preparado.onTrue()
     })
   }, [buscaDocumentos, buscaEscolas, buscaTurmas]);
-
-  const buscaDocumentos = useCallback(async (turmaId) => {
-    setWarningMsg('');
-    setErrorMsg('');
-    preparado.onFalse();
-    let returnData = documentos;
-
-    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
-      if (response.data == '' || response.data === undefined) response.data = [];
-
-      setDocumentos(response.data);
-      returnData = response.data;
-      setTableData(response.data);
-      return returnData;
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de documentos');
-    }).finally(() => preparado.onTrue());
-
-    return consultaAtual;
-  }, [documentos, preparado]);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {

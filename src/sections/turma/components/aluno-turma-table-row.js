@@ -31,7 +31,7 @@ export default function AlunoTurmaTableRow({ row, selected, currentTurma, onSele
   return (
     <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox {...emOutraTurma ? {disabled:"disabled"} : null} checked={selected} onClick={onSelectRow} />
+          <Checkbox {...emOutraTurma ? {disabled:true} : null} checked={selected} onClick={onSelectRow} />
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
