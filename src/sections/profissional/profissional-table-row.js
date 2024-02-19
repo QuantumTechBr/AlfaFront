@@ -37,14 +37,14 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const [errorMsg, setErrorMsg] = useState('');
 
   const user = {
-    id: row.id,
-    nome: row.profissional,
-    email: row.email,
+    id: row?.id,
+    nome: row?.profissional,
+    email: row?.email,
     funcao: row?.funcao,
     escola: row?.escola,
     zona: row?.zona,
-    turma: row.turma,
-    status: row.status
+    turma: row?.turma,
+    status: row?.status
   }
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   const renderFuncao = () => {
     for (let index = 0; index < funcoes.length; index++) {
-      if (funcoes[index].id == funcao) {
+      if (funcoes[index]?.id == funcao) {
         return funcoes[index].nome
       }
     }
@@ -89,7 +89,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   const renderZona = () => {
     for (let index = 0; index < zonas.length; index++) {
-      if (zonas[index].id == zona) {
+      if (zonas[index]?.id == zona) {
         return zonas[index].nome
       }
     }
