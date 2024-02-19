@@ -67,9 +67,11 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
     const escIds = [];
-    currentUser?.escola?.map((escolaId) => {
-      escIds.push(escolaId)
-    })
+    if(currentUser?.escolas?.length > 0){
+      (currentUser?.escola ?? []).map((escolaId) => {
+        escIds.push(escolaId)
+      });
+    }
     const novosFiltros = {
       escolasAG: escIds
     }
