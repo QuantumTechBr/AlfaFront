@@ -70,7 +70,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
 
   useEffect(() => {
     preparacaoInicial() 
-  }, [preparacaoInicial]);
+  }, []);
 
   useEffect(() => {
     if (registroAprendizagemFase.length > 0) {

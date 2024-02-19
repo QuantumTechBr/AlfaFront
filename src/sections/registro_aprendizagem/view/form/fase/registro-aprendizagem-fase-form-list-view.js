@@ -179,7 +179,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         prep.onTrue();
       });
     }
-  }, [bimestre, buscaTurmaPorId, prep, setValue, turma]);
+  }, [bimestre, buscaTurmaPorId, setValue, turma]);
 
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {

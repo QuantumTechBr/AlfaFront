@@ -121,7 +121,7 @@ export default function ProfissionalListView() {
       setErrorMsg('Erro de comunicação com a API de funções');
       preparado.onTrue(); 
   });
-  }, [buscaEscolas, buscaFuncoes]);
+  }, []);
 
 
   const table = useTable();

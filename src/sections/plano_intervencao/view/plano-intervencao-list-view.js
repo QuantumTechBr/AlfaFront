@@ -44,7 +44,6 @@ import PlanoIntervencaoTableRow from '../plano-intervencao-table-row';
 import PlanoIntervencaoTableToolbar from '../plano-intervencao-table-toolbar';
 import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filters-result';
 import planoIntervencaoMethods from '../plano-intervencao-repository';
-import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -83,7 +82,6 @@ export default function PlanoIntervencaoListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
-  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { checkPermissaoModulo } = useAuthContext();
@@ -104,15 +102,11 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de escolas');
       preparado.onTrue();
     });
-    // buscaFuncoes().catch((error) => {
-    //   setErrorMsg('Erro de comunicação com a API de funções');
-    //   preparado.onTrue();
-    // });
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
     });
-  }, [buscaEscolas, buscaZonas]);
+  }, []);
 
   const table = useTable();
 
