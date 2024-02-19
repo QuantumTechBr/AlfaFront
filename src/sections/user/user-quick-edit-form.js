@@ -30,19 +30,20 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
+import LoadingBox from 'src/components/helpers/loading-box';
 
-
-
-
-const filtros = {
-  escolasAG: [],
-};
 // ----------------------------------------------------------------------
 
 export default function UserQuickEditForm({ currentUser, open, onClose }) {
-  const { enqueueSnackbar } = useSnackbar();
 
-  const [filters, setFilters] = useState(filtros);
+  const defaultFilters = {
+    escolasAG: [],
+  };
+
+  const { enqueueSnackbar } = useSnackbar();
+  
+  const [filters, setFilters] = useState(defaultFilters);
+  const contextReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -51,46 +52,56 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
-
+  
   const [errorMsg, setErrorMsg] = useState('');
   
-  
   useEffect(() => {
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
+    Promise.all([
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
+      buscaPermissoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de permissoes');
+      }),
+    ]).then(() => {
+      contextReady.onTrue();
     });
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-    buscaPermissoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissoes');
-    });
-    let escIds = [];
-    currentUser?.escola?.map((escolaId) => {
-      escIds.push(escolaId)
-    })
-    let novosFiltros = {
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
+
+  useEffect(() => {
+    const escIds = [];
+    if(currentUser?.escola){
+      (currentUser?.escola ?? []).map((escolaId) => {
+        if(escolaId) escIds.push(escolaId)
+      });
+    }
+    const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
-    
-  }, []);
+  }, [currentUser]);
+
   useEffect(() => {
-    let idsAC = [];
-    let idAG = '';
-    funcoes.map((_funcao) => {
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(_funcao.id);
-      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = _funcao.id;
-      }
-    });
-    setIdsAssessorCoordenador(idsAC);
-    setIdAssessorGestao(idAG);
-  }, [funcoes]);
+    if(contextReady.value){
+      const idsAC = [];
+      let idAG = '';
+      funcoes.map((_funcao) => {
+        if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
+          idsAC.push(_funcao.id);
+        } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
+          idAG = _funcao.id;
+        }
+      });
+      setIdsAssessorCoordenador(idsAC);
+      setIdAssessorGestao(idAG);
+    }
+  }, [contextReady.value]);
 
   useEffect(() => {
     if (permissoes.length > 0) {
@@ -204,10 +215,10 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       window.location.reload();
       console.info('DATA', data);
     } catch (error) {
-      let arrayMsg = Object.values(error).map((msg) => {
+      const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
-      let mensagem = arrayMsg.join(' ');
+      const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -215,8 +226,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentUser]);
-
+  }, [currentUser, defaultValues, reset]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -312,56 +322,63 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
 
-        <DialogContent>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          <br></br>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
-            <RHFTextField name="nome" label="Nome Completo" />
-            <RHFTextField name="email" label="Email" />
-            <RHFTextField name="senha" label="Nova Senha" type="password" />
+      {!contextReady.value && (
+        <LoadingBox />
+      )}
 
-            <RHFSelect name="funcao" label="Função">
-                {funcoes.map((_funcao) => (
-                  <MenuItem key={_funcao.id} value={_funcao.id}>
-                    {_funcao.nome}
+      {contextReady.value && (
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
+
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
+              <RHFTextField name="nome" label="Nome Completo" />
+              <RHFTextField name="email" label="Email" />
+              <RHFTextField name="senha" label="Nova Senha" type="password" />
+
+              <RHFSelect name="funcao" label="Função">
+                  {funcoes.map((_funcao) => (
+                    <MenuItem key={_funcao.id} value={_funcao.id}>
+                      {_funcao.nome}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
+
+              <RHFSelect name="status" label="Status">
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
                   </MenuItem>
                 ))}
               </RHFSelect>
 
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+              {escolaOuZona()}
 
-            {escolaOuZona()}
+            </Box>
+          </DialogContent>
 
-          </Box>
-        </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancel
+            </Button>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
-
-          <LoadingButton disabled={liberaSalvar.value} type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+            <LoadingButton disabled={liberaSalvar.value} type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
+      )}
     </Dialog>
   );
 }

@@ -117,7 +117,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         </TableCell>
       </TableRow>
 
-        <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      {/* TODO TRAZER PARA PÁGINA PRINCIPAL O MODAL, RETIRAR DE CADA LINHA */}
+      <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}

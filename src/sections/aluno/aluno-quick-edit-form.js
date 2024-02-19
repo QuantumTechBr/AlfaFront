@@ -16,12 +16,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import alunoMethods from './aluno-repository';
-// _mock
-import { _anos, _escolas, _anosSerie, _turnos } from 'src/_mock';
+
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 
 import { Controller } from 'react-hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -32,7 +30,6 @@ import { useEffect, useState, useContext } from 'react';
 import { EscolasContext } from '../escola/context/escola-context';
 import { TurmasContext } from '../turma/context/turma-context';
 import { AuthContext } from 'src/auth/context/alfa';
-import { useBoolean } from 'src/hooks/use-boolean';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 // ----------------------------------------------------------------------
@@ -44,10 +41,10 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
-  let escolasAssessor = escolas;
   // console.log(currentAluno)
-  let alunoNascimento = parseISO(currentAluno.data_nascimento);
+  const alunoNascimento = parseISO(currentAluno.data_nascimento);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -64,7 +61,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
-    [currentAluno]
+    [currentAluno, alunoNascimento]
   );
 
   const methods = useForm({
@@ -105,7 +102,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
           }
         ]
       }
-      let nascimento = new Date(data.data_nascimento)
+      const nascimento = new Date(data.data_nascimento)
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
@@ -128,7 +125,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   });
 
   useEffect(()  => {
-    buscaEscolas().catch((error) => {
+    buscaEscolas().then((_escolas) => setEscolasAssessor(_escolas)).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {
@@ -137,12 +134,15 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+
+  useEffect(()  => {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      escolasAssessor = escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
+      setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
     } 
-  }, []);
+  }, [escolas, setValue, user.funcao_usuario]);
 
   return (
     <Dialog

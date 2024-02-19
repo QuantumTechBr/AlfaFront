@@ -68,27 +68,28 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
-
+  
+  // NÃO USAR HOOK CALLBACK
   const getAlunosEscola = (id) => {
     escolaMethods
       .getAlunosByEscolaId(id)
       .then((escola) => {
-        let alunosEscola = escola.data;
+        const alunosEscola = escola.data;
         // alunosEscola = sortBy(alunosEscola, (ae) => {
         //   return ae.aluno.nome;
         // });
 
         setCurrentAlunosEscola(alunosEscola);
 
-        let selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
-        let alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
-        let preSelectedList = selectedList.filter((alunoId) => alunosIdEscola.includes(alunoId));
+        const selectedList = turma.turmas_alunos.map((ta) => ta.aluno.id);
+        const alunosIdEscola = alunosEscola.map((ae) => ae.aluno.id);
+        const preSelectedList = selectedList.filter((alunoId) => alunosIdEscola.includes(alunoId));
         table.setSelected(preSelectedList);
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       });
-  };
+  }
 
   const methods = useForm({});
 
@@ -159,11 +160,9 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {isLoading ? (
-          <>
-            <Box sx={{ pt: 2 }}>
+          <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-          </>
         ) : (
           <>
             <DialogTitle>
@@ -199,7 +198,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
                       // console.log(table.selected.includes(row.aluno.id));
                       return(
                       <AlunoTurmaTableRow
-                        key={row.aluno.id}
+                        key={`AlunoTurmaTableRow${row.aluno.id}`}
                         row={row.aluno}
                         currentTurma={turma}
                         selected={table.selected.includes(row.aluno.id)}

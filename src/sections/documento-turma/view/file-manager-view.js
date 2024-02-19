@@ -98,6 +98,27 @@ export default function FileManagerView() {
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
 
+  const buscaDocumentos = useCallback(async (turmaId) => {
+    setWarningMsg('');
+    setErrorMsg('');
+    preparado.onFalse();
+    let returnData = documentos;
+
+    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
+      if (response.data == '' || response.data === undefined) response.data = [];
+
+      setDocumentos(response.data);
+      returnData = response.data;
+      setTableData(response.data);
+      return returnData;
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de documentos');
+    }).finally(() => preparado.onTrue());
+
+    return consultaAtual;
+  }, [documentos, preparado]);
+
+
   useEffect(() => {
     const promises = [];
 
@@ -142,27 +163,7 @@ export default function FileManagerView() {
       }
       preparado.onTrue()
     })
-  }, []);
-
-  const buscaDocumentos = async (turmaId) => {
-    setWarningMsg('');
-    setErrorMsg('');
-    preparado.onFalse();
-    let returnData = documentos;
-
-    const consultaAtual = documentoTurmaMethods.getAllDocumentos(turmaId).then((response) => {
-      if (response.data == '' || response.data === undefined) response.data = [];
-
-      setDocumentos(response.data);
-      returnData = response.data;
-      setTableData(response.data);
-      return returnData;
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de documentos');
-    }).finally(() => preparado.onTrue());
-
-    return consultaAtual;
-  };
+  }, [buscaDocumentos, buscaEscolas, buscaTurmas]);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {
@@ -198,7 +199,7 @@ export default function FileManagerView() {
           setTableData([]);
         }
     },
-    []
+    [buscaDocumentos, escolas, turmas]
   );
 
   const handleSelectTurma = useCallback(
@@ -208,7 +209,7 @@ export default function FileManagerView() {
         setTurmaSelecionada(_turmas.find((option) => option.id == turmaId));
         buscaDocumentos(turmaId);
     },
-    []
+    [buscaDocumentos, buscaTurmas]
   );
 
 
@@ -266,7 +267,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [])
+  }, [buscaDocumentos, upload])
 
   const renderFilters = (
     <Stack

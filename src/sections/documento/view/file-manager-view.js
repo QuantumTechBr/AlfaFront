@@ -86,16 +86,8 @@ export default function FileManagerView() {
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
 
-  useEffect(() => {
-    buscaDocumentos({force:true}).then(retorno => {
-      if (retorno.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de documentos');
-      }
-      setTableData(retorno);
-    });
-  }, []);
 
-  const buscaDocumentos = async ({ force = false } = {}) => {
+  const buscaDocumentos = useCallback(async ({ force = false } = {}) => {
     let returnData = documentos;
     if (force || documentos.length == 0) {
 
@@ -116,7 +108,17 @@ export default function FileManagerView() {
     }
 
     return returnData;
-  };
+  }, [documentos]);
+
+  
+  useEffect(() => {
+    buscaDocumentos({force:true}).then(retorno => {
+      if (retorno.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de documentos');
+      }
+      setTableData(retorno);
+    });
+  }, []);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {
@@ -189,7 +191,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [])
+  }, [buscaDocumentos])
 
   const renderFilters = (
     <Stack

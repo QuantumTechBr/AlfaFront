@@ -60,7 +60,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
     //
     buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
@@ -68,7 +68,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de Anos Letivos');
     });
-  };
+  }, []);
 
   useEffect(() => {
     preparacaoInicial();
@@ -144,24 +144,9 @@ export default function TurmaNewEditForm({ currentTurma }) {
     }
   });
 
-  const handleDrop = useCallback(
-    (acceptedFiles) => {
-      const file = acceptedFiles[0];
-
-      const newFile = Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      });
-
-      if (file) {
-        setValue('avatarUrl', newFile, { shouldValidate: true });
-      }
-    },
-    [setValue]
-  );
-
   useEffect(() => {
     reset(defaultValues);
-  }, [currentTurma]);
+  }, [currentTurma, defaultValues, reset]);
 
   return (
     <>

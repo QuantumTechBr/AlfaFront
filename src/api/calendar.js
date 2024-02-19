@@ -3,7 +3,7 @@ import useSWR, { mutate } from 'swr';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
-import calendarioMethods from 'src/sections/calendario/calendario-repository';
+import calendarioMethods from 'src/sections/calendar/calendar-repository';
 import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------

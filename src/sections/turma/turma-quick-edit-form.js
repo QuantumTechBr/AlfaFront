@@ -103,8 +103,6 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
     }
   });
 
-
-
   return (
     <Dialog
       fullWidth

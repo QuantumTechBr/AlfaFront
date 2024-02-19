@@ -45,12 +45,14 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
+  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
-  let escolasAssessor = escolas;
-  let alunoNascimento = new Date('01-01-2000');
-  if (currentAluno) {
-    alunoNascimento = parseISO(currentAluno.data_nascimento);
-  }
+  const alunoNascimento = useMemo(() => {
+    if (currentAluno) {
+      return parseISO(currentAluno.data_nascimento);
+    }
+    return new Date('01-01-2000');
+  }, [currentAluno]);
 
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -66,7 +68,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
-    [currentAluno]
+    [currentAluno, alunoNascimento]
   );
 
   const methods = useForm({
@@ -110,7 +112,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
           }
         ]
       }
-      let nascimento = new Date(data.data_nascimento)
+      const nascimento = new Date(data.data_nascimento)
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
@@ -139,7 +141,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentAluno]);
+  }, [currentAluno, defaultValues, reset]);
 
   useEffect(()  => {
     buscaEscolas().catch((error) => {
@@ -151,12 +153,15 @@ export default function AlunoNewEditForm({ currentAluno }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+
+  useEffect(()  => {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      escolasAssessor = escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
+      setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
     } 
-  }, []);
+  }, [escolas, setValue, user.funcao_usuario]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>

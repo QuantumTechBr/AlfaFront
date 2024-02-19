@@ -15,7 +15,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
     if (!ids) return null;
 
     let retorno = null;
-    let keysArrays = [...mapsBusca.keys()]
+    const keysArrays = [...mapsBusca.keys()]
     keysArrays.forEach(keyArray => {
       if(keyArray.sort().join(',') === ids.sort().join(',')) { // testa se os dois arrays sao equivalentes
         retorno = mapsBusca.get(keyArray);
@@ -32,11 +32,11 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
   const buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo = async ({ alunoTurmaId, periodo, force = false } = {}) => {
     if (!force) {
-      let valorCache = retornaValorCache([alunoTurmaId,periodo]);
+      const valorCache = retornaValorCache([alunoTurmaId,periodo]);
       if (valorCache) return valorCache
     }
 
-    let consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({
+    const consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({
       alunoTurmaId: alunoTurmaId,
       periodo: periodo,
     }).then((response) => {
@@ -51,11 +51,11 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
   const buscaRegistroAprendizagemFaseByTurmaIdBimestreId = async ({ turmaId, bimestreId, force = false } = {}) => {
     if (!force) {
-      let valorCache = retornaValorCache([turmaId,bimestreId]);
+      const valorCache = retornaValorCache([turmaId,bimestreId]);
       if (valorCache) return valorCache
     }
     
-    let consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
+    const consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
       turmaId: turmaId,
       bimestreId: bimestreId,
     }).then((response) => {
@@ -69,11 +69,11 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
   const buscaRegistroAprendizagemFaseByAlunoTurmaId = async ({ alunoTurmaId, force = false } = {}) => {
     if (!force) {
-      let valorCache = retornaValorCache([alunoTurmaId]);
+      const valorCache = retornaValorCache([alunoTurmaId]);
       if (valorCache) return valorCache
     }
 
-    let consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
+    const consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
       alunoTurmaId: alunoTurmaId,
     }).then((response) => {
       if (response?.data == '' || response?.data === undefined) response.data = [];
@@ -93,7 +93,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
       'Alfabética Completa': 4,
       'Alfabética Consolidada': 5,
     };
-    let resultados = await buscaRegistroAprendizagemFaseByAlunoTurmaId({alunoTurmaId: alunoTurmaId})
+    const resultados = await buscaRegistroAprendizagemFaseByAlunoTurmaId({alunoTurmaId: alunoTurmaId})
     let melhor = 'Não Avaliado'
     for (let index = 0; index < resultados?.length; index++) {
       melhor = mapResultados[melhor] < mapResultados[resultados[index].resultado] ? resultados[index].resultado : melhor
@@ -104,8 +104,8 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
 
   const mapResultadosAlunoTurmaInicial = async ({ alunoTurmaId }) => {
-    let resultados = await buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo({alunoTurmaId: alunoTurmaId, periodo: 'Inicial'});
-    let mR = [];
+    const resultados = await buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo({alunoTurmaId: alunoTurmaId, periodo: 'Inicial'});
+    const mR = [];
     if (resultados.length > 0) {
       for (let index = 0; index < resultados[0].habilidades_registro_aprendizagem.length; index++) {
         mR[resultados[0].habilidades_registro_aprendizagem[index].habilidade.id] = resultados[0].habilidades_registro_aprendizagem[index].nota

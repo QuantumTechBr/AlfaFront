@@ -9,7 +9,7 @@ import { fNumber } from 'src/utils/format-number';
 // components
 import Scrollbar from 'src/components/scrollbar';
 import { useChart } from 'src/components/chart';
-import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
+import ChartColumnStacked from 'src/sections/overview/app/chart-column-stacked';
 import { _disciplinas } from 'src/_mock';
 
 export default function AppAvaliacaoComponente({ title, subheader, list = [], ...other }) {
@@ -47,8 +47,8 @@ export default function AppAvaliacaoComponente({ title, subheader, list = [], ..
     },
     dataLabels: {
       enabled: true,
-      formatter: function (value, { _series_, seriesIndex, dataPointIndex, w }) {
-        return list[seriesIndex].data[dataPointIndex];
+      formatter: (value, opts) => {
+        return list[opts.seriesIndex].data[opts.dataPointIndex]; // TODO CHECK IF opts.config.series
       },
       offsetY: 0,
       dropShadow: {

@@ -36,8 +36,7 @@ import ProgressBar from 'src/components/progress-bar';
 import MotionLazy from 'src/components/animate/motion-lazy';
 import SnackbarProvider from 'src/components/snackbar/snackbar-provider';
 import { SettingsProvider, SettingsDrawer } from 'src/components/settings';
-// sections
-import { CheckoutProvider } from 'src/sections/checkout/context';
+
 // auth
 import { AuthProvider, AuthConsumer } from 'src/auth/context/alfa';
 
@@ -94,11 +93,9 @@ export default function RootLayout({ children }) {
               <ThemeProvider>
                 <MotionLazy>
                   <SnackbarProvider>
-                    <CheckoutProvider>
                       <SettingsDrawer />
                       <ProgressBar />
                       <AuthConsumer>{children}</AuthConsumer>
-                    </CheckoutProvider>
                   </SnackbarProvider>
                 </MotionLazy>
               </ThemeProvider>

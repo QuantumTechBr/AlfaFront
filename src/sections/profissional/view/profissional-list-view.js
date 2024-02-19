@@ -83,12 +83,12 @@ export default function ProfissionalListView() {
         setWarningMsg('A API retornou uma lista vazia de profissionais');
         preparado.onTrue(); 
       }
-      let pros = profissionais.data;
+      const pros = profissionais.data;
 
       for (var i = 0; i < pros.length; i++) {
-        let funcao = [];
-        let zona = [];
-        let escola = [];
+        const funcao = [];
+        const zona = [];
+        const escola = [];
         if(pros[i].funcao_usuario?.length > 0 ){
           for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
             funcao.push(pros[i].funcao_usuario[index].funcao?.id);

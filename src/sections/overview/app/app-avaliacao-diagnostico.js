@@ -9,7 +9,7 @@ import { fShortenNumber } from 'src/utils/format-number';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import Chart, { useChart } from 'src/components/chart';
-import ChartColumnStacked from 'src/sections/_examples/extra/chart-view/chart-column-stacked';
+import ChartColumnStacked from 'src/sections/overview/app/chart-column-stacked';
 
 
 export default function AppAvaliacaoDiagnostico({ title, subheader, list, ...other }) {

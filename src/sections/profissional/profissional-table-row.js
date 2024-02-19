@@ -58,7 +58,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
 
-  }, []);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas]);
 
   const profissionalRender = profissional.toLowerCase();
 
@@ -97,7 +97,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   }
 
   const renderEscola = () => {
-    let list_retorno = []
+    const list_retorno = []
     for (let index = 0; index < escolas?.length; index++) {
       for (let i = 0; i < escola?.length; i++) {
         if (escolas[index]?.id == escola[i]) {

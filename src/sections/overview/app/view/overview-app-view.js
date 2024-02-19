@@ -13,6 +13,7 @@ export default function OverviewAppView() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log('redirecionando');
     if (checkFuncao('SUPERADMIN')) {
       router.push(`${paths.dashboard.root}/dash-rede`);
     } else if (checkFuncao('ASSESSOR DDZ')) {
@@ -22,7 +23,7 @@ export default function OverviewAppView() {
     } else if (checkFuncao('PROFESSOR')) {
       router.push(`${paths.dashboard.root}/dash-turma`);
     }
-  }, []);
+  }, [checkFuncao, router]);
 
   return;
 }

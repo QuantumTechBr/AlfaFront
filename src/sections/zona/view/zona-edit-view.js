@@ -12,7 +12,6 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 //
 import ZonaNewEditForm from '../zona-new-edit-form';
 
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import Alert from '@mui/material/Alert';
 import zonaMethods from '../zona-repository';
 
@@ -22,9 +21,7 @@ export default function ZonaEditView({ id }) {
   const settings = useSettingsContext();
 
   const [errorMsg, setErrorMsg] = useState('');
-  const [warningMsg, setWarningMsg] = useState('');
   
-
   const [currentZona, setCurrentZona] = useState({});
 
   useEffect(()  => {
@@ -33,7 +30,7 @@ export default function ZonaEditView({ id }) {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     })
-  }, []);
+  }, [id]);
 
   const nomeBreadcrumbs = currentZona?.nome;
 
@@ -58,7 +55,6 @@ export default function ZonaEditView({ id }) {
       />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}  
-      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
       <ZonaNewEditForm currentZona={currentZona} />
     </Container>
   );

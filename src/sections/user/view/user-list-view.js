@@ -91,9 +91,9 @@ export default function UserListView() {
         preparado.onTrue();
       }
       for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        let funcao = [];
-        let zona = [];
-        let escola = [];
+        const funcao = [];
+        const zona = [];
+        const escola = [];
         if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
           for (let index = 0; index < usuariosNaoDeletados[i].funcao_usuario.length; index++) {  
             funcao.push(usuariosNaoDeletados[i].funcao_usuario[index].funcao?.id);

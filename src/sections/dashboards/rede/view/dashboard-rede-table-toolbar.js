@@ -33,8 +33,7 @@ export default function DashboardRedeTableToolbar({
   );
 
   return (
-    <>
-      <Stack
+    <Stack
         spacing={1}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
@@ -110,7 +109,6 @@ export default function DashboardRedeTableToolbar({
           </FormControl>
         )}
       </Stack>
-    </>
   );
 }
 

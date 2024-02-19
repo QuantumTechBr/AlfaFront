@@ -27,7 +27,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
-      let habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
+      const habilidade_turma = habilidadesRetorno.data.filter((habilidade) => String(habilidade.ano_escolar) == String(_turma.ano_escolar));
       setHabilidades(habilidade_turma);
       if(_turma.turmas_alunos){
         registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId:_turma.id, periodo: periodo}).then(registros => {
@@ -35,10 +35,10 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           if (registrosAprendizagemTurma) {
             const _alunosTurma = (_turma.turmas_alunos == undefined) ? [] : _turma.turmas_alunos;
             registrosAprendizagemTurma.forEach(registro => {
-              let mapHabilidades = [];
-              let idHabilidadesRegistroAprendizagem = [];
+              const mapHabilidades = [];
+              const idHabilidadesRegistroAprendizagem = [];
               habilidade_turma.forEach(hab => {
-                let encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
+                const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
                   return habReg.habilidade.id == hab.id;
                 });
                 if (encontrada){
@@ -58,7 +58,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
             prep.onTrue();
           } else {
             const _alunosTurma = (_turma.turmas_alunos == undefined) ? [] : _turma.turmas_alunos;
-            let mapHabilidades = [];
+            const mapHabilidades = [];
             for (var i = 0; i < habilidadesRetorno.data.length; i++) {
               mapHabilidades[habilidadesRetorno.data[i].id] = '';
             }
@@ -81,7 +81,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
     });
-  }, []);
+  }, [_turma, periodo]);
 
   const handleTurma = useCallback(async (event) => {
     const novaTurma = event.target.value;
@@ -93,7 +93,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
     });
-    let habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
+    const habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
     setHabilidades(habilidade_turma);
     if(novaTurma.turmas_alunos){
       registroAprendizagemMethods.getAllRegistrosAprendizagemDiagnostico({turmaId: novaTurma.id, periodo: periodo}).then(registros => {
@@ -101,10 +101,10 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         if (novoRegistrosAprendizagemTurma) {
           const _alunosTurma = (novaTurma.turmas_alunos == undefined) ? [] : novaTurma.turmas_alunos;
           novoRegistrosAprendizagemTurma.forEach(registro => {
-            let mapHabilidades = [];
-            let idHabilidadesRegistroAprendizagem = [];
+            const mapHabilidades = [];
+            const idHabilidadesRegistroAprendizagem = [];
             habilidade_turma.forEach(hab => {
-              let encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
+              const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
                 return habReg.habilidade.id == hab.id;
               });
               if (encontrada){
@@ -124,7 +124,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           prep.onTrue();
         } else {
           const _alunosTurma = (novaTurma.turmas_alunos == undefined) ? [] : novaTurma.turmas_alunos;
-          let mapHabilidades = [];
+          const mapHabilidades = [];
           for (var i = 0; i < habilidade_turma.length; i++) {
             mapHabilidades[habilidade_turma[i].id] = '';
           }
@@ -144,7 +144,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
       prep.onTrue();
     }
 
-  }, [_turma])
+  }, [periodo, prep])
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

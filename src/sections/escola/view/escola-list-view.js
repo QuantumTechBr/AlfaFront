@@ -3,9 +3,6 @@
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
-import { alpha } from '@mui/material/styles';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
@@ -19,13 +16,10 @@ import TableContainer from '@mui/material/TableContainer';
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
-// _mock
-import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
@@ -49,6 +43,7 @@ import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
 import { EscolasContext } from '../context/escola-context';
+import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [

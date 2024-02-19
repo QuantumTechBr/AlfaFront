@@ -63,10 +63,10 @@ export default function UserNewEditForm({ currentUser }) {
     buscaPermissoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
-  }, []);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
-    let idsAC = [];
+    const idsAC = [];
     let idAG = '';
     funcoes.map((_funcao) => {
       if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
@@ -193,10 +193,10 @@ export default function UserNewEditForm({ currentUser }) {
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
-      let arrayMsg = Object.values(error).map((msg) => {
+      const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
-      let mensagem = arrayMsg.join(' ');
+      const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -204,21 +204,21 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
-    let escIds = [];
+    const escIds = [];
     currentUser?.escola?.map((escolaId) => {
       escIds.push(escolaId)
     })
-    let novosFiltros = {
+    const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
-  }, [currentUser]);
+  }, [reset, currentUser?.escola, defaultValues]);
   
   useEffect(()  => {
     setFilters(filtros);
     setValue('escola', '');
     setValue('zona', '');
-  }, [funcao]);
+  }, [funcao, setValue]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
