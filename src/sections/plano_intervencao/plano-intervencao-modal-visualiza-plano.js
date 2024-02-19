@@ -91,7 +91,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     });
     buscaDocumentos();
     // preparado.onTrue()
-  }, [buscaDocumentos, buscaEscolas, buscaTurmas, buscaZonas]);
+  }, []);
 
   const mostrarAplicacao = () => {
     const list_retorno = [];

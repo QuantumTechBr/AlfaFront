@@ -91,7 +91,7 @@ export default function PlanoIntervencaoFileManagerView({ planoId }) {
   useEffect(() => {
     buscaDocumentos();
     preparado.onTrue()
-  }, [buscaDocumentos]);
+  }, []);
 
   const buscaDocumentos = useCallback(async () => {
     setWarningMsg('');

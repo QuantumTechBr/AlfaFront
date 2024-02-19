@@ -115,8 +115,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
   }
 
-
-
   const inicioPrevisto = useMemo(()=> {
     if (currentPlano) {
       return parseISO(currentPlano.inicio_previsto);
@@ -130,6 +128,39 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
     return new Date('01-01-2000');
   }, [currentPlano]) ;
+
+
+  const defaultValues = useMemo(
+    () => ({
+      responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
+      acao: currentPlano?.acao || '',
+      ano_escolar: currentPlano?.ano_escolar || '',
+      inicio_previsto: inicioPrevisto,
+      termino_previsto: terminoPrevisto,
+      status: currentPlano?.status || '',
+      aplicacao: currentPlano?.aplicacao || {},
+      aplicar: aplicarInicial,
+      fase: currentPlano?.fase || '',
+      habilidades_plano_intervencao: currentPlano?.habilidades_plano_intervencao || filters.habilidades,
+    }),
+    [aplicarInicial, currentPlano, filters.habilidades, inicioPrevisto, terminoPrevisto]
+  );
+
+  
+  const methods = useForm({
+    defaultValues,
+  });
+
+  const {
+    register,
+    reset,
+    watch,
+    control,
+    setValue,
+    handleSubmit,
+    getValues,
+    formState: { isSubmitting },
+  } = methods;
 
 
   useEffect(() => {
@@ -282,37 +313,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     funcao_usuario: Yup.string(),
   });
 
-  const defaultValues = useMemo(
-    () => ({
-      responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
-      acao: currentPlano?.acao || '',
-      ano_escolar: currentPlano?.ano_escolar || '',
-      inicio_previsto: inicioPrevisto,
-      termino_previsto: terminoPrevisto,
-      status: currentPlano?.status || '',
-      aplicacao: currentPlano?.aplicacao || {},
-      aplicar: aplicarInicial,
-      fase: currentPlano?.fase || '',
-      habilidades_plano_intervencao: currentPlano?.habilidades_plano_intervencao || filters.habilidades,
-    }),
-    [aplicarInicial, currentPlano, filters.habilidades, inicioPrevisto, terminoPrevisto]
-  );
-
-  const methods = useForm({
-    defaultValues,
-  });
 
 
-  const {
-    register,
-    reset,
-    watch,
-    control,
-    setValue,
-    handleSubmit,
-    getValues,
-    formState: { isSubmitting },
-  } = methods;
+
 
   // useEffect(() => {
   //   const subscription = watch((values, { name, type }) => {
