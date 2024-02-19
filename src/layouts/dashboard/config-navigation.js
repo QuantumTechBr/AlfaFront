@@ -168,15 +168,16 @@ export function useNavData() {
       ];
     } else {
       try {
-        let modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo.map(
-          (permissaoModulo) => {
-            if (permissaoModulo.cadastrar || permissaoModulo.editar || permissaoModulo.deletar) {
-              return permissaoModulo.modulo?.namespace;
+        let modulosPermitidos = [];
+        if(user?.permissao_usuario[0]?.permissao_modulo){
+          modulosPermitidos = user?.permissao_usuario[0]?.permissao_modulo.map(
+            (permissaoModulo) => {
+              if (permissaoModulo.cadastrar || permissaoModulo.editar || permissaoModulo.deletar) {
+                return permissaoModulo.modulo?.namespace;
+              }
             }
-          }
-        );
-
-        modulosPermitidos ??= [];
+          );
+        }
 
         _items.push({
           title: t('home (dashboard)'),
