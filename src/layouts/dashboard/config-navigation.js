@@ -123,7 +123,7 @@ export function useNavData() {
         // AVALIAÇÕES
         {
           title: t('avaliações'),
-          path: paths.dashboard.registro_aprendizagem.root,
+          path: paths.dashboard.registro_aprendizagem.root_diagnostico,
           icon: ICONS.alfaBookAccount,
           children: [
             {
