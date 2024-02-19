@@ -68,8 +68,9 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
-
-  const getAlunosEscola = useCallback((id) => {
+  
+  // NÃO USAR HOOK CALLBACK
+  const getAlunosEscola = (id) => {
     escolaMethods
       .getAlunosByEscolaId(id)
       .then((escola) => {
@@ -88,7 +89,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       });
-  }, [table]);
+  }
 
   const methods = useForm({});
 
