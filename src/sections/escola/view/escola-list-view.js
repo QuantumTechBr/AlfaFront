@@ -43,6 +43,7 @@ import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
 import { EscolasContext } from '../context/escola-context';
+import Iconify from 'src/components/iconify';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -85,7 +86,7 @@ export default function EscolaListView() {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-  }, [buscaEscolas, buscaZonas]);
+  }, []);
   
   const table = useTable();
 
