@@ -144,7 +144,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [currentAluno, defaultValues, reset]);
 
   useEffect(()  => {
-    buscaEscolas().then((_escolas) => setEscolasAssessor(_escolas)).catch((error) => {
+    buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {
@@ -153,12 +153,15 @@ export default function AlunoNewEditForm({ currentAluno }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+
+  useEffect(()  => {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
       setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
     } 
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, escolas, setValue, user.funcao_usuario]);
+  }, [escolas, setValue, user.funcao_usuario]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>

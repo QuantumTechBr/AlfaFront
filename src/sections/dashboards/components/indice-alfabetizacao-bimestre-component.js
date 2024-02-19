@@ -181,7 +181,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
         fontSize: '12px',
         colors: [..._.fill(_.range(qtd_bimestres - 1), '#FFF', 0, qtd_bimestres - 1), '#000'],
       },
-      formatter:  (value, opts) => {
+      formatter: (value, opts) => {
         if (value === null || value == 0) return '';
         if (opts.seriesIndex <= qtd_bimestres - 1) {
           if (opts.dataPointIndex <= qtd_bimestres - 1) {

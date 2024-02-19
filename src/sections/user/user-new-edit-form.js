@@ -212,7 +212,7 @@ export default function UserNewEditForm({ currentUser }) {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
-  }, [currentUser?.escola, defaultValues, reset, setValue]);
+  }, [reset, currentUser?.escola, defaultValues]);
   
   useEffect(()  => {
     setFilters(filtros);

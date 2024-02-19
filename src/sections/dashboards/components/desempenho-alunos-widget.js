@@ -154,6 +154,10 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     }
   }, [chartSeries]);
 
+  if (chart === undefined) {
+    return <>Carregando...</>;
+  }
+
   if (chartSeries.length == 0) {
     return <>Sem dados para exibir.</>;
   }

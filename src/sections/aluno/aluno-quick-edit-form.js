@@ -18,9 +18,8 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import alunoMethods from './aluno-repository';
 
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 
 import { Controller } from 'react-hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -31,7 +30,6 @@ import { useEffect, useState, useContext } from 'react';
 import { EscolasContext } from '../escola/context/escola-context';
 import { TurmasContext } from '../turma/context/turma-context';
 import { AuthContext } from 'src/auth/context/alfa';
-import { useBoolean } from 'src/hooks/use-boolean';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 // ----------------------------------------------------------------------
@@ -136,12 +134,15 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+
+  useEffect(()  => {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
       setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
     } 
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, escolas, setValue, user.funcao_usuario]);
+  }, [escolas, setValue, user.funcao_usuario]);
 
   return (
     <Dialog

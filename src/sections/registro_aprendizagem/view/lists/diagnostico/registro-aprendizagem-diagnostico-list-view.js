@@ -118,7 +118,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   useEffect(() => {
     preparacaoInicial();
     preencheGraficos();
-  }, [preencheGraficos, preparacaoInicial, setTableData]);
+  }, [preencheGraficos, preparacaoInicial]);
 
   useEffect(() => {
     console.log(`debouncedFilters call`);

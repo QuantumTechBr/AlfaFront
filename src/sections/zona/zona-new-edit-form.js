@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useMemo, useContext, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
@@ -15,20 +15,13 @@ import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFTextField } from 'src/components/hook-form';
-// _mock
-import { _anosSerie, _turnos } from 'src/_mock';
 
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import Alert from '@mui/material/Alert';
 import zonaMethods from './zona-repository';
 // ----------------------------------------------------------------------
 
 export default function ZonaNewEditForm({ currentZona }) {
   const router = useRouter();
-
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
   const [errorMsg, setErrorMsg] = useState('');
 

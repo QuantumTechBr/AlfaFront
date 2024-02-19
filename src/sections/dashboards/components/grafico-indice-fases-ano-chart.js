@@ -157,7 +157,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
     _percentFaseAdequada = _percentFaseAdequada <= 100 ? _percentFaseAdequada : 100;
 
     return _percentFaseAdequada;
-  }, [ano_escolar, totalFaseAdequada, total_avaliados]);
+  }, [ano_escolar, total_avaliados, totalFaseAdequada]);
 
   return (
     <Box {...other}>
