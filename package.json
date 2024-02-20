@@ -39,6 +39,7 @@
     "@mui/x-data-grid": "^6.9.1",
     "@mui/x-date-pickers": "^6.9.1",
     "@react-pdf/renderer": "^3.1.12",
+    "@vercel/speed-insights": "^1.0.10",
     "apexcharts": "^3.45.2",
     "autosuggest-highlight": "^3.3.4",
     "axios": "^1.4.0",
