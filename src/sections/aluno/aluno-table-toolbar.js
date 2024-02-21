@@ -83,7 +83,7 @@ export default function AlunoTableToolbar({
     selected
       .map((turmaId) => {
         const turma = turmaOptions.find((option) => option.id == turmaId);
-        return turma?.ano_escolar.concat('º ', turma?.nome);
+        return turma?.ano_escolar ? turma?.ano_escolar.concat('º ', turma?.nome ?? '') : '';
       })
       .join(', ');
 

@@ -490,7 +490,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const renderValueTurma = (selected) => 
     selected.map((turmaId) => {
       const turma = turmas.find((option) => option.id == turmaId);
-      return turma?.ano_escolar.concat('º ', turma?.nome);
+      return turma?.ano_escolar ? turma?.ano_escolar.concat('º ', turma?.nome ?? '') : '';
   }).join(', '); 
 
   const renderValueAluno = (selected) => 

@@ -101,7 +101,7 @@ export default function AlunoTableFiltersResult({
         {!!filters.turma.length && (
           <Block label="Turma:">
             {turmasSelecionadas.map((item) => (
-              <Chip key={item.id} label={item.ano_escolar.concat('º ', item.nome)} size="small" onDelete={() => handleRemoveTurma(item.id)} />
+              <Chip key={item.id} label={(item.ano_escolar ?? '').concat('º ', item?.nome ?? '')} size="small" onDelete={() => handleRemoveTurma(item.id)} />
             ))}
           </Block>
         )}
