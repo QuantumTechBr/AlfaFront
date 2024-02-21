@@ -1,5 +1,10 @@
 module.exports = {
+  output: 'standalone',
   trailingSlash: true,
+  swcMinify: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   modularizeImports: {
     '@mui/material': {
       transform: '@mui/material/{{member}}',
@@ -14,5 +19,5 @@ module.exports = {
       use: ['@svgr/webpack'],
     });
     return config;
-  },
+  }
 };

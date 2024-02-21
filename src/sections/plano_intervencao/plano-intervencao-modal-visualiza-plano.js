@@ -189,8 +189,8 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     return (
         <div>
           <Typography>{aplicacao}<br></br></Typography>
-          {list_retorno.map((li) => (
-            <Typography>{li}<br></br></Typography>
+          {list_retorno.map((li, index) => (
+            <Typography key={index}>{li}<br></br></Typography>
           ))}
         </div>
     )
@@ -283,14 +283,14 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                     {mostrarAplicacao()}
                 </div>
                 <div>
-                    <Label>Anexos</Label>
-                    <br></br>
-                    {documentos.map((doc) => (
-                      <div> 
-                        {doc?.descricao}<br></br>
-                        <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a> 
-                      </div>
-                    ))}
+                  <Label>Anexos</Label>
+                  <br></br>
+                  {documentos.map((doc, index) => (
+                    <div key={index}>
+                      {doc?.descricao}<br></br>
+                      <a href={doc.arquivo}>{doc.nomeArquivo}<br></br></a>
+                    </div>
+                  ))}
                 </div>
                 
               </Box>

@@ -10,21 +10,10 @@ import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
-// components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSelect,
@@ -53,10 +42,11 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   const [permissoes, setPermissoes] = useState([]);
   const [funcaoProfessor, setFuncaoProfessor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [velhasFuncoes, setVelhasFuncoes] = useState([]);
 
   useEffect(() => {
-    buscaFuncoes().then(funcoes => {
-      setFuncaoProfessor(funcoes.find(funcao => funcao.nome == "PROFESSOR"))
+    buscaFuncoes().then(_funcoes => {
+      setFuncaoProfessor(_funcoes.find(funcao => funcao.nome == "PROFESSOR"))
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
@@ -67,12 +57,22 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
 
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
+    permissaoMethods.getAllPermissoes().then(_permissoes => {
+      setPermissoes(_permissoes.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
   }, []);
+
+  useEffect(() => {
+    let velhasFunc = [];
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "DIRETOR" || funcao.nome == "PROFESSOR") {
+        velhasFunc.push(funcao)
+      }
+    });
+    setVelhasFuncoes(velhasFunc);
+  }, [funcoes]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -96,7 +96,6 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -173,7 +172,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       console.info('DATA', data);
     } catch (error) { 
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return (msg[0] ? msg[0].charAt(0).toUpperCase() : '') + (msg[0]?.slice(1) || '');
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
@@ -224,7 +223,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
                 (<MenuItem key={funcaoProfessor?.id} value={funcaoProfessor?.id}>
                   {funcaoProfessor?.nome}
                 </MenuItem>)
-                : (funcoes.map((funcao) => (
+                : (velhasFuncoes.map((funcao) => (
                   <MenuItem key={funcao.id} value={funcao.id}>
                     {funcao.nome}
                   </MenuItem>

@@ -161,7 +161,6 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -174,24 +173,14 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     formState: { isSubmitting },
   } = methods;
 
-  //useEffect(() => {
-  //  const subscription = watch((values, { name, type }) => {
-  //    if (type == 'change' && name == 'ano') {
-  //      setFilters(filtros)
-  //    }
-  //  });
-  //
-  //  return () => subscription.unsubscribe();
-  //}, [setFilters, watch]);
-
   const values = watch();
 
   const { ano, fase, habilidades } = values;
 
   const selecionado = useBoolean(false);
 
-  const podeBuscar = (habilidades, fase) => {
-    if (fase != '' || habilidades.length > 0) {
+  const podeBuscar = (_habilidades, _fase) => {
+    if (_fase != '' || _habilidades.length > 0) {
       return true
     }
     return false
@@ -200,8 +189,6 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   const handleFilters = useCallback(
     async (nome, value) => {
-      // table.onResetPage();
-      // console.log(filters)
       const novosFiltros = {
         ...filters,
         [nome]: value,
@@ -361,9 +348,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             flexShrink: 0,
             sx: { maxWidth: 120 },
           }}>
-              {anos_options.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}º
+              {anos_options.map((_ano) => (
+                <MenuItem key={_ano} value={_ano}>
+                  {_ano}º
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -399,9 +386,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             </FormControl>
 
             <RHFSelect name="fase" label="Fase">
-                {fases_options.map((fase) => (
-                  <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
-                    {fase}
+                {fases_options.map((_fase) => (
+                  <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                    {_fase}
                   </MenuItem>
                 ))}
               </RHFSelect>

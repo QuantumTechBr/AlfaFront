@@ -162,7 +162,7 @@ export default function AppIndiceFases({
 
         <Chart
           dir="ltr"
-          width={'100%'}
+          width="100%"
           type="bar"
           series={chartSeries}
           options={chartOptions}

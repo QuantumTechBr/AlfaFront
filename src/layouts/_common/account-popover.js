@@ -106,7 +106,7 @@ export default function AccountPopover() {
       >
         <Avatar
           src={user?.photoURL}
-          alt={'teste'}
+          alt="teste"
           sx={{
             width: 45,
             height: 45,
@@ -128,13 +128,7 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
-        {/* <Stack sx={{ p: 1 }}>
-          {OPTIONS.map((option) => (
-            <MenuItem key={option.label}>
-              {option.label}
-            </MenuItem>
-          ))}
-        </Stack> */}
+        {}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 

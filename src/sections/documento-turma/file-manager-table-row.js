@@ -15,13 +15,10 @@ import ListItemText from '@mui/material/ListItemText';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableRow, { tableRowClasses } from '@mui/material/TableRow';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useDoubleClick } from 'src/hooks/use-double-click';
 import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
-// utils
-import { fData } from 'src/utils/format-number';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -30,17 +27,14 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import FileThumbnail from 'src/components/file-thumbnail';
 //
 import FileManagerShareDialog from './file-manager-share-dialog';
-import FileManagerFileDetails from './file-manager-file-details';
 
-
-// ----------------------------------------------------------------------
 
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
   const { ano, arquivo, criado_por, updated_at, created_at, destino, id, nomeArquivo, tamanho } = row;
 
-  const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
+  const regex = /[^/\\&\\?]+\.\w{3,4}(?=([\\?&].*$|$))/;
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nome ? `${nome.split('.').pop()}` : ''
 
@@ -51,8 +45,6 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
   const { copy } = useCopyToClipboard();
 
   const [inviteEmail, setInviteEmail] = useState('');
-
-  // const favorite = useBoolean(isFavorited);
 
   const details = useBoolean();
 
@@ -169,26 +161,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           />
         </TableCell>
 
-        {/* <TableCell align="right" onClick={handleClick}>
-          <AvatarGroup
-            max={4}
-            sx={{
-              display: 'inline-flex',
-              [`& .${avatarGroupClasses.avatar}`]: {
-                width: 24,
-                height: 24,
-                '&:first-of-type': {
-                  fontSize: 12,
-                },
-              },
-            }}
-          >
-            {shared &&
-              shared.map((person) => (
-                <Avatar key={person.id} alt={person.name} src={person.avatarUrl} />
-              ))}
-          </AvatarGroup>
-        </TableCell> */}
+        {}
 
         <TableCell
           align="right"
@@ -197,14 +170,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
             whiteSpace: 'nowrap',
           }}
         >
-          {/* <Checkbox
-            color="warning"
-            icon={<Iconify icon="eva:star-outline" />}
-            checkedIcon={<Iconify icon="eva:star-fill" />}
-            checked={favorite.value}
-            onChange={favorite.onToggle}
-            sx={{ p: 0.75 }}
-          /> */}
+          {}
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -238,15 +204,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
           Download
         </MenuItem>
 
-        {/* <MenuItem
-          onClick={() => {
-            popover.onClose();
-            share.onTrue();
-          }}
-        >
-          <Iconify icon="solar:share-bold" />
-          Disponibilizar
-        </MenuItem> */}
+        {}
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
@@ -262,19 +220,10 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         </MenuItem>
       </CustomPopover>
 
-      {/* <FileManagerFileDetails
-        item={row}
-        // favorited={favorite.value}
-        // onFavorite={favorite.onToggle}
-        onCopyLink={handleCopy}
-        open={details.value}
-        onClose={details.onFalse}
-        onDelete={onDeleteRow}
-      /> */}
+      {}
 
       <FileManagerShareDialog
         open={share.value}
-        // shared={shared}
         inviteEmail={inviteEmail}
         onChangeInvite={handleChangeInvite}
         onCopyLink={handleCopy}

@@ -165,8 +165,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
   });
 
   return (
-    <>
-      <Box {...other}>
+    <Box {...other}>
         <Stack direction="row" justifyContent="space-between" alignItems="center">
           <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
           {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
@@ -210,14 +209,13 @@ export default function GraficoIndiceFaseAnoColunasChart({
 
         <Chart
           dir="ltr"
-          width={'100%'}
+          width="100%"
           type="bar"
           series={chartSeries}
           options={chartOptions}
           height={height}
         />
       </Box>
-    </>
   );
 }
 

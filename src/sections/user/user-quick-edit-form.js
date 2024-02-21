@@ -16,10 +16,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
 import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
-// assets
-import { countries } from 'src/assets/data';
-// components
-import Iconify from 'src/components/iconify';
+
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 import userMethods from './user-repository';
@@ -41,7 +38,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [permissoes, setPermissoes] = useState([]);
   const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
-
+  const [velhasFuncoes, setVelhasFuncoes] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   
 
@@ -61,8 +58,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
     
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
+    permissaoMethods.getAllPermissoes().then(response => {
+      setPermissoes(response.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissões');
     })
@@ -73,6 +70,16 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       liberaSalvar.onFalse()
     }
   }, [permissoes]);
+
+  useEffect(() => {
+    let velhasFunc = [];
+    funcoes.map((funcao) => {
+      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "DIRETOR" || funcao.nome == "PROFESSOR") {
+        velhasFunc.push(funcao)
+      }
+    });
+    setVelhasFuncoes(velhasFunc);
+  }, [funcoes]);
 
 
   const NewUserSchema = Yup.object().shape({
@@ -97,7 +104,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -166,7 +172,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       console.info('DATA', data);
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
       });
       let mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
@@ -216,7 +222,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
             <RHFTextField name="senha" label="Nova Senha" type="password" />
 
             <RHFSelect name="funcao" label="Função" value={funcaoUsuario} onChange={handleFuncao}>
-              {funcoes.map((_funcao) => (
+              {velhasFuncoes.map((_funcao) => (
                 <MenuItem key={_funcao.id} value={_funcao.id}>
                   {_funcao.nome}
                 </MenuItem>

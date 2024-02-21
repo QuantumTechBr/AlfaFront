@@ -6,7 +6,6 @@ import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -27,8 +26,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   const [turmas, setTurmas] = useState([]);
 
   useEffect(() => {
-    turmaMethods.getAllTurmas().then((turmas) => {
-      setTurmas(turmas.data);
+    turmaMethods.getAllTurmas().then((response) => {
+      setTurmas(response.data);
     });
   }, []);
 

@@ -250,21 +250,5 @@ export const endpoints = {
     get_by_id: '/api/v1/profissionais/',
     update: '/api/v1/profissionais/',
     delete: '/api/v1/profissionais/',
-  },
-  /*mail: {
-    list: '/api/mail/list',
-    details: '/api/mail/details',
-    labels: '/api/mail/labels',
-  },
-  post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
-  },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
-  },*/
+  }
 };

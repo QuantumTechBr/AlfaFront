@@ -48,11 +48,9 @@ import {
   aplicacao_options,
 } from 'src/_mock';
 import planoIntervencaoMethods from './plano-intervencao-repository';
-import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import { TurmasContext } from '../turma/context/turma-context';
-import permissaoMethods from '../permissao/permissao-repository';
 import Alert from '@mui/material/Alert';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -66,8 +64,6 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import profissionalMethods from '../profissional/profissional-repository';
 import { useBoolean } from 'src/hooks/use-boolean';
-import Autocomplete from '@mui/material/Autocomplete';
-import { TextField } from '@mui/material';
 import alunoMethods from '../aluno/aluno-repository';
 import habilidadeMethods from '../habilidade/habilidade-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -75,7 +71,7 @@ import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/
 import { AuthContext } from 'src/auth/context/alfa';
 
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
-// ----------------------------------------------------------------------
+
 const filtros = {
   ano: '',
   fase: '',
@@ -113,14 +109,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   
   let aplicarInicial = '';
   let colunasDocumentosAntigos = [
-    // { field: 'id', headerName: 'ID', width: 70 },
     { field: 'nomeArquivo', headerName: 'Nome', width: 500 },
     { field: 'tamanho', headerName: 'Tamanho', width: 120 },
     { field: 'created_at', headerName: 'Criado em', width: 240 },
   ]
   
-
-
   if (currentPlano?.aplicacao) {
     if (currentPlano.aplicacao.alunos?.length > 0) {
       aplicarInicial = 'Alunos';
@@ -153,22 +146,20 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         preparado.onTrue(); 
       }
       profissionais.data.map((profissional) => {
-        // if (profissional.funcao.nome == "PROFESSOR") {
           let pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
           lp.push(pro)
-        // }
       });
       setListaProfissionais(lp);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de profissionais');
       preparado.onTrue(); 
     })
-    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(alunos => {
+    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
       let auto_complete_aluno = []
-      alunos.data.results.map((aluno) => {
+      response.data.results.map((aluno) => {
         let al = {
           label: aluno.nome,
           id: aluno.id,
@@ -218,7 +209,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     setMaxPermissaoUsuario(maxPU);
     let buscandoZona = [];
     if (permissao_values[maxPU] >= 6) { // COM BASE NA MAIOR PERMISSAO QUE O USUARIO TEM, MONTAMOS QUAIS ZONAS PODEM SER ESCOLHIDAS PARA APLICAR O PLANO
-      buscaZonas().then(zonas => setZonasUsuario(zonas)).catch((error) => {
+      buscaZonas().then(_zonas => setZonasUsuario(_zonas)).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de zonas');
       });
     } else {
@@ -311,7 +302,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -326,16 +316,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     getValues,
     formState: { isSubmitting },
   } = methods;
-
-  // useEffect(() => {
-  //   const subscription = watch((values, { name, type }) => {
-  //     if (type == 'change' && name == 'ano_escolar') {
-  //       setFilters(filtros)
-  //     }
-  //   });
-
-  //   return () => subscription.unsubscribe();
-  // }, [setFilters, watch]);
 
   const values = watch();
 
@@ -402,7 +382,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       enqueueSnackbar('Atualizado com sucesso!');
     } catch (error) {
       let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+        return ((msg[0] && msg[0].charAt(0))?.toUpperCase() ?? '') + (msg[0]?.slice(1) ?? '');
       });
       let mensagem = arrayMsg.join(' ');
       currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
@@ -416,8 +396,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const handleFilters = useCallback(
     async (nome, value) => {
-      // table.onResetPage();
-      // console.log(filters)
       const novosFiltros = {
         ...filters,
         [nome]: value,
@@ -466,16 +444,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     },
     [handleFilters]
   );
-
-  //const handleFilterAluno = useCallback(
-  //  (event) => {
-  //    handleFilters(
-  //      'alunos',
-  //      typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //    );
-  //  },
-  //  [handleFilters]
-  //);
 
   const handleSelectDocumentoAntigo = (event) => {
     setDocumentosAntigosSelecionados(event);
@@ -732,9 +700,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
 
                 <RHFSelect name="fase" label="Fase">
-                  {fases_options.map((fase) => (
-                    <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
-                      {fase}
+                  {fases_options.map((_fase) => (
+                    <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                      {_fase}
                     </MenuItem>
                   ))}
                 </RHFSelect>
@@ -754,9 +722,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 />
 
                 <RHFSelect name="aplicar" label="Aplicar Plano a...">
-                  {aplicacao_options_filtrado.map((aplicar) => (
-                    <MenuItem key={aplicar} value={aplicar}>
-                      {aplicar}
+                  {aplicacao_options_filtrado.map((_aplicar) => (
+                    <MenuItem key={_aplicar} value={_aplicar}>
+                      {_aplicar}
                     </MenuItem>
                   ))}
                 </RHFSelect>

@@ -255,8 +255,6 @@ export const _periodos = ['Inicial', 'Final'];
 
 export const _roles = [
   'Diretor',
-  /*'Acessor DDZ',
-  'Professor',*/
 ];
 
 export const _anos = [2024, 2023, 2022];

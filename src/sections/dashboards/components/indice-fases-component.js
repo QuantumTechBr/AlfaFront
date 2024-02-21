@@ -29,7 +29,7 @@ export default function IndiceFasesComponent({
           mb={0.2}
           px={5}
         >
-          <Box textAlign={'center'}>
+          <Box textAlign="center">
             <Typography
               mb={0}
               variant="subtitle2"
@@ -40,7 +40,7 @@ export default function IndiceFasesComponent({
               {value}
             </Typography>
           </Box>
-          <Box textAlign={'center'}>
+          <Box textAlign="center">
             <Typography variant="body2" fontSize={24} mb={0} fontWeight={800} lineHeight={1.2}>
               {indice_fases.chart.series.find((item) => item.label == value).value}
             </Typography>
@@ -85,7 +85,7 @@ export default function IndiceFasesComponent({
           <Grid
             key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
             container
-            flexDirection={'column'} // todo < lg row
+            flexDirection="column" // todo < lg row
           >
             {getFasesEmLinha()}
           </Grid>

@@ -38,7 +38,7 @@ export default function TurmaEditView({ id }) {
     })
   }, []);
 
-  const nomeBreadcrumbs = currentTurma?.ano_escolar + '° ' + currentTurma?.nome;
+  const nomeBreadcrumbs = (currentTurma?.ano_escolar ?? '') + '° ' + (currentTurma?.nome ?? '');
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

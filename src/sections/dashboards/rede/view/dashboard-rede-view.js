@@ -95,7 +95,7 @@ export default function DashboardRedeView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
-      let _filtersToSearch = _filters ?? filters;
+      const _filtersToSearch = _filters ?? filters;
 
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -112,15 +112,15 @@ export default function DashboardRedeView() {
       await Promise.all([
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           // adequação dos dados
-          let result = response.data.map((i) => {
-            let _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
-            let _alfabetizados = _.isArray(i.qtd_alfabetizado)
+          const result = response.data.map((i) => {
+            const _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            const _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado;
-            let _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
+            const _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
               ? _.last(i.qtd_nao_alfabetizado)
               : i.qtd_nao_alfabetizado;
-            let _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
+            const _deixou_de_frequentar = _.isArray(i.qtd_nao_avaliado)
               ? _.last(i.qtd_nao_avaliado)
               : i.qtd_nao_avaliado;
 
@@ -185,7 +185,7 @@ export default function DashboardRedeView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      let _filters = {
+      const _filters = {
         ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
       };
@@ -266,19 +266,19 @@ export default function DashboardRedeView() {
   }, [dados]);
 
   const calculaMeta = () => {
-    let _anos_metas = filters.anoEscolar.length
+    const _anos_metas = filters.anoEscolar.length
       ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
       : anos_metas;
-    let _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
+    const _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
     return _meta;
   };
 
   const getTotalAlfabetizados = () => {
-    let _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
+    const _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
     return _soma;
   };
   const getTotalEstudandesAvaliados = () => {
-    let _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
+    const _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
     return _soma;
   };
 
@@ -385,7 +385,7 @@ export default function DashboardRedeView() {
             {!isGettingGraphics.value && (
               <Grid xs={12}>
                 <IndiceAlfabetizacaoBimestreComponent
-                  title={'Índice de alfabetização - Bimestre'}
+                  title="Índice de alfabetização - Bimestre"
                   grid_ddz={dados.grid_ddz}
                 ></IndiceAlfabetizacaoBimestreComponent>
               </Grid>
@@ -513,8 +513,7 @@ function Row(props) {
     },
   }));
   return (
-    <>
-      <StyledTableRow
+    <StyledTableRow
         key={`tableStyledRowDash_${row.key}`}
         sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
       >
@@ -538,6 +537,5 @@ function Row(props) {
           </Button>
         </TableCell>
       </StyledTableRow>
-    </>
   );
 }

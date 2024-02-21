@@ -9,12 +9,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 // routes
@@ -28,11 +25,9 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 // components
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import { useSnackbar } from 'src/components/snackbar';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -124,7 +119,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   }, []);
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues: initialFormValues,
   });
 
@@ -146,10 +140,10 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     turmaToGetRegistros ??= turma;
     bimestreToGetRegistros ??= bimestre;
 
-    if (!!turmaToGetRegistros && !!bimestreToGetRegistros) {
+    if (turmaToGetRegistros && bimestreToGetRegistros) {
       setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
 
-      let registrosDaTurmaBimestre =
+      const registrosDaTurmaBimestre =
         await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
           turmaId: turmaToGetRegistros.id,
           bimestreId: bimestreToGetRegistros.id,
@@ -159,7 +153,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         });
       await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
         // resetField('registros');
-        let _newRegistros = [];
+        const _newRegistros = [];
         _turma.turmas_alunos.forEach((alunoTurmaItem) => {
           const registroEncontrado = last(
             registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
@@ -212,7 +206,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           return
         }
       }
-      let item = { ...retornoPadrao, ...formItem };
+      const item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       return item;
@@ -237,27 +231,27 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       prep.onTrue();
     });
     buscaTurmas().then((_turmas) => {
-      if (!!turmaInicial) {
-        if (!!_turmas) {
+      if (turmaInicial) {
+        if (_turmas) {
           const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
-          if (_turmaComplete && !!_turmaComplete.length) {
+          if (_turmaComplete && _turmaComplete.length) {
             setValue('turma', _turmaComplete[0]); // FORM INPUT
             turmaInicial = _turmaComplete[0];
           }
         }
       }
 
-      if (!!bimestreInicial) {
-        if (!!bimestres) {
+      if (bimestreInicial) {
+        if (bimestres) {
           const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
-          if (_bimestreComplete && !!_bimestreComplete.length) {
+          if (_bimestreComplete && _bimestreComplete.length) {
             setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
             bimestreInicial = _bimestreComplete[0];
           }
         }
       }
 
-      if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
+      if (turmaInicial && bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
       prep.onTrue();
@@ -265,8 +259,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
         <CustomBreadcrumbs
           heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
           links={[
@@ -362,7 +355,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           </Stack>
         </FormProvider>
       </Container>
-    </>
   );
 }
 

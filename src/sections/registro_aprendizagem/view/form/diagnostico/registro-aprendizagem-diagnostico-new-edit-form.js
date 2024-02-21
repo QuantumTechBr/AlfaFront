@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
@@ -42,7 +41,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   }
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -140,9 +138,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
       <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
-        {habilidades_options.map((hab) => (
+        {habilidades_options.map((hab,index) => (
           hab === '' ? ('') :
           (<Label
+            key={index}
             variant="soft"
             color={(hab === 'D' && 'success') ||
               (hab === 'DP' && 'warning') ||
