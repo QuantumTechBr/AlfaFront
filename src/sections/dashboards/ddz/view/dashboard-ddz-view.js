@@ -200,33 +200,39 @@ export default function DashboardDDZView() {
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
 
   useEffect(() => {
-    if (contextReady.value) {
-      const _filters = {
-        ...filters,
-        zona: zonas.find((z) => z.id == initialZona),
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-      };
-      setFilters(_filters);
-      preencheGraficos(_filters);
-    }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+    if(user && contextReady.value){
+      let _zonaFiltro = undefined;
 
-  useEffect(() => {
-    if (user?.funcao_usuario?.length > 0) {
-      let _zonaFiltro = '';
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        _zonaFiltro = user?.funcao_usuario[0]?.zona;
-      } else {
-        _zonaFiltro = user?.funcao_usuario[0]?.escola?.zona;
+      if (user?.funcao_usuario?.length > 0) {
+        if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
+          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
+        } else {
+          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id) ;
+        }
+      }
+
+      if(initialZona){
+        _zonaFiltro = zonas.find((z) => z.id == initialZona);
+      }
+
+      if(!_zonaFiltro){
+        _zonaFiltro = first(zonas);
       }
 
       setZonaFiltro(_zonaFiltro);
-      setFilters((prevState) => ({
-        ...prevState,
+
+      const _filters = {
+        ...filters,
         zona: _zonaFiltro,
-      }));
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+      };
+
+      setFilters(_filters);
+      preencheGraficos(_filters);
     }
-  }, [user?.funcao_usuario]);
+
+    
+  }, [contextReady.value, user, initialZona]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
