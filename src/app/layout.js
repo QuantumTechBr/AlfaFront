@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 // i18n
 import 'src/locales/i18n';
 
@@ -102,6 +104,8 @@ export default function RootLayout({ children }) {
             </SettingsProvider>
           </LocalizationProvider>
         </AuthProvider>
+        
+        <SpeedInsights />
       </body>
     </html>
   );
