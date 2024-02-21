@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-import _, { filter } from 'lodash';
+import _ from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
