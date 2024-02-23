@@ -367,7 +367,6 @@ export default function DashboardDDZView() {
                 <Button
                   variant="contained"
                   sx={{
-                  
                     width:{
                       xs: "100%",
                       md: "auto"

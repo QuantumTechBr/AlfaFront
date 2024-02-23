@@ -438,9 +438,8 @@ export default function DashboardTurmaView() {
               <Button
                 variant="contained"
                 sx={{
-                  
                   width:{
-                    xs: "100%",
+                    xs: "70%",
                     md: "auto"
                   }
                 }}
@@ -451,7 +450,15 @@ export default function DashboardTurmaView() {
                 Aplicar filtros
               </Button>
 
-              <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
+              <Button variant="soft" 
+                sx={{
+                  width:{
+                    xs: "calc(30% - 10px)",
+                    md: "auto"
+                  },
+                  marginLeft: {xs: "10px", md:2 }
+                }}
+                onClick={filtroReset}>
                 Limpar
               </Button>
             </Grid>

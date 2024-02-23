@@ -401,24 +401,32 @@ export default function DashboardEscolaView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={0}>
-                <Button
-                  variant="contained"
-                  sx={{
-                    width:{
-                      xs: "100%",
-                      md: "auto"
-                    }
-                  }}
-                  onClick={() => {
-                    preencheGraficos();
-                  }}
-                >
-                  Aplicar filtros
-                </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  width:{
+                    xs: "70%",
+                    md: "auto"
+                  }
+                }}
+                onClick={() => {
+                  preencheGraficos();
+                }}
+              >
+                Aplicar filtros
+              </Button>
 
-                <Button variant="soft" onClick={filtroReset} sx={{ margin: { left: 4 } }}>
-                  Limpar
-                </Button>
+              <Button variant="soft" 
+                sx={{
+                  width:{
+                    xs: "calc(30% - 10px)",
+                    md: "auto"
+                  },
+                  marginLeft: {xs: "10px", md:2 }
+                }}
+                onClick={filtroReset}>
+                Limpar
+              </Button>
               </Grid>
             </Stack>
 
