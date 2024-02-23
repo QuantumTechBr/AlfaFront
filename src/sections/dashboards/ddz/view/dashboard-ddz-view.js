@@ -111,6 +111,7 @@ export default function DashboardDDZView() {
 
   const preencheGraficos = useCallback(
     async (_filters) => {
+      table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
@@ -465,7 +466,7 @@ export default function DashboardDDZView() {
           <CardHeader title="Escolas" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-          <TableContainer sx={{ mt: 1, height: 500 }}>
+          <TableContainer sx={{ mt: 1, height: 50 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
             <Scrollbar>
               <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                 <TableHeadCustom
