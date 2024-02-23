@@ -78,7 +78,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={primaryFont.className}>
+    <html lang="pt-br" className={primaryFont.className}>
       <body>
         <AuthProvider>
           <LocalizationProvider>
