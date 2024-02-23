@@ -12,6 +12,7 @@ import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
 import { fNumber } from 'src/utils/format-number';
+import Scrollbar from 'src/components/scrollbar';
 
 import _ from 'lodash';
 
@@ -196,15 +197,17 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
         />
 
         {series.length && series.find((item) => item.year === seriesYearData) && (
-          <Box sx={{ mt: 3, mx: 3, overflowX: 'auto', overflowY: 'hidden' }}>
-            <Chart
-              dir="ltr"
-              type="bar"
-              height={364}
-              series={getChartSeries(seriesYearData)}
-              options={chartOptions}
-              width={chart.categories.length * getChartSeries(seriesYearData).length * 60}
-            />
+          <Box sx={{ mt: 3, mx: 3 }}>
+            <Scrollbar sx={{overflowY:'hidden'}}>
+              <Chart
+                dir="ltr"
+                type="bar"
+                height={364}
+                series={getChartSeries(seriesYearData)}
+                options={chartOptions}
+                width={chart.categories.length * getChartSeries(seriesYearData).length * 60}
+              />
+            </Scrollbar>
           </Box>
         )}
       </Card>
