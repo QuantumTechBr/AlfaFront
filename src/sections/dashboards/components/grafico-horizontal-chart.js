@@ -142,16 +142,16 @@ export default function GraficoHorizontalChart({
 
   return (
     <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
-        <Scrollbar>
-          <Chart
-            width="100%"
-            type="bar"
-            series={chartSeries}
-            options={chartOptions}
-            height={((series.length * 41) + 94) - 15}
-          />
-        </Scrollbar>
-      </Card>
+      <Scrollbar>
+        <Chart
+          width="100%"
+          type="bar"
+          series={chartSeries}
+          options={chartOptions}
+          height={series.length * 41 + 94 - 15}
+        />
+      </Scrollbar>
+    </Card>
   );
 }
 

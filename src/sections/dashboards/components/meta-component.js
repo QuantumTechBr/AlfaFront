@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Box, Card } from '@mui/material';
+import { Box, Card, Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -96,31 +96,37 @@ export default function MetaComponent({
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-evenly',
-        py: 0,
-        px: 0,
+        paddingX: 2,
+        paddingY: {
+          xs: 3,
+          md: 2
+        },
         color: `white`,
         backgroundColor: theme.palette[color].main,
         ...sx,
       }}
       {...other}
     >
-      <Box>
-        <Typography variant="h3" fontWeight="600">
-          {title}
-        </Typography>
-        <Typography variant="body2" fontWeight="500">
-          {subtitle}
-        </Typography>
-      </Box>
+      <Stack direction="row"  alignItems="center" spacing={2} justifyContent={'space-evenly'}  width={"100%"}>
+        <Box>
+          <Typography variant="h3" fontWeight="600">
+            {title}
+          </Typography>
+          <Typography variant="body2" fontWeight="500">
+            {subtitle}
+          </Typography>
+        </Box>
 
-      <Chart
-        type="radialBar"
-        series={[_percentDaMeta]}
-        options={chartOptions}
-        height={250}
-        width={190}
-      />
+        <Box paddingTop={2}>
+          <Chart
+            type="radialBar"
+            series={[_percentDaMeta]}
+            options={chartOptions}
+            height={200} 
+            width={150} // TODO CHECK SCREEN SIZE
+          />
+        </Box>
+      </Stack>
     </Card>
   );
 }

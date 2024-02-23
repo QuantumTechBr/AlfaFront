@@ -41,8 +41,8 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        columnWidth: '80%',
-        borderRadius: 15,
+        columnWidth: '95%',
+        borderRadius: 12,
         dataLabels: {
           position: 'top',
         },
@@ -162,9 +162,13 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     return <>Sem dados para exibir.</>;
   }
 
+  const getChartSeries = (_seriesYearData) => {
+    return series.find((item) => item.year === _seriesYearData)?.data ?? [];
+  };
+
   return (
     <>
-      <Card {...other}>
+      <Card sx={{paddingBottom: 3}} {...other}>
         <CardHeader
           title={title}
           subheader={subheader}
@@ -192,14 +196,14 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
         />
 
         {series.length && series.find((item) => item.year === seriesYearData) && (
-          <Box sx={{ mt: 3, mx: 3 }}>
+          <Box sx={{ mt: 3, mx: 3, overflowX: 'auto', overflowY: 'hidden' }}>
             <Chart
               dir="ltr"
               type="bar"
               height={364}
-              series={series.find((item) => item.year === seriesYearData).data}
+              series={getChartSeries(seriesYearData)}
               options={chartOptions}
-              width="100%"
+              width={chart.categories.length * getChartSeries(seriesYearData).length * 60}
             />
           </Box>
         )}
