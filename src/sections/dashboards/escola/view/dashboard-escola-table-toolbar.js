@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { useCallback, useContext } from 'react';
 
 // @mui
-import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
+import Grid from '@mui/material/Unstable_Grid2';
+
 
 // components
 import { AuthContext } from 'src/auth/context/alfa';
@@ -60,21 +61,10 @@ export default function DashboardEscolaTableToolbar({
     selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
 
   return (
-    <Stack
-      spacing={1}
-      alignItems={{ xs: 'flex-end', md: 'center' }}
-      direction={{
-        xs: 'column',
-        md: 'row',
-      }}
-    >
+    <Grid container spacing={2}>
       {anoLetivoOptions && !!anoLetivoOptions.length && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 120 },
-          }}
-        >
+        <Grid xs={6} md="auto">
+        <FormControl sx={{ width: {xs: "100%", md: 120 } }}>
           <InputLabel size="small">Ano Letivo</InputLabel>
 
           <Select
@@ -95,14 +85,11 @@ export default function DashboardEscolaTableToolbar({
             ))}
           </Select>
         </FormControl>
+        </Grid>
       )}
       {ddzOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 140 },
-          }}
-        >
+        <Grid xs={6} md="auto">
+        <FormControl sx={{ width: {xs: "100%", md: 140 } }}>
           <InputLabel size="small">DDZ</InputLabel>
           <Select
             size="small"
@@ -126,14 +113,11 @@ export default function DashboardEscolaTableToolbar({
             ))}
           </Select>
         </FormControl>
+        </Grid>
       )}
       {escolaOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
+        <Grid xs={6} md="auto">
+        <FormControl sx={{ width: {xs: "100%", md: 300 } }}>
           <InputLabel size="small">Escolas</InputLabel>
 
           <Select
@@ -157,15 +141,12 @@ export default function DashboardEscolaTableToolbar({
             ))}
           </Select>
         </FormControl>
+        </Grid>
       )}
 
       {anoEscolarOptions && (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 160 },
-          }}
-        >
+        <Grid xs={6} md="auto">
+        <FormControl sx={{ width: {xs: "100%", md: 160 } }}>
           <InputLabel size="small">Ano Escolar</InputLabel>
           <Select
             size="small"
@@ -196,8 +177,9 @@ export default function DashboardEscolaTableToolbar({
             ))}
           </Select>
         </FormControl>
+        </Grid>
       )}
-    </Stack>
+    </Grid>
   );
 }
 

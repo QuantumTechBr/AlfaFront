@@ -334,7 +334,6 @@ export default function DashboardRedeView() {
               <Button
                 variant="contained"
                 sx={{
-                  
                   width:{
                     xs: "100%",
                     md: "auto"

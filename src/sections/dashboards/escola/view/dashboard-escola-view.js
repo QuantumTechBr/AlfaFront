@@ -374,16 +374,23 @@ export default function DashboardEscolaView() {
         )}
 
         {!!contextReady.value && (
-          <Grid container spacing={3}>
-            <Stack
-              flexGrow={1}
-              direction="row"
-              alignItems="center"
-              justifyContent="start"
-              width="100%"
-              sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
-            >
-              <Grid xs={12} md="auto">
+          <>
+          <Stack
+            flexGrow={1}
+            direction={{
+              xs: "column",
+              md: "row"
+            }}
+            width="100%"
+            spacing={{
+              xs: 1,
+              md: 0
+            }}
+            alignItems="center"
+            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+            paddingY={1}
+          >
+            <Grid xs={12} md="auto" paddingY={0}>
                 <DashboardEscolaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -393,9 +400,15 @@ export default function DashboardEscolaView() {
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>
-              <Grid xs={12} md="auto">
+              <Grid xs={12} md="auto" paddingY={0}>
                 <Button
                   variant="contained"
+                  sx={{
+                    width:{
+                      xs: "100%",
+                      md: "auto"
+                    }
+                  }}
                   onClick={() => {
                     preencheGraficos();
                   }}
@@ -409,6 +422,7 @@ export default function DashboardEscolaView() {
               </Grid>
             </Stack>
 
+            <Grid container marginX={0} spacing={3} marginTop={3}>
             <Grid xs={12} md={4}>
               <NumeroComponent
                 title="Total de Estudantes"
@@ -484,6 +498,7 @@ export default function DashboardEscolaView() {
                 </Grid>
               )}
           </Grid>
+          </>
         )}
       </Grid>
 
@@ -517,7 +532,7 @@ export default function DashboardEscolaView() {
                     height={43}
                     emptyRows={emptyRows(
                       table.page,
-                      table.rowsePrPage,
+                      table.rowsPerPage,
                       dados.grid_professores.length
                     )}
                   />
@@ -572,7 +587,6 @@ function applyTableFilter({ inputData, comparator, filters }) {
 
 function Row(props) {
   const { row } = props;
-  const [open, setOpen] = useState(false);
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -586,7 +600,7 @@ function Row(props) {
   return (
     <StyledTableRow
       key={`tableStyledRowDash_${row.key}`}
-      sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
+      sx={{ '& > *': { borderBottom: 'unset' } }}
     >
       <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.professor}</TableCell>
       <TableCell>{row.turma_ano_escolar}º</TableCell>

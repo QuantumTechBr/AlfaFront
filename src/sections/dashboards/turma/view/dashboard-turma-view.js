@@ -405,16 +405,25 @@ export default function DashboardTurmaView() {
           </Grid>
         </Stack>
 
-        <Grid container spacing={3}>
+        {/* TODO  {!!contextReady.value && ( */}
+        
           <Stack
+            marginBottom={3}
             flexGrow={1}
-            direction="row"
-            alignItems="center"
-            justifyContent="start"
+            direction={{
+              xs: "column",
+              md: "row"
+            }}
             width="100%"
-            sx={{ position: 'sticky', top: 0, zIndex: 1101 }}
+            spacing={{
+              xs: 1,
+              md: 0
+            }}
+            alignItems="center"
+            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+            paddingY={1}
           >
-            <Grid xs={12} md="auto">
+            <Grid xs={12} md="auto" paddingY={0}>
               <DashboardTurmaTableToolbar
                 filters={filters}
                 onFilters={handleFilters}
@@ -425,9 +434,16 @@ export default function DashboardTurmaView() {
                 bimestreOptions={bimestres}
               />
             </Grid>
-            <Grid xs={12} md="auto">
+            <Grid xs={12} md="auto" paddingY={0}>
               <Button
                 variant="contained"
+                sx={{
+                  
+                  width:{
+                    xs: "100%",
+                    md: "auto"
+                  }
+                }}
                 onClick={() => {
                   preencheGraficos();
                 }}
@@ -440,6 +456,7 @@ export default function DashboardTurmaView() {
               </Button>
             </Grid>
           </Stack>
+          
           <Grid xs={12} md={4}>
             <NumeroComponent
               title="Total de Estudantes"
@@ -564,7 +581,7 @@ export default function DashboardTurmaView() {
             Ir para Avaliação por Componente
           </Button>
         </Grid>
-      </Grid>
+        
 
       <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
     </Container>
