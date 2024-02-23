@@ -27,7 +27,8 @@ export default function IndiceFasesComponent({
         <Grid
           key={`indice_fases_component_container_${slugify(title_indice_fases)}_${key}`}
           mb={2.2}
-          xs={12} 
+          xs={6} 
+          md={12}
           px={5}
         >
           <Box textAlign="center">
@@ -85,7 +86,8 @@ export default function IndiceFasesComponent({
           <Grid  xs={12} lg={2} xl={2} paddingTop={{md:5}}
             key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
             container
-            flexDirection={{xs: 'row', md: 'column'}} // todo < lg row
+            justifyContent={"center"}
+            direction={{xs: 'row', md: 'column'}}
           >
             {getFasesEmLinha()}
           </Grid>

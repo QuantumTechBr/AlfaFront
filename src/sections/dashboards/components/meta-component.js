@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
@@ -21,6 +21,8 @@ export default function MetaComponent({
   ...other
 }) {
   const theme = useTheme();
+  const screenIsMdUp = useMediaQuery(theme.breakpoints.up('md'));
+
 
   // CALCULO DO TOTAL DA META
   const _percentAlfabetizados = (alfabetizados / total) * 100;
@@ -97,10 +99,7 @@ export default function MetaComponent({
         display: 'flex',
         alignItems: 'center',
         paddingX: 2,
-        paddingY: {
-          xs: 3,
-          md: 2
-        },
+        paddingY: 2,
         color: `white`,
         backgroundColor: theme.palette[color].main,
         ...sx,
@@ -122,8 +121,8 @@ export default function MetaComponent({
             type="radialBar"
             series={[_percentDaMeta]}
             options={chartOptions}
-            height={200} 
-            width={150} // TODO CHECK SCREEN SIZE
+            width={screenIsMdUp ? 150 : 150 * 1.2}
+            height={screenIsMdUp ? 200 : 200 * 1.2} 
           />
         </Box>
       </Stack>

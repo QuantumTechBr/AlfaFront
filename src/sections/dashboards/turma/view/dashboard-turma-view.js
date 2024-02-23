@@ -567,7 +567,7 @@ export default function DashboardTurmaView() {
             color="info"
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.root_diagnostico}
-            sx={{ mr: 3 }}
+            sx={{ mr: 3, marginTop:2 }}
           >
             Ir para Avaliação Diagnóstica
           </Button>
@@ -576,7 +576,7 @@ export default function DashboardTurmaView() {
             color="info"
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.root_componente}
-            sx={{ mr: 3 }}
+            sx={{ mr: 3, marginTop:2 }}
           >
             Ir para Avaliação por Componente
           </Button>
