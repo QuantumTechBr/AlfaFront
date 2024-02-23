@@ -205,7 +205,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
                 height={364}
                 series={getChartSeries(seriesYearData)}
                 options={chartOptions}
-                width={chart.categories.length * getChartSeries(seriesYearData).length * 60}
+                width={chart.categories.length * getChartSeries(seriesYearData).length * 56}
               />
             </Scrollbar>
           </Box>
