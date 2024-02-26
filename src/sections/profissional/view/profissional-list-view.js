@@ -73,56 +73,12 @@ export default function ProfissionalListView() {
   const [_profissionalList, setProfissionalList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  const [countProfissionais, setCountProfissionais] = useState(0);
   const preparado = useBoolean(false);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-
-  useEffect(() => {
-    profissionalMethods.getAllProfissionais().then(profissionais => {
-      if (profissionais.data.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de profissionais');
-        preparado.onTrue(); 
-      }
-      const pros = profissionais.data;
-
-      for (var i = 0; i < pros.length; i++) {
-        const funcao = [];
-        const zona = [];
-        const escola = [];
-        if(pros[i].funcao_usuario?.length > 0 ){
-          for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
-            funcao.push(pros[i].funcao_usuario[index].funcao?.id);
-            escola.push(pros[i].funcao_usuario[index].escola?.id);
-            zona.push(pros[i].funcao_usuario[index].zona?.id);
-          }
-          pros[i].funcao = funcao[0] ? funcao[0] : '';
-          pros[i].escola = escola ? escola : '';
-          pros[i].zona = zona[0] ? zona[0] : '';
-        } else {
-          pros[i].funcao = '';
-          pros[i].escola = '';
-          pros[i].zona = '';
-        }
-        pros[i].status = pros[i].status.toString();
-      }
-
-      setProfissionalList(pros);
-      setTableData(pros);   
-      preparado.onTrue();  
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de profissionais');
-      preparado.onTrue(); 
-    })
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-      preparado.onTrue(); 
-    });
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
-      preparado.onTrue(); 
-  });
-  }, []);
-
+  const contextReady = useBoolean(false);
+  const [filters, setFilters] = useState(defaultFilters);
 
   const table = useTable();
 
@@ -134,15 +90,150 @@ export default function ProfissionalListView() {
 
   const [tableData, setTableData] = useState([]);
 
-  const [filters, setFilters] = useState(defaultFilters);
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+  const buscaProfissionais = useCallback(async (pagina=0, linhasPorPagina=25, oldProfissionalList=[], filtros=filters) => {
+    setWarningMsg('');
+    setErrorMsg('');
+    contextReady.onFalse();
+    const offset = (pagina)*linhasPorPagina;
+    const limit = linhasPorPagina;
+    const {nome, escola, role} = filtros;
+    
+    await profissionalMethods.getAllProfissionaisPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, }).then(async profissionais => {
+      if (profissionais.data.count == 0) {
+        setWarningMsg('A API retornou uma lista vazia de profissionais');
+        contextReady.onTrue();
+        preparado.onTrue();
+      } else {
+        const pros = profissionais.data.results;
 
-  const dataInPage = dataFiltered.slice(
+        for (var i = 0; i < pros.length; i++) {
+          const funcao = [];
+          const zona = [];
+          const escola = [];
+          if(pros[i].funcao_usuario?.length > 0 ){
+            for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
+              funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+              escola.push(pros[i].funcao_usuario[index].escola?.id);
+              zona.push(pros[i].funcao_usuario[index].zona?.id);
+            }
+            pros[i].funcao = funcao[0] ? funcao[0] : '';
+            pros[i].escola = escola ? escola : '';
+            pros[i].zona = zona[0] ? zona[0] : '';
+          } else {
+            pros[i].funcao = '';
+            pros[i].escola = '';
+            pros[i].zona = '';
+          }
+          pros[i].status = pros[i].status.toString();
+        }
+
+        setProfissionalList([...oldProfissionalList, ...pros]);
+        setTableData([...oldProfissionalList, ...pros]);   
+        // const listaProfissionais = profissionais.data.results;
+        // setProfissionalList([...oldProfissionalList, ...listaProfissionais]);
+        // setTableData([...oldProfissionalList, ...listaProfissionais]);
+        contextReady.onTrue();
+      }
+      setCountProfissionais(profissionais.data.count);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de profissionais');
+      console.log(error);
+      contextReady.onTrue();
+      preparado.onTrue();
+    });
+  }, [contextReady, filters]);
+
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue(); 
+      }),
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+        preparado.onTrue();
+      }),
+      buscaProfissionais(table.page, table.rowsPerPage).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de profissinais');
+        console.log(error);
+      })
+    ]);
+    contextReady.onTrue();
+    preparado.onTrue();
+  }, [buscaEscolas, buscaProfissionais, contextReady, table.page, table.rowsPerPage]);
+
+  const onChangePage = async (event, newPage) => {
+    if (_profissionalList.length < (newPage+1)*table.rowsPerPage) {
+      buscaProfissionais(newPage, table.rowsPerPage, _profissionalList);
+    }
+    table.setPage(newPage);
+  };
+
+  const onChangeRowsPerPage = useCallback((event) => {
+    table.setPage(0);
+    table.setRowsPerPage(parseInt(event.target.value, 10));
+    setProfissionalList([]);
+    setTableData([]);
+    buscaProfissionais(0, event.target.value);
+  }, [buscaProfissionais, table]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+  // useEffect(() => {
+  //   profissionalMethods.getAllProfissionais().then(profissionais => {
+  //     if (profissionais.data.length == 0) {
+  //       setWarningMsg('A API retornou uma lista vazia de profissionais');
+  //       preparado.onTrue(); 
+  //     }
+  //     const pros = profissionais.data;
+
+  //     for (var i = 0; i < pros.length; i++) {
+  //       const funcao = [];
+  //       const zona = [];
+  //       const escola = [];
+  //       if(pros[i].funcao_usuario?.length > 0 ){
+  //         for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
+  //           funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+  //           escola.push(pros[i].funcao_usuario[index].escola?.id);
+  //           zona.push(pros[i].funcao_usuario[index].zona?.id);
+  //         }
+  //         pros[i].funcao = funcao[0] ? funcao[0] : '';
+  //         pros[i].escola = escola ? escola : '';
+  //         pros[i].zona = zona[0] ? zona[0] : '';
+  //       } else {
+  //         pros[i].funcao = '';
+  //         pros[i].escola = '';
+  //         pros[i].zona = '';
+  //       }
+  //       pros[i].status = pros[i].status.toString();
+  //     }
+
+  //     setProfissionalList(pros);
+  //     setTableData(pros);   
+  //     preparado.onTrue();  
+  //   }).catch((error) => {
+  //     setErrorMsg('Erro de comunicação com a API de profissionais');
+  //     preparado.onTrue(); 
+  //   })
+  //   buscaEscolas().catch((error) => {
+  //     setErrorMsg('Erro de comunicação com a API de escolas');
+  //     preparado.onTrue(); 
+  //   });
+  //   buscaFuncoes().catch((error) => {
+  //     setErrorMsg('Erro de comunicação com a API de funções');
+  //     preparado.onTrue(); 
+  // });
+
+  // profissionalMethods.getAllProfissionaisPaginado({offset: 0, limit: 200}).then((profissionais) => {
+  //   console.log(profissionais)
+  // })
+  // }, []);
+
+
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
@@ -151,18 +242,23 @@ export default function ProfissionalListView() {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
+    async (nome, value) => {
       table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
+      const novosFiltros = {
+        ...filters,
         [nome]: value,
-      }));
+      }
+      setFilters(novosFiltros);
+      setTableData([]);
+      setProfissionalList([]);
+      buscaProfissionais(table.page, table.rowsPerPage, [], novosFiltros);
     },
-    [table]
+    [table, filters, buscaProfissionais]
   );
+
 
   const handleDeleteRow = useCallback(
     (id) => {
@@ -202,9 +298,9 @@ export default function ProfissionalListView() {
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
+      totalRowsFiltered: tableData.length,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -214,8 +310,17 @@ export default function ProfissionalListView() {
   );
 
   const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
+    const resetFilters = {
+      nome: '',
+      escola: [],
+      role: [],
+    };
+    setTableData([]);
+    setProfissionalList([]);
+    setFilters(resetFilters);
+    buscaProfissionais(table.page, table.rowsPerPage);
+
+  }, [buscaProfissionais, table.page, table.rowsPerPage]);
 
   return (
     <>
@@ -262,7 +367,7 @@ export default function ProfissionalListView() {
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={tableData.length}
               roleOptions={funcoes}
               escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
@@ -310,7 +415,7 @@ export default function ProfissionalListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {tableData
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -338,11 +443,11 @@ export default function ProfissionalListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={countProfissionais}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
