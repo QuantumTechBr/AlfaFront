@@ -106,7 +106,7 @@ export default function MetaComponent({
       }}
       {...other}
     >
-      <Stack direction="row"  alignItems="center" spacing={2} justifyContent={'space-evenly'}  width={"100%"}>
+      <Stack direction="row"  alignItems="center" spacing={2} justifyContent='space-evenly'  width="100%">
         <Box>
           <Typography variant="h3" fontWeight="600">
             {title}

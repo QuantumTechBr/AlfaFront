@@ -86,7 +86,7 @@ export default function IndiceFasesComponent({
           <Grid  xs={12} lg={2} xl={2} paddingTop={{md:5}}
             key={`indice_fases_component_container_row_grid_${slugify(title_indice_fases)}`}
             container
-            justifyContent={"center"}
+            justifyContent="center"
             direction={{xs: 'row', md: 'column'}}
           >
             {getFasesEmLinha()}
