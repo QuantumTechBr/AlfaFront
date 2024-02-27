@@ -12,6 +12,7 @@ import Chart, { useChart } from 'src/components/chart';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { RegistroAprendizagemFases, RegistroAprendizagemFasesColors } from 'src/_mock';
 import { fNumber } from 'src/utils/format-number';
+import Scrollbar from 'src/components/scrollbar';
 
 import _ from 'lodash';
 
@@ -41,8 +42,8 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        columnWidth: '80%',
-        borderRadius: 15,
+        columnWidth: '95%',
+        borderRadius: 12,
         dataLabels: {
           position: 'top',
         },
@@ -162,9 +163,13 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     return <>Sem dados para exibir.</>;
   }
 
+  const getChartSeries = (_seriesYearData) => {
+    return series.find((item) => item.year === _seriesYearData)?.data ?? [];
+  };
+
   return (
     <>
-      <Card {...other}>
+      <Card sx={{paddingBottom: 3}} {...other}>
         <CardHeader
           title={title}
           subheader={subheader}
@@ -193,14 +198,16 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
 
         {series.length && series.find((item) => item.year === seriesYearData) && (
           <Box sx={{ mt: 3, mx: 3 }}>
-            <Chart
-              dir="ltr"
-              type="bar"
-              height={364}
-              series={series.find((item) => item.year === seriesYearData).data}
-              options={chartOptions}
-              width="100%"
-            />
+            <Scrollbar sx={{overflowY:'hidden'}}>
+              <Chart
+                dir="ltr"
+                type="bar"
+                height={364}
+                series={getChartSeries(seriesYearData)}
+                options={chartOptions}
+                width={chart.categories.length * getChartSeries(seriesYearData).length * 56}
+              />
+            </Scrollbar>
           </Box>
         )}
       </Card>

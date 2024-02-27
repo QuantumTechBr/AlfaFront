@@ -42,7 +42,7 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   });
 
   const indice_geral = {
-    zona_nome: 'Geral',
+    zona_nome: 'GERAL',
     percent_alfabetizado: _.range(_qtd_bimestres).map((index) =>
       _percentCalc(
         _.sumBy(dados, (s) => s.qtd_alfabetizado[index]),
@@ -205,7 +205,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
     },
     stroke: {
       width: _.fill(_.range(qtd_bimestres + 1), 4, 0, qtd_bimestres + 1),
-      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha], // TODO USE LODASH FILL
+      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha],
       curve: 'straight',
       lineCap: 'round',
     },

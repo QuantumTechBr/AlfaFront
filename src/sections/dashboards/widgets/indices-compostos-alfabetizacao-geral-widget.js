@@ -19,7 +19,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
 
   return (
     <Box width="100%" mb={0}>
-      <Stack direction="row">
+      <Stack direction={{xs: 'column', md: 'row'}}>
         {indice_alfabetizacao.length > 0 && (
           <Grid xs={12} lg={7} xl={8}>
             <GraficoHorizontalChart
@@ -31,15 +31,6 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
                     x: ia.title,
                     y: ia.indice_alfabetizacao,
                     alfabetizados: ia.alfabetizados,
-                    // goals: [
-                    //   {
-                    //     name: 'Meta',
-                    //     value: _.random(90, 100, false), 
-                    //     strokeWidth: 3,
-                    //     strokeDashArray: 0,
-                    //     strokeColor: '#775DD0',
-                    //   },
-                    // ],
                   };
                 }),
               }}
