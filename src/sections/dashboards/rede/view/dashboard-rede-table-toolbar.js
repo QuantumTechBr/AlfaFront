@@ -3,13 +3,13 @@ import PropTypes from 'prop-types';
 import { useCallback } from 'react';
 
 // @mui
-import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
+import Grid from '@mui/material/Unstable_Grid2';
 
 // components
 import _ from 'lodash';
@@ -33,23 +33,11 @@ export default function DashboardRedeTableToolbar({
   );
 
   return (
-    <Stack
-        spacing={1}
-        alignItems={{ xs: 'flex-end', md: 'center' }}
-        direction={{
-          xs: 'column',
-          md: 'row',
-        }}
-      >
-        {anoLetivoOptions && !!anoLetivoOptions.length && (
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 120 },
-            }}
-          >
+    <Grid container spacing={2}>
+      {anoLetivoOptions && !!anoLetivoOptions.length && (
+        <Grid xs={6} md="auto">
+        <FormControl sx={{ width: {xs: "100%", md: 120 } }}>
             <InputLabel size="small">Ano Letivo</InputLabel>
-
             <Select
               size="small"
               value={filters.anoLetivo}
@@ -68,15 +56,12 @@ export default function DashboardRedeTableToolbar({
               ))}
             </Select>
           </FormControl>
-        )}
+        </Grid>
+      )}
 
-        {anoEscolarOptions && (
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 160 },
-            }}
-          >
+      {anoEscolarOptions && (
+        <Grid xs={6} md="auto">
+          <FormControl sx={{ width: {xs: "100%", md: 120 } }}>
             <InputLabel size="small">Ano Escolar</InputLabel>
             <Select
               size="small"
@@ -107,8 +92,9 @@ export default function DashboardRedeTableToolbar({
               ))}
             </Select>
           </FormControl>
-        )}
-      </Stack>
+        </Grid>
+      )}
+    </Grid>
   );
 }
 

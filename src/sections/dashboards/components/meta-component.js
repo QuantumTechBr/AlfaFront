@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 // @mui
 import { alpha, useTheme } from '@mui/material/styles';
-
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Box, Card } from '@mui/material';
+import { Box, Card, Stack } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -21,6 +21,8 @@ export default function MetaComponent({
   ...other
 }) {
   const theme = useTheme();
+  const screenIsMdUp = useMediaQuery(theme.breakpoints.up('md'));
+
 
   // CALCULO DO TOTAL DA META
   const _percentAlfabetizados = (alfabetizados / total) * 100;
@@ -96,31 +98,34 @@ export default function MetaComponent({
         height: '100%',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-evenly',
-        py: 0,
-        px: 0,
+        paddingX: 2,
+        paddingY: 2,
         color: `white`,
         backgroundColor: theme.palette[color].main,
         ...sx,
       }}
       {...other}
     >
-      <Box>
-        <Typography variant="h3" fontWeight="600">
-          {title}
-        </Typography>
-        <Typography variant="body2" fontWeight="500">
-          {subtitle}
-        </Typography>
-      </Box>
+      <Stack direction="row"  alignItems="center" spacing={2} justifyContent='space-evenly'  width="100%">
+        <Box>
+          <Typography variant="h3" fontWeight="600">
+            {title}
+          </Typography>
+          <Typography variant="body2" fontWeight="500">
+            {subtitle}
+          </Typography>
+        </Box>
 
-      <Chart
-        type="radialBar"
-        series={[_percentDaMeta]}
-        options={chartOptions}
-        height={250}
-        width={190}
-      />
+        <Box paddingTop={2}>
+          <Chart
+            type="radialBar"
+            series={[_percentDaMeta]}
+            options={chartOptions}
+            width={screenIsMdUp ? 150 : 150 * 1.2}
+            height={screenIsMdUp ? 200 : 200 * 1.2} 
+          />
+        </Box>
+      </Stack>
     </Card>
   );
 }

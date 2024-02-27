@@ -163,7 +163,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
     <Box {...other}>
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
-        {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
+        {!!ano_escolar && (<Box sx={{ width: 260, mt: 2, mr:{ xs: 2, md:0 } }}>
           <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
             Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
           </Typography>

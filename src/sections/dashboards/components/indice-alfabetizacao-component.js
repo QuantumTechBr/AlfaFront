@@ -117,7 +117,7 @@ export default function IndiceAlfabetizacaoComponent({
         sx={{ mb: 1 }}
       />
 
-      <Stack direction="row" justifyContent="space-evenly">
+      <Stack paddingX={{xs:4, md: 1 }} spacing={{xs:0, md: 1 }} direction={{xs:"column", md:"row"}} justifyContent="space-evenly">
         {getLegend()}
       </Stack>
     </Card>
