@@ -34,7 +34,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 // ----------------------------------------------------------------------
 
-export default function UserQuickEditForm({ currentUser, open, onClose }) {
+export default function UserQuickEditForm({ currentUser, open, onClose, onSave }) {
 
   const defaultFilters = {
     escolasAG: [],
@@ -198,22 +198,21 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         } else {
           novoUsuario.funcao_usuario = [{
             funcao_id: data.funcao,
-            escola_id: data.escola,
+            escola_id: data.escola, // TODO CHECK: ao alterar DIRETOR sem nenhuma alteração envia no payload um Array e isso retorna ERRO da API
           }];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao);
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
+      novoUsuario.permissao_usuario_id = [permissao.id];
 
-        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-          throw error;
-        });
+      const retornoPatch = await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+        throw error;
+      });
 
-      reset();
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       const arrayMsg = Object.values(error).map((msg) => {
         return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
@@ -370,7 +369,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
           <DialogActions>
             <Button variant="outlined" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
 
             <LoadingButton disabled={liberaSalvar.value} type="submit" variant="contained" loading={isSubmitting}>
@@ -386,5 +385,6 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 UserQuickEditForm.propTypes = {
   currentUser: PropTypes.object,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
   open: PropTypes.bool,
 };
