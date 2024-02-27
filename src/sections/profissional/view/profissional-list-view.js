@@ -47,7 +47,8 @@ import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import userMethods from 'src/sections/user/user-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
-
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 
@@ -70,6 +71,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function ProfissionalListView() {
+  const { checkPermissaoModulo } = useAuthContext();
 
   const [_profissionalList, setProfissionalList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
@@ -288,6 +290,7 @@ export default function ProfissionalListView() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: "#00A5AD",
+                visibility: checkPermissaoModulo('profissionais', 'cadastrar') ? "inherit" : "hidden",
               }}
             >
               Adicionar

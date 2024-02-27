@@ -24,11 +24,14 @@ import { ZonasContext } from '../zona/context/zona-context';
 //
 import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 import Typography from '@mui/material/Typography';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 
 
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
   // console.log(row)
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
@@ -138,9 +141,10 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
+          {checkPermissaoModulo('profissionais', 'editar') && 
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            </IconButton>}
           </Tooltip>
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -149,7 +153,9 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      {checkPermissaoModulo('profissionais', 'editar') && 
+        <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      }
 
       <CustomPopover
         open={popover.open}
@@ -157,6 +163,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        {checkPermissaoModulo('profissionais', 'deletar') && 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -166,8 +173,9 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
+        </MenuItem> }
 
+        {checkPermissaoModulo('profissionais', 'editar') && 
         <MenuItem
           onClick={() => {
             onEditRow();
@@ -176,7 +184,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         >
           <Iconify icon="solar:pen-bold" />
           Editar
-        </MenuItem>
+        </MenuItem>}
       </CustomPopover>
 
       <ConfirmDialog
