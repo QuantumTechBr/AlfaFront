@@ -114,7 +114,7 @@ export default function ProfissionalListView() {
           if(pros[i].funcao_usuario?.length > 0 ){
             for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
               funcao.push(pros[i].funcao_usuario[index].funcao?.id);
-              escola.push(pros[i].funcao_usuario[index].escola?.id);
+              proEscola.push(pros[i].funcao_usuario[index].escola?.id);
               zona.push(pros[i].funcao_usuario[index].zona?.id);
             }
             pros[i].funcao = funcao[0] ? funcao[0] : '';
