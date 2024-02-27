@@ -110,7 +110,7 @@ export default function ProfissionalListView() {
         for (var i = 0; i < pros.length; i++) {
           const funcao = [];
           const zona = [];
-          const escola = [];
+          const proEscola = [];
           if(pros[i].funcao_usuario?.length > 0 ){
             for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
               funcao.push(pros[i].funcao_usuario[index].funcao?.id);
@@ -118,7 +118,7 @@ export default function ProfissionalListView() {
               zona.push(pros[i].funcao_usuario[index].zona?.id);
             }
             pros[i].funcao = funcao[0] ? funcao[0] : '';
-            pros[i].escola = escola ? escola : '';
+            pros[i].escola = proEscola ? proEscola : '';
             pros[i].zona = zona[0] ? zona[0] : '';
           } else {
             pros[i].funcao = '';
