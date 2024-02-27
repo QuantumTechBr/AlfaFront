@@ -316,7 +316,7 @@ export default function AlunoListView() {
               faseOptions={fases}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={tableData.length}
+              results={countAlunos}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
