@@ -18,11 +18,13 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 //
 import AlunoQuickEditForm from './aluno-quick-edit-form';
 import parse from 'date-fns/parse';
+import { useAuthContext } from 'src/auth/hooks';
 
 
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const { id, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
@@ -69,9 +71,10 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
+          {checkPermissaoModulo('aluno', 'editar') && 
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            </IconButton>}
           </Tooltip>
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -80,7 +83,9 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
       </TableRow>
 
-      <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      {checkPermissaoModulo('aluno', 'editar') && 
+        <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      }
 
       <CustomPopover
         open={popover.open}
@@ -88,6 +93,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        {checkPermissaoModulo('aluno', 'deletar') && 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -97,8 +103,9 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
+        </MenuItem>}
 
+        {checkPermissaoModulo('aluno', 'editar') && 
         <MenuItem
           onClick={() => {
             onEditRow();
@@ -107,7 +114,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         >
           <Iconify icon="solar:pen-bold" />
           Editar
-        </MenuItem>
+        </MenuItem>}
       </CustomPopover>
 
       <ConfirmDialog
