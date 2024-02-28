@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 // @mui
@@ -32,9 +33,16 @@ import { TurmasContext } from '../turma/context/turma-context';
 import { AuthContext } from 'src/auth/context/alfa';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
+import LoadingBox from 'src/components/helpers/loading-box';
+import _ from 'lodash';
+
 // ----------------------------------------------------------------------
 
-export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
+export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
+  const [currentAluno, setCurrentAluno] = useState();
+
+  const contextReady = useBoolean(false);
+  
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
   const { user } = useContext(AuthContext);
@@ -43,25 +51,61 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
-  // console.log(currentAluno)
-  const alunoNascimento = parseISO(currentAluno.data_nascimento);
-
-  const NewTurmaSchema = Yup.object().shape({
+    const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     matricula: Yup.string().required('Matrícula é obrigatória'),
     data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
   });
+
+  useEffect(() => {
+    contextReady.onFalse();
+    setErrorMsg('');
+    if (open) {
+      Promise.all([
+        buscaEscolas()
+          .then((_escolas) => setEscolasAssessor(_escolas))
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de escolas');
+          }),
+        buscaTurmas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turmas');
+        }),
+        buscaAnosLetivos().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de anos letivos');
+        }),
+        alunoMethods.getAlunoById(id).then((aluno) => {
+          const _currentAluno = Object.assign(aluno.data);
+          _currentAluno.data_nascimento = parseISO(_currentAluno.data_nascimento);
+          setCurrentAluno(_currentAluno);
+        }),
+      ]).then(() => {
+        contextReady.onTrue();
+      });
+    }
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, open]);
+
+useEffect(() => {
+  if (contextReady.value) {
+    if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+      setValue('escola', user.funcao_usuario[0].escola.id);
+    } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
+      setEscolasAssessor(
+        escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
+      );
+    }
+  }
+}, [contextReady.value]);
 
 
   const defaultValues = useMemo(
     () => ({
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
-      data_nascimento: alunoNascimento,
+      data_nascimento: currentAluno?.data_nascimento || '',
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
-    [currentAluno, alunoNascimento]
+    [currentAluno]
   );
 
   const methods = useForm({
@@ -110,40 +154,26 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
         alunoEscolas: aluno_escolas,
         alunos_turmas: aluno_turmas
       }
-      await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
+      
+      const retornoPatch = await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
         throw error;
       });
-      reset() 
-      onClose();
+      
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização do estudante falhou');
       console.error(error);
     }
   });
 
-  useEffect(()  => {
-    buscaEscolas().then((_escolas) => setEscolasAssessor(_escolas)).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaTurmas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
-    });
-    buscaAnosLetivos().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de anos letivos');
-    });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
-
-  useEffect(()  => {
-    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
-      setValue('escola', user.funcao_usuario[0].escola.id)  
-    } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
-    } 
-  }, [escolas, setValue, user.funcao_usuario]);
-
+  useEffect(() => {
+    if(currentAluno){
+      reset(defaultValues);
+    }
+  }, [currentAluno]);
+  
   return (
     <Dialog
       fullWidth
@@ -154,6 +184,10 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
+
+      {!contextReady.value && <LoadingBox />}
+
+      {contextReady.value && (
       <FormProvider methods={methods} onSubmit={onSubmit}>
         <DialogTitle>Edição Rápida</DialogTitle>
 
@@ -211,7 +245,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
@@ -219,6 +253,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
           </LoadingButton>
         </DialogActions>
       </FormProvider>
+      )}
     </Dialog>
   );
 }
@@ -226,5 +261,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
 AlunoQuickEditForm.propTypes = {
   currentAluno: PropTypes.object,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
+
   open: PropTypes.bool,
 };
