@@ -43,7 +43,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
   const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(filtros);
   const contextReady = useBoolean(false);
-  const initialDataReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -58,6 +57,9 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
+    contextReady.onFalse();
+    setErrorMsg('');
+
     Promise.all([
       buscaFuncoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de funções');
@@ -71,11 +73,36 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       buscaPermissoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de permissoes');
       }),
+      userMethods.getUserById(id).then((profissional) => {
+        const _currentUser = Object.assign(profissional.data);
+
+        _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
+        _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
+        _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
+
+        setCurrentUser(_currentUser);
+      }),
     ]).then(() => {
       contextReady.onTrue();
     });
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
 
+  useEffect(() => {
+    if (contextReady.value) {
+      const idsAC = [];
+      let idAG = '';
+      funcoes.map((_funcao) => {
+        if (_funcao.nome == 'ASSESSOR DDZ' || _funcao.nome == 'COORDENADOR DE GESTÃO') {
+          idsAC.push(_funcao.id);
+        } else if (_funcao.nome == 'ASSESSOR DE GESTÃO') {
+          idAG = _funcao.id;
+        }
+      });
+      setIdsAssessorCoordenador(idsAC);
+      setIdAssessorGestao(idAG);
+    }
+  }, [contextReady.value]);
+  
   useEffect(() => {
     if (currentUser) {
       //
@@ -96,43 +123,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       setFilters(novosFiltros);
     }
   }, [currentUser]);
-
-  useEffect(() => {
-    initialDataReady.onFalse();
-    if (open) {
-      setErrorMsg('');
-      userMethods
-        .getUserById(id)
-        .then((profissional) => {
-          const _currentUser = Object.assign(profissional.data);
-
-          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
-          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
-          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
-
-          setCurrentUser(_currentUser);
-        })
-        .then(() => {
-          initialDataReady.onTrue();
-        });
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (contextReady.value) {
-      const idsAC = [];
-      let idAG = '';
-      funcoes.map((_funcao) => {
-        if (_funcao.nome == 'ASSESSOR DDZ' || _funcao.nome == 'COORDENADOR DE GESTÃO') {
-          idsAC.push(_funcao.id);
-        } else if (_funcao.nome == 'ASSESSOR DE GESTÃO') {
-          idAG = _funcao.id;
-        }
-      });
-      setIdsAssessorCoordenador(idsAC);
-      setIdAssessorGestao(idAG);
-    }
-  }, [contextReady.value]);
 
   useEffect(() => {
     if (permissoes.length > 0) {
@@ -178,8 +168,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
   } = methods;
 
   const values = watch();
-
-  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -381,9 +369,9 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value || (!initialDataReady.value && <LoadingBox />)}
+      {!contextReady.value && <LoadingBox />}
 
-      {contextReady.value && initialDataReady.value && (
+      {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
           <DialogTitle>Edição Rápida</DialogTitle>
 
