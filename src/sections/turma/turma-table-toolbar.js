@@ -95,10 +95,10 @@ export default function TurmaTableToolbar({
               },
             }}
           >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
+            {ddzOptions?.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option.id)} />
+                {option.nome}
               </MenuItem>
             ))}
           </Select>
