@@ -60,7 +60,6 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
   useEffect(() => {
     contextReady.onFalse();
     setErrorMsg('');
-
     if (open) {
       Promise.all([
         buscaFuncoes().catch((error) => {
@@ -77,18 +76,16 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
         }),
         userMethods.getUserById(id).then((usuario) => {
           const _currentUser = Object.assign(usuario.data);
-
           _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
           _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
           _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
-
           setCurrentUser(_currentUser);
         }),
       ]).then(() => {
         contextReady.onTrue();
       });
     }
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
 
   useEffect(() => {
     if(currentUser){

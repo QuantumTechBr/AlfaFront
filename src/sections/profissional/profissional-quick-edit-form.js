@@ -59,7 +59,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
   useEffect(() => {
     contextReady.onFalse();
     setErrorMsg('');
-
     if (open) {
       Promise.all([
         buscaFuncoes().catch((error) => {
