@@ -38,18 +38,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [errorMsg, setErrorMsg] = useState('');
-  
-
-  const user = {
-    id: row?.id,
-    nome: row?.profissional,
-    email: row?.email,
-    funcao: row?.funcao,
-    escola: row?.escola,
-    zona: row?.zona,
-    turma: row?.turma,
-    status: row?.status
-  }
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -158,7 +146,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
       </TableRow>
 
       {checkPermissaoModulo('profissionais', 'editar') && 
-        <ProfissionalQuickEditForm id={user.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
+        <ProfissionalQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
       }
 
       <CustomPopover

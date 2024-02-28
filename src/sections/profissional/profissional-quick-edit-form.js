@@ -34,7 +34,6 @@ import Checkbox from '@mui/material/Checkbox';
 import LoadingBox from 'src/components/helpers/loading-box';
 
 import _ from 'lodash';
-import profissionalMethods from './profissional-repository';
 
 // ----------------------------------------------------------------------
 const filtros = {
@@ -102,8 +101,8 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
     initialDataReady.onFalse();
     if (open) {
       setErrorMsg('');
-      profissionalMethods
-        .getProfissionalById(id)
+      userMethods
+        .getUserById(id)
         .then((profissional) => {
           const _currentUser = Object.assign(profissional.data);
 
@@ -245,8 +244,9 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       const retornoPatch = await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
         throw error;
       });
-
       
+      retornoPatch.data.profissional = retornoPatch.data.nome;
+
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
       reset();
