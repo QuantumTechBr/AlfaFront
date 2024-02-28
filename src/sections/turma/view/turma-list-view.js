@@ -20,7 +20,7 @@ import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 // _mock
-import { _ddzs, USER_STATUS_OPTIONS } from 'src/_mock';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -48,6 +48,7 @@ import TurmaTableFiltersResult from '../turma-table-filters-result';
 import { AuthContext } from 'src/auth/context/alfa';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 // ----------------------------------------------------------------------
@@ -70,13 +71,27 @@ const defaultFilters = {
 export default function TurmaListView() {
 
   const { checkPermissaoModulo } = useContext(AuthContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { turmas, buscaTurmasPaginado } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const [turmaList, setTurmaList] = useState([]);
+  const [countTurmas, setCountTurmas] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  const preparado = useBoolean(false);
+  
+  const [mapCachePromises, setMapCachePromises] = useState(new Map());
+  
+  const contextReady = useBoolean(false);
   
   const permissaoCadastrar = checkPermissaoModulo("turma","cadastrar");
+
+  const table = useTable();
+
+  const settings = useSettingsContext();
+
+  const router = useRouter();
+
+  const confirm = useBoolean();
 
   const TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }]: []),
@@ -92,43 +107,68 @@ export default function TurmaListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
-  useEffect(() => {
-    buscaTurmas({force:true}).then((_turmas) => {
-      if (_turmas.length == 0) {
+  const buscarTurmas = useCallback(async (pagina=0, linhasPorPagina=25, oldTurmaList=[], filtros=filters) => {
+    setWarningMsg('');
+    setErrorMsg('');
+    contextReady.onFalse(); 
+    const offset = (pagina)*linhasPorPagina;
+    const limit = linhasPorPagina;
+    const {nome, escola, ddz} = filtros;
+    
+    await buscaTurmasPaginado({args:{offset, limit, nome, ddzs: ddz, escolas: escola, status:''}}).then(async resultado => {
+
+      if (resultado.count  == 0) {
         setWarningMsg('A API retornou uma lista vazia de turmas');
+        contextReady.onTrue();
+      } else {
+        const listaTurmas = resultado.results;
+        listaTurmas.map((turma) => {
+          turma.status = turma.status.toString()
+        })
+        setTurmaList([...oldTurmaList, ...listaTurmas]);
+        setTableData([...oldTurmaList, ...listaTurmas]);
+        contextReady.onTrue();
       }
-      _turmas.map((turma) => {
-        turma.status = turma.status.toString()
-      })
-      setTableData(_turmas);
-      preparado.onTrue();
+      setCountTurmas(resultado.count);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
-      preparado.onTrue();
+      console.log(error);
+      contextReady.onTrue();
     });
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-      preparado.onTrue();
-    });
-    
-  }, []);
-  
-  const table = useTable();
+  }, [contextReady, filters]);
 
-  const settings = useSettingsContext();
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaZonas().catch((error)=> {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscarTurmas(table.page, table.rowsPerPage).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas');
+        console.log(error);
+      })
+    ]);
+    contextReady.onTrue();
+  }, [buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
 
-  const router = useRouter();
+  const onChangePage = async (event, newPage) => {
+    if (turmaList.length < (newPage+1)*table.rowsPerPage) {
+      buscarTurmas(newPage, table.rowsPerPage, turmaList);
+    }
+    table.setPage(newPage);
+  };
 
-  const confirm = useBoolean();
+  const onChangeRowsPerPage = useCallback((event) => {
+    table.setPage(0);
+    table.setRowsPerPage(parseInt(event.target.value, 10));
+    setTurmaList([]);
+    setTableData([]);
+    buscarTurmas(0, event.target.value);
+  }, [buscarTurmas, table]);
 
-
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
-  const dataInPage = dataFiltered.slice(
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
@@ -137,17 +177,21 @@ export default function TurmaListView() {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
+    async (nome, value) => {
       table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
+      const novosFiltros = {
+        ...filters,
         [nome]: value,
-      }));
+      }
+      setFilters(novosFiltros);
+      setTableData([]);
+      setTurmaList([]);
+      buscarTurmas(table.page, table.rowsPerPage, [], novosFiltros);
     },
-    [table]
+    [table, filters, buscarTurmas]
   );
 
   const handleDeleteRow = useCallback(
@@ -155,14 +199,14 @@ export default function TurmaListView() {
       const deleteRow = tableData.filter((row) => row.id !== id);
       turmaMethods.deleteTurmaById(id).then(retorno => {
         setTableData(deleteRow);
-      buscaTurmas({force: true});
+        // buscarTurmas({force: true});
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
       });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData, buscaTurmas]
+    [dataInPage.length, table, tableData, buscarTurmas]
   );
 
   const handleDeleteRows = useCallback(() => {
@@ -183,16 +227,16 @@ export default function TurmaListView() {
     Promise.all(promises).then(
       retorno => {
         setTableData(remainingRows);
-        buscaTurmas({force: true});
+        // buscarTurmas({force: true});
       }
     )
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
+      totalRowsFiltered: tableData.length,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData, buscaTurmas]);
+  }, [dataInPage.length, table, tableData, buscarTurmas]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -210,7 +254,15 @@ export default function TurmaListView() {
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
+    setTableData([]);
+    setTurmaList([]);
+    buscarTurmas(table.page, table.rowsPerPage, [], defaultFilters);
+  }, [buscarTurmas, table.page, table.rowsPerPage]);
+
+  useEffect(() => {
+    preparacaoInicial();
   }, []);
+
 
   return (
     <>
@@ -271,7 +323,7 @@ export default function TurmaListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && tableData.length}
+                    {tab.value === 'all' && countTurmas}
                     {tab.value === 'true' &&
                       tableData.filter((turma) => turma.status === 'true').length}
                     {tab.value === 'pending' &&
@@ -289,7 +341,7 @@ export default function TurmaListView() {
           <TurmaTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            ddzOptions={_ddzs}
+            ddzOptions={zonas}
             escolaOptions={escolas}
           />
 
@@ -298,9 +350,9 @@ export default function TurmaListView() {
               filters={filters}
               onFilters={handleFilters}
               escolaOptions={escolas}
+              ddzsOptions={zonas}
               onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
+              results={countTurmas}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -326,7 +378,7 @@ export default function TurmaListView() {
             />
 
             <Scrollbar>
-            {!preparado.value ? (
+            {!contextReady.value ? (
                 <LoadingBox />
               ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
@@ -346,7 +398,7 @@ export default function TurmaListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {tableData
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -375,11 +427,11 @@ export default function TurmaListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={countTurmas}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
             dense={table.dense}
             onChangeDense={table.onChangeDense}
           />
