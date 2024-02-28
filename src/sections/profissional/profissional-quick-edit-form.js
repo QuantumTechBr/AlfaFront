@@ -31,14 +31,20 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
+import LoadingBox from 'src/components/helpers/loading-box';
+
+import _ from 'lodash';
+import profissionalMethods from './profissional-repository';
 
 // ----------------------------------------------------------------------
 const filtros = {
   escolasAG: [],
 };
-export default function ProfissionalQuickEditForm({ currentUser, open, onClose }) {
-
+export default function ProfissionalQuickEditForm({ id, open, onClose, onSave }) {
+  const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(filtros);
+  const contextReady = useBoolean(false);
+  const initialDataReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
   const { enqueueSnackbar } = useSnackbar();
 
@@ -47,61 +53,99 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
-  const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
-  const [idAssessorGestao, setIdAssessorGestao] = useState('');  
+  const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
+    Promise.all([
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
+      buscaPermissoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de permissoes');
+      }),
+    ]).then(() => {
+      contextReady.onTrue();
     });
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-    buscaPermissoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissoes');
-    });
-    const escIds = [];
-    if(currentUser?.escolas?.length > 0){
-      (currentUser?.escola ?? []).map((escolaId) => {
-        escIds.push(escolaId)
-      });
-    }
-    const novosFiltros = {
-      escolasAG: escIds
-    }
-    setFilters(novosFiltros);
-    
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, currentUser]);
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
+
   useEffect(() => {
-    const idsAC = [];
-    let idAG = '';
-    funcoes.map((_funcao) => {
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(_funcao.id);
-      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = _funcao.id;
+    if (currentUser) {
+      //
+      const escIds = [];
+      if (currentUser?.escola) {
+        const _escolasIds = escolas.map((item) => item.id);
+        (currentUser?.escola ?? []).map((escolaId) => {
+          if (escolaId) {
+            if (_escolasIds.includes(escolaId)) {
+              escIds.push(escolaId);
+            }
+          }
+        });
       }
-    });
-    setIdsAssessorCoordenador(idsAC);
-    setIdAssessorGestao(idAG);
-  }, [funcoes]);
+      const novosFiltros = {
+        escolasAG: escIds,
+      };
+      setFilters(novosFiltros);
+    }
+  }, [currentUser]);
+
+  useEffect(() => {
+    initialDataReady.onFalse();
+    if (open) {
+      setErrorMsg('');
+      profissionalMethods
+        .getProfissionalById(id)
+        .then((profissional) => {
+          const _currentUser = Object.assign(profissional.data);
+
+          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
+          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
+          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
+
+          setCurrentUser(_currentUser);
+        })
+        .then(() => {
+          initialDataReady.onTrue();
+        });
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (contextReady.value) {
+      const idsAC = [];
+      let idAG = '';
+      funcoes.map((_funcao) => {
+        if (_funcao.nome == 'ASSESSOR DDZ' || _funcao.nome == 'COORDENADOR DE GESTÃO') {
+          idsAC.push(_funcao.id);
+        } else if (_funcao.nome == 'ASSESSOR DE GESTÃO') {
+          idAG = _funcao.id;
+        }
+      });
+      setIdsAssessorCoordenador(idsAC);
+      setIdAssessorGestao(idAG);
+    }
+  }, [contextReady.value]);
 
   useEffect(() => {
     if (permissoes.length > 0) {
-      liberaSalvar.onFalse()
+      liberaSalvar.onFalse();
     }
   }, [permissoes]);
 
-
   const NewUserSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
-    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
+    email: Yup.string()
+      .required('Email é obrigatório')
+      .email('Email tem que ser um endereço de email válido'),
     senha: Yup.string(),
     funcao_usuario: Yup.string(),
     escola: Yup.string(),
@@ -113,7 +157,7 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
-      status: (currentUser?.status ? "true" : "false") || '',
+      status: (currentUser?.status ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
@@ -140,32 +184,34 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novoUsuario = {}
+      var novoUsuario = {};
       if (data.senha) {
         novoUsuario = {
-          nome:  data.nome,
+          nome: data.nome,
           email: data.email,
-          senha: data.senha, 
+          senha: data.senha,
           login: data.email,
           status: data.status,
-        }
+        };
       } else {
         novoUsuario = {
-          nome:  data.nome,
+          nome: data.nome,
           email: data.email,
           login: data.email,
           status: data.status,
-        }
+        };
       }
       if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
-          return
+          return;
         } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
-            zona_id: data.zona,
-          }];
+          novoUsuario.funcao_usuario = [
+            {
+              funcao_id: data.funcao,
+              zona_id: data.zona,
+            },
+          ];
         }
       } else if (data.funcao == idAssessorGestao) {
         if (filters.escolasAG.length == 0) {
@@ -176,59 +222,61 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
             novoUsuario.funcao_usuario.push({
               funcao_id: data.funcao,
               escola_id: escolaId,
-            })
-          })
+            });
+          });
         }
-
       } else {
         if (data.escola == '') {
           setErrorMsg('Voce deve selecionar uma escola');
-          return
+          return;
         } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
-            escola_id: data.escola,
-          }];
+          novoUsuario.funcao_usuario = [
+            {
+              funcao_id: data.funcao,
+              escola_id: data.escola,
+            },
+          ];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
-      
-        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-          throw error;
-        });
+      const _funcao = funcoes.find((funcaoEscolhida) => funcaoEscolhida.id == data.funcao);
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
+      novoUsuario.permissao_usuario_id = [permissao.id];
 
-      reset();
-      enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
-    } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
+      const retornoPatch = await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+        throw error;
       });
+
+      
+      enqueueSnackbar('Atualizado com sucesso!');
+      onSave(retornoPatch.data);
+      reset();
+    } catch (error) {
+      const arrayMsg = _.flattenDeep(
+        Object.values(error).map((er) => Object.values(er).map((e) => Object.values(e)))
+      );
       const mensagem = arrayMsg.join(' ');
-      currentUser ? setErrorMsg(`Tentativa de atualização do profissional falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
+      currentUser
+        ? setErrorMsg(`Tentativa de atualização do profissional falhou - ` + `${mensagem}`)
+        : setErrorMsg(`Tentativa de criação do usuário falhou - ` + `${mensagem}`);
       console.error(error);
     }
   });
 
-  useEffect(()  => {
-    reset(defaultValues)
-  }, [currentUser, defaultValues, reset]);
-
+  useEffect(() => {
+    reset(defaultValues);
+  }, [currentUser]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
       const novosFiltros = {
         ...filters,
         [nome]: value,
-      }
+      };
       setFilters(novosFiltros);
     },
     [filters]
   );
-  
+
   const handleEscolasAG = useCallback(
     (event) => {
       handleFilters(
@@ -239,31 +287,37 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
     [handleFilters]
   );
 
-  const renderValueEscolasAG = (selected) => 
-    selected.map((escolaId) => {
-      return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  const renderValueEscolasAG = (selected) =>
+    selected
+      .map((escolaId) => {
+        return escolas.find((option) => option.id == escolaId)?.nome;
+      })
+      .join(', ');
 
   const escolaOuZona = () => {
     if (idsAssessorCoordenador.includes(getValues('funcao'))) {
       return (
         <RHFSelect
-          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
+          id={`zona_` + `${currentUser?.id}`}
+          disabled={getValues('funcao') == '' ? true : false}
+          name="zona"
+          label="DDZ"
+        >
           {zonas.map((zona) => (
             <MenuItem key={zona.id} value={zona.id}>
               <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
             </MenuItem>
           ))}
         </RHFSelect>
-      )
-    } 
-    if ( getValues('funcao') == idAssessorGestao ) {
+      );
+    }
+    if (getValues('funcao') == idAssessorGestao) {
       return (
         <FormControl
           sx={{
             flexShrink: 0,
           }}
-        >      
+        >
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
@@ -281,34 +335,41 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
           >
             {escolas?.map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
-                  {escola.nome}
+                <Checkbox
+                  disableRipple
+                  size="small"
+                  checked={filters.escolasAG.includes(escola.id)}
+                />
+                {escola.nome}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
-      )
+      );
     } else {
       return (
-        <RHFSelect 
-          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+        <RHFSelect
+          id={`escola_` + `${currentUser?.id}`}
+          disabled={getValues('funcao') == '' ? true : false}
+          name="escola"
+          label="Escola"
+        >
           {escolas.map((escola) => (
             <MenuItem key={escola.id} value={escola.id}>
               {escola.nome}
             </MenuItem>
           ))}
         </RHFSelect>
-      )
+      );
     }
-  }
+  };
 
   const desabilitaMudarFuncao = () => {
-    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
-      return true 
+    if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+      return true;
     }
-    return false
-  }
-
+    return false;
+  };
 
   return (
     <Dialog
@@ -320,57 +381,60 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
+      {!contextReady.value || (!initialDataReady.value && <LoadingBox />)}
 
-        <DialogContent>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          <br></br>
+      {contextReady.value && initialDataReady.value && (
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
 
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
-            <RHFTextField name="nome" label="Nome Completo" />
-            <RHFTextField name="email" label="Email" />
-            <RHFTextField name="senha" label="Nova Senha" type="password" />
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
 
-            <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
-              {funcoes.map((_funcao) => (
-                <MenuItem key={_funcao.id} value={_funcao.id}>
-                  {_funcao.nome}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
+              <RHFTextField name="nome" label="Nome Completo" />
+              <RHFTextField name="email" label="Email" />
+              <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+              <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
+                {funcoes.map((_funcao) => (
+                  <MenuItem key={_funcao.id} value={_funcao.id}>
+                    {_funcao.nome}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
-            {escolaOuZona()}
+              <RHFSelect name="status" label="Status">
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
-          </Box>
-        </DialogContent>
+              {escolaOuZona()}
+            </Box>
+          </DialogContent>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+            Cancelar
+            </Button>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
+      )}
     </Dialog>
   );
 }
@@ -378,5 +442,6 @@ export default function ProfissionalQuickEditForm({ currentUser, open, onClose }
 ProfissionalQuickEditForm.propTypes = {
   currentUser: PropTypes.object,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
   open: PropTypes.bool,
 };
