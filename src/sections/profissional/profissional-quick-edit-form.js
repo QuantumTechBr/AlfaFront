@@ -60,31 +60,33 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
     contextReady.onFalse();
     setErrorMsg('');
 
-    Promise.all([
-      buscaFuncoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de funções');
-      }),
-      buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-      }),
-      buscaZonas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de zonas');
-      }),
-      buscaPermissoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de permissoes');
-      }),
-      userMethods.getUserById(id).then((profissional) => {
-        const _currentUser = Object.assign(profissional.data);
+    if (open) {
+      Promise.all([
+        buscaFuncoes().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de funções');
+        }),
+        buscaEscolas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas');
+        }),
+        buscaZonas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de zonas');
+        }),
+        buscaPermissoes().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de permissoes');
+        }),
+        userMethods.getUserById(id).then((profissional) => {
+          const _currentUser = Object.assign(profissional.data);
 
-        _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
-        _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
-        _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
+          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
+          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
+          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
 
-        setCurrentUser(_currentUser);
-      }),
-    ]).then(() => {
-      contextReady.onTrue();
-    });
+          setCurrentUser(_currentUser);
+        }),
+      ]).then(() => {
+        contextReady.onTrue();
+      });
+    }
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
 
   useEffect(() => {
