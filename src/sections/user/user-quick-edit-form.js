@@ -32,9 +32,11 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import LoadingBox from 'src/components/helpers/loading-box';
 
+import _ from 'lodash';
+
 // ----------------------------------------------------------------------
 
-export default function UserQuickEditForm({ currentUser, open, onClose, onSave }) {
+export default function UserQuickEditForm({ id, open, onClose, onSave }) {
 
   const defaultFilters = {
     escolasAG: [],
@@ -42,14 +44,15 @@ export default function UserQuickEditForm({ currentUser, open, onClose, onSave }
 
   const { enqueueSnackbar } = useSnackbar();
   
+  const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(defaultFilters);
   const contextReady = useBoolean(false);
+  const initialDataReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
-  const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
   
@@ -75,17 +78,46 @@ export default function UserQuickEditForm({ currentUser, open, onClose, onSave }
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
-    const escIds = [];
-    if(currentUser?.escola){
-      (currentUser?.escola ?? []).map((escolaId) => {
-        if(escolaId) escIds.push(escolaId)
-      });
+    if(currentUser){
+      //
+      const escIds = [];
+      if (currentUser?.escola) {
+        const _escolasIds = escolas.map((item) => item.id);
+        (currentUser?.escola ?? []).map((escolaId) => {
+          if (escolaId) {
+            if (_escolasIds.includes(escolaId)) {
+              escIds.push(escolaId);
+            }
+          }
+        });
+      }
+      const novosFiltros = {
+        escolasAG: escIds
+      }
+      setFilters(novosFiltros);
     }
-    const novosFiltros = {
-      escolasAG: escIds
-    }
-    setFilters(novosFiltros);
   }, [currentUser]);
+
+  useEffect(() => {
+    initialDataReady.onFalse();
+    if (open) {
+      setErrorMsg('');
+      userMethods
+        .getUserById(id)
+        .then((usuario) => {
+          const _currentUser = Object.assign(usuario.data);
+
+          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
+          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
+          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
+
+          setCurrentUser(_currentUser);
+        })
+        .then(() => {
+          initialDataReady.onTrue();
+        });
+    }
+  }, [open]);
 
   useEffect(() => {
     if(contextReady.value){
@@ -214,18 +246,18 @@ export default function UserQuickEditForm({ currentUser, open, onClose, onSave }
       onSave(retornoPatch.data);
       reset();
     } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
-      });
+      const arrayMsg = _.flattenDeep(Object.values(error).map((er) => Object.values(er).map((e) => Object.values(e))));
       const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
 
-  useEffect(()  => {
-    reset(defaultValues)
-  }, [currentUser, defaultValues, reset]);
+  useEffect(() => {
+    if(currentUser){
+      reset(defaultValues);
+    }
+  }, [currentUser]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -322,11 +354,11 @@ export default function UserQuickEditForm({ currentUser, open, onClose, onSave }
       }}
     >
 
-      {!contextReady.value && (
+      {!contextReady.value || !initialDataReady.value && (
         <LoadingBox />
       )}
 
-      {contextReady.value && (
+      {contextReady.value && initialDataReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
           <DialogTitle>Edição Rápida</DialogTitle>
 

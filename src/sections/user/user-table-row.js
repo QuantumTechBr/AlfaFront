@@ -87,7 +87,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} onSave={saveAndClose} />
+      <UserQuickEditForm id={row.id} open={quickEdit.value} onClose={closeQuickEdit} onSave={saveAndClose} />
 
       <CustomPopover
         open={popover.open}
