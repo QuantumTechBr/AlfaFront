@@ -51,7 +51,7 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
-    const NewTurmaSchema = Yup.object().shape({
+  const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     matricula: Yup.string().required('Matrícula é obrigatória'),
     data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
