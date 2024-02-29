@@ -8,7 +8,6 @@ import { paths } from 'src/routes/paths';
 import { useLocales } from 'src/locales';
 // components
 import SvgColor from 'src/components/svg-color';
-import { useCallback } from 'react';
 
 // ----------------------------------------------------------------------
 
@@ -305,7 +304,7 @@ export function useNavData() {
       // MENU
       // ----------------------------------------------------------------------
       {
-        subheader: t('menu'),
+        // subheader: t('menu'),
         items: items,
       },
     ],
