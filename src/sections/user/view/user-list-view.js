@@ -86,8 +86,13 @@ export default function UserListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
   const liberaResults = useBoolean(false);
+  const [countAtivos, setCountAtivos] = useState(0);
+  const [countInativos, setCountInativos] = useState(0);
+  const [countAll, setCountAll] = useState(0);
   const [countUsuarios, setCountUsuarios] = useState(0);
   const [filters, setFilters] = useState(defaultFilters);
+
+  const permissaoCadastrar = checkPermissaoModulo("usuario", "cadastrar");
 
   const table = useTable();
 
@@ -101,16 +106,27 @@ export default function UserListView() {
 
   const buscaUsuarios = useCallback(async (pagina=0, linhasPorPagina=25, oldUserList=[], filtros=filters) => {
     liberaResults.onFalse();
+    preparado.onFalse();
     setWarningMsg('');
     setErrorMsg('');
     const offset = (pagina)*linhasPorPagina;
     const limit = linhasPorPagina;
     const {nome, escola, role, zona, status} = filtros;
+    let statusFilter = '';
+
+    switch (status) {
+      case "false":
+        statusFilter = "False"
+        break;
+      case "true":
+        statusFilter = "True"
+    }
     
-    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona}).then(async usuarios => {
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: statusFilter}).then(async usuarios => {
       if (usuarios.data.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de usuários');
-        preparado.onFalse();
+        setTableData([]);
+        preparado.onTrue();
       } else {
         const users = usuarios.data.results;
 
@@ -144,56 +160,28 @@ export default function UserListView() {
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de usuários');
       console.log(error);
+      preparado.onTrue();
     });
   }, [preparado, filters, liberaResults]);
 
-  // useEffect(() => {
-  //   userMethods.getAllUsers().then(usuarios => {
-  //     const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
-  //     if (usuariosNaoDeletados.length == 0) {
-  //       setWarningMsg('A API retornou uma lista vazia de usuários');
-  //       setUserList([]);
-  //       preparado.onTrue();
-  //     }
-  //     for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-  //       const funcao = [];
-  //       const zona = [];
-  //       const escola = [];
-  //       if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
-  //         for (let index = 0; index < usuariosNaoDeletados[i].funcao_usuario.length; index++) {  
-  //           funcao.push(usuariosNaoDeletados[i].funcao_usuario[index].funcao?.id);
-  //           escola.push(usuariosNaoDeletados[i].funcao_usuario[index].escola?.id);
-  //           zona.push(usuariosNaoDeletados[i].funcao_usuario[index].zona?.id);
-  //         }
-  //         usuariosNaoDeletados[i].funcao = funcao[0] ? funcao[0] : '';
-  //         usuariosNaoDeletados[i].escola = escola ? escola : '';
-  //         usuariosNaoDeletados[i].zona = zona[0] ? zona[0] : '';
-  //       } else {
-  //         usuariosNaoDeletados[i].funcao = '';
-  //         usuariosNaoDeletados[i].escola = '';
-  //         usuariosNaoDeletados[i].zona = '';
-  //       }
-  //       usuariosNaoDeletados[i].status = usuariosNaoDeletados[i].status.toString();
-  //     }
-  //     // usuariosNaoDeletados.map((usuario => {
-  //     //   usuario.status = usuario.status.toString()
-  //     // }))
-  //     setUserList(usuariosNaoDeletados);
-  //     setTableData(usuariosNaoDeletados);
-  //     preparado.onTrue();
-  //     }).catch((error) => {
-  //       setErrorMsg('Erro de comunicação com a API de usuários');
-  //       preparado.onTrue();
-  //     })
-  //     buscaEscolas().catch((error) => {
-  //       setErrorMsg('Erro de comunicação com a API de escolas');
-  //       preparado.onTrue();
-  //     });
-  //     buscaFuncoes().catch((error) => {
-  //       setErrorMsg('Erro de comunicação com a API de funções');
-  //       preparado.onTrue();
-  //   });
-  // }, []);
+  const contarUsuarios = useCallback(async (filtros = filters) => {
+    const offset = 0;
+    const limit = 1;
+    const { nome, escola, role, zona, status } = filtros;
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: ""}).then(async resultado => {
+      setCountAll(resultado.data.count);
+    });
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: "True"}).then(async resultado => {
+      setCountAtivos(resultado.data.count);
+    });
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: "False"}).then(async resultado => {
+      setCountInativos(resultado.data.count);
+    });
+
+  }, [filters]);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -208,7 +196,8 @@ export default function UserListView() {
       buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de usuários');
         console.log(error);
-      })
+      }),
+      contarUsuarios()
     ]);
     preparado.onTrue();
   }, [buscaEscolas, buscaUsuarios, preparado, table.page, table.rowsPerPage]);
@@ -309,6 +298,9 @@ export default function UserListView() {
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       handleFilters('status', newValue);
+      const filtrosNovos = {...filters};
+      filtrosNovos.status = newValue
+      buscaUsuarios(table.page, table.rowsPerPage, [], filtrosNovos);
     },
     [handleFilters]
   );
@@ -325,9 +317,10 @@ export default function UserListView() {
     setTableData([]);
     setUserList([]);
     setFilters(resetFilters);
+    contarUsuarios();
     buscaUsuarios(table.page, table.rowsPerPage);
 
-  }, [buscaUsuarios, table.page, table.rowsPerPage, liberaResults]);
+  }, [buscaUsuarios, table.page, table.rowsPerPage, contarUsuarios, liberaResults]);
 
   return (
     <>
@@ -339,7 +332,7 @@ export default function UserListView() {
             { name: 'Usuário', href: paths.dashboard.user.list },
             { name: 'Listar' },
           ]}
-          action={
+          action={permissaoCadastrar &&
             <Button
               component={RouterLink}
               href={paths.dashboard.user.new}
@@ -347,7 +340,6 @@ export default function UserListView() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: "#00A5AD",
-                visibility: checkPermissaoModulo('usuario', 'cadastrar') ? "inherit" : "hidden",
               }}
             >
               Adicionar
@@ -388,15 +380,9 @@ export default function UserListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
+                    {tab.value === 'all' && countAll}
+                    {tab.value === 'true' && countAtivos}
+                    {tab.value === 'false' && countInativos}
                   </Label>
                 }
               />
@@ -434,6 +420,7 @@ export default function UserListView() {
                     preparado.onFalse();
                     setTableData([]);
                     setUserList([]);
+                    contarUsuarios();
                     buscaUsuarios(table.page, table.rowsPerPage, [], filters);
                   }}
                 >

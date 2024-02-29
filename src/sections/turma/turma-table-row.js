@@ -25,6 +25,7 @@ import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
 import { RouterLink } from 'src/routes/components';
 import { AuthContext } from 'src/auth/context/alfa';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -32,6 +33,8 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
   const { id, nome, escola, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
 
   // console.log(row)
+
+  const { checkPermissaoModulo } = useContext(AuthContext);
   
   const { user } = useContext(AuthContext);
   
@@ -105,9 +108,10 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         {/*  TODO: trocar por teste de permissão */}
           {!checkProfessor &&
             <Tooltip title="Edição Rápida" placement="top" arrow>
+              {checkPermissaoModulo('turma', 'editar') && 
               <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
                 <Iconify icon="solar:pen-bold" />
-              </IconButton>
+              </IconButton>}
             </Tooltip>
           }
 
@@ -118,7 +122,9 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
       </TableRow>
 
       {/* TODO TRAZER PARA PÁGINA PRINCIPAL O MODAL, RETIRAR DE CADA LINHA */}
-      <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      {checkPermissaoModulo('turma', 'editar') && 
+        <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      }
 
       <CustomPopover
         open={popover.open}
@@ -127,7 +133,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         sx={{ width: 140 }}
       >
       {/*  TODO: trocar por teste de permissão */}
-        {!checkProfessor &&
+        {!checkProfessor && checkPermissaoModulo('turma', 'deletar') && 
           <MenuItem
             onClick={() => {
               confirm.onTrue();
@@ -139,7 +145,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
             Deletar
           </MenuItem>
         }
-
+        {checkPermissaoModulo('turma', 'editar') && 
         <MenuItem
           onClick={() => {
             onEditRow();
@@ -148,7 +154,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         >
           <Iconify icon="solar:pen-bold" />
           Editar
-        </MenuItem>
+        </MenuItem>}
       </CustomPopover>
 
       <ConfirmDialog
