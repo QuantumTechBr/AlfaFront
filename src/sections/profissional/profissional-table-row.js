@@ -68,10 +68,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     quickEdit.onFalse();
   }
 
-  let turmaRender = '';
-  (turma ?? []).map((item) => {
-    turmaRender += " Turma " + item.nome;
-  });
+  const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
   const renderFuncao = () => {
     for (let index = 0; index < funcoes.length; index++) {
@@ -102,7 +99,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     }
     return(
     <div>
-           {(list_retorno ?? []).map((li, index) => (
+           {list_retorno.map((li, index) => (
             <Typography key={index}>{li}<br></br></Typography>
           ))}
     </div>
