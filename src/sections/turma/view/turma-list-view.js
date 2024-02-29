@@ -134,6 +134,7 @@ export default function TurmaListView() {
 
       if (resultado.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de turmas');
+        setTableData([]);
         contextReady.onTrue();
       } else {
         const listaTurmas = resultado.results;
