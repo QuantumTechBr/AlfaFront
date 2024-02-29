@@ -13,6 +13,7 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import Stack from '@mui/material/Stack';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -53,6 +54,7 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -73,7 +75,7 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 export default function AlunoListView() {
-
+  const { checkPermissaoModulo } = useAuthContext();
   // let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
 
 
@@ -94,7 +96,7 @@ export default function AlunoListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-
+  const liberaResults = useBoolean(false);
   const contextReady = useBoolean(false);
 
   const table = useTable();
@@ -110,6 +112,7 @@ export default function AlunoListView() {
   const [filters, setFilters] = useState(defaultFilters);
 
   const buscaAlunos = useCallback(async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
+    liberaResults.onFalse();
     setWarningMsg('');
     setErrorMsg('');
     contextReady.onFalse();
@@ -128,12 +131,13 @@ export default function AlunoListView() {
         contextReady.onTrue();
       }
       setCountAlunos(alunos.data.count);
+      liberaResults.onTrue();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de estudantes');
       console.log(error);
       contextReady.onTrue();
     });
-  }, [contextReady, filters]);
+  }, [contextReady, filters, liberaResults]);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -186,17 +190,15 @@ export default function AlunoListView() {
 
   const handleFilters = useCallback(
     async (nome, value) => {
+      liberaResults.onFalse();
       table.onResetPage();
       const novosFiltros = {
         ...filters,
         [nome]: value,
       }
       setFilters(novosFiltros);
-      setTableData([]);
-      setAlunoList([]);
-      buscaAlunos(table.page, table.rowsPerPage, [], novosFiltros);
     },
-    [table, filters, buscaAlunos]
+    [table, filters, liberaResults]
   );
 
   const handleDeleteRow = useCallback(
@@ -270,12 +272,13 @@ export default function AlunoListView() {
       turma: [],
       fase: []
     };
+    liberaResults.onFalse();
     setTableData([]);
     setAlunoList([]);
     setFilters(resetFilters);
     buscaAlunos(table.page, table.rowsPerPage);
 
-  }, [buscaAlunos, table.page, table.rowsPerPage]);
+  }, [buscaAlunos, table.page, table.rowsPerPage, liberaResults]);
 
   return (
     <>
@@ -295,6 +298,7 @@ export default function AlunoListView() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: "#00A5AD",
+                visibility: checkPermissaoModulo('aluno', 'cadastrar') ? "inherit" : "hidden",
               }}
             >
               Adicionar
@@ -309,7 +313,18 @@ export default function AlunoListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
+        <Stack
+          spacing={2}
+          alignItems={{ xs: 'flex-end', md: 'center' }}
+          direction={{
+            xs: 'column',
+            md: 'row',
+          }}
+          sx={{
+            pr: { xs: 2.5, md: 2.5 },
+          }}
 
+        >
           <AlunoTableToolbar
             filters={filters}
             onFilters={handleFilters}
@@ -317,8 +332,26 @@ export default function AlunoListView() {
             turmaOptions={turmas}
             faseOptions={fases}
           />
-
-          {canReset && (
+        <Button
+                  variant="contained"
+                  sx={{
+                    width:{
+                      xs: "100%",
+                      md: "15%",
+                    },
+                    
+                  }}
+                  onClick={() => {
+                    contextReady.onFalse();
+                    setTableData([]);
+                    setAlunoList([]);
+                    buscaAlunos(table.page, table.rowsPerPage, [], filters);
+                  }}
+                >
+                  Aplicar filtros
+        </Button>
+        </Stack>
+          {canReset && liberaResults.value && (
             <AlunoTableFiltersResult
               filters={filters}
               escolaOptions={escolas}

@@ -132,7 +132,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </Tooltip>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
+          <Tooltip title="Edição Rápida" placement="top" arrow>
           {checkPermissaoModulo('profissionais', 'editar') && 
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
