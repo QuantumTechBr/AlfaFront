@@ -107,14 +107,12 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
 
-      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
+      const retornoPatch = await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
         throw error;
       });
-      reset() 
-      onClose();
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
