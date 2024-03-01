@@ -151,7 +151,7 @@ export default function EscolaQuickEditForm({ id, open, onClose, onSave }) {
 
           <DialogActions>
             <Button variant="outlined" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
 
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
