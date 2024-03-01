@@ -32,9 +32,11 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import LoadingBox from 'src/components/helpers/loading-box';
 
+import _ from 'lodash';
+
 // ----------------------------------------------------------------------
 
-export default function UserQuickEditForm({ currentUser, open, onClose }) {
+export default function UserQuickEditForm({ id, open, onClose, onSave }) {
 
   const defaultFilters = {
     escolasAG: [],
@@ -42,6 +44,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
   const { enqueueSnackbar } = useSnackbar();
   
+  const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(defaultFilters);
   const contextReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
@@ -49,42 +52,60 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
-  const [funcaoUsuario, setFuncaoUsuario] = useState(currentUser.funcao);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
   
   const [errorMsg, setErrorMsg] = useState('');
   
   useEffect(() => {
-    Promise.all([
-      buscaFuncoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de funções');
-      }),
-      buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-      }),
-      buscaZonas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de zonas');
-      }),
-      buscaPermissoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de permissoes');
-      }),
-    ]).then(() => {
-      contextReady.onTrue();
-    });
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
-
-  useEffect(() => {
-    const escIds = [];
-    if(currentUser?.escola){
-      (currentUser?.escola ?? []).map((escolaId) => {
-        if(escolaId) escIds.push(escolaId)
+    contextReady.onFalse();
+    setErrorMsg('');
+    if (open) {
+      Promise.all([
+        buscaFuncoes().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de funções');
+        }),
+        buscaEscolas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas');
+        }),
+        buscaZonas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de zonas');
+        }),
+        buscaPermissoes().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de permissoes');
+        }),
+        userMethods.getUserById(id).then((response) => {
+          const _currentUser = Object.assign(response.data);
+          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
+          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
+          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
+          setCurrentUser(_currentUser);
+        }),
+      ]).then(() => {
+        contextReady.onTrue();
       });
     }
-    const novosFiltros = {
-      escolasAG: escIds
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
+
+  useEffect(() => {
+    if(currentUser){
+      //
+      const escIds = [];
+      if (currentUser?.escola) {
+        const _escolasIds = escolas.map((item) => item.id);
+        (currentUser?.escola ?? []).map((escolaId) => {
+          if (escolaId) {
+            if (_escolasIds.includes(escolaId)) {
+              escIds.push(escolaId);
+            }
+          }
+        });
+      }
+      const novosFiltros = {
+        escolasAG: escIds
+      }
+      setFilters(novosFiltros);
     }
-    setFilters(novosFiltros);
   }, [currentUser]);
 
   useEffect(() => {
@@ -198,35 +219,34 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
         } else {
           novoUsuario.funcao_usuario = [{
             funcao_id: data.funcao,
-            escola_id: data.escola,
+            escola_id: data.escola, // TODO CHECK: ao alterar DIRETOR sem nenhuma alteração envia no payload um Array e isso retorna ERRO da API
           }];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao);
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
+      novoUsuario.permissao_usuario_id = [permissao.id];
 
-        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-          throw error;
-        });
-
-      reset();
-      enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
-    } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
+      const retornoPatch = await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+        throw error;
       });
+
+      enqueueSnackbar('Atualizado com sucesso!');
+      onSave(retornoPatch.data);
+      reset();
+    } catch (error) {
+      const arrayMsg = _.flattenDeep(Object.values(error).map((er) => Object.values(er).map((e) => Object.values(e))));
       const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
   });
 
-  useEffect(()  => {
-    reset(defaultValues)
-  }, [currentUser, defaultValues, reset]);
+  useEffect(() => {
+    if(currentUser){
+      reset(defaultValues);
+    }
+  }, [currentUser]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -323,9 +343,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
       }}
     >
 
-      {!contextReady.value && (
-        <LoadingBox />
-      )}
+      {!contextReady.value && <LoadingBox />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -370,7 +388,7 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 
           <DialogActions>
             <Button variant="outlined" onClick={onClose}>
-              Cancel
+              Cancelar
             </Button>
 
             <LoadingButton disabled={liberaSalvar.value} type="submit" variant="contained" loading={isSubmitting}>
@@ -384,7 +402,8 @@ export default function UserQuickEditForm({ currentUser, open, onClose }) {
 }
 
 UserQuickEditForm.propTypes = {
-  currentUser: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
   open: PropTypes.bool,
 };

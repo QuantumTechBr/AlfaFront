@@ -260,6 +260,16 @@ export default function ProfissionalListView() {
     [router]
   );
 
+  const handleSaveRow = useCallback((novosDados) => {
+    const _tableData = tableData.map((item) => {
+      if (item.id === novosDados.id) {
+        return {...item, ...novosDados};
+      }
+      return item;
+    });
+    setTableData(_tableData);
+  }, [tableData]);
+
   const handleResetFilters = useCallback(() => {
     const resetFilters = {
       nome: '',
@@ -410,6 +420,7 @@ export default function ProfissionalListView() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onSaveRow={(novosDados) => handleSaveRow(novosDados)}
                       />
                     ))}
 
