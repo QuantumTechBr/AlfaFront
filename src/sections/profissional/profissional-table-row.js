@@ -76,10 +76,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   const popover = usePopover();
 
-  let turmaRender = '';
-  turma?.map((item) => {
-    turmaRender += " Turma " + item.nome;
-  });
 
   const renderFuncao = () => {
     for (let index = 0; index < funcoes.length; index++) {
@@ -135,9 +131,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderZona()}</TableCell>
 
-        <Tooltip title={turmaRender} enterDelay={500} leaveDelay={200}>
-          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma?.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
-        </Tooltip>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.turma ? 'SIM' : 'NÃO'}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>

@@ -52,6 +52,7 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -71,7 +72,7 @@ const defaultFilters = {
 // TODO quando limpa os filtros não está atualizando o contador de ativos e inativos
 export default function TurmaListView() {
 
-  const { checkPermissaoModulo } = useContext(AuthContext);
+  const { checkPermissaoModulo } = useAuthContext();
   const { turmas, buscaTurmasPaginado } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -120,7 +121,7 @@ export default function TurmaListView() {
     const offset = (pagina) * linhasPorPagina;
     const limit = linhasPorPagina;
     const { nome, escola, ddz, status } = filtros;
-    let statusFilter = ''
+    let statusFilter = '';
 
     switch (status) {
       case "false":
@@ -134,6 +135,7 @@ export default function TurmaListView() {
 
       if (resultado.count == 0) {
         setWarningMsg('A API retornou uma lista vazia de turmas');
+        setTableData([]);
         contextReady.onTrue();
       } else {
         const listaTurmas = resultado.results;

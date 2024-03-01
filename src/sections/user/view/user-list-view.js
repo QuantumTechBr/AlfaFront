@@ -15,6 +15,7 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
+import Stack from '@mui/material/Stack';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -49,6 +50,8 @@ import userMethods from '../user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import LoadingBox from 'src/components/helpers/loading-box';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 
@@ -73,6 +76,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function UserListView() {
+  const { checkPermissaoModulo } = useAuthContext();
 
   const [_userList, setUserList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
@@ -81,54 +85,14 @@ export default function UserListView() {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
+  const liberaResults = useBoolean(false);
+  const [countAtivos, setCountAtivos] = useState(0);
+  const [countInativos, setCountInativos] = useState(0);
+  const [countAll, setCountAll] = useState(0);
+  const [countUsuarios, setCountUsuarios] = useState(0);
+  const [filters, setFilters] = useState(defaultFilters);
 
-  useEffect(() => {
-    userMethods.getAllUsers().then(usuarios => {
-      const usuariosNaoDeletados = usuarios.data.filter((usuario) => usuario.deleted_at == null);
-      if (usuariosNaoDeletados.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de usuários');
-        setUserList([]);
-        preparado.onTrue();
-      }
-      for (var i = 0; i < usuariosNaoDeletados.length; i++) {
-        const funcao = [];
-        const zona = [];
-        const escola = [];
-        if(usuariosNaoDeletados[i].funcao_usuario?.length > 0 ){
-          for (let index = 0; index < usuariosNaoDeletados[i].funcao_usuario.length; index++) {  
-            funcao.push(usuariosNaoDeletados[i].funcao_usuario[index].funcao?.id);
-            escola.push(usuariosNaoDeletados[i].funcao_usuario[index].escola?.id);
-            zona.push(usuariosNaoDeletados[i].funcao_usuario[index].zona?.id);
-          }
-          usuariosNaoDeletados[i].funcao = funcao[0] ? funcao[0] : '';
-          usuariosNaoDeletados[i].escola = escola ? escola : '';
-          usuariosNaoDeletados[i].zona = zona[0] ? zona[0] : '';
-        } else {
-          usuariosNaoDeletados[i].funcao = '';
-          usuariosNaoDeletados[i].escola = '';
-          usuariosNaoDeletados[i].zona = '';
-        }
-        usuariosNaoDeletados[i].status = usuariosNaoDeletados[i].status.toString();
-      }
-      // usuariosNaoDeletados.map((usuario => {
-      //   usuario.status = usuario.status.toString()
-      // }))
-      setUserList(usuariosNaoDeletados);
-      setTableData(usuariosNaoDeletados);
-      preparado.onTrue();
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de usuários');
-        preparado.onTrue();
-      })
-      buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-        preparado.onTrue();
-      });
-      buscaFuncoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de funções');
-        preparado.onTrue();
-    });
-  }, []);
+  const permissaoCadastrar = checkPermissaoModulo("usuario", "cadastrar");
 
   const table = useTable();
 
@@ -140,15 +104,125 @@ export default function UserListView() {
 
   const [tableData, setTableData] = useState([]);
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const buscaUsuarios = useCallback(async (pagina=0, linhasPorPagina=25, oldUserList=[], filtros=filters) => {
+    liberaResults.onFalse();
+    preparado.onFalse();
+    setWarningMsg('');
+    setErrorMsg('');
+    const offset = (pagina)*linhasPorPagina;
+    const limit = linhasPorPagina;
+    const {nome, escola, role, zona, status} = filtros;
+    let statusFilter = '';
 
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
+    switch (status) {
+      case "false":
+        statusFilter = "False"
+        break;
+      case "true":
+        statusFilter = "True"
+    }
+    
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: statusFilter}).then(async usuarios => {
+      if (usuarios.data.count == 0) {
+        setWarningMsg('A API retornou uma lista vazia de usuários');
+        setTableData([]);
+        preparado.onTrue();
+      } else {
+        const users = usuarios.data.results;
 
-  const dataInPage = dataFiltered.slice(
+        for (var i = 0; i < users.length; i++) {
+          const funcao = [];
+          const userZona = [];
+          const userEscola = [];
+          if(users[i].funcao_usuario?.length > 0 ){
+            for (let index = 0; index < users[i].funcao_usuario.length; index++) {  
+              funcao.push(users[i].funcao_usuario[index].funcao?.id);
+              userEscola.push(users[i].funcao_usuario[index].escola?.id);
+              userZona.push(users[i].funcao_usuario[index].zona?.id);
+            }
+            users[i].funcao = funcao[0] ? funcao[0] : '';
+            users[i].escola = userEscola ? userEscola : '';
+            users[i].zona = userZona[0] ? userZona[0] : '';
+          } else {
+            users[i].funcao = '';
+            users[i].escola = '';
+            users[i].zona = '';
+          }
+          users[i].status = users[i].status.toString();
+        }
+
+        setUserList([...oldUserList, ...users]);
+        setTableData([...oldUserList, ...users]);
+        preparado.onTrue();
+      }
+      setCountUsuarios(usuarios.data.count);
+      liberaResults.onTrue();
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de usuários');
+      console.log(error);
+      preparado.onTrue();
+    });
+  }, [preparado, filters, liberaResults]);
+
+  const contarUsuarios = useCallback(async (filtros = filters) => {
+    const offset = 0;
+    const limit = 1;
+    const { nome, escola, role, zona, status } = filtros;
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: ""}).then(async resultado => {
+      setCountAll(resultado.data.count);
+    });
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: "True"}).then(async resultado => {
+      setCountAtivos(resultado.data.count);
+    });
+
+    await userMethods.getAllUsersPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, zona: zona, status: "False"}).then(async resultado => {
+      setCountInativos(resultado.data.count);
+    });
+
+  }, [filters]);
+
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue(); 
+      }),
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+        preparado.onTrue();
+      }),
+      buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários');
+        console.log(error);
+      }),
+      contarUsuarios()
+    ]);
+    preparado.onTrue();
+  }, [buscaEscolas, buscaUsuarios, preparado, table.page, table.rowsPerPage]);
+  
+  const onChangePage = async (event, newPage) => {
+    if (_userList.length < (newPage+1)*table.rowsPerPage) {
+      buscaUsuarios(newPage, table.rowsPerPage, _userList);
+    }
+    table.setPage(newPage);
+  };
+
+  const onChangeRowsPerPage = useCallback((event) => {
+    table.setPage(0);
+    table.setRowsPerPage(parseInt(event.target.value, 10));
+    setUserList([]);
+    setTableData([]);
+    buscaUsuarios(0, event.target.value);
+  }, [buscaUsuarios, table]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
@@ -157,17 +231,19 @@ export default function UserListView() {
 
   const canReset = !isEqual(defaultFilters, filters);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     (nome, value) => {
+      liberaResults.onFalse();
       table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
+      const novosFiltros = {
+        ...filters,
         [nome]: value,
-      }));
+      }
+      setFilters(novosFiltros);
     },
-    [table]
+    [table, filters, liberaResults]
   );
 
   const handleDeleteRow = useCallback(
@@ -208,9 +284,9 @@ export default function UserListView() {
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
       totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
+      totalRowsFiltered: tableData.length,
     });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
+  }, [tableData.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -222,13 +298,29 @@ export default function UserListView() {
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       handleFilters('status', newValue);
+      const filtrosNovos = {...filters};
+      filtrosNovos.status = newValue
+      buscaUsuarios(table.page, table.rowsPerPage, [], filtrosNovos);
     },
     [handleFilters]
   );
 
   const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
+    const resetFilters = {
+      nome: '',
+      role: [],
+      ddz: [],
+      escola: [],
+      status: 'all',
+    };
+    liberaResults.onFalse();
+    setTableData([]);
+    setUserList([]);
+    setFilters(resetFilters);
+    contarUsuarios();
+    buscaUsuarios(table.page, table.rowsPerPage);
+
+  }, [buscaUsuarios, table.page, table.rowsPerPage, contarUsuarios, liberaResults]);
 
   return (
     <>
@@ -240,7 +332,7 @@ export default function UserListView() {
             { name: 'Usuário', href: paths.dashboard.user.list },
             { name: 'Listar' },
           ]}
-          action={
+          action={permissaoCadastrar &&
             <Button
               component={RouterLink}
               href={paths.dashboard.user.new}
@@ -288,34 +380,60 @@ export default function UserListView() {
                       'default'
                     }
                   >
-                    {tab.value === 'all' && tableData.length}
-                    {tab.value === 'true' &&
-                      tableData.filter((user) => user.status === 'true').length}
-                    {tab.value === 'pending' &&
-                      tableData.filter((user) => user.status === 'pending').length}
-                    {tab.value === 'false' &&
-                      tableData.filter((user) => user.status === 'false').length}
-                    {tab.value === 'rejected' &&
-                      tableData.filter((user) => user.status === 'rejected').length}
+                    {tab.value === 'all' && countAll}
+                    {tab.value === 'true' && countAtivos}
+                    {tab.value === 'false' && countInativos}
                   </Label>
                 }
               />
             ))}
           </Tabs>
 
+          <Stack
+          spacing={2}
+          alignItems={{ xs: 'flex-end', md: 'center' }}
+          direction={{
+            xs: 'column',
+            md: 'row',
+          }}
+          sx={{
+            pr: { xs: 2.5, md: 2.5 },
+          }}
+
+          > 
           <UserTableToolbar
             filters={filters}
             onFilters={handleFilters}
             roleOptions={funcoes}
             escolaOptions={escolas}
           />
+          <Button
+                  variant="contained"
+                  sx={{
+                    width:{
+                      xs: "100%",
+                      md: "15%",
+                    },
+                    
+                  }}
+                  onClick={() => {
+                    preparado.onFalse();
+                    setTableData([]);
+                    setUserList([]);
+                    contarUsuarios();
+                    buscaUsuarios(table.page, table.rowsPerPage, [], filters);
+                  }}
+                >
+                  Aplicar filtros
+          </Button>
+        </Stack>
 
-          {canReset && (
+          {canReset && liberaResults.value && (
             <UserTableFiltersResult
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
+              results={countUsuarios}
               roleOptions={funcoes}
               escolaOptions={escolas}
               sx={{ p: 2.5, pt: 0 }}
@@ -363,7 +481,7 @@ export default function UserListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
+                  {tableData
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
@@ -391,11 +509,11 @@ export default function UserListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={countUsuarios}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
             //
             dense={table.dense}
             onChangeDense={table.onChangeDense}
