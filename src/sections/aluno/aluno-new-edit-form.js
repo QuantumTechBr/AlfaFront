@@ -49,7 +49,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
-  const [necessidadesSelecionadas, setNecessidadesSelecionadas] = useState([]);
 
   const necessidades_options = necessidades_especiais.map(ne => {
     return {value: ne, label: ne}
@@ -228,7 +227,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
               name="necessidades_especiais" 
               label="Necessidades Especiais" 
               options={necessidades_options}
-              // value={necessidadesSelecionadas}
             >
               {necessidades_especiais.map((_ne) => (
                 <MenuItem key={_ne} value={_ne} sx={{ height: '34px' }}>
