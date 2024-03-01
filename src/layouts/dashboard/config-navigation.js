@@ -74,10 +74,6 @@ export function useNavData() {
           title: 'Gerenciamento de Usuários',
           path: paths.dashboard.user.list,
           icon: ICONS.alfaUserProfile,
-          children: [
-            // { title: 'Perfis e Permissões', path: paths.dashboard.blank },
-            { title: t('usuários'), path: paths.dashboard.user.list },
-          ],
         },
 
         // PROFISSIONAIS
@@ -96,14 +92,9 @@ export function useNavData() {
 
         // ANOS
         {
-          title: 'Lista de Anos Letivos',
+          title: 'Calendário (Anos Letivos)',
           path: paths.dashboard.calendar,
           icon: ICONS.alfaCalendar,
-          children: [
-            { title: t('calendário'), path: paths.dashboard.calendar },
-            // { title: t('gerar relatório'), path: paths.dashboard.blank },
-            // { title: t('documentos administrativos'), path: paths.dashboard.blank },
-          ],
         },
 
         // TURMAS
@@ -111,12 +102,6 @@ export function useNavData() {
           title: 'Turmas',
           path: paths.dashboard.turma.list,
           icon: ICONS.alfaBookAccount,
-          children: [
-            { title: t('lista de turmas'), path: paths.dashboard.turma.list },
-            // { title: t('frequência'), path: paths.dashboard.blank },
-            // { title: t('atividades pedagógicas'), path: paths.dashboard.blank },
-            // { title: 'Planos de Aulas', path: paths.dashboard.blank },
-          ],
         },
 
         // AVALIAÇÕES
