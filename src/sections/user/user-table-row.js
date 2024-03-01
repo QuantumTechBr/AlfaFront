@@ -20,10 +20,13 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import UserQuickEditForm from './user-quick-edit-form';
 import { useRouter } from 'src/routes/hook';
 import { paths } from 'src/routes/paths';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
   const funcaoNome = funcao_usuario?.length > 0 ? funcao_usuario[0].funcao.nome : ''
@@ -76,9 +79,10 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
+          {checkPermissaoModulo('usuario', 'editar') && 
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
               <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            </IconButton>}
           </Tooltip>
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -86,8 +90,9 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           </IconButton>
         </TableCell>
       </TableRow>
-
-      <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} />
+      {checkPermissaoModulo('usuario', 'editar') &&       
+        <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} />
+      }
 
       <CustomPopover
         open={popover.open}
@@ -95,6 +100,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         arrow="right-top"
         sx={{ width: 140 }}
       >
+      {checkPermissaoModulo('usuario', 'deletar') && 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -104,8 +110,8 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
-
+        </MenuItem>}
+      {checkPermissaoModulo('usuario', 'editar') && 
         <MenuItem
           onClick={() => {
             onEditRow();
@@ -114,7 +120,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         >
           <Iconify icon="solar:pen-bold" />
           Editar
-        </MenuItem>
+        </MenuItem>}
       </CustomPopover>
 
       <ConfirmDialog

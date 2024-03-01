@@ -92,6 +92,7 @@ export default function UserTableToolbar({
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          width: "100%"
         }}
       >
         <FormControl
