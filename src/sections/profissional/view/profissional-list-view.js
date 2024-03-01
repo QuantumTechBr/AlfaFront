@@ -82,6 +82,8 @@ export default function ProfissionalListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const liberaResults = useBoolean(false);
   const [filters, setFilters] = useState(defaultFilters);
+  
+  const permissaoCadastrar = checkPermissaoModulo("profissionais", "cadastrar");
 
   const table = useTable();
 
@@ -292,7 +294,7 @@ export default function ProfissionalListView() {
             { name: 'Profissionais', href: paths.dashboard.profissional.root },
             { name: 'Listar' },
           ]}
-          action={
+          action={permissaoCadastrar &&
             <Button
               component={RouterLink}
               href={paths.dashboard.profissional.new}
@@ -300,7 +302,6 @@ export default function ProfissionalListView() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: "#00A5AD",
-                visibility: checkPermissaoModulo('profissionais', 'cadastrar') ? "inherit" : "hidden",
               }}
             >
               Adicionar

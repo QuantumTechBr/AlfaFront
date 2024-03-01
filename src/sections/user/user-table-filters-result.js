@@ -74,7 +74,7 @@ export default function UserTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.status !== 'all' && (
           <Block label="Status:">
-            <Chip size="small" label={filters.status ? 'Ativo' : 'Inativo'} onDelete={handleRemoveStatus} />
+            <Chip size="small" label={filters.status == "true" ? "Ativo" : "Inativo"} onDelete={handleRemoveStatus} />
           </Block>
         )}
 

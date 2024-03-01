@@ -99,6 +99,8 @@ export default function AlunoListView() {
   const liberaResults = useBoolean(false);
   const contextReady = useBoolean(false);
 
+  const permissaoCadastrar = checkPermissaoModulo("aluno", "cadastrar");
+
   const table = useTable();
 
   const settings = useSettingsContext();
@@ -290,7 +292,7 @@ export default function AlunoListView() {
             { name: 'Estudantes', href: paths.dashboard.aluno.root },
             { name: 'Listar' },
           ]}
-          action={
+          action={permissaoCadastrar &&
             <Button
               component={RouterLink}
               href={paths.dashboard.aluno.new}
@@ -298,7 +300,6 @@ export default function AlunoListView() {
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: "#00A5AD",
-                visibility: checkPermissaoModulo('aluno', 'cadastrar') ? "inherit" : "hidden",
               }}
             >
               Adicionar

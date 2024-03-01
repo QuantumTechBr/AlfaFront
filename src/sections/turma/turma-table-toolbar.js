@@ -59,6 +59,11 @@ export default function TurmaTableToolbar({
       return escolaOptions.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
 
+  const renderValueZona = (selected) => 
+    selected.map((zonaId) => {
+      return ddzOptions.find((option) => option.id == zonaId)?.nome;
+    }).join(', ');
+
   return (
     <>
       <Stack
@@ -89,7 +94,7 @@ export default function TurmaTableToolbar({
             value={filters.ddz}
             onChange={handleFilterDdz}
             input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueZona}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
