@@ -132,17 +132,17 @@ export default function UserListView() {
 
         for (var i = 0; i < users.length; i++) {
           const funcao = [];
-          const zona = [];
+          const userZona = [];
           const userEscola = [];
           if(users[i].funcao_usuario?.length > 0 ){
             for (let index = 0; index < users[i].funcao_usuario.length; index++) {  
               funcao.push(users[i].funcao_usuario[index].funcao?.id);
               userEscola.push(users[i].funcao_usuario[index].escola?.id);
-              zona.push(users[i].funcao_usuario[index].zona?.id);
+              userZona.push(users[i].funcao_usuario[index].zona?.id);
             }
             users[i].funcao = funcao[0] ? funcao[0] : '';
             users[i].escola = userEscola ? userEscola : '';
-            users[i].zona = zona[0] ? zona[0] : '';
+            users[i].zona = userZona[0] ? userZona[0] : '';
           } else {
             users[i].funcao = '';
             users[i].escola = '';
