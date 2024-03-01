@@ -101,7 +101,7 @@ useEffect(() => {
     () => ({
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
-      data_nascimento: currentAluno?.data_nascimento || '',
+      data_nascimento: currentAluno?.data_nascimento || null,
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
     }),
@@ -230,9 +230,11 @@ useEffect(() => {
             <RHFSelect sx={{
               display: getValues('escola') ? "inherit" : "none"
               }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                {turmas.filter((te) => (
-                  te.escola.id == getValues('escola')
-                ))
+                {turmas.filter((te) => {
+                  if(te.escola?.id) return te.escola.id == getValues('escola');
+                  return false;
+                  
+                })
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
                     {turma.ano_escolar}º {turma.nome}
