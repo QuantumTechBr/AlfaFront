@@ -23,13 +23,11 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
-
-  console.log(row);
 
   let ano_escolar = '';
 
@@ -45,6 +43,10 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 
   const popover = usePopover();
 
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
+  }
 
   return (
     <>
@@ -54,19 +56,12 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma_nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turma_turno}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola_nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{resultado_fase}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
@@ -84,7 +79,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
       </TableRow>
 
       {checkPermissaoModulo('aluno', 'editar') && 
-        <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+        <AlunoQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose}  />
       }
 
       <CustomPopover
@@ -136,6 +131,7 @@ AlunoTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };

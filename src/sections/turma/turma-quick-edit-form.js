@@ -2,7 +2,10 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { yupResolver } from '@hookform/resolvers/yup';
+import _ from 'lodash';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -13,11 +16,12 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import LoadingBox from 'src/components/helpers/loading-box';
+
 // assets
 import { countries } from 'src/assets/data';
 import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
@@ -28,7 +32,10 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
+export default function TurmaQuickEditForm({ id, open, onClose }) {
+  const [currentTurma, setCurrentTurma] = useState();
+  const contextReady = useBoolean(false);
+
   const { enqueueSnackbar } = useSnackbar();
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -37,13 +44,24 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaAnosLetivos().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de Anos Letivos');
-    });
-  }, [])
+    contextReady.onFalse();
+    setErrorMsg('');
+    if (open) {
+      Promise.all([
+        buscaEscolas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas');
+        }),
+        buscaAnosLetivos().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de Anos Letivos');
+        }),
+        turmaMethods.getTurmaById(id).then((response) => {
+          setCurrentTurma(response.data);
+        })
+      ]).then(() => {
+        contextReady.onTrue();
+      });
+    }
+  }, [buscaEscolas, buscaAnosLetivos, open]);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -58,8 +76,8 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       ano_id: currentTurma?.ano?.id || '',
       ano_escolar: currentTurma?.ano_escolar || '',
       escola: currentTurma?.escola || '',
-      escola_id: currentTurma.escola.id || '',
-      turno: currentTurma.turno?.toLowerCase() || '',
+      escola_id: currentTurma?.escola?.id || '',
+      turno: currentTurma?.turno?.toLowerCase() || '',
       status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
     }),
     [currentTurma]
@@ -89,19 +107,22 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
 
-      await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
+      const retornoPatch = await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
         throw error;
       });
-      reset() 
-      onClose();
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
     }
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [currentTurma]);
+
 
   return (
     <Dialog
@@ -113,86 +134,91 @@ export default function TurmaQuickEditForm({ currentTurma, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
-        <DialogContent>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          <br></br>
-          <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
+      {!contextReady.value && <LoadingBox />}
 
-            <RHFSelect name="ano_escolar" label="Ano Escolar">
-              {_anosSerie.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}°
-                </MenuItem>
-              ))}
-            </RHFSelect>
+      {contextReady.value && (
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
+            <RHFTextField name="nome" label="Nome da Turma" sx={{ mb: 3 }} />
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
 
-            <RHFSelect name="turno" label="Turno">
-              {_turnos.map((turno) => (
-                <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
-                  {turno}
-                </MenuItem>
-
-              ))}
-            </RHFSelect>
-
-            <RHFSelect name="ano_id" label="Ano Letivo">
-              {anosLetivos.map((ano) => (
-                <MenuItem key={ano.id} value={ano.id}>
-                  {ano.ano}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-
-            {currentTurma ? 
-              (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
-              :
-              (<RHFSelect name="escola_id" label="Escola" >
-                {escolas.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id} >
-                    {escola.nome}
+              <RHFSelect name="ano_escolar" label="Ano Escolar">
+                {_anosSerie.map((ano) => (
+                  <MenuItem key={ano} value={ano}>
+                    {ano}°
                   </MenuItem>
                 ))}
-              </RHFSelect>)
-              }
+              </RHFSelect>
 
-            <RHFSelect name="status" label="Status">
-              {USER_STATUS_OPTIONS.map((status) => (
-                <MenuItem key={status.value} value={status.value}>
-                  {status.label}
-                </MenuItem>
-              ))}
-            </RHFSelect>
+              <RHFSelect name="turno" label="Turno">
+                {_turnos.map((turno) => (
+                  <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
+                    {turno}
+                  </MenuItem>
 
-          </Box>
-        </DialogContent>
+                ))}
+              </RHFSelect>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+              <RHFSelect name="ano_id" label="Ano Letivo">
+                {anosLetivos.map((ano) => (
+                  <MenuItem key={ano.id} value={ano.id}>
+                    {ano.ano}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+              {currentTurma ? 
+                (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
+                :
+                (<RHFSelect name="escola_id" label="Escola" >
+                  {escolas.map((escola) => (
+                    <MenuItem key={escola.id} value={escola.id} >
+                      {escola.nome}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>)
+                }
+
+              <RHFSelect name="status" label="Status">
+                {USER_STATUS_OPTIONS.map((status) => (
+                  <MenuItem key={status.value} value={status.value}>
+                    {status.label}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
+            </Box>
+          </DialogContent>
+
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancelar
+            </Button>
+
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
+      )}
     </Dialog>
   );
 }
 
 TurmaQuickEditForm.propTypes = {
-  currentTurma: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
   open: PropTypes.bool,
 };

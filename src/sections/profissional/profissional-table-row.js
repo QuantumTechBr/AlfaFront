@@ -30,7 +30,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
   // console.log(row)
@@ -38,17 +38,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const [errorMsg, setErrorMsg] = useState('');
-
-  const user = {
-    id: row?.id,
-    nome: row?.profissional,
-    email: row?.email,
-    funcao: row?.funcao,
-    escola: row?.escola,
-    zona: row?.zona,
-    turma: row?.turma,
-    status: row?.status
-  }
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -63,8 +52,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   }, [buscaFuncoes, buscaEscolas, buscaZonas]);
 
-  const profissionalRender = profissional.toLowerCase();
-
   const confirm = useBoolean();
 
   const newDeleteRow = () => {
@@ -76,6 +63,12 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   const popover = usePopover();
 
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
+  }
+
+  const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
   const renderFuncao = () => {
     for (let index = 0; index < funcoes.length; index++) {
@@ -148,7 +141,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
       </TableRow>
 
       {checkPermissaoModulo('profissionais', 'editar') && 
-        <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
+        <ProfissionalQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
       }
 
       <CustomPopover
@@ -200,6 +193,7 @@ ProfissionalTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };

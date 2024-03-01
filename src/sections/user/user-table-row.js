@@ -25,13 +25,11 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
-  const funcaoNome = funcao_usuario?.length > 0 ? funcao_usuario[0].funcao.nome : ''
-
-  const router = useRouter();
+  const funcaoNome = funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : ''
 
   const confirm = useBoolean();
 
@@ -44,7 +42,12 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
     confirm.onFalse();
   }
 
-  const closeQuickEdit = (retorno=null) => {
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
+  }
+
+  const closeQuickEdit = () => {
     quickEdit.onFalse();
   }
 
@@ -75,8 +78,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           </Label>
         </TableCell>
 
-
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
           {checkPermissaoModulo('usuario', 'editar') && 
@@ -91,7 +92,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
       {checkPermissaoModulo('usuario', 'editar') &&       
-        <UserQuickEditForm currentUser={row} open={quickEdit.value} onClose={closeQuickEdit} />
+        <UserQuickEditForm id={row.id} open={quickEdit.value} onClose={closeQuickEdit} onSave={saveAndClose} />
       }
 
       <CustomPopover
@@ -142,6 +143,7 @@ UserTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };

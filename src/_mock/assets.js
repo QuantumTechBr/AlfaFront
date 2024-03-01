@@ -328,7 +328,7 @@ export const habilidades_3ano = [
   {id: '9115650a-753f-12e0-ab9f-4428f409737f', descricao: 'H8 - Amplia a sacada do olhar para porções maiores de texto que meras palavras, desenvolvendo assim fluência e rapidez de leitura(fatiamento)(EF02LP26)' },
 ];
 
-export const _turnos = ['matutino', 'vespertino', 'noturno'];
+export const _turnos = ['matutino', 'vespertino', 'noturno', 'integral'];
 
 const RegistroAprendizagemTipos = {
   diagnostico: 'Diagnóstica',
