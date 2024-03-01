@@ -205,9 +205,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
             <RHFSelect sx={{
               display: getValues('escola') ? "inherit" : "none"
               }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                {turmas.filter((te) => {
-                  te.escola?.id == getValues('escola');
-                })
+                {turmas.filter((te) => te.escola_id == getValues('escola'))
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
                     {turma.ano_escolar}º {turma.nome}
