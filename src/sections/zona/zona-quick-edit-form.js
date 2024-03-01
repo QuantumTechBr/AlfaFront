@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { yupResolver } from '@hookform/resolvers/yup';
 import _ from 'lodash';
 
@@ -103,7 +104,7 @@ export default function ZonaQuickEditForm({ id, open, onClose, onSave }) {
 
   useEffect(() => {
     reset(defaultValues);
-  }, [currentUser]);
+  }, [currentZona]);
 
   return (
     <Dialog
