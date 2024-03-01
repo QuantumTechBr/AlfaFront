@@ -197,7 +197,7 @@ export default function AlunoQuickEditForm({ currentAluno, open, onClose }) {
               display: getValues('escola') ? "inherit" : "none"
               }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
                 {turmas.filter((te) => (
-                  te?.escola?.id == getValues('escola')
+                  te?.escola_id == getValues('escola')
                 ))
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
