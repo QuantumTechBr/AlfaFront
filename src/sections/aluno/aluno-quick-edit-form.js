@@ -73,8 +73,8 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
         buscaAnosLetivos().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de anos letivos');
         }),
-        alunoMethods.getAlunoById(id).then((aluno) => {
-          const _currentAluno = Object.assign(aluno.data);
+        alunoMethods.getAlunoById(id).then((response) => {
+          const _currentAluno = Object.assign(response.data);
           _currentAluno.data_nascimento = parseISO(_currentAluno.data_nascimento);
           setCurrentAluno(_currentAluno);
         }),
@@ -261,9 +261,8 @@ useEffect(() => {
 }
 
 AlunoQuickEditForm.propTypes = {
-  currentAluno: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
-
   open: PropTypes.bool,
 };

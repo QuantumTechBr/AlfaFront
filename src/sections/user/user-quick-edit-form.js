@@ -74,8 +74,8 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
         buscaPermissoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de permissoes');
         }),
-        userMethods.getUserById(id).then((usuario) => {
-          const _currentUser = Object.assign(usuario.data);
+        userMethods.getUserById(id).then((response) => {
+          const _currentUser = Object.assign(response.data);
           _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
           _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
           _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
@@ -402,7 +402,7 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
 }
 
 UserQuickEditForm.propTypes = {
-  currentUser: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,

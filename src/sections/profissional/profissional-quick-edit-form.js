@@ -73,8 +73,8 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
         buscaPermissoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de permissoes');
         }),
-        userMethods.getUserById(id).then((profissional) => {
-          const _currentUser = Object.assign(profissional.data);
+        userMethods.getUserById(id).then((response) => {
+          const _currentUser = Object.assign(response.data);
 
           _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
           _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
@@ -429,7 +429,7 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
 }
 
 ProfissionalQuickEditForm.propTypes = {
-  currentUser: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,
