@@ -14,25 +14,19 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // assets
-import { countries } from 'src/assets/data';
 import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
 
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import zonaMethods from './zona-repository';
 
 // ----------------------------------------------------------------------
 
 export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
   const { enqueueSnackbar } = useSnackbar();
-  
 
   const [errorMsg, setErrorMsg] = useState('');
-
 
   const NewZonaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -48,7 +42,6 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
       fone_responsavel: currentZona?.fone_responsavel || '',
       email_responsavel: currentZona?.email_responsavel || '',
       cidade: currentZona?.cidade?.nome || 'Manaus',
-
     }),
     [currentZona]
   );
@@ -67,17 +60,17 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       var novaZona = {
-        nome:  data.nome,
+        nome: data.nome,
         nome_responsavel: data.nome_responsavel,
         fone_responsavel: data.fone_responsavel,
         email_responsavel: data.email_responsavel,
-        cidade_id: "4a12c279-f19a-fae9-9c97-9b503e4bbc2c",
-      }
+        cidade_id: '4a12c279-f19a-fae9-9c97-9b503e4bbc2c',
+      };
 
       await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
         throw error;
       });
-      reset() 
+      reset();
       onClose();
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
@@ -87,8 +80,6 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
       console.error(error);
     }
   });
-
-
 
   return (
     <Dialog
@@ -105,29 +96,27 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
         <DialogContent>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
-          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
+          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }} />
 
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-
-            >
-              <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }}/>
-              <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }}/>
-              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }}/>
-              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
-
+          <Box
+            rowGap={3}
+            columnGap={2}
+            display="grid"
+            gridTemplateColumns={{
+              xs: 'repeat(1, 1fr)',
+              sm: 'repeat(2, 1fr)',
+            }}
+          >
+            <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }} />
+            <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }} />
+            <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }} />
+            <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }} />
           </Box>
         </DialogContent>
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
