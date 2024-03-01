@@ -21,6 +21,7 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFMultiSelect
 } from 'src/components/hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -34,6 +35,8 @@ import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
+// _mock
+import { necessidades_especiais } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -46,6 +49,11 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
+  const [necessidadesSelecionadas, setNecessidadesSelecionadas] = useState([]);
+
+  const necessidades_options = necessidades_especiais.map(ne => {
+    return {value: ne, label: ne}
+  })
 
   const alunoNascimento = useMemo(() => {
     if (currentAluno) {
@@ -67,6 +75,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       data_nascimento: alunoNascimento,
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
+      necessidades_especiais: currentAluno?.necessidades_especiais?.length ? currentAluno.necessidades_especiais: [],
     }),
     [currentAluno, alunoNascimento]
   );
@@ -206,7 +215,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
               display: getValues('escola') ? "inherit" : "none"
               }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
                 {turmas.filter((te) => (
-                  te.escola.id == getValues('escola')
+                  te.escola_id == getValues('escola')
                 ))
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
@@ -214,6 +223,20 @@ export default function AlunoNewEditForm({ currentAluno }) {
                   </MenuItem>
                 ))}
             </RHFSelect>  
+
+            <RHFMultiSelect 
+              name="necessidades_especiais" 
+              label="Necessidades Especiais" 
+              options={necessidades_options}
+              // value={necessidadesSelecionadas}
+            >
+              {necessidades_especiais.map((_ne) => (
+                <MenuItem key={_ne} value={_ne} sx={{ height: '34px' }}>
+                  {_ne}
+                </MenuItem>
+              ))}
+            </RHFMultiSelect>
+
 
             </Box>
 

@@ -283,6 +283,8 @@ export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
 
 export const fases_options = ['', 'Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
 
+export const necessidades_especiais = ['', 'Deficiência visual', 'Deficiência auditiva', 'Deficiência locomotora', 'Autismo'];
+
 export const habilidades_1ano = [
   {id: '33d4467f-c3a0-cf32-69dc-b98eb5e857bc', descricao: 'H1 - Respeita e expressa sentimentos e emoções.' },
   {id: '035e3ecf-f7c1-37f3-3f92-45dff7678dbd', descricao: 'H2 - Atua em grupo e demonstra interesse em construir novas relações, respeitando a diversidade e solidarizando-se com os outros' },
