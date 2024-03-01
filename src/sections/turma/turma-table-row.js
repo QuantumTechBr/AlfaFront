@@ -28,7 +28,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableRow({ row, showEscola, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function TurmaTableRow({ row, showEscola, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { id, nome, escola, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
 
   // console.log(row)
@@ -49,6 +49,11 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
     const turmaId = id
     // sessionStorage.setItem('filtroTurmaId', turmaId);
     // router.push(paths.dashboard.aluno.list);
+  }
+
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
   }
 
   const checkProfessor = user?.funcao_usuario[0]?.funcao?.nome == 'PROFESSOR';
@@ -118,7 +123,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
       </TableRow>
 
       {/* TODO TRAZER PARA PÁGINA PRINCIPAL O MODAL, RETIRAR DE CADA LINHA */}
-      <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <TurmaQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
 
       <CustomPopover
         open={popover.open}
@@ -170,6 +175,7 @@ TurmaTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   showEscola: PropTypes.bool,
   selected: PropTypes.bool,
