@@ -25,7 +25,7 @@ import EscolaQuickEditForm from './escola-quick-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { id, nome, endereco, zona, cidade, created_at, updated_at, deleted_at } = row;
 
   const confirm = useBoolean();
@@ -35,6 +35,11 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
   const router = useRouter();
 
   const popover = usePopover();
+
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
+  }
 
   return (
     <>
@@ -64,7 +69,7 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
         </TableCell>
       </TableRow>
 
-      <EscolaQuickEditForm currentEscola={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <EscolaQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
 
       <CustomPopover
         open={popover.open}
@@ -113,6 +118,7 @@ EscolaTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };

@@ -180,6 +180,16 @@ export default function EscolaListView() {
     },
     [handleFilters]
   );
+  
+  const handleSaveRow = useCallback((novosDados) => {
+    const _tableData = tableData.map((item) => {
+      if (item.id === novosDados.id) {
+        return {...item, ...novosDados};
+      }
+      return item;
+    });
+    setTableData(_tableData);
+  }, [tableData]);
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
@@ -290,6 +300,7 @@ export default function EscolaListView() {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
+                        onSaveRow={(novosDados) => handleSaveRow(novosDados)}
                       />
                     ))}
 
