@@ -3,6 +3,8 @@ import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
+import _ from 'lodash';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -13,6 +15,8 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import LoadingBox from 'src/components/helpers/loading-box';
+
 // assets
 import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
@@ -23,10 +27,27 @@ import zonaMethods from './zona-repository';
 
 // ----------------------------------------------------------------------
 
-export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
+export default function ZonaQuickEditForm({ id, open, onClose, onSave }) {
+  const [currentZona, setCurrentZona] = useState();
+  const contextReady = useBoolean(false);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const [errorMsg, setErrorMsg] = useState('');
+  
+  useEffect(() => {
+    contextReady.onFalse();
+    setErrorMsg('');
+    if (open) {
+      Promise.all([
+        zonaMethods.getZonaById(id).then((response) => {
+          setCurrentZona(response.data);
+        }),
+      ]).then(() => {
+        contextReady.onTrue();
+      });
+    }
+  }, [open]);
 
   const NewZonaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -67,19 +88,22 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
         cidade_id: '4a12c279-f19a-fae9-9c97-9b503e4bbc2c',
       };
 
-      await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
+      const retornoPatch = await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
         throw error;
       });
-      reset();
-      onClose();
+      
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-      console.info('DATA', data);
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da zona falhou');
       console.error(error);
     }
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [currentUser]);
 
   return (
     <Dialog
@@ -91,45 +115,49 @@ export default function ZonaQuickEditForm({ currentZona, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
-        <DialogContent>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          <br></br>
-          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }} />
+      {!contextReady.value && <LoadingBox />}
 
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
-            <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }} />
-            <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }} />
-            <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }} />
-            <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }} />
-          </Box>
-        </DialogContent>
+      {contextReady.value && (
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
+            <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }} />
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancelar
-          </Button>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
+              <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }} />
+              <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }} />
+              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }} />
+              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }} />
+            </Box>
+          </DialogContent>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancelar
+            </Button>
+
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
+      )}
     </Dialog>
   );
 }
 
 ZonaQuickEditForm.propTypes = {
-  currentZona: PropTypes.object,
+  id: PropTypes.string,
   onClose: PropTypes.func,
   open: PropTypes.bool,
 };

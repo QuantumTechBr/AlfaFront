@@ -25,7 +25,7 @@ import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
-export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { id, nome, nome_responsavel, fone_responsavel, email_responsavel, cidade, created_at, updated_at, deleted_at } = row;
 
   const confirm = useBoolean();
@@ -35,6 +35,11 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
   const router = useRouter();
 
   const popover = usePopover();
+
+  const saveAndClose = (retorno=null) => {
+    onSaveRow({...row, ...retorno});
+    quickEdit.onFalse();
+  }
 
   return (
     <>
@@ -66,7 +71,7 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      <ZonaQuickEditForm currentZona={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
+      <ZonaQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
 
       <CustomPopover
         open={popover.open}
@@ -115,6 +120,7 @@ ZonaTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
+  onSaveRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };
