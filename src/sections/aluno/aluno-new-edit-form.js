@@ -242,7 +242,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
             <RHFSelect sx={{
               display: getValues('necessidades_especiais') ? "inherit" : "none"
-              }} id={`laudo`} disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
+              }} id="laudo" disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
                 <MenuItem key='laudo_sim' value='true'>
                   SIM
                 </MenuItem>
