@@ -21,7 +21,7 @@ export default function UserEditView({ id }) {
   const settings = useSettingsContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  const [currentUser, setCurrentUser] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
   useEffect(()  => {
     userMethods.getUserById(id).then(usuario => {
       if (usuario.data.funcao_usuario.length > 0) {
@@ -72,7 +72,7 @@ export default function UserEditView({ id }) {
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-      <UserNewEditForm currentUser={currentUser} />
+      {currentUser && <UserNewEditForm currentUser={currentUser} />}
     </Container>
   );
 }

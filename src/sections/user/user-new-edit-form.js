@@ -49,6 +49,9 @@ export default function UserNewEditForm({ currentUser }) {
 
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect (() => {
+    console.log(currentUser)
+  }, [])
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -63,6 +66,7 @@ export default function UserNewEditForm({ currentUser }) {
     buscaPermissoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
+
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
@@ -205,19 +209,25 @@ export default function UserNewEditForm({ currentUser }) {
   useEffect(()  => {
     reset(defaultValues)
     const escIds = [];
-    currentUser?.escola?.map((escolaId) => {
-      escIds.push(escolaId)
-    })
+    if (currentUser?.escola) {
+      currentUser.escola.map((escolaId) => {
+        escIds.push(escolaId)
+      })   
+    }
     const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
-  }, [reset, currentUser?.escola, defaultValues]);
+  }, [reset, currentUser, defaultValues]);
   
   useEffect(()  => {
-    setFilters(filtros);
-    setValue('escola', '');
-    setValue('zona', '');
+    console.log(defaultValues.funcao)
+    console.log(getValues('zona'))
+    if (getValues('funcao') != defaultValues.funcao) {
+      setFilters(filtros);
+      setValue('escola', '');
+      setValue('zona', '');
+    }
   }, [funcao, setValue]);
 
   const handleFilters = useCallback(
@@ -341,7 +351,7 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              {escolaOuZona()}
+              {zonas && escolas && escolaOuZona()}
 
             </Box>
 
