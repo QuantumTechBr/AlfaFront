@@ -78,7 +78,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
       escola: currentTurma?.escola || '',
       escola_id: currentTurma?.escola?.id || '',
       turno: currentTurma?.turno?.toLowerCase() || '',
-      status: (currentTurma?.status == 'true' ? 'true' : 'false')  || ''
+      status: (currentTurma?.status ? 'true' : 'false')  || ''
     }),
     [currentTurma]
   );
