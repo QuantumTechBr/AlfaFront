@@ -81,7 +81,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
   useEffect(() => {
     if (open) {
       setCurrentProfessoresEscola(null);
-      getProfessoresEscola(turma.escola.id);
+      getProfessoresEscola(turma.escola_id);
     }
   }, [open]);
 
