@@ -123,14 +123,14 @@ export default function AlunoNewEditForm({ currentAluno }) {
         ]
       }
       const nascimento = new Date(data.data_nascimento)
-      const necessidades_especiais = JSON.stringify(data.necessidades_especiais);
+      const necessidades_especiais_data = JSON.stringify(data.necessidades_especiais);
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
         alunos_turmas: aluno_turmas,
-        necessidades_especiais: necessidades_especiais,
+        necessidades_especiais: necessidades_especiais_data,
         laudo_necessidade: data.laudo
       }
       if (currentAluno) {
