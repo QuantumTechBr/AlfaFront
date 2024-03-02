@@ -16,10 +16,12 @@ import { FormControl, Tooltip } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import Iconify from 'src/components/iconify';
+import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, nome, necessidades_especiais, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
 
@@ -38,6 +40,23 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       getMapResultados();
     }
   }, [periodo, getMapResultados]);
+
+  const nomeAluno = () => {
+    return (
+        <Box>
+          {row.aluno.nome}
+         {necessidades_especiais &&
+          <Tooltip title={necessidades_especiais}>
+            <Iconify 
+              icon="mdi:wheelchair"
+              sx={{
+                ml: 1,
+              }}
+              />
+          </Tooltip>}
+        </Box>
+    );
+  };
 
  
 
@@ -82,7 +101,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     <TableRow hover selected={selected}>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row.aluno.nome}  
+          {nomeAluno()}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >
