@@ -21,7 +21,7 @@ import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, necessidades_especiais, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
 
@@ -42,6 +42,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }, [periodo, getMapResultados]);
 
   const nomeAluno = () => {
+    const necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : null;
     return (
         <Box>
           {row.aluno.nome}
