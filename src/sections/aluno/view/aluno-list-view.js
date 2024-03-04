@@ -128,6 +128,9 @@ export default function AlunoListView() {
         contextReady.onTrue();
       } else {
         const listaAlunos = alunos.data.results;
+        listaAlunos.map(aluno => {
+          aluno.necessidades_especiais = aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : null;
+        })
         setAlunoList([...oldAlunoList, ...listaAlunos]);
         setTableData([...oldAlunoList, ...listaAlunos]);
         contextReady.onTrue();

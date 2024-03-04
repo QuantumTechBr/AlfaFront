@@ -22,7 +22,7 @@ import { useRouter } from 'src/routes/hook';
 import { _tiposAvaliacao, _periodos } from 'src/_mock';
 
 // components
-import FormProvider, { RHFMultiSelect, RHFSelect } from 'src/components/hook-form';
+import FormProvider, { RHFSelect } from 'src/components/hook-form';
 
 import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';

@@ -16,6 +16,8 @@ import { FormControl, Tooltip } from '@mui/material';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import Iconify from 'src/components/iconify';
+import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
@@ -38,6 +40,24 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       getMapResultados();
     }
   }, [periodo, getMapResultados]);
+
+  const nomeAluno = () => {
+    const necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : null;
+    return (
+        <Box>
+          {row.aluno.nome}
+         {necessidades_especiais &&
+          <Tooltip title={necessidades_especiais}>
+            <Iconify 
+              icon="mdi:wheelchair"
+              sx={{
+                ml: 1,
+              }}
+              />
+          </Tooltip>}
+        </Box>
+    );
+  };
 
  
 
@@ -82,7 +102,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     <TableRow hover selected={selected}>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row.aluno.nome}  
+          {nomeAluno()}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >

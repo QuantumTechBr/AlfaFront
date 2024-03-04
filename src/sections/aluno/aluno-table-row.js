@@ -19,13 +19,15 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import AlunoQuickEditForm from './aluno-quick-edit-form';
 import parse from 'date-fns/parse';
 import { useAuthContext } from 'src/auth/hooks';
+import { Box } from '@mui/material';
+
 
 
 // ----------------------------------------------------------------------
 
 export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
   const { checkPermissaoModulo } = useAuthContext();
-  const { id, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+  const { id, necessidades_especiais, turma_ano_escolar, turma_nome, turma_turno, turma, turno, escola_nome, resultado_fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
 
@@ -48,6 +50,23 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
     quickEdit.onFalse();
   }
 
+  const nomeAluno = () => {
+    return (
+        <Box>
+          {nome}
+         {necessidades_especiais &&
+          <Tooltip title={necessidades_especiais}>
+            <Iconify 
+              icon="mdi:wheelchair"
+              sx={{
+                ml: 1,
+              }}
+              />
+          </Tooltip>}
+        </Box>
+    );
+  };
+
   return (
     <>
       <TableRow hover selected={selected}>
@@ -55,7 +74,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nomeAluno()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma_nome}</TableCell>

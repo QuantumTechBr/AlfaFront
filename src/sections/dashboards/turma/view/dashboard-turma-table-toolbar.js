@@ -198,7 +198,7 @@ export default function DashboardTurmaTableToolbar({
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
                   {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
-                    filters.escola.length != 1 ? ` (${option.escola.nome})` : ''
+                    filters.escola.length != 1 ? ` (${option.escola?.nome})` : ''
                   } `}
                 </MenuItem>
               ))}
