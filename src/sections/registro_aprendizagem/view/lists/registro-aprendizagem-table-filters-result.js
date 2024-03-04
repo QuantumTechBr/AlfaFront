@@ -55,11 +55,11 @@ export default function RegistroAprendizagemTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.anoLetivo && filters.anoLetivo !== '' && (
+        {/* {filters.anoLetivo && filters.anoLetivo !== '' && (
           <Block label="Ano Letivo:">
             <Chip size="small" label={filters.anoLetivo.ano} onDelete={handleRemoveAnoLetivo} />
           </Block>
-        )}
+        )} */}
 
         {filters.pesquisa && filters.pesquisa !== '' && (
           <Block label="Pesquisa:">
@@ -67,7 +67,7 @@ export default function RegistroAprendizagemTableFiltersResult({
           </Block>
         )}
 
-        {!!filters.escola.length && (
+        {/* {!!filters.escola.length && (
           <Block label="Escola:">
             {filters.escola.map((item) => (
               <Chip
@@ -78,14 +78,14 @@ export default function RegistroAprendizagemTableFiltersResult({
               />
             ))}
           </Block>
-        )}
+        )} */}
 
         {!!filters.turma.length && (
           <Block label="Turma:">
             {filters.turma.map((item) => (
               <Chip
                 key={item.id}
-                label={`${item.ano_escolar}º ${item.nome}`}
+                label={`${item.ano_escolar}º ${item.nome} (${item.turno})`}
                 size="small"
                 onDelete={() => handleRemoveTurma(item)}
               />

@@ -34,10 +34,7 @@ export default function RegistroAprendizagemTableToolbar({
   // }
   const popover = usePopover();
 
-  const handleFilterPesquisa = useCallback(
-    (event) => onFilters('pesquisa', event.target.value),
-    [onFilters]
-  );
+  
 
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
@@ -47,8 +44,7 @@ export default function RegistroAprendizagemTableToolbar({
   const handleFilterEscola = useCallback(
     (event) =>
       onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        'escola', event.target.value
       ),
     [onFilters]
   );
@@ -127,11 +123,10 @@ export default function RegistroAprendizagemTableToolbar({
             <InputLabel>Escola</InputLabel>
 
             <Select
-              multiple
               value={filters.escola}
               onChange={handleFilterEscola}
               input={<OutlinedInput label="Escola" />}
-              renderValue={(selected) => selected.map((item) => item.nome).join(', ')}
+              renderValue={(selected) => `${selected.nome}`}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
@@ -140,7 +135,6 @@ export default function RegistroAprendizagemTableToolbar({
             >
               {escolaOptions.map((option) => (
                 <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
                   {option.nome}
                 </MenuItem>
               ))}
@@ -152,10 +146,10 @@ export default function RegistroAprendizagemTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 120 },
+              width: { xs: 1, md: 210 },
             }}
           >
-            <InputLabel>Turma</InputLabel>
+            <InputLabel>Turmas</InputLabel>
 
             <Select
               multiple
@@ -163,7 +157,7 @@ export default function RegistroAprendizagemTableToolbar({
               onChange={handleFilterTurma}
               input={<OutlinedInput label="Turma" />}
               renderValue={(selected) =>
-                selected.map((item) => `${item.ano_escolar}º ${item.nome}`).join(', ')
+                selected.map((item) => `${item.ano_escolar}º ${item.nome} (${item.turno})`).join(', ')
               }
               MenuProps={{
                 PaperProps: {
@@ -175,7 +169,7 @@ export default function RegistroAprendizagemTableToolbar({
                 return (
                   <MenuItem key={option.id} value={option}>
                     <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
-                    {` ${option.ano_escolar}º ${option.nome}`}
+                    {` ${option.ano_escolar}º ${option.nome} (${option.turno})`}
                   </MenuItem>
                 );
               })}
@@ -257,25 +251,10 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.pesquisa}
-            onChange={handleFilterPesquisa}
-            placeholder="Pesquisar..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
 
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </Stack>
+        <IconButton onClick={popover.onOpen}>
+          <Iconify icon="eva:more-vertical-fill" />
+        </IconButton>
       </Stack>
 
       <CustomPopover
@@ -287,8 +266,10 @@ export default function RegistroAprendizagemTableToolbar({
         <MenuItem
           onClick={() => {
             let exportFilters = Object.assign({}, filters);
+            exportFilters.anoLetivo = exportFilters.anoLetivo.id;
             exportFilters.turma = exportFilters.turma.map((item) => item.id);
-            exportFilters.escola = exportFilters.escola.map((item) => item.id);
+            exportFilters.escola = exportFilters.escola.id;
+            exportFilters.bimestre = exportFilters.bimestre.map((item) => item.id);
 
             exportFilters = { ...exportFilters, export: 'csv' };
             const query = new URLSearchParams(exportFilters).toString();
