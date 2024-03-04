@@ -146,7 +146,7 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
-      funcao: currentUser?.funcao || '',
+      funcao: currentUser ? typeof currentUser?.funcao == 'object' ? _.first(currentUser?.funcao) : currentUser?.funcao :  '',
       status: (currentUser?.status ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',

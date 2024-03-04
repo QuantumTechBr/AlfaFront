@@ -144,7 +144,7 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
-      funcao: currentUser?.funcao || '',
+      funcao: currentUser ? typeof currentUser?.funcao == 'object' ? _.first(currentUser?.funcao) : currentUser?.funcao :  '',
       status: (currentUser?.status ? "true" : "false") || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
@@ -356,6 +356,7 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
               rowGap={3}
               columnGap={2}
               display="grid"
+              mb={3}
               gridTemplateColumns={{
                 xs: 'repeat(1, 1fr)',
                 sm: 'repeat(2, 1fr)',
@@ -363,6 +364,18 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
             >
               <RHFTextField name="nome" label="Nome Completo" />
               <RHFTextField name="email" label="Email" />
+            </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              mb={3}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
@@ -371,7 +384,32 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
                       {_funcao.nome}
                     </MenuItem>
                   ))}
-                </RHFSelect>
+              </RHFSelect>
+            </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              mb={3}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(1, 1fr)',
+              }}
+            >
+              {escolaOuZona()}
+            </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              mb={3}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
 
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
@@ -380,10 +418,8 @@ export default function UserQuickEditForm({ id, open, onClose, onSave }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
-
-              {escolaOuZona()}
-
             </Box>
+
           </DialogContent>
 
           <DialogActions>
