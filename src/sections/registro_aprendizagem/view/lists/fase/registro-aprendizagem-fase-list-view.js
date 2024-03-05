@@ -263,7 +263,7 @@ export default function RegistroAprendizagemFaseListView() {
         </Button>
       </Stack>
 
-      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} initialTipo='Avaliação de Fase' />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
