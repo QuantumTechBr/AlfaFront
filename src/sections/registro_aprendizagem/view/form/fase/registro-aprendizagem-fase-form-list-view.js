@@ -309,7 +309,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   }, [contextReady.value]);
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
       <CustomBreadcrumbs
         heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
         links={[
