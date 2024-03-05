@@ -24,7 +24,7 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano, nome, turno, turmas_alunos, periodo, escola, atualizado_por, created_at, updated_at, deleted_at } = row;
+  const { id, ano_escolar, ano, nome, turno, periodo, escola, atualizado_por, created_at, updated_at, deleted_at } = row;
 
   const router = useRouter();
 
@@ -51,7 +51,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
           <Checkbox checked={selected} onClick={onSelectRow} />
         </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.ano_letivo}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
 
@@ -59,11 +59,11 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turmas_alunos.length}</TableCell>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{turmas_alunos.length}</TableCell> */}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodo}</TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>

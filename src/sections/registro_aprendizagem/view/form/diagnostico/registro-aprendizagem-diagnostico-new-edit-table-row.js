@@ -46,10 +46,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     return (
         <Box>
           {row.aluno.nome}
-         {necessidades_especiais &&
+         {necessidades_especiais != "" &&
           <Tooltip title={necessidades_especiais}>
             <Iconify 
-              icon="mdi:wheelchair"
+              icon="mdi:alphabet-n-circle-outline"
               sx={{
                 ml: 1,
               }}
