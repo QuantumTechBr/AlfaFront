@@ -86,6 +86,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
+  const buscando = useBoolean(false);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -111,29 +112,31 @@ export default function RegistroAprendizagemFaseListView() {
   }, []); // CHAMADA UNICA AO ABRIR
 
   useEffect(() => {
-    const _filters = {};
+    if (contextReady.value) {
+      const _filters = {};
 
-    if (anosLetivos.length && contextReady.value) _filters.anoLetivo = first(anosLetivos) ?? '';
-    if (escolas.length && escolas.length == 1) _filters.escola = first(escolas) ?? [];
+      if (anosLetivos.length && contextReady.value) _filters.anoLetivo = first(anosLetivos) ?? '';
+      if (escolas.length && escolas.length == 1) _filters.escola = first(escolas) ?? [];
 
-    setFilters((prevState) => ({
-      ...prevState,
-      ..._filters,
-    }));
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
 
-    tabelaPreparada.onTrue();
-    if (_filters.anoLetivo && _filters.escola) {
-      buscarAvaliacoes();
+      if (_filters.anoLetivo && _filters.escola) {
+        buscarAvaliacoes();
+      }
     }
   }, [contextReady.value]);
 
-  const buscarAvaliacoes = () => {
-    tabelaPreparada.onFalse();
-    setTableData([]);
-    setWarningMsg('');
-    setErrorMsg('');
-
+  const buscarAvaliacoes = async () => {
     if (contextReady.value && anosLetivos.length && turmas.length && bimestres.length) {
+      setTableData([]);
+      tabelaPreparada.onFalse();
+      buscando.onTrue();
+      setWarningMsg('');
+      setErrorMsg('');
+
       const _registrosAprendizagemFase = [];
 
       const _filtersToSend = {
@@ -143,7 +146,7 @@ export default function RegistroAprendizagemFaseListView() {
         ),
       };
 
-      registroAprendizagemMethods
+      await registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
         .then((_turmasComRegistros) => {
           _turmasComRegistros.data.forEach((registro) => {
@@ -169,7 +172,9 @@ export default function RegistroAprendizagemFaseListView() {
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
         });
-    }
+
+        buscando.onFalse();
+      }
   };
 
   useEffect(() => {
@@ -263,7 +268,11 @@ export default function RegistroAprendizagemFaseListView() {
         </Button>
       </Stack>
 
-      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} initialTipo='Avaliação de Fase' />
+      <NovaAvaliacaoForm
+        open={novaAvaliacao.value}
+        onClose={closeNovaAvaliacao}
+        initialTipo="Avaliação de Fase"
+      />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -305,9 +314,9 @@ export default function RegistroAprendizagemFaseListView() {
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <Scrollbar>
-            {!contextReady.value || !tabelaPreparada.value ? (
-              <LoadingBox />
-            ) : (
+            {(!contextReady.value || buscando.value) && <LoadingBox />}
+            
+            {contextReady.value && tabelaPreparada.value && (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}

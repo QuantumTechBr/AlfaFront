@@ -83,8 +83,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
             <Select
               value={filters.anoLetivo}
               onChange={handleFilterAnoLetivo}
-              input={<OutlinedInput label="AnoLetivo" />}
-              renderValue={(selected) => `${selected.ano}`}
+              input={<OutlinedInput label="Ano Letivo" />}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
@@ -94,13 +93,14 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
               {anoLetivoOptions.map((option) => {
                 return (
                   <MenuItem key={option.id} value={option}>
-                    {` ${option.ano}`}
+                    {`${option.ano}`}
                   </MenuItem>
                 );
               })}
             </Select>
           </FormControl>
         )}
+
         {escolaOptions && (
           <FormControl
             sx={{
@@ -114,7 +114,6 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
               value={filters.escola}
               onChange={handleFilterEscola}
               input={<OutlinedInput label="Escola" />}
-              renderValue={(selected) => `${selected.nome}`}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
@@ -124,13 +123,14 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
               {escolaOptions.map((option) => {
                 return (
                   <MenuItem key={option.id} value={option}>
-                    {` ${option.nome}`}
+                    {`${option.nome}`}
                   </MenuItem>
                 );
               })}
             </Select>
           </FormControl>
         )}
+
         {turmaOptions && (
           <FormControl
             sx={{
@@ -163,6 +163,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
             </Select>
           </FormControl>
         )}
+
         {bimestreOptions && (
           <FormControl
             sx={{
@@ -185,7 +186,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
             >
               {bimestreOptions.map((option) => {
                 return (
-                  <MenuItem key={`bimestre_${option.id}`} value={option}>
+                  <MenuItem key={option.id} value={option}>
                     {`${option.ordinal}º`}
                   </MenuItem>
                 );

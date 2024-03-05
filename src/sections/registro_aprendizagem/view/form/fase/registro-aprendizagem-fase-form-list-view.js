@@ -1,7 +1,6 @@
 'use client';
 
-import { isEqual, last } from 'lodash';
-
+import { last } from 'lodash';
 import { useEffect, useState, useCallback } from 'react';
 
 // @mui
@@ -28,13 +27,10 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 // components
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
-import { useSnackbar } from 'src/components/snackbar';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
 import FormProvider from 'src/components/hook-form';
@@ -67,7 +63,7 @@ const TABLE_HEAD = [
   { id: 'observacao', label: 'Observação' },
 ];
 
-const defaultFilters = { nome: '' };
+const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', nome: '' };
 
 // ----------------------------------------------------------------------
 
@@ -76,7 +72,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const router = useRouter();
   const table = useTable();
 
-  const { enqueueSnackbar } = useSnackbar();
   const [filters, setFilters] = useState(defaultFilters);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -92,6 +87,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
+  const buscando = useBoolean(false);
 
   const initialFormValues = {
     anoLetivo: '',
@@ -107,18 +103,15 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   });
 
   const {
-    register,
-    reset,
-    resetField,
     watch,
-    control,
+    getValues,
     setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
 
   const formValues = watch();
-  const { anoLetivo, escola, turma, bimestre } = formValues;
+  const { escola, turma, bimestre } = formValues;
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -129,34 +122,53 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const notFound = !dataFiltered.length || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
-      if (nome == 'nome') {
-        table.onResetPage();
-        setFilters((prevState) => ({
-          ...prevState,
-          [nome]: value,
-        }));
-      } else {
-        setValue(nome, value);
+    (name, value) => {
+      table.onResetPage();
+      const _filters = {};
+      _filters[name] = value;
+
+      if (['escola'].includes(name) && value != '') {
+        setValue('turma', '');
+        _filters.turma = '';
       }
+
+      if (['anoLetivo', 'escola'].includes(name)) {
+        setValue(name, value);
+        setTableData([]);
+      } else if (['turma', 'bimestre'].includes(name)) {
+        setValue(name, value);
+        getRegistros();
+      }
+
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
     },
     [table]
   );
 
   const getRegistros = async () => {
-    tabelaPreparada.onFalse();
-    if (turma && bimestre) {
-      setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
+    const _turma = getValues('turma');
+    const _bimestre = getValues('bimestre');
+
+    if(_turma && _bimestre) {
+      console.log('getRegistros');
+      tabelaPreparada.onFalse();
+      setTableData([]);
+      buscando.onTrue();
+      setWarningMsg('');
+      setErrorMsg('');
 
       const registrosDaTurmaBimestre = await registroAprendizagemMethods
         .getAllRegistrosAprendizagemFase({
-          turmaId: turma.id,
-          bimestreId: bimestre.id,
+          turmaId: _turma.id,
+          bimestreId: _bimestre.id,
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
         });
-      await buscaTurmaPorId({ id: turma.id })
+      await buscaTurmaPorId({ id: _turma.id })
         .then((_turma) => {
           const _newRegistros = [];
           _turma.turmas_alunos.forEach((alunoTurmaItem) => {
@@ -182,26 +194,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         });
     }
     tabelaPreparada.onTrue();
-  }
-
-  useEffect(() => {
-    const subscription = watch((values, { name, type }) => {
-      if (['escola'].includes(name)) {
-        setValue('turma', '');
-      }
-      if (['anoLetivo', 'escola'].includes(name)) {
-        setTableData([]);
-      } else if (['turma', 'bimestre'].includes(name)) {
-        getRegistros();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, getRegistros]);
+    buscando.onFalse();
+  };
 
   const onSubmit = handleSubmit(async (data) => {
     const retornoPadrao = {
-      nome: `Avaliação de Fase ${turma.ano_escolar}º ${turma.nome} - ${bimestre.ordinal}º Bimestre ${turma.ano.ano}`,
+      nome: `Avaliação de Fase ${turma.ano_escolar}º ${turma.nome} - ${bimestre.ordinal}º Bimestre ${turma.ano}`,
       bimestre_id: bimestre.id,
       tipo: 'Fase',
     };
@@ -222,18 +220,19 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       return item;
     });
     const toSend = mapaResultados.filter(Boolean);
-    try {
-      await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
-        throw error;
-      });
-      limparMapCache();
-      enqueueSnackbar('Atualizado com sucesso!');
-      router.push(paths.dashboard.registro_aprendizagem.root_fase);
-    } catch (error) {
-      setErrorMsg(
-        'Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro'
-      );
-    }
+    console.log(toSend);
+    // try {
+    //   await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
+    //     throw error;
+    //   });
+    //   limparMapCache();
+    //   enqueueSnackbar('Atualizado com sucesso!');
+    //   router.push(paths.dashboard.registro_aprendizagem.root_fase);
+    // } catch (error) {
+    //   setErrorMsg(
+    //     'Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro'
+    //   );
+    // }
   });
 
   const preparacaoInicial = useCallback(async () => {
@@ -262,19 +261,29 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   useEffect(() => {
     if (contextReady.value) {
       let _turmaInicialFull;
+
+      const _filters = {};
+
       if (turmaInicial) {
         const _turmaComplete = turmas.find((t) => t.id == turmaInicial);
         if (_turmaComplete) {
+
           setValue(
             'anoLetivo',
             anosLetivos.find((a) => a.id == _turmaComplete.ano_id)
           );
+          _filters.anoLetivo = anosLetivos.find((a) => a.id == _turmaComplete.ano_id);
+
           setValue(
             'escola',
             escolas.find((e) => e.id == _turmaComplete.escola_id)
           );
+          _filters.escola = escolas.find((e) => e.id == _turmaComplete.escola_id);
+
           setValue('turma', _turmaComplete); // FORM INPUT
           _turmaInicialFull = _turmaComplete;
+
+          _filters.turma = turmas.find((t) => t.id == _turmaComplete.id);
         }
       }
 
@@ -284,8 +293,14 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         if (_bimestreComplete) {
           setValue('bimestre', _bimestreComplete); // FORM INPUT
           _bimestreInicialFull = _bimestreComplete;
+          _filters.bimestre = bimestres.find((b) => b.id == _bimestreComplete.id);
         }
       }
+
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
 
       if (_turmaInicialFull && _bimestreInicialFull) {
         getRegistros();
@@ -322,19 +337,19 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
           <Card>
             <RegistroAprendizagemFaseFormTableToolbar
-              filters={formValues}
+              filters={filters}
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
               escolaOptions={escolas}
-              turmaOptions={turmas}
+              turmaOptions={turmas.filter((turma) => escola.id == turma.escola_id)}
               bimestreOptions={bimestres}
             />
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar>
-                {!contextReady.value || !tabelaPreparada.value ? (
-                  <LoadingBox />
-                ) : (
+                {(!contextReady.value || buscando.value) && <LoadingBox />}
+
+                {contextReady.value && tabelaPreparada.value && (
                   <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                     <TableHeadCustom
                       order={table.order}
