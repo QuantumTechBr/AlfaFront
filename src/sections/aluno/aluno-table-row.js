@@ -54,10 +54,10 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
     return (
         <Box>
           {nome}
-         {necessidades_especiais &&
+          {necessidades_especiais != "" &&
           <Tooltip title={necessidades_especiais}>
             <Iconify 
-              icon="mdi:wheelchair"
+              icon="mdi:alphabet-n-circle-outline"
               sx={{
                 ml: 1,
               }}
