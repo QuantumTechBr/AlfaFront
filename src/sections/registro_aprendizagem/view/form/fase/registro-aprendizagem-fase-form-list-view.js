@@ -110,8 +110,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     formState: { isSubmitting },
   } = methods;
 
-  const formValues = watch();
-  const { escola, turma, bimestre } = formValues;
+  // watch(): checkbox da tabela acionam atualização de tela
+  watch();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -198,9 +198,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   };
 
   const onSubmit = handleSubmit(async (data) => {
+    const _turma = getValues('turma');
+    const _bimestre = getValues('bimestre');
+
     const retornoPadrao = {
-      nome: `Avaliação de Fase ${turma.ano_escolar}º ${turma.nome} - ${bimestre.ordinal}º Bimestre ${turma.ano}`,
-      bimestre_id: bimestre.id,
+      nome: `Avaliação de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${_bimestre.ordinal}º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
+      bimestre_id: _bimestre.id,
       tipo: 'Fase',
     };
 
@@ -341,7 +344,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
               escolaOptions={escolas}
-              turmaOptions={turmas.filter((turma) => escola.id == turma.escola_id)}
+              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id)}
               bimestreOptions={bimestres}
               showSearch={tableData.length > 0}
             />
@@ -351,7 +354,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                 {(!contextReady.value || buscando.value) && <LoadingBox />}
 
                 {contextReady.value && tabelaPreparada.value && (
-                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <Table size='small' sx={{ minWidth: 960 }}>
                     <TableHeadCustom
                       order={table.order}
                       orderBy={table.orderBy}
@@ -389,7 +392,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               rowsPerPage={table.rowsPerPage}
               onPageChange={table.onChangePage}
               onRowsPerPageChange={table.onChangeRowsPerPage}
-              dense={false}
+              dense={true}
             />
           </Card>
 

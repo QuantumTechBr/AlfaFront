@@ -152,7 +152,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
           name={'registros[' + aluno_turma_id + '].leitura'} 
           disabled={true} 
           label="" 
-          value={RegistroAprendizagemFasesLeitura[resultado]}
+          value={RegistroAprendizagemFasesLeitura[resultado] ?? ''}
           />
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -160,7 +160,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
           name={'registros[' + aluno_turma_id + '].escrita'}
           label="" 
           disabled={true} 
-          value={RegistroAprendizagemFasesEscrita[resultado]}
+          value={RegistroAprendizagemFasesEscrita[resultado] ?? ''}
           />
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
