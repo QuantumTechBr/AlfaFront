@@ -343,7 +343,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               escolaOptions={escolas}
               turmaOptions={turmas.filter((turma) => escola.id == turma.escola_id)}
               bimestreOptions={bimestres}
-              showSearch={tableData.length}
+              showSearch={tableData.length > 0}
             />
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>

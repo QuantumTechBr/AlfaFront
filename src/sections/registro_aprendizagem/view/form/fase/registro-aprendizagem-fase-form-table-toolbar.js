@@ -196,7 +196,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           </FormControl>
         )}
 
-        {!!showSearch && (
+        {showSearch && (
           <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
             <TextField
               fullWidth
