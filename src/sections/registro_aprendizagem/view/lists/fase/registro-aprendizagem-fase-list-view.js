@@ -122,7 +122,7 @@ export default function RegistroAprendizagemFaseListView() {
     }));
 
     tabelaPreparada.onTrue();
-    if(_filters.anoLetivo && _filters.escola){
+    if (_filters.anoLetivo && _filters.escola) {
       buscarAvaliacoes();
     }
   }, [contextReady.value]);
@@ -182,9 +182,7 @@ export default function RegistroAprendizagemFaseListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-  const canReset = !isEqual(defaultFilters, filters);
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = !tableData.length || !tableData.length;
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -213,10 +211,7 @@ export default function RegistroAprendizagemFaseListView() {
       const deleteRow = tableData.find((row) => row.id == turmaId && row.bimestre.id == bimestreId);
       if (!deleteRow) {
         setWarningMsg('Linha a ser deletada não encontrada');
-        // console.log('Linha a ser deletada não encontrada.');
         return;
-      } else {
-        // console.log('Linha a ser deletada: ', deleteRow);
       }
       const remainingRows = tableData.filter(
         (row) => row.id !== turmaId || row.bimestre.id !== bimestreId
@@ -236,12 +231,6 @@ export default function RegistroAprendizagemFaseListView() {
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleResetFilters = useCallback(() => {
-    const _defaultFilters = Object.assign({}, defaultFilters);
-    _defaultFilters.anoLetivo = first(anosLetivos);
-    setFilters(_defaultFilters);
-  }, [anosLetivos]);
 
   const novaAvaliacao = useBoolean();
 
