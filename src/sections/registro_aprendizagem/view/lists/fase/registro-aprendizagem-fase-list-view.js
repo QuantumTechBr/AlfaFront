@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import  {isEqual, first} from 'lodash';
+import { isEqual, first } from 'lodash';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -61,7 +61,7 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   anoLetivo: '',
-  escola: [],
+  escola: '',
   turma: [],
   bimestre: [],
 };
@@ -69,22 +69,23 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseListView() {
+  const settings = useSettingsContext();
+  const router = useRouter();
+  const table = useTable();
+
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
+
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
-
-  const [turmasFiltered, setTurmasFiltered] = useState([]);
   const contextReady = useBoolean(false);
-  const tabelaPreparada = useBoolean(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [warningMsg, setWarningMsg] = useState('');
 
-  const table = useTable();
-  const settings = useSettingsContext();
-  const router = useRouter();
-  const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
+  const [turmasFiltered, setTurmasFiltered] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const tabelaPreparada = useBoolean(false);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -101,74 +102,81 @@ export default function RegistroAprendizagemFaseListView() {
         setErrorMsg('Erro de comunicação com a API de bimestres');
       }),
     ]).finally(() => {
-        contextReady.onTrue();
+      contextReady.onTrue();
     });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres, contextReady]);
-
-
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
-  
-  useEffect(() => {0
-    if(anosLetivos.length && contextReady.value){
-      setFilters((prevState) => ({
-        ...prevState,
-        anoLetivo: first(anosLetivos) ?? '' ,
-      }));
-    }
-  }, [contextReady.value]); 
 
-  
+  useEffect(() => {
+    const _filters = {};
+
+    if (anosLetivos.length && contextReady.value) _filters.anoLetivo = first(anosLetivos) ?? '';
+    if (escolas.length && escolas.length == 1) _filters.escola = first(escolas) ?? [];
+
+    setFilters((prevState) => ({
+      ...prevState,
+      ..._filters,
+    }));
+
+    tabelaPreparada.onTrue();
+    if(_filters.anoLetivo && _filters.escola){
+      buscarAvaliacoes();
+    }
+  }, [contextReady.value]);
+
   const buscarAvaliacoes = () => {
     tabelaPreparada.onFalse();
+    setTableData([]);
     setWarningMsg('');
     setErrorMsg('');
 
     if (contextReady.value && anosLetivos.length && turmas.length && bimestres.length) {
       const _registrosAprendizagemFase = [];
 
-      const _filters = {
-        turma: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),// turmas todas
-        bimestre: (filters.bimestre.length ? filters.bimestre : bimestres).map((bimestre) => bimestre.id),
-      }
+      const _filtersToSend = {
+        turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+        bimestreId: (filters.bimestre.length ? filters.bimestre : bimestres).map(
+          (bimestre) => bimestre.id
+        ),
+      };
 
-      registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({turmaId : _filters.turma, bimestreId: _filters.bimestre}).then((_turmasComRegistros) => {
-
-        _turmasComRegistros.data.forEach((registro) => {
-          const _turma = turmas.find((turma) => turma.id == registro.turma_id);
-          if (_turma?.id) {
-            const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
-            _registrosAprendizagemFase.push({
-              id: _turma.id,
-              ano_letivo: _turma.ano.ano,
-              ano_escolar: _turma.ano_escolar,
-              nome: _turma.nome,
-              turno: _turma.turno,
-              alunos: _turma.turmas_alunos.length,
-              bimestre: _bimestre,
-              escola: _turma.escola.nome,
-              atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : ''
-            });
-          }
+      registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
+        .then((_turmasComRegistros) => {
+          _turmasComRegistros.data.forEach((registro) => {
+            const _turma = turmas.find((turma) => turma.id == registro.turma_id);
+            if (_turma?.id) {
+              const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
+              _registrosAprendizagemFase.push({
+                id: _turma.id,
+                ano_letivo: _turma.ano.ano,
+                ano_escolar: _turma.ano_escolar,
+                nome: _turma.nome,
+                turno: _turma.turno,
+                alunos: _turma.turmas_alunos.length,
+                bimestre: _bimestre,
+                escola: _turma.escola.nome,
+                atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
+              });
+            }
+          });
+          setTableData(_registrosAprendizagemFase);
+          tabelaPreparada.onTrue();
         })
-        setTableData(_registrosAprendizagemFase);
-        tabelaPreparada.onTrue();
-
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
-      });
-     
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+        });
     }
-  }
+  };
 
-  
   useEffect(() => {
     const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
     setTurmasFiltered(_turmasFiltered);
   }, [filters.escola]);
-  
+
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -183,12 +191,11 @@ export default function RegistroAprendizagemFaseListView() {
       let _filters = {};
       if (campo == 'escola') {
         _filters.turma = [];
-        }
-        _filters[campo] = value;
-        setFilters((prevState) => ({
-          ...prevState,
-          ..._filters
-        ,
+      }
+      _filters[campo] = value;
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
       }));
     },
     [table]
@@ -214,17 +221,18 @@ export default function RegistroAprendizagemFaseListView() {
       const remainingRows = tableData.filter(
         (row) => row.id !== turmaId || row.bimestre.id !== bimestreId
       );
-      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({
-        tipo: 'fase',
-        turmaId: turmaId,
-        bimestreId: bimestreId,
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
-        throw error;
-      });
-      table.onUpdatePageDeleteRow(dataInPage.length)
+      registroAprendizagemMethods
+        .deleteRegistroAprendizagemByFilter({
+          tipo: 'fase',
+          turmaId: turmaId,
+          bimestreId: bimestreId,
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
+          throw error;
+        });
+      table.onUpdatePageDeleteRow(dataInPage.length);
       setTableData(remainingRows);
-
     },
     [dataInPage.length, table, tableData]
   );
@@ -243,90 +251,74 @@ export default function RegistroAprendizagemFaseListView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Typography variant="h4">
+          Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+        </Typography>
+        <Button
+          onClick={novaAvaliacao.onTrue}
+          variant="contained"
+          startIcon={<Iconify icon="mingcute:add-line" />}
           sx={{
-            mb: { xs: 3, md: 5 },
+            bgcolor: '#00A5AD',
           }}
         >
-          <Typography variant="h4">
-            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
-          </Typography>
+          Adicionar
+        </Button>
+      </Stack>
+
+      <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+
+      <Card>
+        <Stack
+          spacing={2}
+          alignItems={{ xs: 'flex-end', md: 'center' }}
+          direction={{
+            xs: 'column',
+            md: 'row',
+          }}
+          sx={{
+            pr: { xs: 2.5, md: 2.5 },
+          }}
+        >
+          <RegistroAprendizagemTableToolbar
+            filters={filters}
+            onFilters={handleFilters}
+            anoLetivoOptions={anosLetivos}
+            escolaOptions={escolas}
+            turmaOptions={turmasFiltered.length ? turmasFiltered : null}
+            bimestreOptions={turmasFiltered.length ? bimestres : null}
+            export_type="fase"
+          />
           <Button
-            onClick={novaAvaliacao.onTrue}
             variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
-              bgcolor: '#00A5AD',
+              width: {
+                xs: '100%',
+                md: '15%',
+              },
             }}
+            onClick={buscarAvaliacoes}
           >
-            Adicionar
+            Aplicar filtros
           </Button>
         </Stack>
 
-        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
-
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-
-        <Card><Stack
-            spacing={2}
-            alignItems={{ xs: 'flex-end', md: 'center' }}
-            direction={{
-              xs: 'column',
-              md: 'row',
-            }}
-            sx={{
-              pr: { xs: 2.5, md: 2.5 },
-            }}
-
-          >
-            <RegistroAprendizagemTableToolbar
-              filters={filters}
-              onFilters={handleFilters}
-              anoLetivoOptions={anosLetivos}
-              escolaOptions={escolas}
-              turmaOptions={turmasFiltered.length ? turmasFiltered : null}
-              bimestreOptions={turmasFiltered.length ? bimestres : null}
-              export_type='fase'
-            />
-            <Button
-              variant="contained"
-              sx={{
-                width: {
-                  xs: "100%",
-                  md: "15%",
-                },
-
-              }}
-              onClick={() => {
-                // contextReady.onFalse();
-                setTableData([]);
-                buscarAvaliacoes();
-              }}
-            >
-              Aplicar filtros
-            </Button>
-          </Stack>
-          {/* {canReset && (
-            <RegistroAprendizagemTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={tableData.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )} */}
-
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <Scrollbar>
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <Scrollbar>
             {!contextReady.value || !tabelaPreparada.value ? (
-                <LoadingBox />
-                ) : (
+              <LoadingBox />
+            ) : (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -337,36 +329,35 @@ export default function RegistroAprendizagemFaseListView() {
                 />
 
                 <TableBody>
-                  {dataInPage
-                    .map((row) => (
-                      <RegistroAprendizagemFaseTableRow
-                        key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
-                        row={row}
-                        onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id, row.bimestre.id)}
-                      />
-                    ))}
+                  {dataInPage.map((row) => (
+                    <RegistroAprendizagemFaseTableRow
+                      key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
+                      row={row}
+                      onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id, row.bimestre.id)}
+                    />
+                  ))}
 
                   <TableEmptyRows
-                    height={denseHeight}
+                    height={52}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                   />
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table> )}
-            </Scrollbar>
-          </TableContainer>
+              </Table>
+            )}
+          </Scrollbar>
+        </TableContainer>
 
-          <TablePaginationCustom
-            count={tableData.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={false}
-          />
-        </Card>
-      </Container>
+        <TablePaginationCustom
+          count={tableData.length}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </Container>
   );
 }

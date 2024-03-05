@@ -121,7 +121,6 @@ export default function RegistroAprendizagemTableToolbar({
             }}
           >
             <InputLabel>Escola</InputLabel>
-
             <Select
               value={filters.escola}
               onChange={handleFilterEscola}
