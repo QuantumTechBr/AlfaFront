@@ -170,9 +170,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
         });
       await buscaTurmaPorId({ id: _turma.id })
-        .then((_turma) => {
+        .then((__turma) => {
           const _newRegistros = [];
-          _turma.turmas_alunos.forEach((alunoTurmaItem) => {
+          __turma.turmas_alunos.forEach((alunoTurmaItem) => {
             const registroEncontrado = last(
               registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
             );
@@ -188,7 +188,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             };
           });
           setValue('registros', _newRegistros);
-          setTableData(_turma.turmas_alunos);
+          setTableData(__turma.turmas_alunos);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de turma');
