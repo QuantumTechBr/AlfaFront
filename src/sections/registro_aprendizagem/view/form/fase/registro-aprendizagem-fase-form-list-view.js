@@ -32,6 +32,7 @@ import { useForm } from 'react-hook-form';
 import Scrollbar from 'src/components/scrollbar';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { useSnackbar } from 'src/components/snackbar';
 
 import FormProvider from 'src/components/hook-form';
 
@@ -71,6 +72,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
+  const { enqueueSnackbar } = useSnackbar();
 
   const [filters, setFilters] = useState(defaultFilters);
 
@@ -153,7 +155,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const _bimestre = getValues('bimestre');
 
     if(_turma && _bimestre) {
-      console.log('getRegistros');
       tabelaPreparada.onFalse();
       setTableData([]);
       buscando.onTrue();
@@ -224,18 +225,18 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     });
     const toSend = mapaResultados.filter(Boolean);
     console.log(toSend);
-    // try {
-    //   await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
-    //     throw error;
-    //   });
-    //   limparMapCache();
-    //   enqueueSnackbar('Atualizado com sucesso!');
-    //   router.push(paths.dashboard.registro_aprendizagem.root_fase);
-    // } catch (error) {
-    //   setErrorMsg(
-    //     'Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro'
-    //   );
-    // }
+    try {
+      await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
+        throw error;
+      });
+      limparMapCache();
+      enqueueSnackbar('Atualizado com sucesso!');
+      router.push(paths.dashboard.registro_aprendizagem.root_fase);
+    } catch (error) {
+      setErrorMsg(
+        'Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro'
+      );
+    }
   });
 
   const preparacaoInicial = useCallback(async () => {

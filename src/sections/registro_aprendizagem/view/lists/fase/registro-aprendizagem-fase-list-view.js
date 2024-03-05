@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { isEqual, first } from 'lodash';
+import { first } from 'lodash';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -30,7 +30,6 @@ import Scrollbar from 'src/components/scrollbar';
 import { useSettingsContext } from 'src/components/settings';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
@@ -40,7 +39,6 @@ import {
 //
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
@@ -155,13 +153,13 @@ export default function RegistroAprendizagemFaseListView() {
               const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
               _registrosAprendizagemFase.push({
                 id: _turma.id,
-                ano_letivo: _turma.ano.ano,
+                ano_letivo: anosLetivos.find((a) => a.id == _turma.ano_id).ano,
                 ano_escolar: _turma.ano_escolar,
                 nome: _turma.nome,
                 turno: _turma.turno,
-                alunos: _turma.turmas_alunos.length,
+                alunos: registro.qtd_aluno_turma,
                 bimestre: _bimestre,
-                escola: _turma.escola.nome,
+                escola: escolas.find((e) => e.id == _turma.escola_id).nome,
                 atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
               });
             }
@@ -173,8 +171,8 @@ export default function RegistroAprendizagemFaseListView() {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
         });
 
-        buscando.onFalse();
-      }
+      buscando.onFalse();
+    }
   };
 
   useEffect(() => {
@@ -315,7 +313,7 @@ export default function RegistroAprendizagemFaseListView() {
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
           <Scrollbar>
             {(!contextReady.value || buscando.value) && <LoadingBox />}
-            
+
             {contextReady.value && tabelaPreparada.value && (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
