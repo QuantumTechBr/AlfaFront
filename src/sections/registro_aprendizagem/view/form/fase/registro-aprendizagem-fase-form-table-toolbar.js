@@ -23,6 +23,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
   escolaOptions,
   turmaOptions,
   bimestreOptions,
+  showSearch,
 }) {
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
@@ -195,21 +196,23 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           </FormControl>
         )}
 
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
+        {!!showSearch && (
+          <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+            <TextField
+              fullWidth
+              value={filters.nome}
+              onChange={handleFilterNome}
+              placeholder="Pesquisar aluno..."
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Stack>
+        )}
       </Stack>
     </>
   );
@@ -222,4 +225,5 @@ RegistroAprendizagemFaseFormTableToolbar.propTypes = {
   escolaOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
   bimestreOptions: PropTypes.array,
+  showSearch: PropTypes.bool,
 };
