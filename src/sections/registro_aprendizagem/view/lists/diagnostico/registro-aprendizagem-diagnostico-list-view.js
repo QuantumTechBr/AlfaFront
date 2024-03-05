@@ -53,7 +53,8 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import AppAvaliacaoDiagnostico from 'src/sections/overview/app/app-avaliacao-diagnostico.js';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository.js';
 //
-
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -61,7 +62,7 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Estudantes', width: 80 },
+  // { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'periodo', label: 'Período', width: 105 },
   { id: 'escola_nome', label: 'Escola' },
   { id: 'atualizado_por', label: 'Atualizado Por' },
@@ -78,6 +79,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoListView() {
+  const { checkPermissaoModulo } = useAuthContext();
   const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -85,6 +87,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const contextReady = useBoolean(false);
+  const permissaoCadastrar = checkPermissaoModulo("registro de aprendizagem", "cadastrar");
+
 
   const [turmasComRegistro, setTurmasComRegistro] = useState([]);
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
@@ -135,9 +139,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Inicial';
-                retorno.alunos = turma.turmas_alunos?.length;
-                retorno.escola_nome = turma.escola.nome;
-                retorno.ano_letivo = turma.ano.ano;
+                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
+                retorno.ano_letivo =  anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
 
                 turmasRegistroInicial.push(retorno);
@@ -147,7 +150,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           }
         })
         .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico0000');
           console.error(error);
           // preparado.onTrue();
         });
@@ -162,9 +165,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Final';
-                retorno.alunos = turma.turmas_alunos?.length;
-                retorno.escola_nome = turma.escola.nome;
-                retorno.ano_letivo = turma.ano.ano;
+                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
+                retorno.ano_letivo =  anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
 
                 turmasRegistroFinal.push(retorno);
@@ -361,6 +363,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           }}
         >
           <Typography variant="h4">Avaliação Diagnóstica</Typography>
+          {permissaoCadastrar && 
           <Button
             onClick={novaAvaliacao.onTrue}
             variant="contained"
@@ -370,7 +373,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             }}
           >
             Adicionar
-          </Button>
+          </Button>}
         </Stack>
 
         <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />

@@ -193,7 +193,7 @@ export default function RegistroAprendizagemComponenteListView() {
           }}
         >
           <Typography variant="h4">Avaliação por componente</Typography>
-          <Button
+          {/* <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_componente}
             variant="contained"
@@ -203,7 +203,7 @@ export default function RegistroAprendizagemComponenteListView() {
             }}
           >
             Adicionar
-          </Button>
+          </Button> */}
         </Stack>
 
         <Card>
