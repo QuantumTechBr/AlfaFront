@@ -217,7 +217,7 @@ export const endpoints = {
     fase: {
       post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       list: '/api/v1/registros-aprendizagens/avaliacao-fase',
-      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-fase/turmas-ids/',
+      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-fase/turmas-ids',
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
