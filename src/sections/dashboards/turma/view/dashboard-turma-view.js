@@ -22,7 +22,7 @@ import { useSearchParams } from 'src/routes/hook';
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import { useBoolean } from 'src/hooks/use-boolean';
-import _ from 'lodash';
+import _, { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
 
@@ -161,13 +161,13 @@ export default function DashboardTurmaView() {
       isGettingGraphics.onTrue();
       const payloadFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _filtersToSearch.turma.map((item) => item.id),
         bimestre: [
-          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
+          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : last(bimestres)).id,
         ],
       };
 
@@ -268,11 +268,11 @@ export default function DashboardTurmaView() {
 
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
         zona: zonas.filter((z) => z.id == _escola[0]?.zona.id),
         escola: _escola,
         turma: _turma,
-        ...(bimestres && bimestres.length ? { bimestre: _.last(bimestres) } : {}),
+        ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -304,11 +304,11 @@ export default function DashboardTurmaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: _.first(anosLetivos),
+      anoLetivo: first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
-      bimestre: _.last(bimestres),
+      bimestre: last(bimestres),
     });
   };
 

@@ -31,6 +31,7 @@ import { CloseIcon } from 'yet-another-react-lightbox';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { first } from 'lodash';
 
 // ----------------------------------------------------------------------
 
