@@ -49,12 +49,12 @@ export const TurmasProvider = ({ children }) => {
   };
 
   const buscaTurmaPorId = async ({ id, force = false } = {}) => {
-    if (!force && turmas.length > 0) {
-      const turmaBuscada = turmas.find((turma) => turma.id == id);
-      if (turmaBuscada) {
-        return turmaBuscada;
-      }
-    }
+    // if (!force && turmas.length > 0) {
+    //   const turmaBuscada = turmas.find((turma) => turma.id == id);
+    //   if (turmaBuscada) {
+    //     return turmaBuscada;
+    //   }
+    // }
     return turmaMethods.getTurmaById(id).then((response) => {
       return response.data;
     });

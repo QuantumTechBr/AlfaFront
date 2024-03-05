@@ -5,7 +5,6 @@ import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
-import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -20,16 +19,36 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 export default function RegistroAprendizagemFaseFormTableToolbar({
   filters,
   onFilters,
+  anoLetivoOptions,
+  escolaOptions,
   turmaOptions,
-  turmaSelected,
-  handleChangeTurma,
   bimestreOptions,
-  bimestreSelected,
-  handleChangeBimestre,
 }) {
-  const popover = usePopover();
+  const handleFilterAnoLetivo = useCallback(
+    (event) => onFilters('anoLetivo', event.target.value),
+    [onFilters]
+  );
+  const handleFilterEscola = useCallback(
+    (event) => onFilters('escola', event.target.value),
+    [onFilters]
+  );
+  const handleFilterTurma = useCallback(
+    (event) =>
+      onFilters(
+        'turma',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      ),
+    [onFilters]
+  );
 
-  const { control } = useFormContext();
+  const handleFilterBimestre = useCallback(
+    (event) =>
+      onFilters(
+        'bimestre',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      ),
+    [onFilters]
+  );
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -52,76 +71,127 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
-        {turmaOptions && (
-          <Controller
-            name="turma"
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <FormControl
-                sx={{
-                  flexShrink: 0,
-                  width: { xs: 1, md: 120 },
-                }}
-              >
-                <InputLabel>Turma</InputLabel>
+        {anoLetivoOptions && !!anoLetivoOptions.length && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel>Ano Letivo</InputLabel>
 
-                <Select
-                  {...field}
-                  input={<OutlinedInput label="Turma" />}
-                  renderValue={(selected) => `${selected.ano_escolar}º ${selected.nome}`}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: { maxHeight: 240 },
-                    },
-                  }}
-                >
-                  {turmaOptions.map((option) => {
-                    return (
-                      <MenuItem key={option.id} value={option}>
-                        {` ${option.ano_escolar}º ${option.nome}`}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            )}
-          />
+            <Select
+              value={filters.anoLetivo}
+              onChange={handleFilterAnoLetivo}
+              input={<OutlinedInput label="AnoLetivo" />}
+              renderValue={(selected) => `${selected.ano}`}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {anoLetivoOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    {` ${option.ano}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
+        {escolaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
+            }}
+          >
+            <InputLabel>Escola</InputLabel>
 
+            <Select
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              input={<OutlinedInput label="Escola" />}
+              renderValue={(selected) => `${selected.nome}`}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    {` ${option.nome}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+        {turmaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 210 },
+            }}
+          >
+            <InputLabel>Turma</InputLabel>
+
+            <Select
+              value={filters.turma}
+              onChange={handleFilterTurma}
+              input={<OutlinedInput label="Turma" />}
+              renderValue={(selected) =>
+                `${selected.ano_escolar}º ${selected.nome} (${selected.turno})`
+              }
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {turmaOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    {` ${option.ano_escolar}º ${option.nome} (${option.turno})`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
         {bimestreOptions && (
-          <Controller
-            name="bimestre"
-            control={control}
-            render={({ field, fieldState: { error } }) => (
-              <FormControl
-                sx={{
-                  flexShrink: 0,
-                  width: { xs: 1, md: 120 },
-                }}
-              >
-                <InputLabel>Bimestre</InputLabel>
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel>Bimestre</InputLabel>
 
-                <Select
-                  {...field}
-                  input={<OutlinedInput label="Bimestre" />}
-                  renderValue={(selected) => `${selected.ordinal}º`}
-                  MenuProps={{
-                    PaperProps: {
-                      sx: { maxHeight: 240 },
-                    },
-                  }}
-                >
-                  {bimestreOptions.map((option) => {
-                    return (
-                      <MenuItem key={`bimestre_${option.id}`} value={option}>
-                        {`${option.ordinal}º`}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>
-            )}
-          />
+            <Select
+              value={filters.bimestre}
+              onChange={handleFilterBimestre}
+              input={<OutlinedInput label="Bimestre" />}
+              renderValue={(selected) => `${selected.ordinal}º`}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {bimestreOptions.map((option) => {
+                return (
+                  <MenuItem key={`bimestre_${option.id}`} value={option}>
+                    {`${option.ordinal}º`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
         )}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
@@ -138,46 +208,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
               ),
             }}
           />
-
-          {/* <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton> */}
         </Stack>
       </Stack>
-
-      {/* <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Imprimir
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
-      </CustomPopover> */}
     </>
   );
 }
@@ -185,5 +217,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
 RegistroAprendizagemFaseFormTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
+  anoLetivoOptions: PropTypes.array,
+  escolaOptions: PropTypes.array,
   turmaOptions: PropTypes.array,
+  bimestreOptions: PropTypes.array,
 };
