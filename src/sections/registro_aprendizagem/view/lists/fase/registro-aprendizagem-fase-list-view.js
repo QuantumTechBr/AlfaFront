@@ -121,7 +121,7 @@ export default function RegistroAprendizagemFaseListView() {
         ..._filters,
       }));
 
-      if (_filters.anoLetivo && _filters.escola) {
+      if (_filters.anoLetivo) {
         buscarAvaliacoes();
       }
     }
