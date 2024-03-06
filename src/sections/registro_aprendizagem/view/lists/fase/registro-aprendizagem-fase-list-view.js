@@ -23,6 +23,8 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { useAuthContext } from 'src/auth/hooks';
+
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -43,6 +45,8 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
+
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -67,6 +71,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseListView() {
+  const { checkPermissaoModulo } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
@@ -79,6 +84,8 @@ export default function RegistroAprendizagemFaseListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
+
+  const permissaoCadastrar = checkPermissaoModulo("registro de aprendizagem", "cadastrar");
 
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
@@ -254,16 +261,18 @@ export default function RegistroAprendizagemFaseListView() {
         <Typography variant="h4">
           Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
         </Typography>
-        <Button
-          onClick={novaAvaliacao.onTrue}
-          variant="contained"
-          startIcon={<Iconify icon="mingcute:add-line" />}
-          sx={{
-            bgcolor: '#00A5AD',
-          }}
-        >
-          Adicionar
-        </Button>
+        {permissaoCadastrar &&
+          <Button
+            onClick={novaAvaliacao.onTrue}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#00A5AD',
+            }}
+          >
+            Adicionar
+          </Button>
+        }
       </Stack>
 
       <NovaAvaliacaoForm
