@@ -116,7 +116,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const nomeAluno = () => {
     const necessidades_especiais = row.aluno.necessidades_especiais
       ? JSON.parse(aluno.necessidades_especiais)
-      : null;
+      : '';
     return (
       <Box>
         {row.aluno.nome}
