@@ -162,7 +162,7 @@ export default function DashboardDDZView() {
 
           setDados((prevState) => ({
             ...prevState,
-            total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
+            total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
             grid_escolas: result,
           }));
         }),
@@ -565,12 +565,12 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
-        <TableCell>{row.turmas}</TableCell>
-        <TableCell>{row.alunos}</TableCell>
-        <TableCell>{row.avaliados}</TableCell>
-        <TableCell>{row.alfabetizados}</TableCell>
-        <TableCell>{row.nao_alfabetizados}</TableCell>
-        <TableCell>{row.deixou_de_frequentar}</TableCell>
+        <TableCell>{row.turmas ?? 0}</TableCell>
+        <TableCell>{row.alunos ?? 0}</TableCell>
+        <TableCell>{row.avaliados ?? 0}</TableCell>
+        <TableCell>{row.alfabetizados ?? 0}</TableCell>
+        <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
+        <TableCell>{row.deixou_de_frequentar ?? 0}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
             component={RouterLink}
