@@ -42,7 +42,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }, [periodo, getMapResultados]);
 
   const nomeAluno = () => {
-    const necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : null;
+    const necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : '';
     return (
         <Box>
           {row.aluno.nome}

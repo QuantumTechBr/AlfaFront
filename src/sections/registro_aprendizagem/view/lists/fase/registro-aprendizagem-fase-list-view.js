@@ -1,7 +1,8 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
+import { first } from 'lodash';
+
 // @mui
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
@@ -22,6 +23,8 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { useAuthContext } from 'src/auth/hooks';
+
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
@@ -29,7 +32,6 @@ import Scrollbar from 'src/components/scrollbar';
 import { useSettingsContext } from 'src/components/settings';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
@@ -39,11 +41,12 @@ import {
 //
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
+
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -60,31 +63,35 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   anoLetivo: '',
-  escola: [],
+  escola: '',
   turma: [],
   bimestre: [],
-  pesquisa: '',
 };
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseListView() {
+  const { checkPermissaoModulo } = useAuthContext();
+  const settings = useSettingsContext();
+  const router = useRouter();
+  const table = useTable();
+
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
+
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
-
-  const [_turmasFiltered, setTurmasFiltered] = useState([]);
-  const tabelaPreparada = useBoolean(false);
   const contextReady = useBoolean(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [warningMsg, setWarningMsg] = useState('');
 
-  const table = useTable();
-  const settings = useSettingsContext();
-  const router = useRouter();
-  const [tableData, setTableData] = useState([]);
+  const permissaoCadastrar = checkPermissaoModulo("registro de aprendizagem", "cadastrar");
+
   const [filters, setFilters] = useState(defaultFilters);
+  const [turmasFiltered, setTurmasFiltered] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const tabelaPreparada = useBoolean(false);
+  const buscando = useBoolean(false);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -94,7 +101,7 @@ export default function RegistroAprendizagemFaseListView() {
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
-      buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)).catch((error) => {
+      buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
       buscaBimestres().catch((error) => {
@@ -103,81 +110,103 @@ export default function RegistroAprendizagemFaseListView() {
     ]).finally(() => {
       contextReady.onTrue();
     });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres, contextReady]);
-
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
-  
   useEffect(() => {
-    if (contextReady.value && anosLetivos.length && turmas.length && bimestres.length) {
-      const _registrosAprendizagemFase = [];
+    if (contextReady.value) {
+      const _filters = {};
 
-      registroAprendizagemMethods.getListIdTurmaRegistroAprendizagemFase({}).then((_turmasComRegistros) => {
+      if (anosLetivos.length && contextReady.value) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+      if (escolas.length && escolas.length == 1) _filters.escola = escolas.length ? first(escolas) : [] ?? [];
 
-        _turmasComRegistros.data.forEach((registro) => {
-          const _turma = turmas.find((turma) => turma.id == registro.turma_id);
-          if (_turma?.id) {
-            const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
-            _registrosAprendizagemFase.push({
-              id: _turma.id,
-              ano_letivo: _turma.ano.ano,
-              ano_escolar: _turma.ano_escolar,
-              nome: _turma.nome,
-              turno: _turma.turno,
-              alunos: _turma.turmas_alunos.length,
-              bimestre: _bimestre,
-              escola: _turma.escola.nome,
-              atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : ''
-            });
-          }
-        })
-        setTableData(_registrosAprendizagemFase);
-        tabelaPreparada.onTrue();
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
 
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
-      });
-     
+      if (_filters.anoLetivo) {
+        buscarAvaliacoes();
+      }
     }
   }, [contextReady.value]);
-  
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
 
-  const dataInPage = dataFiltered.slice(
+  const buscarAvaliacoes = async () => {
+    if (contextReady.value && anosLetivos.length && turmas.length && bimestres.length) {
+      setTableData([]);
+      tabelaPreparada.onFalse();
+      buscando.onTrue();
+      setWarningMsg('');
+      setErrorMsg('');
+
+      const _registrosAprendizagemFase = [];
+
+      const _filtersToSend = {
+        turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+        bimestreId: (filters.bimestre.length ? filters.bimestre : bimestres).map(
+          (bimestre) => bimestre.id
+        ),
+      };
+
+      await registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
+        .then((_turmasComRegistros) => {
+          _turmasComRegistros.data.forEach((registro) => {
+            const _turma = turmas.find((turma) => turma.id == registro.turma_id);
+            if (_turma?.id) {
+              const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
+              _registrosAprendizagemFase.push({
+                id: _turma.id,
+                ano_letivo: anosLetivos.find((a) => a.id == _turma.ano_id).ano,
+                ano_escolar: _turma.ano_escolar,
+                nome: _turma.nome,
+                turno: _turma.turno,
+                alunos: registro.qtd_aluno_turma,
+                bimestre: _bimestre,
+                escola: escolas.find((e) => e.id == _turma.escola_id).nome,
+                atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
+              });
+            }
+          });
+          setTableData(_registrosAprendizagemFase);
+          tabelaPreparada.onTrue();
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+        });
+
+      buscando.onFalse();
+    }
+  };
+
+  useEffect(() => {
+    const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
+    setTurmasFiltered(_turmasFiltered);
+  }, [filters.escola]);
+
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-  const canReset = !isEqual(defaultFilters, filters);
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+  const notFound = !tableData.length || !tableData.length;
 
   const handleFilters = useCallback(
     (campo, value) => {
+      let _filters = {};
       if (campo == 'escola') {
-        if (value.length == 0) {
-          setTurmasFiltered(turmas);
-        } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
-        }
+        _filters.turma = [];
       }
-      table.onResetPage();
+      _filters[campo] = value;
       setFilters((prevState) => ({
         ...prevState,
-        [campo]: value,
+        ..._filters,
       }));
     },
-    [table, turmas]
+    [table]
   );
 
   const handleEditRow = useCallback(
@@ -192,32 +221,26 @@ export default function RegistroAprendizagemFaseListView() {
       const deleteRow = tableData.find((row) => row.id == turmaId && row.bimestre.id == bimestreId);
       if (!deleteRow) {
         setWarningMsg('Linha a ser deletada não encontrada');
-        // console.log('Linha a ser deletada não encontrada.');
         return;
-      } else {
-        // console.log('Linha a ser deletada: ', deleteRow);
       }
       const remainingRows = tableData.filter(
         (row) => row.id !== turmaId || row.bimestre.id !== bimestreId
       );
-      registroAprendizagemMethods.deleteRegistroAprendizagemByFilter({
-        tipo: 'fase',
-        turmaId: turmaId,
-        bimestreId: bimestreId,
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
-        throw error;
-      });
-      table.onUpdatePageDeleteRow(dataInPage.length)
+      registroAprendizagemMethods
+        .deleteRegistroAprendizagemByFilter({
+          tipo: 'fase',
+          turmaId: turmaId,
+          bimestreId: bimestreId,
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
+          throw error;
+        });
+      table.onUpdatePageDeleteRow(dataInPage.length);
       setTableData(remainingRows);
-
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
 
   const novaAvaliacao = useBoolean();
 
@@ -227,17 +250,18 @@ export default function RegistroAprendizagemFaseListView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">
-            Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
-          </Typography>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      >
+        <Typography variant="h4">
+          Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+        </Typography>
+        {permissaoCadastrar &&
           <Button
             onClick={novaAvaliacao.onTrue}
             variant="contained"
@@ -248,41 +272,58 @@ export default function RegistroAprendizagemFaseListView() {
           >
             Adicionar
           </Button>
-        </Stack>
+        }
+      </Stack>
 
-        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+      <NovaAvaliacaoForm
+        open={novaAvaliacao.value}
+        onClose={closeNovaAvaliacao}
+        initialTipo="Avaliação de Fase"
+      />
 
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
-        <Card>
+      <Card>
+        <Stack
+          spacing={2}
+          alignItems={{ xs: 'flex-end', md: 'center' }}
+          direction={{
+            xs: 'column',
+            md: 'row',
+          }}
+          sx={{
+            pr: { xs: 2.5, md: 2.5 },
+          }}
+        >
           <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
             anoLetivoOptions={anosLetivos}
             escolaOptions={escolas}
-            turmaOptions={_turmasFiltered}
-            bimestreOptions={bimestres}
-            export_type='fase'
+            turmaOptions={turmasFiltered.length ? turmasFiltered : null}
+            bimestreOptions={turmasFiltered.length ? bimestres : null}
+            export_type="fase"
           />
+          <Button
+            variant="contained"
+            sx={{
+              width: {
+                xs: '100%',
+                md: '15%',
+              },
+            }}
+            onClick={buscarAvaliacoes}
+          >
+            Aplicar filtros
+          </Button>
+        </Stack>
 
-          {canReset && (
-            <RegistroAprendizagemTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              //
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+          <Scrollbar>
+            {(!contextReady.value || buscando.value) && <LoadingBox />}
 
-          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <Scrollbar>
-            {!contextReady.value || !tabelaPreparada.value ? (
-                <LoadingBox />
-                ) : (
+            {contextReady.value && tabelaPreparada.value && (
               <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -293,83 +334,35 @@ export default function RegistroAprendizagemFaseListView() {
                 />
 
                 <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <RegistroAprendizagemFaseTableRow
-                        key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
-                        row={row}
-                        onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id, row.bimestre.id)}
-                      />
-                    ))}
+                  {dataInPage.map((row) => (
+                    <RegistroAprendizagemFaseTableRow
+                      key={`RegistroAprendizagemFaseTableRow_${row.id}_${row.bimestre.id}`}
+                      row={row}
+                      onEditRow={() => handleEditRow(row.id, row.bimestre.id)}
+                      onDeleteRow={() => handleDeleteRow(row.id, row.bimestre.id)}
+                    />
+                  ))}
 
                   <TableEmptyRows
-                    height={denseHeight}
+                    height={52}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                   />
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table> )}
-            </Scrollbar>
-          </TableContainer>
+              </Table>
+            )}
+          </Scrollbar>
+        </TableContainer>
 
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={false}
-          />
-        </Card>
-      </Container>
+        <TablePaginationCustom
+          count={tableData.length}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        />
+      </Card>
+    </Container>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { anoLetivo, escola, turma, bimestre, pesquisa } = filters;
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (anoLetivo) {
-    inputData = inputData.filter((item) => item.ano_letivo == anoLetivo.ano);
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola)
-    );
-  }
-
-  if (turma.length) {
-    inputData = inputData.filter((item) => {
-      return turma.map((baseItem) => baseItem.id).includes(item.id);
-    });
-  }
-
-  if (bimestre.length) {
-    inputData = inputData.filter((item) => bimestre.includes(item.bimestre));
-  }
-
-  if (pesquisa.trim().length) {
-    inputData = inputData.filter(
-      (item) => item.escola.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
 }

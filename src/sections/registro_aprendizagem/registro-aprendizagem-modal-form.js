@@ -1,13 +1,14 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useCallback, useMemo, useState, useContext } from 'react';
+import { useEffect, useCallback, useMemo, useState, useContext,  } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
+
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 
-import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -27,34 +28,50 @@ import FormProvider, { RHFSelect } from 'src/components/hook-form';
 import { IconButton } from '@mui/material';
 import { CloseIcon } from 'yet-another-react-lightbox';
 
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { first } from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function NovaAvaliacaoForm({ open, onClose }) {
+export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const router = useRouter();
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
+  const contextReady = useBoolean(false);
 
-  useEffect(() => {
-    buscaTurmas();
-    buscaBimestres();
-  }, [buscaTurmas, buscaBimestres]);
-
-  const defaultValues = useMemo(
-    () => ({
-      turma: '',
-      bimestre: '',
-      periodo: '',
-    }),
-    []
-  );
-
+  const defaultValues = {
+    escola: '',
+    turma: '',
+    bimestre: '',
+    periodo: '',
+  };
+  
   const methods = useForm({
     // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
+
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaEscolas(),
+      buscaTurmas(),
+      buscaBimestres(),
+    ]).finally(() => {
+      contextReady.onTrue();
+    });
+  }, [buscaEscolas, buscaTurmas, buscaBimestres]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    if(initialTipo) setValue('tipo', initialTipo);
+    if (escolas.length && escolas.length == 1) setValue('escola', first(escolas).id);
+  }, [contextReady.value]);
 
   const {
     reset,
@@ -67,10 +84,13 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
   useEffect(() => {
     const subscription = watch((values, { name, type }) => {
       if (type == 'change' && name == 'tipo') {
+        if (values.escola != '') setValue('escola', '');
         if (values.turma != '') setValue('turma', '');
         if (values.bimestre != '') setValue('bimestre', '');
         if (values.periodo != '') setValue('periodo', '');
       }
+
+      if (type == 'change' && name == 'escola') setValue('turma', '');
     });
 
     return () => subscription.unsubscribe();
@@ -78,18 +98,30 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
   const values = watch();
 
-  const { tipo, turma, periodo, bimestre } = values;
+  const { tipo, escola, turma, periodo, bimestre } = values;
 
-  const podeAvancar =
-    (tipo == 'Avaliação de Fase' && turma && bimestre) ||
-    (tipo == 'Avaliação Diagnóstica' && turma && periodo);
+  const isTipoFase = tipo == 'Avaliação de Fase';
+  const isTipoDiagnostico = tipo == 'Avaliação Diagnóstica';
 
+  const podeAvancar = (isTipoFase && escola && turma && bimestre) || (isTipoDiagnostico && escola && turma && periodo);
+
+  const selectEscola = () => {
+    return (
+      <RHFSelect name="escola" label="Escola">
+        {escolas.map((_escola) => (
+          <MenuItem key={_escola.id} value={_escola.id}>
+            {_escola.nome}
+          </MenuItem>
+        ))}
+      </RHFSelect>
+    );
+  };
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.map((_turma) => (
+        {turmas.filter((_turma) => _turma.escola_id == escola).map((_turma) => (
           <MenuItem key={_turma.id} value={_turma.id}>
-            {_turma.ano_escolar}º {_turma.nome}
+            {_turma.ano_escolar}º {_turma.nome} ({_turma.turno})
           </MenuItem>
         ))}
       </RHFSelect>
@@ -98,9 +130,9 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      if (tipo == 'Avaliação de Fase') {
+      if (isTipoFase) {
         router.push(paths.dashboard.registro_aprendizagem.edit_fase(turma, bimestre));
-      } else if (tipo == 'Avaliação Diagnóstica') {
+      } else if (isTipoDiagnostico) {
         const dadosDiagnostico = {
           turma: turma,
           periodo: periodo,
@@ -153,11 +185,13 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             </RHFSelect>
 
             {/* FASE */}
-            {tipo == 'Avaliação de Fase' && selectTurma()}
+            {isTipoFase && selectEscola()}
 
-            {tipo == 'Avaliação de Fase' && turma && (
+            {isTipoFase && escola && selectTurma()}
+
+            {isTipoFase && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
-               {bimestres.map((_bimestre) => (
+                {bimestres.map((_bimestre) => (
                   <MenuItem key={_bimestre.id} value={_bimestre.id}>
                     {`${_bimestre.ordinal}º Bimestre`}
                   </MenuItem>
@@ -166,7 +200,12 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
             )}
 
             {/* DIAGNOSTICO */}
-            {tipo == 'Avaliação Diagnóstica' && (
+
+            {isTipoDiagnostico && selectEscola()}
+
+            {isTipoDiagnostico && escola && selectTurma()}
+
+            {isTipoDiagnostico && escola && turma && (
               <RHFSelect name="periodo" label="Período">
                 {_periodos.map((_periodo) => (
                   <MenuItem key={_periodo} value={_periodo}>
@@ -175,8 +214,6 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
                 ))}
               </RHFSelect>
             )}
-
-            {tipo == 'Avaliação Diagnóstica' && periodo && selectTurma()}
           </Box>
         </DialogContent>
         <DialogActions>
@@ -198,4 +235,5 @@ export default function NovaAvaliacaoForm({ open, onClose }) {
 NovaAvaliacaoForm.propTypes = {
   open: PropTypes.bool,
   onClose: PropTypes.func,
+  initialTipo: PropTypes.string,
 };

@@ -48,13 +48,7 @@ export const TurmasProvider = ({ children }) => {
     return returnData;
   };
 
-  const buscaTurmaPorId = async ({ id, force = false } = {}) => {
-    if (!force && turmas.length > 0) {
-      const turmaBuscada = turmas.find((turma) => turma.id == id);
-      if (turmaBuscada) {
-        return turmaBuscada;
-      }
-    }
+  const buscaTurmaPorId = async ({ id } = {}) => {
     return turmaMethods.getTurmaById(id).then((response) => {
       return response.data;
     });
