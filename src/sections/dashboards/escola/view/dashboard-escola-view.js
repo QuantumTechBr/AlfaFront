@@ -159,7 +159,7 @@ export default function DashboardEscolaView() {
 
           setDados((prevState) => ({
             ...prevState,
-            total_alunos_avaliados: result.reduce((acc, i) => acc + i.avaliados, 0),
+            total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
             grid_professores: result,
           }));
         }),
@@ -615,11 +615,11 @@ function Row(props) {
       <TableCell>{row.turma_ano_escolar}º</TableCell>
       <TableCell>{row.turma_nome}</TableCell>
       <TableCell>{row.turma_turno}</TableCell>
-      <TableCell>{row.alunos}</TableCell>
-      <TableCell>{row.avaliados}</TableCell>
-      <TableCell>{row.alfabetizados}</TableCell>
-      <TableCell>{row.nao_alfabetizados}</TableCell>
-      <TableCell>{row.deixou_de_frequentar}</TableCell>
+      <TableCell>{row.alunos ?? 0}</TableCell>
+      <TableCell>{row.avaliados ?? 0}</TableCell>
+      <TableCell>{row.alfabetizados ?? 0}</TableCell>
+      <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
+      <TableCell>{row.deixou_de_frequentar ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"

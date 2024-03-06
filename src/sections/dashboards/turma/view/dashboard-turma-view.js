@@ -210,7 +210,7 @@ export default function DashboardTurmaView() {
             value.map((zona) => zona.id).includes(escola.zona.id)
           );
           var turmasFiltered = turmas.filter((turma) =>
-            escolasFiltered.map((escola) => escola.id).includes(turma.escola.id)
+            escolasFiltered.map((escola) => escola.id).includes(turma.escola_id)
           );
           setEscolasFiltered(escolasFiltered);
           setTurmasFiltered(turmasFiltered);
@@ -227,7 +227,7 @@ export default function DashboardTurmaView() {
           setTurmasFiltered(turmas);
         } else {
           var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
+            value.map((escola) => escola.id).includes(turma.escola_id)
           );
           setTurmasFiltered(filtered);
         }
@@ -264,7 +264,7 @@ export default function DashboardTurmaView() {
   useEffect(() => {
     if (contextReady.value) {
       const _turma = turmas.filter((t) => t.id == initialTurma);
-      const _escola = escolas.filter((e) => e.id == _turma[0]?.escola.id);
+      const _escola = escolas.filter((e) => e.id == _turma[0]?.escola_id);
 
       const _filters = {
         ...filters,
@@ -430,7 +430,7 @@ export default function DashboardTurmaView() {
                 anoLetivoOptions={anosLetivos}
                 ddzOptions={zonas}
                 escolaOptions={_escolasFiltered || escolas}
-                anoTurmaOptions={_turmasFiltered || turmas}
+                anoTurmaOptions={(_turmasFiltered || turmas).filter((t) => (filters.escola.map((e) => e.id)).includes(t.escola_id))}
                 bimestreOptions={bimestres}
               />
             </Grid>
