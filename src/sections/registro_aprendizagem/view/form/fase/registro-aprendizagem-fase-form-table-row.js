@@ -14,13 +14,14 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { RegistroAprendizagemFasesCRUD, RegistroAprendizagemFasesEscrita } from 'src/_mock';
 import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
-import { FormControl, TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import { slugify } from 'src/utils/functions';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 import { useCallback } from 'react';
+import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
@@ -30,10 +31,9 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const { user } = useContext(AuthContext);
   const desabilita = useBoolean(false);
   const { id: aluno_turma_id, aluno } = row;
-  const { control, getValues, setValue } = useFormContext();
+  const { control, getValues } = useFormContext();
   const resultado = getValues('registros[' + aluno_turma_id + '].resultado');
   const turmaId = getValues('turma.id')
-  const bimestreId = getValues('bimestre.id')
   const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
   const bimestreAnterior = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
   const [resultadoPrevio, setResultadoPrevio] = useState("")
@@ -113,12 +113,31 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     }
   }
 
+  const nomeAluno = () => {
+    const necessidades_especiais = row.aluno.necessidades_especiais
+      ? JSON.parse(aluno.necessidades_especiais)
+      : null;
+    return (
+      <Box>
+        {row.aluno.nome}
+        {necessidades_especiais != '' && (
+          <Tooltip title={necessidades_especiais}>
+            <Iconify
+              icon="mdi:alphabet-n-circle-outline"
+              sx={{
+                ml: 1,
+              }}
+            />
+          </Tooltip>
+        )}
+      </Box>
+    );
+  };
+
   return (
     <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
-          <Tooltip key={`tooltip_${aluno_turma_id}`} title={'Registro único da avaliação: ' + aluno_turma_id}>
-            <span>{row.aluno.nome}</span>
-          </Tooltip>
+          {nomeAluno()}
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].aluno_nome'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].id'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].alunosTurmas_id'} />
