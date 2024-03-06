@@ -85,7 +85,7 @@ export default function RegistroAprendizagemFaseListView() {
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
 
-  const permissaoCadastrar = checkPermissaoModulo("registro de aprendizagem", "cadastrar");
+  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
 
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);

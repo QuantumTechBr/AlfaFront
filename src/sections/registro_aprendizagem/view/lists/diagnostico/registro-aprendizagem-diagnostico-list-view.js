@@ -87,7 +87,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const contextReady = useBoolean(false);
-  const permissaoCadastrar = checkPermissaoModulo("registro de aprendizagem", "cadastrar");
+  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
 
 
   const [turmasComRegistro, setTurmasComRegistro] = useState([]);
