@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
@@ -43,7 +44,6 @@ import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
-import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
 
 
@@ -120,7 +120,7 @@ export default function RegistroAprendizagemFaseListView() {
     if (contextReady.value) {
       const _filters = {};
 
-      if (anosLetivos.length && contextReady.value) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+      if (anosLetivos.length) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
       if (escolas.length && escolas.length == 1) _filters.escola = escolas.length ? first(escolas) : [] ?? [];
 
       setFilters((prevState) => ({
