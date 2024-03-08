@@ -8,7 +8,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
 //
-import { _habilidades, habilidades_options, promo_options } from 'src/_mock';
+import { _habilidades, habilidades_options, frequencia_options, r_options } from 'src/_mock';
 import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
@@ -21,12 +21,14 @@ import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, nome, aluno, mapHabilidades, frequencia, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
 
   const [mapResultados, setMapResultados] = useState([]);
   const { control } = useFormContext();
+
+  console.log(row)
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -98,12 +100,35 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
 
+  const preenche_R = () => {
+    const retorno = []
+    for (let index = 0; index < 20; index++) {
+      retorno.push(
+        <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
+              <RHFSelect 
+              // disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} 
+              name={'registros['+id+'].r['+index+']'}  
+              label="">
+                {r_options.map((r) => (
+                  <MenuItem 
+                  // disabled={disableMenuItem(hab, habilidade.id)} 
+                  key={id + '_r_' + index} value={r} sx={{ height: '34px' }}>
+                        {r}
+                    </MenuItem>
+                ))}
+                {(index == 9 || index == 19) && 
+                <MenuItem key={id + '_r_' + index} value='2' sx={{ height: '34px' }}>
+                  {2}
+                </MenuItem>}
+              </RHFSelect>
+        </TableCell>
+      ) 
+    }
+    return retorno;
+  }
+
   return (
     <TableRow hover selected={selected}>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nomeAluno()}  
-        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >
           <Controller
@@ -122,19 +147,27 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-            <RHFSelect key={id+'promo'} name={'registros[' + id + '].promo_ano_anterior'} > 
-                <MenuItem key={id + '_promo_vazio'} value='' sx={{ height: '34px' }}>
+          {nomeAluno()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {row.aluno.matricula}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+            <RHFSelect key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
+                <MenuItem key={id + 'freq'} value='' sx={{ height: '34px' }}>
                   
                 </MenuItem>
-              {promo_options.map((promo) => (
-                <MenuItem key={id + '_promo_' + promo} value={promo} sx={{ height: '34px' }}>
-                  {promo}
+              {frequencia_options.map((freq) => (
+                <MenuItem key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
+                  {freq}
                 </MenuItem>
               ))}
             </RHFSelect>
         </TableCell>
 
-        {habilidades.map((habilidade) => {
+        {/* {habilidades.map((habilidade) => {
           return (
             <TableCell key={id+'habcell'+habilidade.id}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
@@ -154,7 +187,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               </RHFSelect>
             </TableCell>
           );
-        })}
+        })} */}
+
+        {preenche_R()}
+
+
       </TableRow>
   );
 }

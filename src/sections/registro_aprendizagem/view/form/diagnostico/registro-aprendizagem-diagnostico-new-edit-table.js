@@ -12,7 +12,7 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 // _mock
-import { promo_options } from 'src/_mock';
+import { frequencia_options } from 'src/_mock';
 // components
 import Scrollbar from 'src/components/scrollbar';
 import { useSettingsContext } from 'src/components/settings';
@@ -41,7 +41,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
       promo_ano_anterior: [],
     }
   }, []);
-  console.log(habilidades)
+
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
@@ -65,11 +65,20 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   useEffect(() => {
     const cabecalho = [
         { id: 'nome', label: 'Nome', width: 150 },
-        { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
+        { id: 'matricula', label: 'Matrícula', width: 150 },
+        { id: 'frequencia', label: 'Frequência', width: 200 },
     ];
-    for (var i = 0; i < habilidades.length; i++) {
-      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 120 });
+    for (var i = 1; i < 21; i++) {
+      cabecalho.push({ id: `R${i}`, label: `R${i}`, width: 50 });
     }
+    cabecalho.push({ id: 'mediaLP', label: 'Média LP', width: 70 });
+    cabecalho.push({ id: 'mediaMAT', label: 'Média MAT', width: 70 });
+    cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
+    cabecalho.push({ id: 'nvEscrita', label: 'Nível de Escrita', width: 150 });
+    cabecalho.push({ id: 'nvLP', label: 'Nível LP', width: 50 });
+    cabecalho.push({ id: 'nvResolucao', label: 'Nível de Resolução de Problemas', width: 150 });
+    cabecalho.push({ id: 'nvMAT', label: 'Nível MAT', width: 50 });
+    cabecalho.push({ id: 'nivelFinal', label: 'Nível Final', width: 50 });
     setTableHead(cabecalho);
     setTableData((alunosTurma == undefined) ? [] : alunosTurma);
  
@@ -122,7 +131,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           <RegistroAprendizagemDiagnosticoNewEditTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            promoOptions={promo_options}
+            promoOptions={frequencia_options}
             turma={turma}
             handleTurma={handleTurma}
           />
@@ -132,7 +141,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              promoOptions={promo_options}
+              promoOptions={frequencia_options}
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />

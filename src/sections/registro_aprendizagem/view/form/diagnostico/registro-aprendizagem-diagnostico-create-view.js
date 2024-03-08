@@ -24,6 +24,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   const prep = useBoolean(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  console.log(turma)
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
