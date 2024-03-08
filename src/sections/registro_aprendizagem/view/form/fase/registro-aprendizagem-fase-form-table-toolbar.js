@@ -51,9 +51,9 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
     [onFilters]
   );
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
-      onFilters('nome', event.target.value);
+      onFilters('pesquisa', event.target.value);
     },
     [onFilters]
   );
@@ -200,8 +200,8 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
           <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
             <TextField
               fullWidth
-              value={filters.nome}
-              onChange={handleFilterNome}
+              value={filters.pesquisa}
+              onChange={handleFilterPesquisa}
               placeholder="Pesquisar aluno..."
               InputProps={{
                 startAdornment: (

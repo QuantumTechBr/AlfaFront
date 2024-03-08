@@ -192,7 +192,7 @@ export default function RegistroAprendizagemFaseListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const notFound = !tableData.length || !tableData.length;
+  const notFound = !tableData.length;
 
   const handleFilters = useCallback(
     (campo, value) => {
@@ -244,7 +244,7 @@ export default function RegistroAprendizagemFaseListView() {
 
   const novaAvaliacao = useBoolean();
 
-  const closeNovaAvaliacao = (retorno = null) => {
+  const closeNovaAvaliacao = () => {
     novaAvaliacao.onFalse();
   };
 
@@ -324,7 +324,7 @@ export default function RegistroAprendizagemFaseListView() {
             {(!contextReady.value || buscando.value) && <LoadingBox />}
 
             {contextReady.value && tabelaPreparada.value && (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table size={'small'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
