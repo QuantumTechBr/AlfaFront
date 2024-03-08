@@ -97,7 +97,7 @@ export default function ProfissionalTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 200 },
           }}
         >
           <InputLabel>Função</InputLabel>

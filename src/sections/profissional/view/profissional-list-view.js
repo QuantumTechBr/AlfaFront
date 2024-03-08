@@ -49,8 +49,8 @@ import userMethods from 'src/sections/user/user-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
+import ProfissionalQuickEditForm from '../profissional-quick-edit-form';
 // ----------------------------------------------------------------------
-
 
 const TABLE_HEAD = [
   { id: 'profissional', label: 'Profissional', width: 300 },
@@ -82,8 +82,8 @@ export default function ProfissionalListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const liberaResults = useBoolean(false);
   const [filters, setFilters] = useState(defaultFilters);
-  
-  const permissaoCadastrar = checkPermissaoModulo("profissionais", "cadastrar");
+
+  const permissaoCadastrar = checkPermissaoModulo('profissionais', 'cadastrar');
 
   const table = useTable();
 
@@ -92,99 +92,106 @@ export default function ProfissionalListView() {
   const router = useRouter();
 
   const confirm = useBoolean();
+  
+  const quickEdit = useBoolean();
+  const [rowToEdit, setRowToEdit] = useState();
 
   const [tableData, setTableData] = useState([]);
 
+  const buscaProfissionais = useCallback(
+    async (pagina = 0, linhasPorPagina = 25, oldProfissionalList = [], filtros = filters) => {
+      liberaResults.onFalse();
+      setWarningMsg('');
+      setErrorMsg('');
+      const offset = pagina * linhasPorPagina;
+      const limit = linhasPorPagina;
+      const { nome, escola, role } = filtros;
 
-  const buscaProfissionais = useCallback(async (pagina=0, linhasPorPagina=25, oldProfissionalList=[], filtros=filters) => {
-    liberaResults.onFalse();
-    setWarningMsg('');
-    setErrorMsg('');
-    const offset = (pagina)*linhasPorPagina;
-    const limit = linhasPorPagina;
-    const {nome, escola, role} = filtros;
-    
-    await profissionalMethods.getAllProfissionaisPaginado({offset, limit, nome: nome, escolas: escola, funcao: role, }).then(async profissionais => {
-      if (profissionais.data.count == 0) {
-        setWarningMsg('A API retornou uma lista vazia de profissionais');
-        preparado.onFalse();
-      } else {
-        const pros = profissionais.data.results;
-
-        for (var i = 0; i < pros.length; i++) {
-          const funcao = [];
-          const zona = [];
-          const proEscola = [];
-          if(pros[i].funcao_usuario?.length > 0 ){
-            for (let index = 0; index < pros[i].funcao_usuario.length; index++) {  
-              funcao.push(pros[i].funcao_usuario[index].funcao?.id);
-              proEscola.push(pros[i].funcao_usuario[index].escola?.id);
-              zona.push(pros[i].funcao_usuario[index].zona?.id);
-            }
-            pros[i].funcao = funcao[0] ? funcao[0] : '';
-            pros[i].escola = proEscola ? proEscola : '';
-            pros[i].zona = zona[0] ? zona[0] : '';
+      await profissionalMethods
+        .getAllProfissionaisPaginado({ offset, limit, nome: nome, escolas: escola, funcao: role })
+        .then(async (profissionais) => {
+          if (profissionais.data.count == 0) {
+            setWarningMsg('A API retornou uma lista vazia de profissionais');
+            preparado.onFalse();
           } else {
-            pros[i].funcao = '';
-            pros[i].escola = '';
-            pros[i].zona = '';
-          }
-          pros[i].status = pros[i].status.toString();
-        }
+            const pros = profissionais.data.results;
 
-        setProfissionalList([...oldProfissionalList, ...pros]);
-        setTableData([...oldProfissionalList, ...pros]); 
-        // const listaProfissionais = profissionais.data.results;
-        // setProfissionalList([...oldProfissionalList, ...listaProfissionais]);
-        // setTableData([...oldProfissionalList, ...listaProfissionais]);
-        preparado.onTrue();
-      }
-      setCountProfissionais(profissionais.data.count);
-      liberaResults.onTrue();
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de profissionais');
-      console.log(error);
-    });
-  }, [preparado, filters, liberaResults]);
+            for (var i = 0; i < pros.length; i++) {
+              const funcao = [];
+              const zona = [];
+              const proEscola = [];
+              if (pros[i].funcao_usuario?.length > 0) {
+                for (let index = 0; index < pros[i].funcao_usuario.length; index++) {
+                  funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+                  proEscola.push(pros[i].funcao_usuario[index].escola?.id);
+                  zona.push(pros[i].funcao_usuario[index].zona?.id);
+                }
+                pros[i].funcao = funcao[0] ? funcao[0] : '';
+                pros[i].escola = proEscola ? proEscola : '';
+                pros[i].zona = zona[0] ? zona[0] : '';
+              } else {
+                pros[i].funcao = '';
+                pros[i].escola = '';
+                pros[i].zona = '';
+              }
+              pros[i].status = pros[i].status.toString();
+            }
+
+            setProfissionalList([...oldProfissionalList, ...pros]);
+            setTableData([...oldProfissionalList, ...pros]);
+            // const listaProfissionais = profissionais.data.results;
+            // setProfissionalList([...oldProfissionalList, ...listaProfissionais]);
+            // setTableData([...oldProfissionalList, ...listaProfissionais]);
+            preparado.onTrue();
+          }
+          setCountProfissionais(profissionais.data.count);
+          liberaResults.onTrue();
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de profissionais');
+          console.log(error);
+        });
+    },
+    [preparado, filters, liberaResults]
+  );
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
-        preparado.onTrue(); 
       }),
       buscaFuncoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de funções');
-        preparado.onTrue();
       }),
       buscaProfissionais(table.page, table.rowsPerPage).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de profissinais');
         console.log(error);
-      })
+      }),
     ]);
     preparado.onTrue();
-  }, [buscaEscolas, buscaProfissionais, preparado, table.page, table.rowsPerPage]);
+  }, [buscaEscolas, buscaFuncoes, buscaProfissionais]);
 
   const onChangePage = async (event, newPage) => {
-    if (_profissionalList.length < (newPage+1)*table.rowsPerPage) {
+    if (_profissionalList.length < (newPage + 1) * table.rowsPerPage) {
       buscaProfissionais(newPage, table.rowsPerPage, _profissionalList);
     }
     table.setPage(newPage);
   };
 
-  const onChangeRowsPerPage = useCallback((event) => {
-    table.setPage(0);
-    table.setRowsPerPage(parseInt(event.target.value, 10));
-    setProfissionalList([]);
-    setTableData([]);
-    buscaProfissionais(0, event.target.value);
-  }, [buscaProfissionais, table]);
+  const onChangeRowsPerPage = useCallback(
+    (event) => {
+      table.setPage(0);
+      table.setRowsPerPage(parseInt(event.target.value, 10));
+      setProfissionalList([]);
+      setTableData([]);
+      buscaProfissionais(0, event.target.value);
+    },
+    [buscaProfissionais, table]
+  );
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
-
-
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -204,21 +211,25 @@ export default function ProfissionalListView() {
       const novosFiltros = {
         ...filters,
         [nome]: value,
-      }
+      };
       setFilters(novosFiltros);
     },
     [table, filters, liberaResults]
   );
 
-
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      userMethods.deleteUserById(id).then(retorno => {
-        setTableData(deleteRow);
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do profissional');
-      });
+      userMethods
+        .deleteUserById(id)
+        .then((retorno) => {
+          setTableData(deleteRow);
+        })
+        .catch((error) => {
+          setErrorMsg(
+            'Erro de comunicação com a API de usuários no momento da exclusão do profissional'
+          );
+        });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -229,22 +240,22 @@ export default function ProfissionalListView() {
     const remainingRows = [];
     const promises = [];
     tableData.map((row) => {
-      if(table.selected.includes(row.id)) {
+      if (table.selected.includes(row.id)) {
         const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
           remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de usuários no momento da exclusão do profissional');
+          setErrorMsg(
+            'Erro de comunicação com a API de usuários no momento da exclusão do profissional'
+          );
           throw error;
         });
-        promises.push(newPromise)
+        promises.push(newPromise);
       } else {
         remainingRows.push(row);
       }
     });
-    Promise.all(promises).then(
-      retorno => {
-        setTableData(remainingRows);
-      }
-    )
+    Promise.all(promises).then((retorno) => {
+      setTableData(remainingRows);
+    });
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -260,15 +271,23 @@ export default function ProfissionalListView() {
     [router]
   );
 
-  const handleSaveRow = useCallback((novosDados) => {
-    const _tableData = tableData.map((item) => {
-      if (item.id === novosDados.id) {
-        return {...item, ...novosDados};
-      }
-      return item;
-    });
-    setTableData(_tableData);
-  }, [tableData]);
+  const handleSaveRow = useCallback(
+    (novosDados) => {
+      const _tableData = tableData.map((item) => {
+        if (item.id === novosDados.id) {
+          return { ...item, ...novosDados };
+        }
+        return item;
+      });
+      setTableData(_tableData);
+    },
+    [tableData]
+  );
+
+  const saveAndClose = (retorno=null) => {
+    handleSaveRow({...rowToEdit, ...retorno});
+    quickEdit.onFalse();
+  }
 
   const handleResetFilters = useCallback(() => {
     const resetFilters = {
@@ -281,7 +300,6 @@ export default function ProfissionalListView() {
     setProfissionalList([]);
     setFilters(resetFilters);
     buscaProfissionais(table.page, table.rowsPerPage);
-
   }, [buscaProfissionais, table.page, table.rowsPerPage, liberaResults]);
 
   return (
@@ -294,66 +312,66 @@ export default function ProfissionalListView() {
             { name: 'Profissionais', href: paths.dashboard.profissional.root },
             { name: 'Listar' },
           ]}
-          action={permissaoCadastrar &&
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.profissional.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: "#00A5AD",
-              }}
-            >
-              Adicionar
-            </Button>
+          action={
+            permissaoCadastrar && (
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.profissional.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                sx={{
+                  bgcolor: '#00A5AD',
+                }}
+              >
+                Adicionar
+              </Button>
+            )
           }
           sx={{
             mb: { xs: 3, md: 5 },
           }}
         />
-        
+
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-        <Stack
-          spacing={2}
-          alignItems={{ xs: 'flex-end', md: 'center' }}
-          direction={{
-            xs: 'column',
-            md: 'row',
-          }}
-          sx={{
-            pr: { xs: 2.5, md: 2.5 },
-          }}
+          <Stack
+            spacing={2}
+            alignItems={{ xs: 'flex-end', md: 'center' }}
+            direction={{
+              xs: 'column',
+              md: 'row',
+            }}
+            sx={{
+              pr: { xs: 2.5, md: 2.5 },
+            }}
+          >
+            <ProfissionalTableToolbar
+              filters={filters}
+              onFilters={handleFilters}
+              roleOptions={funcoes}
+              escolaOptions={escolas}
+            />
 
-        >
-          <ProfissionalTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            roleOptions={funcoes}
-            escolaOptions={escolas}
-          />
-          
-          <Button
-                  variant="contained"
-                  sx={{
-                    width:{
-                      xs: "100%",
-                      md: "15%",
-                    },
-                    
-                  }}
-                  onClick={() => {
-                    preparado.onFalse();
-                    setTableData([]);
-                    setProfissionalList([]);
-                    buscaProfissionais(table.page, table.rowsPerPage, [], filters);
-                  }}
-                >
-                  Aplicar filtros
-          </Button>
-        </Stack>
+            <Button
+              variant="contained"
+              sx={{
+                width: {
+                  xs: '100%',
+                  md: '15%',
+                },
+              }}
+              onClick={() => {
+                preparado.onFalse();
+                setTableData([]);
+                setProfissionalList([]);
+                buscaProfissionais(table.page, table.rowsPerPage, [], filters);
+              }}
+            >
+              Aplicar filtros
+            </Button>
+          </Stack>
           {canReset && liberaResults.value && (
             <ProfissionalTableFiltersResult
               filters={filters}
@@ -387,51 +405,52 @@ export default function ProfissionalListView() {
             />
 
             <Scrollbar>
-            {!preparado.value ? (
+              {!preparado.value ? (
                 <LoadingBox />
-                ) : (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
-
-                <TableBody>
-                  {tableData
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <ProfissionalTableRow
-                        key={row.id}
-                        row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
-                        onEditRow={() => handleEditRow(row.id)}
-                        onSaveRow={(novosDados) => handleSaveRow(novosDados)}
-                      />
-                    ))}
-
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+              ) : (
+                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    numSelected={table.selected.length}
+                    onSort={table.onSort}
+                    onSelectAllRows={(checked) =>
+                      table.onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.id)
+                      )
+                    }
                   />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table> )}
+                  <TableBody>
+                    {tableData
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <ProfissionalTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          quickEdit={(row) => { quickEdit.onTrue(); setRowToEdit(row); }}
+                        />
+                      ))}
+
+                    <TableEmptyRows
+                      height={denseHeight}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              )}
             </Scrollbar>
           </TableContainer>
 
@@ -469,37 +488,15 @@ export default function ProfissionalListView() {
           </Button>
         }
       />
+
+      {checkPermissaoModulo('profissionais', 'editar') && (
+        <ProfissionalQuickEditForm
+          row={rowToEdit}
+          open={quickEdit.value}
+          onClose={quickEdit.onFalse}
+          onSave={saveAndClose}
+        />
+      )}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { nome, role, escola } = filters;
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (nome) {
-    inputData = inputData.filter(
-      (user) => user.profissional.toLowerCase().indexOf(nome.toLowerCase()) !== -1
-    );
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user?.funcao));
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user?.escola));
-  }
-
-  return inputData;
 }

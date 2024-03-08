@@ -22,7 +22,6 @@ import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 //
-import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 import Typography from '@mui/material/Typography';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
@@ -30,7 +29,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
+export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, quickEdit }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
   // console.log(row)
@@ -59,14 +58,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     confirm.onFalse();
   }
 
-  const quickEdit = useBoolean();
-
   const popover = usePopover();
-
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
 
   const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
@@ -129,7 +121,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
           {checkPermissaoModulo('profissionais', 'editar') && 
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton onClick={() => quickEdit(row)}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>}
           </Tooltip>
@@ -140,9 +132,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      {checkPermissaoModulo('profissionais', 'editar') && 
-        <ProfissionalQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
-      }
 
       <CustomPopover
         open={popover.open}
@@ -193,7 +182,7 @@ ProfissionalTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
+  quickEdit: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };
