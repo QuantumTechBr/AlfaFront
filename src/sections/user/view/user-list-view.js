@@ -28,17 +28,14 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
@@ -99,8 +96,6 @@ export default function UserListView() {
   const settings = useSettingsContext();
   
   const router = useRouter();
-  
-  const confirm = useBoolean();
   
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
@@ -317,34 +312,6 @@ export default function UserListView() {
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if (table.selected.includes(row.id)) {
-        const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
-          remainingRows.push(row);
-          setErrorMsg(
-            'Erro de comunicação com a API de usuários no momento da exclusão do usuário'
-          );
-          throw error;
-        });
-        promises.push(newPromise);
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then((retorno) => {
-      setTableData(remainingRows);
-    });
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: tableData.length,
-    });
-  }, [tableData.length, dataInPage.length, table, tableData]);
-
   const handleEditRow = useCallback(
     (id) => {
       router.push(paths.dashboard.user.edit(id));
@@ -515,24 +482,6 @@ export default function UserListView() {
           )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
 
             <Scrollbar>
               {!preparado.value ? (
@@ -544,14 +493,7 @@ export default function UserListView() {
                     orderBy={table.orderBy}
                     headLabel={TABLE_HEAD}
                     rowCount={tableData.length}
-                    numSelected={table.selected.length}
                     onSort={table.onSort}
-                    onSelectAllRows={(checked) =>
-                      table.onSelectAllRows(
-                        checked,
-                        tableData.map((row) => row.id)
-                      )
-                    }
                   />
 
                   <TableBody>
@@ -564,8 +506,6 @@ export default function UserListView() {
                         <UserTableRow
                           key={row.id}
                           row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
                           onEditRow={() => handleEditRow(row.id)}
                           quickEdit={(row) => { quickEdit.onTrue(); setRowToEdit(row); }}
@@ -596,29 +536,6 @@ export default function UserListView() {
           />
         </Card>
       </Container>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> usuários?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
 
       {checkPermissaoModulo('usuario', 'editar') && (
         <UserQuickEditForm

@@ -24,46 +24,32 @@ import { useAuthContext } from 'src/auth/hooks';
 
 export default function UserTableRow({
   row,
-  selected,
   onEditRow,
-  onSelectRow,
   onDeleteRow,
   quickEdit,
 }) {
   const { checkPermissaoModulo } = useAuthContext();
   const {
-    id,
     nome,
-    login,
     email,
-    status,
-    funcao,
     funcao_usuario,
-    permissao_usuario,
-    created_at,
-    updated_at,
-    deleted_at,
+    status,
   } = row;
 
   const funcaoNome =
     funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : '';
 
   const confirm = useBoolean();
-
   const popover = usePopover();
 
-  const newDeleteRow = () => {
+  const deteleRow = () => {
     onDeleteRow();
     confirm.onFalse();
   };
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
+      <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
@@ -134,7 +120,7 @@ export default function UserTableRow({
         title="Excluir Usuário"
         content="Tem certeza que deseja excluir o usuário?"
         action={
-          <Button variant="contained" color="error" onClick={newDeleteRow}>
+          <Button variant="contained" color="error" onClick={deteleRow}>
             Deletar
           </Button>
         }
