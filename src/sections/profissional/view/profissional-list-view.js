@@ -8,10 +8,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import Stack from '@mui/material/Stack';
 // routes
@@ -25,17 +23,14 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
@@ -80,7 +75,6 @@ export default function ProfissionalListView() {
   const preparado = useBoolean(false);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const liberaResults = useBoolean(false);
   const [filters, setFilters] = useState(defaultFilters);
 
   const permissaoCadastrar = checkPermissaoModulo('profissionais', 'cadastrar');
@@ -91,8 +85,6 @@ export default function ProfissionalListView() {
 
   const router = useRouter();
 
-  const confirm = useBoolean();
-  
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
 
@@ -100,7 +92,6 @@ export default function ProfissionalListView() {
 
   const buscaProfissionais = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldProfissionalList = [], filtros = filters) => {
-      liberaResults.onFalse();
       setWarningMsg('');
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
@@ -145,14 +136,13 @@ export default function ProfissionalListView() {
             preparado.onTrue();
           }
           setCountProfissionais(profissionais.data.count);
-          liberaResults.onTrue();
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de profissionais');
           console.log(error);
         });
     },
-    [preparado, filters, liberaResults]
+    [preparado, filters]
   );
 
   const preparacaoInicial = useCallback(async () => {
@@ -198,15 +188,11 @@ export default function ProfissionalListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-
   const canReset = !isEqual(defaultFilters, filters);
-
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     async (nome, value) => {
-      liberaResults.onFalse();
       table.onResetPage();
       const novosFiltros = {
         ...filters,
@@ -214,7 +200,7 @@ export default function ProfissionalListView() {
       };
       setFilters(novosFiltros);
     },
-    [table, filters, liberaResults]
+    [table, filters]
   );
 
   const handleDeleteRow = useCallback(
@@ -235,34 +221,6 @@ export default function ProfissionalListView() {
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if (table.selected.includes(row.id)) {
-        const newPromise = userMethods.deleteUserById(row.id).catch((error) => {
-          remainingRows.push(row);
-          setErrorMsg(
-            'Erro de comunicação com a API de usuários no momento da exclusão do profissional'
-          );
-          throw error;
-        });
-        promises.push(newPromise);
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then((retorno) => {
-      setTableData(remainingRows);
-    });
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: tableData.length,
-    });
-  }, [dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -295,12 +253,11 @@ export default function ProfissionalListView() {
       escola: [],
       role: [],
     };
-    liberaResults.onFalse();
     setTableData([]);
     setProfissionalList([]);
     setFilters(resetFilters);
     buscaProfissionais(table.page, table.rowsPerPage);
-  }, [buscaProfissionais, table.page, table.rowsPerPage, liberaResults]);
+  }, [buscaProfissionais, table.page, table.rowsPerPage]);
 
   return (
     <>
@@ -372,56 +329,19 @@ export default function ProfissionalListView() {
               Aplicar filtros
             </Button>
           </Stack>
-          {canReset && liberaResults.value && (
-            <ProfissionalTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={countProfissionais}
-              roleOptions={funcoes}
-              escolaOptions={escolas}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
             <Scrollbar>
               {!preparado.value ? (
                 <LoadingBox />
               ) : (
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                <Table size='small' sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
                     headLabel={TABLE_HEAD}
                     rowCount={tableData.length}
-                    numSelected={table.selected.length}
                     onSort={table.onSort}
-                    onSelectAllRows={(checked) =>
-                      table.onSelectAllRows(
-                        checked,
-                        tableData.map((row) => row.id)
-                      )
-                    }
                   />
 
                   <TableBody>
@@ -434,8 +354,6 @@ export default function ProfissionalListView() {
                         <ProfissionalTableRow
                           key={row.id}
                           row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
                           onDeleteRow={() => handleDeleteRow(row.id)}
                           onEditRow={() => handleEditRow(row.id)}
                           quickEdit={(row) => { quickEdit.onTrue(); setRowToEdit(row); }}
@@ -443,7 +361,7 @@ export default function ProfissionalListView() {
                       ))}
 
                     <TableEmptyRows
-                      height={denseHeight}
+                      height={52}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 
@@ -460,34 +378,9 @@ export default function ProfissionalListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={onChangePage}
             onRowsPerPageChange={onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> profissionais?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
 
       {checkPermissaoModulo('profissionais', 'editar') && (
         <ProfissionalQuickEditForm

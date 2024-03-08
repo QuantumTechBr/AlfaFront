@@ -22,19 +22,9 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({
-  row,
-  onEditRow,
-  onDeleteRow,
-  quickEdit,
-}) {
+export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
   const { checkPermissaoModulo } = useAuthContext();
-  const {
-    nome,
-    email,
-    funcao_usuario,
-    status,
-  } = row;
+  const { nome, email, funcao_usuario, status } = row;
 
   const funcaoNome =
     funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : '';
@@ -89,6 +79,18 @@ export default function UserTableRow({
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        {checkPermissaoModulo('usuario', 'editar') && (
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Editar
+          </MenuItem>
+        )}
+
         {checkPermissaoModulo('usuario', 'deletar') && (
           <MenuItem
             onClick={() => {
@@ -99,17 +101,6 @@ export default function UserTableRow({
           >
             <Iconify icon="solar:trash-bin-trash-bold" />
             Deletar
-          </MenuItem>
-        )}
-        {checkPermissaoModulo('usuario', 'editar') && (
-          <MenuItem
-            onClick={() => {
-              onEditRow();
-              popover.onClose();
-            }}
-          >
-            <Iconify icon="solar:pen-bold" />
-            Editar
           </MenuItem>
         )}
       </CustomPopover>

@@ -274,10 +274,7 @@ export default function UserListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-
   const canReset = !isEqual(defaultFilters, filters);
-
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
@@ -487,7 +484,7 @@ export default function UserListView() {
               {!preparado.value ? (
                 <LoadingBox />
               ) : (
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                <Table size='small' sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
@@ -513,7 +510,7 @@ export default function UserListView() {
                       ))}
 
                     <TableEmptyRows
-                      height={denseHeight}
+                      height={52}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 
@@ -530,9 +527,6 @@ export default function UserListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={onChangePage}
             onRowsPerPageChange={onChangeRowsPerPage}
-            //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>

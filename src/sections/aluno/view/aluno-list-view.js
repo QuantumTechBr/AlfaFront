@@ -22,14 +22,12 @@ import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
-
 // _mock
 import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
@@ -46,7 +44,7 @@ import {
 //
 import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
-import AlunoTableFiltersResult from '../aluno-table-filters-result';
+
 import alunoMethods from '../aluno-repository';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -71,20 +69,18 @@ const TABLE_HEAD = [
   { id: '', width: 88 },
 ];
 
-
 // ----------------------------------------------------------------------
 
 export default function AlunoListView() {
   const { checkPermissaoModulo } = useAuthContext();
   // let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
 
-
   const defaultFilters = {
     nome: '',
     matricula: '',
     escola: [],
     turma: [],
-    fase: []
+    fase: [],
   };
 
   const fases = Object.values(RegistroAprendizagemFasesCRUD);
@@ -96,10 +92,9 @@ export default function AlunoListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  const liberaResults = useBoolean(false);
   const contextReady = useBoolean(false);
 
-  const permissaoCadastrar = checkPermissaoModulo("aluno", "cadastrar");
+  const permissaoCadastrar = checkPermissaoModulo('aluno', 'cadastrar');
 
   const table = useTable();
 
@@ -113,36 +108,42 @@ export default function AlunoListView() {
 
   const [filters, setFilters] = useState(defaultFilters);
 
-  const buscaAlunos = useCallback(async (pagina=0, linhasPorPagina=25, oldAlunoList=[], filtros=filters) => {
-    liberaResults.onFalse();
-    setWarningMsg('');
-    setErrorMsg('');
-    contextReady.onFalse();
-    const offset = (pagina)*linhasPorPagina;
-    const limit = linhasPorPagina;
-    const {nome, matricula, escola, turma, fase} = filtros;
-    
-    await alunoMethods.getAllAlunos({offset, limit, nome, turmas: turma, escolas: escola, matricula, fase}).then(async alunos => {
-      if (alunos.data.count == 0) {
-        setWarningMsg('A API retornou uma lista vazia de estudantes');
-        contextReady.onTrue();
-      } else {
-        const listaAlunos = alunos.data.results;
-        listaAlunos.map(aluno => {
-          aluno.necessidades_especiais = aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : '';
+  const buscaAlunos = useCallback(
+    async (pagina = 0, linhasPorPagina = 25, oldAlunoList = [], filtros = filters) => {
+      setWarningMsg('');
+      setErrorMsg('');
+      contextReady.onFalse();
+      const offset = pagina * linhasPorPagina;
+      const limit = linhasPorPagina;
+      const { nome, matricula, escola, turma, fase } = filtros;
+
+      await alunoMethods
+        .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase })
+        .then(async (alunos) => {
+          if (alunos.data.count == 0) {
+            setWarningMsg('A API retornou uma lista vazia de estudantes');
+            contextReady.onTrue();
+          } else {
+            const listaAlunos = alunos.data.results;
+            listaAlunos.map((aluno) => {
+              aluno.necessidades_especiais = aluno.necessidades_especiais
+                ? JSON.parse(aluno.necessidades_especiais)
+                : '';
+            });
+            setAlunoList([...oldAlunoList, ...listaAlunos]);
+            setTableData([...oldAlunoList, ...listaAlunos]);
+            contextReady.onTrue();
+          }
+          setCountAlunos(alunos.data.count);
         })
-        setAlunoList([...oldAlunoList, ...listaAlunos]);
-        setTableData([...oldAlunoList, ...listaAlunos]);
-        contextReady.onTrue();
-      }
-      setCountAlunos(alunos.data.count);
-      liberaResults.onTrue();
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de estudantes');
-      console.log(error);
-      contextReady.onTrue();
-    });
-  }, [contextReady, filters, liberaResults]);
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de estudantes');
+          console.log(error);
+          contextReady.onTrue();
+        });
+    },
+    [contextReady, filters]
+  );
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -158,25 +159,36 @@ export default function AlunoListView() {
       buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de estudantes');
         console.log(error);
-      })
+      }),
     ]);
     contextReady.onTrue();
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaAlunos, contextReady, table.page, table.rowsPerPage]);
+  }, [
+    buscaAnosLetivos,
+    buscaEscolas,
+    buscaTurmas,
+    buscaAlunos,
+    contextReady,
+    table.page,
+    table.rowsPerPage,
+  ]);
 
   const onChangePage = async (event, newPage) => {
-    if (alunoList.length < (newPage+1)*table.rowsPerPage) {
+    if (alunoList.length < (newPage + 1) * table.rowsPerPage) {
       buscaAlunos(newPage, table.rowsPerPage, alunoList);
     }
     table.setPage(newPage);
   };
 
-  const onChangeRowsPerPage = useCallback((event) => {
-    table.setPage(0);
-    table.setRowsPerPage(parseInt(event.target.value, 10));
-    setAlunoList([]);
-    setTableData([]);
-    buscaAlunos(0, event.target.value);
-  }, [buscaAlunos, table]);
+  const onChangeRowsPerPage = useCallback(
+    (event) => {
+      table.setPage(0);
+      table.setRowsPerPage(parseInt(event.target.value, 10));
+      setAlunoList([]);
+      setTableData([]);
+      buscaAlunos(0, event.target.value);
+    },
+    [buscaAlunos, table]
+  );
 
   useEffect(() => {
     preparacaoInicial();
@@ -187,70 +199,43 @@ export default function AlunoListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-
   const canReset = !isEqual(defaultFilters, filters);
 
   const notFound = (!tableData.length && canReset) || !tableData.length;
 
   const handleFilters = useCallback(
     async (nome, value) => {
-      liberaResults.onFalse();
       table.onResetPage();
       const novosFiltros = {
         ...filters,
         [nome]: value,
-      }
+      };
       setFilters(novosFiltros);
     },
-    [table, filters, liberaResults]
+    [table, filters]
   );
 
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      alunoMethods.deleteAlunoById(id).then(retorno => {
-        setTableData(deleteRow);
-        buscaTurmas({force: true});
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de estudantes no momento da exclusão do estudante');
-        console.log(error);
-      });
+      alunoMethods
+        .deleteAlunoById(id)
+        .then((retorno) => {
+          setTableData(deleteRow);
+          buscaTurmas({ force: true });
+        })
+        .catch((error) => {
+          setErrorMsg(
+            'Erro de comunicação com a API de estudantes no momento da exclusão do estudante'
+          );
+          console.log(error);
+        });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData, buscaTurmas]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if(table.selected.includes(row.id)) {
-        const newPromise = alunoMethods.deleteAlunoById(row.id).catch((error) => {
-          remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de estudantes no momento da exclusão do estudante');
-          console.log(error);
-          throw error;
-        });
-        promises.push(newPromise)
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then(
-      retorno => {
-        buscaTurmas({force: true});
-        setTableData(remainingRows);
-      }
-    )
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: tableData.length,
-    });
-  }, [dataInPage.length, table, tableData, buscaTurmas]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -259,31 +244,18 @@ export default function AlunoListView() {
     [router]
   );
 
-  const handleSaveRow = useCallback((novosDados) => {
-    const _tableData = tableData.map((item) => {
-      if (item.id === novosDados.id) {
-        return {...item, ...novosDados};
-      }
-      return item;
-    });
-    setTableData(_tableData);
-  }, [tableData]);
-  
-  const handleResetFilters = useCallback(() => {
-    const resetFilters = {
-      nome: '',
-      matricula: '',
-      escola: [],
-      turma: [],
-      fase: []
-    };
-    liberaResults.onFalse();
-    setTableData([]);
-    setAlunoList([]);
-    setFilters(resetFilters);
-    buscaAlunos(table.page, table.rowsPerPage);
-
-  }, [buscaAlunos, table.page, table.rowsPerPage, liberaResults]);
+  const handleSaveRow = useCallback(
+    (novosDados) => {
+      const _tableData = tableData.map((item) => {
+        if (item.id === novosDados.id) {
+          return { ...item, ...novosDados };
+        }
+        return item;
+      });
+      setTableData(_tableData);
+    },
+    [tableData]
+  );
 
   return (
     <>
@@ -295,18 +267,20 @@ export default function AlunoListView() {
             { name: 'Estudantes', href: paths.dashboard.aluno.root },
             { name: 'Listar' },
           ]}
-          action={permissaoCadastrar &&
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.aluno.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: "#00A5AD",
-              }}
-            >
-              Adicionar
-            </Button>
+          action={
+            permissaoCadastrar && (
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.aluno.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                sx={{
+                  bgcolor: '#00A5AD',
+                }}
+              >
+                Adicionar
+              </Button>
+            )
           }
           sx={{
             mb: { xs: 3, md: 5 },
@@ -317,122 +291,91 @@ export default function AlunoListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-        <Stack
-          spacing={2}
-          alignItems={{ xs: 'flex-end', md: 'center' }}
-          direction={{
-            xs: 'column',
-            md: 'row',
-          }}
-          sx={{
-            pr: { xs: 2.5, md: 2.5 },
-          }}
-
-        >
-          <AlunoTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            escolaOptions={escolas}
-            turmaOptions={turmas}
-            faseOptions={fases}
-          />
-        <Button
-                  variant="contained"
-                  sx={{
-                    width:{
-                      xs: "100%",
-                      md: "15%",
-                    },
-                    
-                  }}
-                  onClick={() => {
-                    contextReady.onFalse();
-                    setTableData([]);
-                    setAlunoList([]);
-                    buscaAlunos(table.page, table.rowsPerPage, [], filters);
-                  }}
-                >
-                  Aplicar filtros
-        </Button>
-        </Stack>
-          {canReset && liberaResults.value && (
-            <AlunoTableFiltersResult
+          <Stack
+            spacing={2}
+            alignItems={{ xs: 'flex-end', md: 'center' }}
+            direction={{
+              xs: 'column',
+              md: 'row',
+            }}
+            sx={{
+              pr: { xs: 2.5, md: 2.5 },
+            }}
+          >
+            <AlunoTableToolbar
               filters={filters}
+              onFilters={handleFilters}
               escolaOptions={escolas}
               turmaOptions={turmas}
               faseOptions={fases}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={countAlunos}
-              sx={{ p: 2.5, pt: 0 }}
             />
-          )}
+            <Button
+              variant="contained"
+              sx={{
+                width: {
+                  xs: '100%',
+                  md: '15%',
+                },
+              }}
+              onClick={() => {
+                contextReady.onFalse();
+                setTableData([]);
+                setAlunoList([]);
+                buscaAlunos(table.page, table.rowsPerPage, [], filters);
+              }}
+            >
+              Aplicar filtros
+            </Button>
+          </Stack>
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
+            
             <Scrollbar>
-            {!contextReady.value ? (
-                <LoadingBox />) : (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
-                
-                <TableBody>
-                {tableData
-                  .slice(
-                    table.page * table.rowsPerPage,
-                    table.page * table.rowsPerPage + table.rowsPerPage
-                  )
-                  .map((row) => (
-                    <AlunoTableRow
-                      key={row.id}
-                      row={row}
-                      selected={table.selected.includes(row.id)}
-                      onSelectRow={() => table.onSelectRow(row.id)}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                      onEditRow={() => handleEditRow(row.id)}
-                      onSaveRow={(novosDados) => handleSaveRow(novosDados)}
-                    />
-                  ))}
+              {!contextReady.value ? (
+                <LoadingBox />
+              ) : (
+                <Table size="small" sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    onSort={table.onSort}
+                    onSelectAllRows={(checked) =>
+                      table.onSelectAllRows(
+                        checked,
+                        tableData.map((row) => row.id)
+                      )
+                    }
+                  />
 
-                <TableEmptyRows
-                  height={denseHeight}
-                  emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                />
-                
-                <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table> )}
+                  <TableBody>
+                    {tableData
+                      .slice(
+                        table.page * table.rowsPerPage,
+                        table.page * table.rowsPerPage + table.rowsPerPage
+                      )
+                      .map((row) => (
+                        <AlunoTableRow
+                          key={row.id}
+                          row={row}
+                          selected={table.selected.includes(row.id)}
+                          onSelectRow={() => table.onSelectRow(row.id)}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          onEditRow={() => handleEditRow(row.id)}
+                          onSaveRow={(novosDados) => handleSaveRow(novosDados)}
+                        />
+                      ))}
+
+                    <TableEmptyRows
+                      height={52}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              )}
             </Scrollbar>
           </TableContainer>
 
@@ -442,34 +385,11 @@ export default function AlunoListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={onChangePage}
             onRowsPerPageChange={onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> estudantes?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      
     </>
   );
 }
@@ -477,7 +397,6 @@ export default function AlunoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
- 
   const { nome, matricula, escola, turma, fase } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -486,7 +405,7 @@ function applyFilter({ inputData, comparator, filters }) {
     if (order !== 0) return order;
     return a[1] - b[1];
   });
-  
+
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (nome) {
