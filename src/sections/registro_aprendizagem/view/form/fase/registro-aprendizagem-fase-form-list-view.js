@@ -64,7 +64,7 @@ const TABLE_HEAD = [
   { id: 'observacao', label: 'Observação' },
 ];
 
-const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', nome: '' };
+const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pesquisa: '' };
 
 // ----------------------------------------------------------------------
 
@@ -154,7 +154,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const _turma = getValues('turma');
     const _bimestre = getValues('bimestre');
 
-    if(_turma && _bimestre) {
+    if (_turma && _bimestre) {
       tabelaPreparada.onFalse();
       setTableData([]);
       buscando.onTrue();
@@ -203,7 +203,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const _bimestre = getValues('bimestre');
 
     const retornoPadrao = {
-      nome: `Avaliação de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${_bimestre.ordinal}º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
+      nome: `Avaliação de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${
+        _bimestre.ordinal
+      }º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
       bimestre_id: _bimestre.id,
       tipo: 'Fase',
     };
@@ -271,7 +273,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       if (turmaInicial) {
         const _turmaComplete = turmas.find((t) => t.id == turmaInicial);
         if (_turmaComplete) {
-
           setValue(
             'anoLetivo',
             anosLetivos.find((a) => a.id == _turmaComplete.ano_id)
@@ -355,7 +356,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                 {(!contextReady.value || buscando.value) && <LoadingBox />}
 
                 {contextReady.value && tabelaPreparada.value && (
-                  <Table size='small' sx={{ minWidth: 960 }}>
+                  <Table size="small" sx={{ minWidth: 960 }}>
                     <TableHeadCustom
                       order={table.order}
                       orderBy={table.orderBy}
@@ -413,7 +414,10 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome } = filters;
+  const { pesquisa } = filters;
+
+  if (!inputData) return [];
+
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -424,9 +428,11 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (nome) {
+  const _pesquisa = pesquisa.trim().toLowerCase();
+
+  if (_pesquisa.length) {
     inputData = inputData.filter(
-      (item) => item.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0
     );
   }
 

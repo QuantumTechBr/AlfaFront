@@ -1,37 +1,36 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback } from 'react';
+import { first } from 'lodash';
+
 // @mui
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
-import Grid from '@mui/material/Unstable_Grid2';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-import { RouterLink } from 'src/routes/components';
-// _mock
-import { _anos } from 'src/_mock';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useDebounce } from 'src/hooks/use-debounce';
 import { useContext } from 'react';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { useAuthContext } from 'src/auth/hooks';
+
+// _mock
+import { _anos } from 'src/_mock';
+
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import {
   useTable,
@@ -40,21 +39,15 @@ import {
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
 import RegistroAprendizagemDiagnosticoTableRow from './registro-aprendizagem-diagnostico-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
-import RegistroAprendizagemTableFiltersResult from '../registro-aprendizagem-table-filters-result';
-import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
+import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
-import AppAvaliacaoDiagnostico from 'src/sections/overview/app/app-avaliacao-diagnostico.js';
-import dashboardsMethods from 'src/sections/overview/dashboards-repository.js';
-//
-// auth
-import { useAuthContext } from 'src/auth/hooks';
+
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -62,16 +55,15 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  // { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'periodo', label: 'Período', width: 105 },
   { id: 'escola_nome', label: 'Escola' },
   { id: 'atualizado_por', label: 'Atualizado Por' },
-  { id: '', width: 88 },
+  { id: '', width: 72 },
 ];
 
 const defaultFilters = {
   anoLetivo: '',
-  escola: [],
+  escola: '',
   turma: [],
   pesquisa: '',
 };
@@ -80,27 +72,26 @@ const defaultFilters = {
 
 export default function RegistroAprendizagemDiagnosticoListView() {
   const { checkPermissaoModulo } = useAuthContext();
-  const [_RegistroAprendizagemList, setRegistroAprendizagemList] = useState([]);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [warningMsg, setWarningMsg] = useState('');
-  const contextReady = useBoolean(false);
-  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
-
-
-  const [turmasComRegistro, setTurmasComRegistro] = useState([]);
-  const [_turmasFiltered, setTurmasFiltered] = useState([]);
-
-  const table = useTable();
   const settings = useSettingsContext();
   const router = useRouter();
-  const confirm = useBoolean();
-  const [tableData, setTableData] = useState([]);
-  const [filters, setFilters] = useState(defaultFilters);
+  const table = useTable();
 
-  const debouncedFilters = useDebounce(filters, 1000);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [warningMsg, setWarningMsg] = useState('');
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const contextReady = useBoolean(false);
+
+  const permissaoCadastrar = checkPermissaoModulo('registro_aprendizagem', 'cadastrar');
+
+  const [filters, setFilters] = useState(defaultFilters);
+  const [turmasFiltered, setTurmasFiltered] = useState([]);
+  const [tableData, setTableData] = useState([]);
+
+  const tabelaPreparada = useBoolean(false);
+  const buscando = useBoolean(false);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -116,93 +107,113 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     ]).finally(() => {
       contextReady.onTrue();
     });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, contextReady]);
-
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
 
   useEffect(() => {
-    console.log(`debouncedFilters call`);
-    preencheGraficos();
-  }, [debouncedFilters]);
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
 
-  const preencheTabela = useCallback(() => {
-    const promisesList = [];
-    if (turmas && turmas.length) {
-      setTurmasFiltered(turmas);
+  useEffect(() => {
+    if (contextReady.value) {
+      const _filters = {};
+
+      if (anosLetivos.length) {
+        _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+      }
+      if (escolas.length && escolas.length == 1) {
+        _filters.escola = escolas.length ? first(escolas) : [] ?? [];
+      }
+
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
+
+      if (_filters.anoLetivo) {
+        buscarAvaliacoes();
+      }
+    }
+  }, [contextReady.value]);
+
+  const buscarAvaliacoes = async () => {
+    if (contextReady.value && anosLetivos.length && turmas.length) {
+      setTableData([]);
+      tabelaPreparada.onFalse();
+      buscando.onTrue();
+      setWarningMsg('');
+      setErrorMsg('');
+
+      const promisesList = [];
       let turmasComRegistroNovo = [];
+
+      const _filtersToSend = {
+        turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+      };
+
+      // INICIAL
       const buscaPeriodoInicial = registroAprendizagemMethods
-      .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Inicial' })
-      .then((turmasComRegistros) => {
-          const turmasRegistroInicial = [];
-          if (turmasComRegistros.data?.length) {
-            turmasComRegistros.data.forEach((registro) => {
+        .getListIdTurmaRegistroAprendizagemDiagnostico({ ..._filtersToSend, periodo: 'Inicial' })
+        .then((response) => {
+          if (response.data?.length) {
+            response.data.forEach((registro) => {
               const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Inicial';
                 retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
-                retorno.ano_letivo =  anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
+                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
 
-                turmasRegistroInicial.push(retorno);
+                turmasComRegistroNovo.push(retorno);
               }
             });
-            turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroInicial];
           }
         })
         .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico0000');
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Inicial');
           console.error(error);
-          // preparado.onTrue();
         });
       promisesList.push(buscaPeriodoInicial);
+
+      // FINAL
       const buscaPeriodoFinal = registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemDiagnostico({ periodo: 'Final' })
-        .then((turmasComRegistros) => {
-          const turmasRegistroFinal = [];
-          if (turmasComRegistros.data?.length) {
-            turmasComRegistros.data.forEach((registro) => {
+        .getListIdTurmaRegistroAprendizagemDiagnostico({ ..._filtersToSend, periodo: 'Final' })
+        .then((response) => {
+          if (response.data?.length) {
+            response.data.forEach((registro) => {
               const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = 'Final';
                 retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
-                retorno.ano_letivo =  anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
+                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
 
-                turmasRegistroFinal.push(retorno);
+                turmasComRegistroNovo.push(retorno);
               }
             });
-            turmasComRegistroNovo = [...turmasComRegistroNovo, ...turmasRegistroFinal];
           }
         })
         .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico');
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Final');
           console.error(error);
-          // preparado.onTrue();
-        })
-        .finally(() => {
-          contextReady.onTrue();
         });
       promisesList.push(buscaPeriodoFinal);
-      Promise.all(promisesList).then(() => {
-        setTurmasComRegistro(turmasComRegistroNovo);
+
+      //
+      await Promise.all(promisesList).then(() => {
         setTableData(turmasComRegistroNovo);
-        contextReady.onTrue();
-        setTurmasFiltered(turmasComRegistroNovo);
+        tabelaPreparada.onTrue();
       });
     }
-  }, [contextReady, turmas]);
+
+    buscando.onFalse();
+  };
 
   useEffect(() => {
-    preparacaoInicial();
-  }, []);
-
-  useEffect(() => {
-    if(contextReady.value){
-      preencheTabela();
-      preencheGraficos();
-    }
-  }, [contextReady.value]);
+    const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
+    setTurmasFiltered(_turmasFiltered);
+  }, [filters.escola]);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -215,40 +226,35 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-
-  const canReset = !isEqual(defaultFilters, filters);
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+  const notFound = !tableData.length;
 
   const handleFilters = useCallback(
     (campo, value) => {
+      let _filters = {};
       if (campo == 'escola') {
-        if (value.length == 0) {
-          setTurmasFiltered(turmas);
-        } else {
-          var filtered = turmas.filter((turma) =>
-            value.map((escola) => escola.id).includes(turma.escola.id)
-          );
-          setTurmasFiltered(filtered);
-        }
+        _filters.turma = [];
       }
-      table.onResetPage();
+      _filters[campo] = value;
       setFilters((prevState) => ({
         ...prevState,
-        [campo]: value,
+        ..._filters,
       }));
     },
-    [table, turmas]
+    [table]
+  );
+
+  const handleEditRow = useCallback(
+    (id) => {
+      router.push(paths.dashboard.registro_aprendizagem.edit_diagnostico(id));
+    },
+    [router]
   );
 
   const handleDeleteRow = useCallback(
     (id, periodo) => {
       const deleteRow = tableData.find((row) => row.id == id && row.periodo == periodo);
       if (!deleteRow) {
-        setErrorMsg('Linha a ser deletada não encontrada.');
+        setWarningMsg('Linha a ser deletada não encontrada.');
         return;
       }
       const remainingRows = tableData.filter((row) => row.id !== id || row.periodo !== periodo);
@@ -302,54 +308,11 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     });
   }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
-  const handleEditRow = useCallback(
-    (id) => {
-      router.push(paths.dashboard.registro_aprendizagem.edit_diagnostico(id));
-    },
-    [router]
-  );
-
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
-
   const novaAvaliacao = useBoolean();
 
-  const closeNovaAvaliacao = (retorno = null) => {
+  const closeNovaAvaliacao = () => {
     novaAvaliacao.onFalse();
   };
-
-  const [dadosGrafico, setDadosGrafico] = useState({
-    avaliacao_diagnostico: {},
-  });
-
-  const preencheGraficos = useCallback(async () => {
-    console.log('preenche gráficos');
-    if (
-      anosLetivos &&
-      anosLetivos.length &&
-      escolas &&
-      escolas.length &&
-      turmas &&
-      turmas.length
-    ) {
-      const fullFilters = {
-        // ddz: filters.zona.map((item) => item.id),
-        ano_letivo: filters.anoLetivo != `` ? [filters.anoLetivo.id] : null,
-        escola: filters.escola.map((item) => item.id),
-        turma: filters.turma.map((item) => item.id),
-      };
-
-      await Promise.all([
-        dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
-          setDadosGrafico((prevState) => ({
-            ...prevState,
-            avaliacao_diagnostico: response.data,
-          }));
-        }),
-      ]);
-    }
-  }, [anosLetivos, escolas, turmas, filters]);
 
   return (
     <>
@@ -363,112 +326,90 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           }}
         >
           <Typography variant="h4">Avaliação Diagnóstica</Typography>
-          {permissaoCadastrar && 
-          <Button
-            onClick={novaAvaliacao.onTrue}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#00A5AD',
-            }}
-          >
-            Adicionar
-          </Button>}
+          {permissaoCadastrar && (
+            <Button
+              onClick={novaAvaliacao.onTrue}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#00A5AD',
+              }}
+            >
+              Adicionar
+            </Button>
+          )}
         </Stack>
 
-        <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
+        <NovaAvaliacaoForm
+          open={novaAvaliacao.value}
+          onClose={closeNovaAvaliacao}
+          initialTipo="Avaliação de Fase"
+        />
 
-        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          <RegistroAprendizagemTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            anoLetivoOptions={anosLetivos}
-            turmaOptions={_turmasFiltered}
-            escolaOptions={escolas}
-            export_type='diagnostico'
-          />
-
-          {canReset && (
-            <RegistroAprendizagemTableFiltersResult
+          <Stack
+            spacing={2}
+            alignItems={{ xs: 'flex-end', md: 'center' }}
+            direction={{
+              xs: 'column',
+              md: 'row',
+            }}
+            sx={{
+              pr: { xs: 2.5, md: 2.5 },
+            }}
+          >
+            <RegistroAprendizagemTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
+              anoLetivoOptions={anosLetivos}
+              turmaOptions={turmasFiltered.length ? turmasFiltered : null}
+              escolaOptions={escolas}
+              export_type="diagnostico"
             />
-          )}
-        </Card>
-        <Card sx={{ my: 2 }}>
-          {/* <Button variant="contained" onClick={preencheGraficos}>Aplicar filtro ao gráfico</Button> */}
 
-          <AppAvaliacaoDiagnostico
-            title="Gráfico Avaliação Diagnóstica"
-            list={dadosGrafico.avaliacao_diagnostico}
-            subheader=""
-          />
-        </Card>
-        <Card>
+            <Button
+              variant="contained"
+              sx={{
+                width: {
+                  xs: '100%',
+                  md: '15%',
+                },
+              }}
+              onClick={buscarAvaliacoes}
+            >
+              Aplicar filtros
+            </Button>
+          </Stack>
+
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => `${row.id}_${row.periodo}`)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
             <Scrollbar>
-              {!contextReady.value ? (
-                <LoadingBox />
-              ) : (
-                <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              {(!contextReady.value || buscando.value) && <LoadingBox />}
+              
+              {contextReady.value && tabelaPreparada.value && (
+                <Table size="small" sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
                     headLabel={TABLE_HEAD}
                     rowCount={tableData.length}
-                    numSelected={table.selected.length}
                     onSort={table.onSort}
-                    onSelectAllRows={(checked) =>
-                      table.onSelectAllRows(
-                        checked,
-                        tableData.map((row) => `${row.id}_${row.periodo}`)
-                      )
-                    }
                   />
 
                   <TableBody>
-                    {dataFiltered
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <RegistroAprendizagemDiagnosticoTableRow
-                          key={`${row.id}_${row.periodo}`}
-                          row={row}
-                          selected={table.selected.includes(`${row.id}_${row.periodo}`)}
-                          onSelectRow={() => table.onSelectRow(`${row.id}_${row.periodo}`)}
-                          onDeleteRow={() => handleDeleteRow(row.id, row.periodo)}
-                          onEditRow={() => handleEditRow(row.id, row.periodo)}
-                        />
-                      ))}
+                    {dataInPage.map((row) => (
+                      <RegistroAprendizagemDiagnosticoTableRow
+                        key={`RegistroAprendizagemDiagnosticoTableRow_${row.id}_${row.periodo}`}
+                        row={row}
+                        onEditRow={() => handleEditRow(row.id, row.periodo)}
+                        onDeleteRow={() => handleDeleteRow(row.id, row.periodo)}
+                      />
+                    ))}
 
                     <TableEmptyRows
-                      height={denseHeight}
+                      height={52}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 
@@ -485,33 +426,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={false}
           />
         </Card>
       </Container>
-
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> registro?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
     </>
   );
 }
@@ -519,7 +436,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { anoLetivo, escola, turma, pesquisa } = filters;
+  const { pesquisa } = filters;
 
   if (!inputData) {
     return [];
@@ -535,30 +452,18 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (anoLetivo) {
-    inputData = inputData.filter((item) => item.ano_letivo == anoLetivo.ano);
-  }
+  const _pesquisa = pesquisa.trim().toLowerCase();
 
-  if (escola.length) {
-    inputData = inputData.filter((item) =>
-      escola.map((baseItem) => baseItem.nome).includes(item.escola_nome)
-    );
-  }
-
-  if (turma.length) {
-    inputData = inputData.filter((item) => turma.map((baseItem) => baseItem.id).includes(item.id));
-  }
-
-  if (pesquisa.trim().length) {
+  if (_pesquisa.length) {
     inputData = inputData.filter((item) => {
       return (
-        item.ano.ano.toString().toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
-        `${item.ano_escolar.toLowerCase()}${item.nome.toLowerCase()}`.indexOf(
-          pesquisa.trim().toLowerCase()
-        ) !== -1 ||
-        item.turno.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
-        item.periodo.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1 ||
-        item.escola.nome.toLowerCase().indexOf(pesquisa.trim().toLowerCase()) !== -1
+        // item.ano.ano.toString().toLowerCase().indexOf(_pesquisa) !== -1 ||
+        // `${item.ano_escolar.toLowerCase()}${item.nome.toLowerCase()}`.indexOf(
+        //   _pesquisa
+        // ) !== -1 ||
+        // item.turno.toLowerCase().indexOf(_pesquisa) !== -1 ||
+        // item.periodo.toLowerCase().indexOf(_pesquisa) !== -1 ||
+        item.escola.nome.toLowerCase().indexOf(_pesquisa) >= 0
       );
     });
   }

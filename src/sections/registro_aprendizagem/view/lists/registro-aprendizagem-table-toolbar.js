@@ -266,9 +266,12 @@ export default function RegistroAprendizagemTableToolbar({
           onClick={() => {
             let exportFilters = Object.assign({}, filters);
             exportFilters.anoLetivo = exportFilters.anoLetivo.id;
-            exportFilters.turma = exportFilters.turma.map((item) => item.id);
             exportFilters.escola = exportFilters.escola.id;
-            exportFilters.bimestre = exportFilters.bimestre.map((item) => item.id);
+            exportFilters.turma = exportFilters.turma.map((item) => item.id);
+
+            if(exportFilters.bimestre){
+              exportFilters.bimestre = exportFilters.bimestre.map((item) => item.id);
+            }
 
             exportFilters = { ...exportFilters, export: 'csv' };
             const query = new URLSearchParams(exportFilters).toString();
