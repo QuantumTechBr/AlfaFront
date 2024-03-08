@@ -59,8 +59,8 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   useEffect(() => {
     contextReady.onFalse();
     setErrorMsg('');
-    setCurrentUser(row);
     if (open) {
+      setCurrentUser(row);
       Promise.all([
         buscaFuncoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de funções');
@@ -168,8 +168,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novoUsuario = {};
-      novoUsuario = {
+      var novoUsuario = {
         nome: data.nome,
         email: data.email,
         status: data.status,
