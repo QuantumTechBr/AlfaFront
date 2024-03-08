@@ -16,40 +16,46 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-//
-import UserQuickEditForm from './user-quick-edit-form';
-import { useRouter } from 'src/routes/hook';
-import { paths } from 'src/routes/paths';
+
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
+export default function UserTableRow({
+  row,
+  selected,
+  onEditRow,
+  onSelectRow,
+  onDeleteRow,
+  quickEdit,
+}) {
   const { checkPermissaoModulo } = useAuthContext();
-  const { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const {
+    id,
+    nome,
+    login,
+    email,
+    status,
+    funcao,
+    funcao_usuario,
+    permissao_usuario,
+    created_at,
+    updated_at,
+    deleted_at,
+  } = row;
 
-  const funcaoNome = funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : ''
+  const funcaoNome =
+    funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : '';
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
 
   const popover = usePopover();
 
   const newDeleteRow = () => {
     onDeleteRow();
     confirm.onFalse();
-  }
-
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
-
-  const closeQuickEdit = () => {
-    quickEdit.onFalse();
-  }
+  };
 
   return (
     <>
@@ -59,9 +65,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
 
         <TableCell>
@@ -80,10 +84,11 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
-          {checkPermissaoModulo('usuario', 'editar') && 
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>}
+            {checkPermissaoModulo('usuario', 'editar') && (
+              <IconButton onClick={() => quickEdit(row)}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            )}
           </Tooltip>
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -91,9 +96,6 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
           </IconButton>
         </TableCell>
       </TableRow>
-      {checkPermissaoModulo('usuario', 'editar') &&       
-        <UserQuickEditForm id={row.id} open={quickEdit.value} onClose={closeQuickEdit} onSave={saveAndClose} />
-      }
 
       <CustomPopover
         open={popover.open}
@@ -101,27 +103,29 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         arrow="right-top"
         sx={{ width: 140 }}
       >
-      {checkPermissaoModulo('usuario', 'deletar') && 
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>}
-      {checkPermissaoModulo('usuario', 'editar') && 
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>}
+        {checkPermissaoModulo('usuario', 'deletar') && (
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Deletar
+          </MenuItem>
+        )}
+        {checkPermissaoModulo('usuario', 'editar') && (
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Editar
+          </MenuItem>
+        )}
       </CustomPopover>
 
       <ConfirmDialog
@@ -143,7 +147,7 @@ UserTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
   onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
+  quickEdit: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
 };
