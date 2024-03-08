@@ -179,7 +179,7 @@ export function AuthProvider({ children }) {
   const checkFuncao = useCallback((funcao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
     const permissaoUsuario = state.user.permissao_usuario[0];
-    return permissaoUsuario.nome == funcao;
+    return permissaoUsuario?.nome == funcao;
     /* SUPERADMIN, ASSESSOR DDZ, DIRETOR, PROFESSOR */
   }, [state.user]);
 
