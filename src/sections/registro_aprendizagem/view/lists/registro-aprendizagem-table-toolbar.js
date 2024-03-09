@@ -26,15 +26,12 @@ export default function RegistroAprendizagemTableToolbar({
   escolaOptions,
   turmaOptions,
   bimestreOptions,
+  periodoOptions,
   disciplinaOptions,
   export_type,
 }) {
-  // if(typeof filters.anoLetivo === 'number'){
-  //   filters.anoLetivo = anoLetivoOptions.filter((item) => item.ano == filters.anoEscolar)[0];
-  // }
-  const popover = usePopover();
 
-  
+  const popover = usePopover();
 
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
@@ -42,10 +39,7 @@ export default function RegistroAprendizagemTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) =>
-      onFilters(
-        'escola', event.target.value
-      ),
+    (event) => onFilters('escola', event.target.value),
     [onFilters]
   );
 
@@ -62,6 +56,15 @@ export default function RegistroAprendizagemTableToolbar({
     (event) =>
       onFilters(
         'bimestre',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      ),
+    [onFilters]
+  );
+
+  const handleFilterPeriodo = useCallback(
+    (event) =>
+      onFilters(
+        'periodo',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       ),
     [onFilters]
@@ -156,7 +159,9 @@ export default function RegistroAprendizagemTableToolbar({
               onChange={handleFilterTurma}
               input={<OutlinedInput label="Turma" />}
               renderValue={(selected) =>
-                selected.map((item) => `${item.ano_escolar}º ${item.nome} (${item.turno})`).join(', ')
+                selected
+                  .map((item) => `${item.ano_escolar}º ${item.nome} (${item.turno})`)
+                  .join(', ')
               }
               MenuProps={{
                 PaperProps: {
@@ -213,6 +218,43 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
+        {periodoOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel>Período</InputLabel>
+
+            <Select
+              multiple
+              value={filters.periodo}
+              onChange={handleFilterPeriodo}
+              input={<OutlinedInput label="Período" />}
+              renderValue={(selected) => selected.map((item) => `${item}`).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {periodoOptions.map((option) => {
+                return (
+                  <MenuItem key={option} value={option}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.periodo.includes(option)}
+                    />
+                    {`${option}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+
         {disciplinaOptions && (
           <FormControl
             sx={{
@@ -250,7 +292,6 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
-
         <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
         </IconButton>
@@ -269,7 +310,7 @@ export default function RegistroAprendizagemTableToolbar({
             exportFilters.escola = exportFilters.escola.id;
             exportFilters.turma = exportFilters.turma.map((item) => item.id);
 
-            if(exportFilters.bimestre){
+            if (exportFilters.bimestre) {
               exportFilters.bimestre = exportFilters.bimestre.map((item) => item.id);
             }
 
@@ -303,7 +344,10 @@ RegistroAprendizagemTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   anoLetivoOptions: PropTypes.array,
-  turmaOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
+  turmaOptions: PropTypes.array,
+  bimestreOptions: PropTypes.array,
+  periodoOptions: PropTypes.array,
+  disciplinaOptions: PropTypes.array,
   export_type: PropTypes.string,
 };
