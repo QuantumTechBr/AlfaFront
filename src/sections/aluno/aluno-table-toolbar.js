@@ -110,32 +110,7 @@ export default function AlunoTableToolbar({
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Nome..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            fullWidth
-            value={filters.matricula}
-            onChange={handleFilterMatricula}
-            placeholder="Matrícula..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+          
 
           <FormControl
             sx={{
@@ -201,7 +176,7 @@ export default function AlunoTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 100 },
+              width: { xs: 1, md: 160 },
             }}
           >
             <InputLabel>Fase</InputLabel>
@@ -226,6 +201,33 @@ export default function AlunoTableToolbar({
               ))}
             </Select>
           </FormControl>
+
+          <TextField
+            fullWidth
+            value={filters.nome}
+            onChange={handleFilterNome}
+            placeholder="Nome..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            value={filters.matricula}
+            onChange={handleFilterMatricula}
+            placeholder="Matrícula..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
 
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />

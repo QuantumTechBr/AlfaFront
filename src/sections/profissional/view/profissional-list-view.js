@@ -188,8 +188,7 @@ export default function ProfissionalListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const canReset = !isEqual(defaultFilters, filters);
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = !tableData.length;
 
   const handleFilters = useCallback(
     async (nome, value) => {

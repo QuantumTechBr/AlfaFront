@@ -29,7 +29,7 @@ export default function UserTableToolbar({
 }) {
   const popover = usePopover();
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
       onFilters('nome', event.target.value);
     },
@@ -186,8 +186,8 @@ export default function UserTableToolbar({
           <TextField
             fullWidth
             value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            onChange={handleFilterPesquisa}
+            placeholder="Pesquisar nome do usuário..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

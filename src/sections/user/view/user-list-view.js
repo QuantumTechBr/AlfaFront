@@ -41,7 +41,6 @@ import {
 //
 import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
-import UserTableFiltersResult from '../user-table-filters-result';
 //
 import userMethods from '../user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
@@ -105,7 +104,6 @@ export default function UserListView() {
 
   const buscaUsuarios = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldUserList = [], filtros = filters) => {
-      liberaResults.onFalse();
       preparado.onFalse();
       setWarningMsg('');
       setErrorMsg('');
@@ -166,7 +164,6 @@ export default function UserListView() {
             preparado.onTrue();
           }
           setCountUsuarios(usuarios.data.count);
-          liberaResults.onTrue();
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de usuários');
@@ -174,7 +171,7 @@ export default function UserListView() {
           preparado.onTrue();
         });
     },
-    [preparado, filters, liberaResults]
+    [preparado, filters]
   );
 
   const contarUsuarios = useCallback(
@@ -274,12 +271,10 @@ export default function UserListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const canReset = !isEqual(defaultFilters, filters);
-  const notFound = (!tableData.length && canReset) || !tableData.length;
+  const notFound = !tableData.length;
 
   const handleFilters = useCallback(
     (nome, value) => {
-      liberaResults.onFalse();
       table.onResetPage();
       const novosFiltros = {
         ...filters,
@@ -287,7 +282,7 @@ export default function UserListView() {
       };
       setFilters(novosFiltros);
     },
-    [table, filters, liberaResults]
+    [table, filters]
   );
 
   const handleDeleteRow = useCallback(
@@ -352,13 +347,12 @@ export default function UserListView() {
       escola: [],
       status: 'all',
     };
-    liberaResults.onFalse();
     setTableData([]);
     setUserList([]);
     setFilters(resetFilters);
     contarUsuarios();
     buscaUsuarios(table.page, table.rowsPerPage);
-  }, [buscaUsuarios, table.page, table.rowsPerPage, contarUsuarios, liberaResults]);
+  }, [buscaUsuarios, table.page, table.rowsPerPage, contarUsuarios]);
 
   return (
     <>
@@ -465,18 +459,6 @@ export default function UserListView() {
               Aplicar filtros
             </Button>
           </Stack>
-
-          {canReset && liberaResults.value && (
-            <UserTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              results={countUsuarios}
-              roleOptions={funcoes}
-              escolaOptions={escolas}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
 
