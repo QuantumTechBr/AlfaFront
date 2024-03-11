@@ -48,8 +48,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useRouter, useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first } from 'lodash';
-
 // ----------------------------------------------------------------------
 import DashboardEscolaTableToolbar from './dashboard-escola-table-toolbar';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
@@ -115,7 +113,7 @@ export default function DashboardEscolaView() {
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
@@ -229,7 +227,7 @@ export default function DashboardEscolaView() {
         ...(zonaFiltro.length && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -265,7 +263,7 @@ export default function DashboardEscolaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: first(anosLetivos),
+      anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],

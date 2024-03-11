@@ -54,7 +54,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first } from 'lodash';
 
 // ----------------------------------------------------------------------
 import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
@@ -117,7 +116,7 @@ export default function DashboardDDZView() {
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
         ],
         ddz: [_filtersToSearch.zona?.id],
         turma: _.flatten(
@@ -217,7 +216,7 @@ export default function DashboardDDZView() {
       }
 
       if(!_zonaFiltro){
-        _zonaFiltro = first(zonas);
+        _zonaFiltro = _.first(zonas);
       }
 
       setZonaFiltro(_zonaFiltro);
@@ -225,7 +224,7 @@ export default function DashboardDDZView() {
       const _filters = {
         ...filters,
         zona: _zonaFiltro,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);

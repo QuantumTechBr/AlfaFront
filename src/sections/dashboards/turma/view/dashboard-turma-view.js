@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
+import _ from 'lodash';
 
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
@@ -25,7 +26,6 @@ import { useAuthContext } from 'src/auth/hooks';
 // components
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
-import _, { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
 
@@ -168,13 +168,13 @@ export default function DashboardTurmaView() {
       isGettingGraphics.onTrue();
       const payloadFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _filtersToSearch.turma.map((item) => item.id),
         bimestre: [
-          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : last(bimestres)).id,
+          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
         ],
       };
 
@@ -273,11 +273,11 @@ export default function DashboardTurmaView() {
 
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
         zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
         escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
         turma: _turma.length > 0 ? _turma : turmas.length == 1 ? turmas : [],
-        ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
+        ...(bimestres && bimestres.length ? { bimestre: _.last(bimestres) } : {}),
       };
       setFilters((prevState) => ({...prevState, ..._filters}));
       preencheGraficos(_filters);
@@ -309,11 +309,11 @@ export default function DashboardTurmaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: first(anosLetivos),
+      anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
-      bimestre: last(bimestres),
+      bimestre: _.last(bimestres),
     });
   };
 

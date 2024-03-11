@@ -44,8 +44,6 @@ import {
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first } from 'lodash';
-
 // ----------------------------------------------------------------------
 import DashboardRedeTableToolbar from './dashboard-rede-table-toolbar';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
@@ -102,7 +100,7 @@ export default function DashboardRedeView() {
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos))?.id,
         ],
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
@@ -186,7 +184,7 @@ export default function DashboardRedeView() {
     if (contextReady.value) {
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);
