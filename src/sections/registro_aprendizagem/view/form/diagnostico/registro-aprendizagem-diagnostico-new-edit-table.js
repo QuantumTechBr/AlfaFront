@@ -64,21 +64,21 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
 
   useEffect(() => {
     const cabecalho = [
-        { id: 'nome', label: 'Nome', width: 150 },
         { id: 'matricula', label: 'Matrícula', width: 150 },
+        { id: 'nome', label: 'Nome', width: 150 },
         { id: 'frequencia', label: 'Frequência', width: 200 },
     ];
     for (var i = 1; i < 21; i++) {
       cabecalho.push({ id: `R${i}`, label: `R${i}`, width: 50 });
     }
-    cabecalho.push({ id: 'mediaLP', label: 'Média LP', width: 70 });
-    cabecalho.push({ id: 'mediaMAT', label: 'Média MAT', width: 70 });
+    cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
+    cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 150 });
+    cabecalho.push({ id: 'nvLP', label: 'NÍVEL_LP', width: 50 });
+    cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
+    cabecalho.push({ id: 'nvResolucao', label: 'Nível Resolução de problemas - MAT (resultado do item 20)', width: 150 });
+    cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
-    cabecalho.push({ id: 'nvEscrita', label: 'Nível de Escrita', width: 150 });
-    cabecalho.push({ id: 'nvLP', label: 'Nível LP', width: 50 });
-    cabecalho.push({ id: 'nvResolucao', label: 'Nível de Resolução de Problemas', width: 150 });
-    cabecalho.push({ id: 'nvMAT', label: 'Nível MAT', width: 50 });
-    cabecalho.push({ id: 'nivelFinal', label: 'Nível Final', width: 50 });
+    cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
     setTableData((alunosTurma == undefined) ? [] : alunosTurma);
  
@@ -197,11 +197,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
+            rowsPerPageOptions={[5]}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
+            // dense={table.dense}
+            // onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>

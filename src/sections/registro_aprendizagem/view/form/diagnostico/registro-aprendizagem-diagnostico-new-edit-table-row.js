@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 // @mui
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -26,9 +26,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const { user } = useContext(AuthContext);
 
   const [mapResultados, setMapResultados] = useState([]);
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
 
-  console.log(row)
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -117,7 +116,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                     </MenuItem>
                 ))}
                 {(index == 9 || index == 19) && 
-                <MenuItem key={id + '_r_' + index} value='2' sx={{ height: '34px' }}>
+                <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
                   {2}
                 </MenuItem>}
               </RHFSelect>
@@ -127,6 +126,102 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     return retorno;
   }
 
+  const mediaLP = () => {
+    let media = 0;
+    for (let index = 0; index < 10; index++) {
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+    }
+    media = (media * 10) / 11;
+    if (media != number) {
+      return '-'
+    }
+    return media;
+  }
+
+  const nivelEscritaLP = () => {
+    if (getValues('registros['+id+'].r[9]') == 2) {
+      return 'Completo';
+    } else if (getValues('registros['+id+'].r[9]') == 1) {
+      return 'Parcial';
+    } else if (getValues('registros['+id+'].r[9]') === 0) {
+      return 'Insuficiente';
+    } else {
+      return '-';
+    }
+  }
+
+  const nivelLP = () => {
+    if (mediaLP() <= 4) {
+      return 'N1';
+    } else if (mediaLP() <= 8) {
+      return 'N2';
+    } else if (mediaLP() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+   
+  const mediaMAT = () => {
+    let media = 0;
+    for (let index = 10; index < 20; index++) {
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+    }
+    media = (media * 10) / 11;
+    if (media != number) {
+      return '-'
+    }
+    return media;
+  }
+   
+  const nivelResProb = () => {
+    if (getValues('registros['+id+'].r[19]') == 2) {
+      return 'Completo'
+    } else if (getValues('registros['+id+'].r[19]') == 1) {
+      return 'Parcial'
+    } else if (getValues('registros['+id+'].r[19]') === 0) {
+      return 'Insuficiente'
+    } else {
+      return '-'
+    }
+  }
+   
+  const nivelMAT = () => {
+    if (mediaMAT() <= 4) {
+      return 'N1';
+    } else if (mediaMAT() <= 8) {
+      return 'N2';
+    } else if (mediaMAT() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+   
+  const mediaFinal = () => {
+    let media = 0;
+    for (let index = 0; index < 20; index++) {
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+    }
+    media = (media * 10) / 22;
+    if (media != number) {
+      return '-'
+    }
+    return media;
+  }
+   
+  const nivelFinal = () => {
+    if (mediaFinal() <= 4) {
+      return 'N1';
+    } else if (mediaFinal() <= 8) {
+      return 'N2';
+    } else if (mediaFinal() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+  
   return (
     <TableRow hover selected={selected}>
 
@@ -147,11 +242,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nomeAluno()}  
+          {row.aluno.matricula}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row.aluno.matricula}  
+          {nomeAluno()}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -191,6 +286,37 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         {preenche_R()}
 
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaLP()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelEscritaLP()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelLP()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaMAT()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelResProb()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelMAT()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaFinal()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelFinal()}  
+        </TableCell>
 
       </TableRow>
   );
