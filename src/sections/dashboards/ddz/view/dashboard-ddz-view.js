@@ -54,7 +54,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-
 // ----------------------------------------------------------------------
 import DashboardDDZTableToolbar from './dashboard-ddz-table-toolbar';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
@@ -87,7 +86,7 @@ export default function DashboardDDZView() {
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
-  const isGettingGraphics = useBoolean(false);
+  const isGettingGraphics = useBoolean(true);
   const [zonaFiltro, setZonaFiltro] = useState('');
 
   const [filters, setFilters] = useState({
@@ -103,10 +102,12 @@ export default function DashboardDDZView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = useCallback((anoEscolar) =>{ 
-    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  }, [turmas]);
-  
+  const getTurmasPorAnoEscolar = useCallback(
+    (anoEscolar) => {
+      return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    },
+    [turmas]
+  );
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -136,8 +137,12 @@ export default function DashboardDDZView() {
               const _alunos = _.sumBy(escolaTurmas, (s) => s.qtd_alunos);
               const _avaliados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_avaliados));
               const _alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_alfabetizado));
-              const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_alfabetizado));
-              const _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_nao_avaliado));
+              const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) =>
+                _.last(s.qtd_nao_alfabetizado)
+              );
+              const _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) =>
+                _.last(s.qtd_nao_avaliado)
+              );
 
               return {
                 escola_nome: key,
@@ -200,22 +205,22 @@ export default function DashboardDDZView() {
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
 
   useEffect(() => {
-    if(user && contextReady.value){
+    if (user && contextReady.value) {
       let _zonaFiltro = undefined;
 
       if (user?.funcao_usuario?.length > 0) {
         if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
           _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
         } else {
-          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id) ;
+          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
         }
       }
 
-      if(initialZona){
+      if (initialZona) {
         _zonaFiltro = zonas.find((z) => z.id == initialZona);
       }
 
-      if(!_zonaFiltro){
+      if (!_zonaFiltro) {
         _zonaFiltro = _.first(zonas);
       }
 
@@ -230,8 +235,6 @@ export default function DashboardDDZView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-
-    
   }, [contextReady.value, user, initialZona]);
 
   useEffect(() => {
@@ -339,22 +342,22 @@ export default function DashboardDDZView() {
 
         {!!contextReady.value && (
           <>
-          <Stack
-            flexGrow={1}
-            direction={{
-              xs: "column",
-              md: "row"
-            }}
-            width="100%"
-            spacing={{
-              xs: 1,
-              md: 0
-            }}
-            alignItems="center"
-            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
-            paddingY={1}
-          >
-            <Grid xs={12} md="auto" paddingY={0}>
+            <Stack
+              flexGrow={1}
+              direction={{
+                xs: 'column',
+                md: 'row',
+              }}
+              width="100%"
+              spacing={{
+                xs: 1,
+                md: 0,
+              }}
+              alignItems="center"
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              paddingY={1}
+            >
+              <Grid xs={12} md="auto" paddingY={0}>
                 <DashboardDDZTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -367,10 +370,10 @@ export default function DashboardDDZView() {
                 <Button
                   variant="contained"
                   sx={{
-                    width:{
-                      xs: "100%",
-                      md: "auto"
-                    }
+                    width: {
+                      xs: '100%',
+                      md: 'auto',
+                    },
                   }}
                   onClick={() => {
                     preencheGraficos();
@@ -381,81 +384,82 @@ export default function DashboardDDZView() {
               </Grid>
             </Stack>
 
-            <Grid container marginX={0} spacing={3} marginTop={3}>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes"
-                total={getTotalEstudandes()}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes Avaliados"
-                total={dados.total_alunos_avaliados ?? 0}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-            <Grid xs={12} md={4}>
-              {!!contextReady.value && !isGettingGraphics.value && (
-                <MetaComponent
-                  title="Meta"
-                  subtitle="entre a média das séries"
-                  meta={calculaMeta()}
-                  alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalEstudandesAvaliados()}
-                ></MetaComponent>
-              )}
-            </Grid>
-
-            {!!isGettingGraphics.value && (
-              <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
-                <LoadingBox />
+            <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+              <Grid xs={12} md={4}>
+                <NumeroComponent
+                  title="Total de Estudantes"
+                  total={getTotalEstudandes()}
+                  icon={
+                    <Iconify
+                      width={ICON_SIZE}
+                      icon="bi:people-fill"
+                      sx={{
+                        color: theme.palette['primary'].main,
+                      }}
+                    />
+                  }
+                />
               </Grid>
-            )}
+              <Grid xs={12} md={4}>
+                <NumeroComponent
+                  title="Total de Estudantes Avaliados"
+                  total={dados.total_alunos_avaliados ?? 0}
+                  icon={
+                    <Iconify
+                      width={ICON_SIZE}
+                      icon="bi:people-fill"
+                      sx={{
+                        color: theme.palette['primary'].main,
+                      }}
+                    />
+                  }
+                />
+              </Grid>
+              <Grid xs={12} md={4}>
+                {!!contextReady.value && !isGettingGraphics.value && (
+                  <MetaComponent
+                    title="Meta"
+                    subtitle="entre a média das séries"
+                    meta={calculaMeta()}
+                    alfabetizados={getTotalAlfabetizados()}
+                    total={getTotalEstudandesAvaliados()}
+                  ></MetaComponent>
+                )}
+              </Grid>
 
-            {!isGettingGraphics.value && (
-              <IndicesCompostosAlfabetizacaoGeralWidget
-                title="por escola"
-                indice_alfabetizacao={[
-                  ...dados.grid_escolas.map((e) => {
-                    return {
-                      ...e,
-                      title: e.escola_nome,
-                    };
-                  }),
-                ]}
-                indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-              />
-            )}
-
-            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
-              (dados.desempenho_alunos.chart.series ?? []).length > 0 && (
-                <Grid xs={12}>
-                  <DesempenhoAlunosWidget
-                    title="Desempenho dos Estudantes - Índice de fases"
-                    subheader={dados.desempenho_alunos.subheader}
-                    chart={dados.desempenho_alunos.chart}
-                  />
+              {!!isGettingGraphics.value && (
+                <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+                  <LoadingBox />
                 </Grid>
               )}
-              </Grid>
+
+              {!isGettingGraphics.value && (
+                <IndicesCompostosAlfabetizacaoGeralWidget
+                  title="por escola"
+                  indice_alfabetizacao={[
+                    ...dados.grid_escolas.map((e) => {
+                      return {
+                        ...e,
+                        title: e.escola_nome,
+                      };
+                    }),
+                  ]}
+                  indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
+                />
+              )}
+
+              {!isGettingGraphics.value &&
+                dados.desempenho_alunos.chart &&
+                (dados.desempenho_alunos.chart.series ?? []).length > 0 && (
+                  <Grid xs={12}>
+                    <DesempenhoAlunosWidget
+                      title="Desempenho dos Estudantes - Índice de fases"
+                      subheader={dados.desempenho_alunos.subheader}
+                      chart={dados.desempenho_alunos.chart}
+                    />
+                  </Grid>
+                )}
+            </Grid>
           </>
         )}
       </Grid>
@@ -465,7 +469,17 @@ export default function DashboardDDZView() {
           <CardHeader title="Escolas" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-          <TableContainer sx={{ mt: 1, height: 70 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
+          <TableContainer
+            sx={{
+              mt: 1,
+              height:
+                70 +
+                (dataFiltered.length < table.rowsPerPage
+                  ? dataFiltered.length
+                  : table.rowsPerPage) *
+                  43,
+            }}
+          >
             <Scrollbar>
               <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                 <TableHeadCustom

@@ -82,7 +82,7 @@ export default function DashboardEscolaView() {
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
-  const isGettingGraphics = useBoolean(false);
+  const isGettingGraphics = useBoolean(true);
   const [zonaFiltro, setZonaFiltro] = useState([]);
   const [escolaFiltro, setEscolaFiltro] = useState([]);
 
@@ -101,9 +101,12 @@ export default function DashboardEscolaView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = useCallback((anoEscolar) => {
-    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  }, [turmas]);
+  const getTurmasPorAnoEscolar = useCallback(
+    (anoEscolar) => {
+      return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    },
+    [turmas]
+  );
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -129,7 +132,9 @@ export default function DashboardEscolaView() {
         dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
           // adequação dos dados
           const result = response.data.map((i) => {
-            const _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            const _avaliados = _.isArray(i.qtd_avaliados)
+              ? _.last(i.qtd_avaliados)
+              : i.qtd_avaliados;
             const _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado;
@@ -215,7 +220,14 @@ export default function DashboardEscolaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
+  }, [
+    preparacaoInicialRunned,
+    buscaAnosLetivos,
+    buscaZonas,
+    buscaEscolas,
+    buscaTurmas,
+    contextReady,
+  ]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -374,22 +386,22 @@ export default function DashboardEscolaView() {
 
         {!!contextReady.value && (
           <>
-          <Stack
-            flexGrow={1}
-            direction={{
-              xs: "column",
-              md: "row"
-            }}
-            width="100%"
-            spacing={{
-              xs: 1,
-              md: 0
-            }}
-            alignItems="center"
-            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
-            paddingY={1}
-          >
-            <Grid xs={12} md="auto" paddingY={0}>
+            <Stack
+              flexGrow={1}
+              direction={{
+                xs: 'column',
+                md: 'row',
+              }}
+              width="100%"
+              spacing={{
+                xs: 1,
+                md: 0,
+              }}
+              alignItems="center"
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              paddingY={1}
+            >
+              <Grid xs={12} md="auto" paddingY={0}>
                 <DashboardEscolaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -400,111 +412,114 @@ export default function DashboardEscolaView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={0}>
-              <Button
-                variant="contained"
-                sx={{
-                  width:{
-                    xs: "70%",
-                    md: "auto"
-                  }
-                }}
-                onClick={() => {
-                  preencheGraficos();
-                }}
-              >
-                Aplicar filtros
-              </Button>
+                <Button
+                  variant="contained"
+                  sx={{
+                    width: {
+                      xs: '70%',
+                      md: 'auto',
+                    },
+                  }}
+                  onClick={() => {
+                    preencheGraficos();
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
 
-              <Button variant="soft" 
-                sx={{
-                  width:{
-                    xs: "calc(30% - 10px)",
-                    md: "auto"
-                  },
-                  marginLeft: {xs: "10px", md:2 }
-                }}
-                onClick={filtroReset}>
-                Limpar
-              </Button>
+                <Button
+                  variant="soft"
+                  sx={{
+                    width: {
+                      xs: 'calc(30% - 10px)',
+                      md: 'auto',
+                    },
+                    marginLeft: { xs: '10px', md: 2 },
+                  }}
+                  onClick={filtroReset}
+                >
+                  Limpar
+                </Button>
               </Grid>
             </Stack>
 
-            <Grid container marginX={0} spacing={3} marginTop={3}>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes"
-                total={getTotalEstudandes()}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes Avaliados"
-                total={dados.total_alunos_avaliados ?? 0}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-
-            <Grid xs={12} md={4}>
-              {!!contextReady.value && !isGettingGraphics.value && (
-                <MetaComponent
-                  title="Meta"
-                  subtitle="entre a média das séries"
-                  meta={calculaMeta()}
-                  alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalEstudandesAvaliados()}
-                ></MetaComponent>
-              )}
-            </Grid>
-
-            {!!isGettingGraphics.value && (
-              <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
-                <LoadingBox />
+            <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+              <Grid xs={12} md={4}>
+                <NumeroComponent
+                  title="Total de Estudantes"
+                  total={getTotalEstudandes()}
+                  icon={
+                    <Iconify
+                      width={ICON_SIZE}
+                      icon="bi:people-fill"
+                      sx={{
+                        color: theme.palette['primary'].main,
+                      }}
+                    />
+                  }
+                />
               </Grid>
-            )}
+              <Grid xs={12} md={4}>
+                <NumeroComponent
+                  title="Total de Estudantes Avaliados"
+                  total={dados.total_alunos_avaliados ?? 0}
+                  icon={
+                    <Iconify
+                      width={ICON_SIZE}
+                      icon="bi:people-fill"
+                      sx={{
+                        color: theme.palette['primary'].main,
+                      }}
+                    />
+                  }
+                />
+              </Grid>
 
-            {!isGettingGraphics.value && (
-              <IndicesCompostosAlfabetizacaoGeralWidget
-                title="por turma"
-                indice_alfabetizacao={[
-                  ...dados.grid_turmas.map((e) => {
-                    return {
-                      ...e,
-                      title: `${e.turma_ano_escolar} ${e.turma_nome}`,
-                    };
-                  }),
-                ]}
-                indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-              />
-            )}
+              <Grid xs={12} md={4}>
+                {!!contextReady.value && !isGettingGraphics.value && (
+                  <MetaComponent
+                    title="Meta"
+                    subtitle="entre a média das séries"
+                    meta={calculaMeta()}
+                    alfabetizados={getTotalAlfabetizados()}
+                    total={getTotalEstudandesAvaliados()}
+                  ></MetaComponent>
+                )}
+              </Grid>
 
-            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
-              (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-                <Grid xs={12}>
-                  <DesempenhoAlunosWidget
-                    title="Desempenho dos Estudantes - Índice de fases"
-                    subheader={dados.desempenho_alunos.subheader}
-                    chart={dados.desempenho_alunos.chart}
-                  />
+              {!!isGettingGraphics.value && (
+                <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+                  <LoadingBox />
                 </Grid>
               )}
-          </Grid>
+
+              {!isGettingGraphics.value && (
+                <IndicesCompostosAlfabetizacaoGeralWidget
+                  title="por turma"
+                  indice_alfabetizacao={[
+                    ...dados.grid_turmas.map((e) => {
+                      return {
+                        ...e,
+                        title: `${e.turma_ano_escolar} ${e.turma_nome}`,
+                      };
+                    }),
+                  ]}
+                  indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
+                />
+              )}
+
+              {!isGettingGraphics.value &&
+                dados.desempenho_alunos.chart &&
+                (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                  <Grid xs={12}>
+                    <DesempenhoAlunosWidget
+                      title="Desempenho dos Estudantes - Índice de fases"
+                      subheader={dados.desempenho_alunos.subheader}
+                      chart={dados.desempenho_alunos.chart}
+                    />
+                  </Grid>
+                )}
+            </Grid>
           </>
         )}
       </Grid>
@@ -514,7 +529,17 @@ export default function DashboardEscolaView() {
           <CardHeader title="Professores" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-          <TableContainer sx={{ mt: 1, height: 70 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
+          <TableContainer
+            sx={{
+              mt: 1,
+              height:
+                70 +
+                (dataFiltered.length < table.rowsPerPage
+                  ? dataFiltered.length
+                  : table.rowsPerPage) *
+                  43,
+            }}
+          >
             <Scrollbar>
               <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                 <TableHeadCustom
@@ -537,11 +562,7 @@ export default function DashboardEscolaView() {
 
                   <TableEmptyRows
                     height={43}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      dados.grid_turmas.length
-                    )}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_turmas.length)}
                   />
 
                   <TableNoData notFound={notFound} />
