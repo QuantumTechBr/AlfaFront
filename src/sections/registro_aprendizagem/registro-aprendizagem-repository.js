@@ -12,7 +12,7 @@ export const deleteRegistroAprendizagemByFilter = ({tipo='', bimestreId='', turm
 export const insertRegistroAprendizagemDiagnostico = payload => axios.post(endpoints.registro_aprendizagem.diagnostico.post, payload);
 export const getAllRegistrosAprendizagemDiagnostico = ({turmaId='', nome='', periodo='', promoAnoAnterior='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?turma=${turmaId}&nome=${nome}&periodo=${periodo}&promo_ano_anterior=${promoAnoAnterior}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.diagnostico.update.concat(id), payload);
-export const getListIdTurmaRegistroAprendizagemDiagnostico = ({turmaId='', periodo=''}) => axios.get(endpoints.registro_aprendizagem.diagnostico.idsTurmaList.concat(`/?turma=${turmaId}&periodo=${periodo}`))
+export const getListIdTurmaRegistroAprendizagemDiagnostico = (payload) => axios.post(endpoints.registro_aprendizagem.diagnostico.idsTurmaList, payload);
 export const exportFileDiagnosticoList = (query) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?`).concat(query));
 
 export const insertRegistroAprendizagemFase = payload => axios.post(endpoints.registro_aprendizagem.fase.post, payload);
