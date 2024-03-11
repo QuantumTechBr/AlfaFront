@@ -148,7 +148,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
       const _filtersToSend = {
         turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
-        periodos: filters.periodo.length ? filters.periodo : _periodos,
+        periodo: filters.periodo.length ? filters.periodo : _periodos,
       };
 
       // INICIAL E FINAL
