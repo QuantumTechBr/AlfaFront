@@ -26,7 +26,7 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { useAuthContext } from 'src/auth/hooks';
 
 // _mock
-import { _anos } from 'src/_mock';
+import { _anos, _periodos } from 'src/_mock';
 
 // components
 import Iconify from 'src/components/iconify';
@@ -65,6 +65,7 @@ const defaultFilters = {
   anoLetivo: '',
   escola: '',
   turma: [],
+  periodo: [],
   pesquisa: '',
 };
 
@@ -143,23 +144,23 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       setWarningMsg('');
       setErrorMsg('');
 
-      const promisesList = [];
       let turmasComRegistroNovo = [];
 
       const _filtersToSend = {
         turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+        periodo: filters.periodo.length ? filters.periodo : _periodos,
       };
 
-      // INICIAL
-      const buscaPeriodoInicial = registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemDiagnostico({ ..._filtersToSend, periodo: 'Inicial' })
+      // INICIAL E FINAL
+      await registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemDiagnostico(_filtersToSend)
         .then((response) => {
           if (response.data?.length) {
             response.data.forEach((registro) => {
               const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
-                retorno.periodo = 'Inicial';
+                retorno.periodo = registro.periodo;
                 retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
                 retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
@@ -168,43 +169,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               }
             });
           }
+        })
+        .finally(() => {
+          setTableData(turmasComRegistroNovo);
+          tabelaPreparada.onTrue();
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Inicial');
           console.error(error);
         });
-      promisesList.push(buscaPeriodoInicial);
-
-      // FINAL
-      const buscaPeriodoFinal = registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemDiagnostico({ ..._filtersToSend, periodo: 'Final' })
-        .then((response) => {
-          if (response.data?.length) {
-            response.data.forEach((registro) => {
-              const turma = turmas.find((turma) => turma.id == registro.turma_id);
-              if (turma?.id) {
-                const retorno = { ...turma };
-                retorno.periodo = 'Final';
-                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
-                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
-                retorno.atualizado_por = registro.atualizado_por;
-
-                turmasComRegistroNovo.push(retorno);
-              }
-            });
-          }
-        })
-        .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Final');
-          console.error(error);
-        });
-      promisesList.push(buscaPeriodoFinal);
-
-      //
-      await Promise.all(promisesList).then(() => {
-        setTableData(turmasComRegistroNovo);
-        tabelaPreparada.onTrue();
-      });
     }
 
     buscando.onFalse();
@@ -274,40 +247,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     [dataInPage.length, table, tableData]
   );
 
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if (table.selected.includes(`${row.id}_${row.periodo}`)) {
-        const newPromise = registroAprendizagemMethods
-          .deleteRegistroAprendizagemByFilter({
-            tipo: 'diagnóstico',
-            turmaId: row.id,
-            periodo: row.periodo,
-          })
-          .catch((error) => {
-            remainingRows.push(row);
-            setErrorMsg(
-              'Erro de comunicação com a API de registros no momento da exclusão do registro'
-            );
-            throw error;
-          });
-        promises.push(newPromise);
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then((retorno) => {
-      setTableData(remainingRows);
-    });
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
-
   const novaAvaliacao = useBoolean();
 
   const closeNovaAvaliacao = () => {
@@ -343,7 +282,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         <NovaAvaliacaoForm
           open={novaAvaliacao.value}
           onClose={closeNovaAvaliacao}
-          initialTipo="Avaliação de Fase"
+          initialTipo="Avaliação Diagnóstica"
         />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
@@ -365,8 +304,9 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               filters={filters}
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
-              turmaOptions={turmasFiltered.length ? turmasFiltered : null}
               escolaOptions={escolas}
+              turmaOptions={turmasFiltered.length ? turmasFiltered : null}
+              periodoOptions={_periodos}
               export_type="diagnostico"
             />
 
@@ -387,7 +327,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
               {(!contextReady.value || buscando.value) && <LoadingBox />}
-              
+
               {contextReady.value && tabelaPreparada.value && (
                 <Table size="small" sx={{ minWidth: 960 }}>
                   <TableHeadCustom

@@ -209,7 +209,7 @@ export const endpoints = {
     diagnostico: {
       post: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       list: '/api/v1/registros-aprendizagens/avaliacao-diagnostico',
-      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/turmas-ids',
+      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/turmas-ids/',
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       update: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
