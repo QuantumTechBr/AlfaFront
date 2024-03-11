@@ -437,194 +437,201 @@ export default function DashboardTurmaView() {
           )}
         </Stack>
 
-        {/* TODO  {!!contextReady.value && ( */}
-
-        <Stack
-          marginBottom={3}
-          flexGrow={1}
-          direction={{
-            xs: 'column',
-            md: 'row',
-          }}
-          width="100%"
-          spacing={{
-            xs: 1,
-            md: 0,
-          }}
-          alignItems="center"
-          sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
-          paddingY={1}
-        >
-          <Grid xs={12} md="auto" paddingY={0}>
-            <DashboardTurmaTableToolbar
-              filters={filters}
-              onFilters={handleFilters}
-              anoLetivoOptions={anosLetivos}
-              ddzOptions={zonas}
-              escolaOptions={_escolasFiltered || escolas}
-              anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
-                filters.escola.map((e) => e.id).includes(t.escola_id)
-              )}
-              bimestreOptions={bimestres}
-            />
-          </Grid>
-          <Grid xs={12} md="auto" paddingY={0}>
-            <Button
-              variant="contained"
-              sx={{
-                width: {
-                  xs: '70%',
-                  md: 'auto',
-                },
-              }}
-              onClick={() => {
-                preencheGraficos();
-              }}
-            >
-              Aplicar filtros
-            </Button>
-
-            <Button
-              variant="soft"
-              sx={{
-                width: {
-                  xs: 'calc(30% - 10px)',
-                  md: 'auto',
-                },
-                marginLeft: { xs: '10px', md: 2 },
-              }}
-              onClick={filtroReset}
-            >
-              Limpar
-            </Button>
-          </Grid>
-        </Stack>
-
-        <Grid xs={12} md={4}>
-          <NumeroComponent
-            title="Total de Estudantes"
-            total={getTotalEstudandes()}
-            icon={
-              <Iconify
-                width={ICON_SIZE}
-                icon="bi:people-fill"
-                sx={{
-                  color: theme.palette['primary'].main,
-                }}
-              />
-            }
-          />
-        </Grid>
-        <Grid xs={12} md={4}>
-          <NumeroComponent
-            title="Total de Estudantes Avaliados"
-            total={getTotalEstudandesAvaliados()}
-            icon={
-              <Iconify
-                width={ICON_SIZE}
-                icon="bi:people-fill"
-                sx={{
-                  color: theme.palette['primary'].main,
-                }}
-              />
-            }
-          />
-        </Grid>
-        <Grid xs={12} md={4}>
-          {!!contextReady.value && !isGettingGraphics.value && (
-            <>
-              {countHasIndiceDeFases() > 1 && (
-                <Typography
-                  textAlign="center"
-                  alignItems="center"
-                  variant="body2"
-                  sx={{ padding: 4, height: '100%', display: 'flex' }}
-                >
-                  A meta é exibida apenas com único ano escolar (série) selecionado no filtro
-                  Ano-Turma.
-                </Typography>
-              )}
-              {countHasIndiceDeFases() == 1 &&
-                dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
-                  <MetaComponent
-                    title="Meta"
-                    subtitle={`sobre a meta de ${anos_metas[anoHasIndiceDeFases()]}% alfabetizados`}
-                    meta={anos_metas[anoHasIndiceDeFases()]}
-                    alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
-                    total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
-                  ></MetaComponent>
-                )}
-            </>
-          )}
-        </Grid>
-
-        {(!!isGettingGraphics.value || !contextReady.value) && (
+        {!contextReady.value && (
           <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
             <LoadingBox />
           </Grid>
         )}
-        {!isGettingGraphics.value &&
-          anos_options.map((ano_escolar) => {
-            if (indiceDeFasesCount(ano_escolar) > 0) {
-              const _indice_fases = dados[`indice_fases_${+ano_escolar}_ano`];
-              const _indice_alfabetizacao = dados[`indice_aprovacao_${+ano_escolar}_ano`];
 
-              return (
-                <IndicesCompostosFasesAlfabetizacaoWidget
-                  key={`indices_component_${+ano_escolar}_ano`}
-                  ano_escolar={+ano_escolar}
-                  total_avaliados={getTotalEstudandesAvaliados(ano_escolar)}
-                  indice_fases={_indice_fases}
-                  indice_alfabetizacao={_indice_alfabetizacao}
+        {!!contextReady.value && (
+          <>
+            <Stack
+              marginBottom={3}
+              flexGrow={1}
+              direction={{
+                xs: 'column',
+                md: 'row',
+              }}
+              width="100%"
+              spacing={{
+                xs: 1,
+                md: 0,
+              }}
+              alignItems="center"
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              paddingY={1}
+            >
+              <Grid xs={12} md="auto" paddingY={0}>
+                <DashboardTurmaTableToolbar
+                  filters={filters}
+                  onFilters={handleFilters}
+                  anoLetivoOptions={anosLetivos}
+                  ddzOptions={zonas}
+                  escolaOptions={_escolasFiltered || escolas}
+                  anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
+                    filters.escola.map((e) => e.id).includes(t.escola_id)
+                  )}
+                  bimestreOptions={bimestres}
                 />
-              );
-            }
-          })}
+              </Grid>
+              <Grid xs={12} md="auto" paddingY={0}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    width: {
+                      xs: '70%',
+                      md: 'auto',
+                    },
+                  }}
+                  onClick={() => {
+                    preencheGraficos();
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
 
-        {!isGettingGraphics.value &&
-          (dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
-          countHasIndiceDeFases() > 1 && (
-            <IndicesCompostosFasesAlfabetizacaoWidget
-              key="indices_component_geral"
-              indice_fases={dados.indice_fases_geral}
-              indice_alfabetizacao={dados.indice_aprovacao_geral}
-            />
-          )}
-      </Grid>
+                <Button
+                  variant="soft"
+                  sx={{
+                    width: {
+                      xs: 'calc(30% - 10px)',
+                      md: 'auto',
+                    },
+                    marginLeft: { xs: '10px', md: 2 },
+                  }}
+                  onClick={filtroReset}
+                >
+                  Limpar
+                </Button>
+              </Grid>
+            </Stack>
 
-      {!isGettingGraphics.value &&
-        dados.desempenho_alunos.chart &&
-        (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-          <Grid xs={12}>
-            <DesempenhoAlunosWidget
-              title="Desempenho dos Estudantes"
-              subheader={dados.desempenho_alunos.subheader}
-              chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
-            />
-          </Grid>
+            {!!isGettingGraphics.value && (
+              <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+                <LoadingBox />
+              </Grid>
+            )}
+
+            {!isGettingGraphics.value && (
+              <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes"
+                    total={getTotalEstudandes()}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes Avaliados"
+                    total={getTotalEstudandesAvaliados()}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4}>
+                  {countHasIndiceDeFases() > 1 && (
+                    <Typography
+                      textAlign="center"
+                      alignItems="center"
+                      variant="body2"
+                      sx={{ padding: 4, height: '100%', display: 'flex' }}
+                    >
+                      A meta é exibida apenas com único ano escolar (série) selecionado no filtro
+                      Ano-Turma.
+                    </Typography>
+                  )}
+                  {countHasIndiceDeFases() == 1 &&
+                    dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
+                      <MetaComponent
+                        title="Meta"
+                        subtitle={`sobre a meta de ${
+                          anos_metas[anoHasIndiceDeFases()]
+                        }% alfabetizados`}
+                        meta={anos_metas[anoHasIndiceDeFases()]}
+                        alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
+                        total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
+                      ></MetaComponent>
+                    )}
+                </Grid>
+
+                {anos_options.map((ano_escolar) => {
+                  if (indiceDeFasesCount(ano_escolar) > 0) {
+                    const _indice_fases = dados[`indice_fases_${+ano_escolar}_ano`];
+                    const _indice_alfabetizacao = dados[`indice_aprovacao_${+ano_escolar}_ano`];
+
+                    return (
+                      <IndicesCompostosFasesAlfabetizacaoWidget
+                        key={`indices_component_${+ano_escolar}_ano`}
+                        ano_escolar={+ano_escolar}
+                        total_avaliados={getTotalEstudandesAvaliados(ano_escolar)}
+                        indice_fases={_indice_fases}
+                        indice_alfabetizacao={_indice_alfabetizacao}
+                      />
+                    );
+                  }
+                })}
+
+                {(dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
+                  countHasIndiceDeFases() > 1 && (
+                    <IndicesCompostosFasesAlfabetizacaoWidget
+                      key="indices_component_geral"
+                      indice_fases={dados.indice_fases_geral}
+                      indice_alfabetizacao={dados.indice_aprovacao_geral}
+                    />
+                  )}
+
+                {dados.desempenho_alunos.chart &&
+                  (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                    <Grid xs={12}>
+                      <DesempenhoAlunosWidget
+                        title="Desempenho dos Estudantes"
+                        subheader={dados.desempenho_alunos.subheader}
+                        chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
+                      />
+                    </Grid>
+                  )}
+
+                <Grid xs={12} lg={6} sx={{ my: 3 }}>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    component={RouterLink}
+                    href={paths.dashboard.registro_aprendizagem.root_diagnostico}
+                    sx={{ mr: 3, marginTop: 2 }}
+                  >
+                    Ir para Avaliação Diagnóstica
+                  </Button>
+                  <Button
+                    variant="contained"
+                    color="info"
+                    component={RouterLink}
+                    href={paths.dashboard.registro_aprendizagem.root_componente}
+                    sx={{ mr: 3, marginTop: 2 }}
+                  >
+                    Ir para Avaliação por Componente
+                  </Button>
+                </Grid>
+              </Grid>
+            )}
+          </>
         )}
-
-      <Grid xs={12} lg={6} sx={{ my: 3 }}>
-        <Button
-          variant="contained"
-          color="info"
-          component={RouterLink}
-          href={paths.dashboard.registro_aprendizagem.root_diagnostico}
-          sx={{ mr: 3, marginTop: 2 }}
-        >
-          Ir para Avaliação Diagnóstica
-        </Button>
-        <Button
-          variant="contained"
-          color="info"
-          component={RouterLink}
-          href={paths.dashboard.registro_aprendizagem.root_componente}
-          sx={{ mr: 3, marginTop: 2 }}
-        >
-          Ir para Avaliação por Componente
-        </Button>
       </Grid>
-
       <NovaAvaliacaoForm open={novaAvaliacao.value} onClose={closeNovaAvaliacao} />
     </Container>
   );

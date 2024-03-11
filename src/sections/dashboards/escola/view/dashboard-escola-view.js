@@ -443,40 +443,46 @@ export default function DashboardEscolaView() {
               </Grid>
             </Stack>
 
-            <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
-              <Grid xs={12} md={4}>
-                <NumeroComponent
-                  title="Total de Estudantes"
-                  total={getTotalEstudandes()}
-                  icon={
-                    <Iconify
-                      width={ICON_SIZE}
-                      icon="bi:people-fill"
-                      sx={{
-                        color: theme.palette['primary'].main,
-                      }}
-                    />
-                  }
-                />
+            {!!isGettingGraphics.value && (
+              <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
+                <LoadingBox />
               </Grid>
-              <Grid xs={12} md={4}>
-                <NumeroComponent
-                  title="Total de Estudantes Avaliados"
-                  total={dados.total_alunos_avaliados ?? 0}
-                  icon={
-                    <Iconify
-                      width={ICON_SIZE}
-                      icon="bi:people-fill"
-                      sx={{
-                        color: theme.palette['primary'].main,
-                      }}
-                    />
-                  }
-                />
-              </Grid>
+            )}
 
-              <Grid xs={12} md={4}>
-                {!!contextReady.value && !isGettingGraphics.value && (
+            {!isGettingGraphics.value && (
+              <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes"
+                    total={getTotalEstudandes()}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes Avaliados"
+                    total={dados.total_alunos_avaliados ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+
+                <Grid xs={12} md={4}>
                   <MetaComponent
                     title="Meta"
                     subtitle="entre a média das séries"
@@ -484,16 +490,8 @@ export default function DashboardEscolaView() {
                     alfabetizados={getTotalAlfabetizados()}
                     total={getTotalEstudandesAvaliados()}
                   ></MetaComponent>
-                )}
-              </Grid>
-
-              {!!isGettingGraphics.value && (
-                <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
-                  <LoadingBox />
                 </Grid>
-              )}
 
-              {!isGettingGraphics.value && (
                 <IndicesCompostosAlfabetizacaoGeralWidget
                   title="por turma"
                   indice_alfabetizacao={[
@@ -506,83 +504,85 @@ export default function DashboardEscolaView() {
                   ]}
                   indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
                 />
-              )}
 
-              {!isGettingGraphics.value &&
-                dados.desempenho_alunos.chart &&
-                (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-                  <Grid xs={12}>
-                    <DesempenhoAlunosWidget
-                      title="Desempenho dos Estudantes - Índice de fases"
-                      subheader={dados.desempenho_alunos.subheader}
-                      chart={dados.desempenho_alunos.chart}
+                {dados.desempenho_alunos.chart &&
+                  (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                    <Grid xs={12}>
+                      <DesempenhoAlunosWidget
+                        title="Desempenho dos Estudantes - Índice de fases"
+                        subheader={dados.desempenho_alunos.subheader}
+                        chart={dados.desempenho_alunos.chart}
+                      />
+                    </Grid>
+                  )}
+
+                <Grid xs={12}>
+                  <Card sx={{ mt: 3, mb: 4 }}>
+                    <CardHeader title="Professores" />
+                    <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
+
+                    <TableContainer
+                      sx={{
+                        mt: 1,
+                        height:
+                          70 +
+                          (dataFiltered.length < table.rowsPerPage
+                            ? dataFiltered.length
+                            : table.rowsPerPage) *
+                            43,
+                      }}
+                    >
+                      <Scrollbar>
+                        <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
+                          <TableHeadCustom
+                            order={table.order}
+                            orderBy={table.orderBy}
+                            headLabel={TABLE_HEAD}
+                            rowCount={dados.grid_turmas.length}
+                            onSort={table.onSort}
+                          />
+
+                          <TableBody>
+                            {Object.entries(
+                              dataFiltered.slice(
+                                table.page * table.rowsPerPage,
+                                table.page * table.rowsPerPage + table.rowsPerPage
+                              )
+                            ).map(([key, row]) => (
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                            ))}
+
+                            <TableEmptyRows
+                              height={43}
+                              emptyRows={emptyRows(
+                                table.page,
+                                table.rowsPerPage,
+                                dados.grid_turmas.length
+                              )}
+                            />
+
+                            <TableNoData notFound={notFound} />
+                          </TableBody>
+                        </Table>
+                      </Scrollbar>
+                    </TableContainer>
+
+                    <TablePaginationCustom
+                      count={dataFiltered.length}
+                      page={table.page}
+                      rowsPerPage={table.rowsPerPage}
+                      rowsPerPageOptions={[5, 10, 15, 25]}
+                      onPageChange={table.onChangePage}
+                      onRowsPerPageChange={table.onChangeRowsPerPage}
+                      dense={table.dense}
                     />
-                  </Grid>
-                )}
-            </Grid>
+                  </Card>
+                </Grid>
+              </Grid>
+            )}
           </>
         )}
       </Grid>
-
-      {!!contextReady.value && !isGettingGraphics.value && (
-        <Card sx={{ mt: 3, mb: 4 }}>
-          <CardHeader title="Professores" />
-          <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-          <TableContainer
-            sx={{
-              mt: 1,
-              height:
-                70 +
-                (dataFiltered.length < table.rowsPerPage
-                  ? dataFiltered.length
-                  : table.rowsPerPage) *
-                  43,
-            }}
-          >
-            <Scrollbar>
-              <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dados.grid_turmas.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {Object.entries(
-                    dataFiltered.slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                  ).map(([key, row]) => (
-                    <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
-                  ))}
-
-                  <TableEmptyRows
-                    height={43}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_turmas.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            rowsPerPageOptions={[5, 10, 15, 25]}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-          />
-        </Card>
-      )}
     </Container>
   );
 }
