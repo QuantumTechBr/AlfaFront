@@ -97,7 +97,7 @@ export default function DashboardEscolaView() {
   const [dados, setDados] = useState({
     total_alunos_avaliados: null,
     //
-    grid_professores: [],
+    grid_turmas: [],
     desempenho_alunos: {},
   });
 
@@ -158,7 +158,7 @@ export default function DashboardEscolaView() {
           setDados((prevState) => ({
             ...prevState,
             total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
-            grid_professores: result,
+            grid_turmas: result,
           }));
         }),
 
@@ -274,10 +274,10 @@ export default function DashboardEscolaView() {
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
-    { id: 'professor', label: 'Professor', notsortable: true },
     { id: 'ano_escolar', label: 'Ano', width: 110, notsortable: true },
     { id: 'turma_nome', label: 'Turma', width: 110, notsortable: true },
     { id: 'turno', label: 'Turno', width: 110, notsortable: true },
+    { id: 'professores', label: 'Professores', notsortable: true },
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
     { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
@@ -295,7 +295,7 @@ export default function DashboardEscolaView() {
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
   const dataFiltered = applyTableFilter({
-    inputData: dados.grid_professores,
+    inputData: dados.grid_turmas,
     comparator: getComparator(table.order, table.orderBy),
     filters: debouncedGridFilter,
   });
@@ -321,15 +321,15 @@ export default function DashboardEscolaView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: _.sumBy(dados.grid_professores, (s) => s.alfabetizados),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: _.sumBy(dados.grid_professores, (s) => s.nao_alfabetizados),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: _.sumBy(dados.grid_professores, (s) => s.deixou_de_frequentar),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.deixou_de_frequentar),
             },
           ],
         },
@@ -338,7 +338,7 @@ export default function DashboardEscolaView() {
   };
 
   const getTotalEstudandes = useCallback(() => {
-    return _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
+    return _.sumBy(dados.grid_turmas ?? [], (turma) => turma.alunos);
   }, [dados]);
 
   const calculaMeta = () => {
@@ -348,8 +348,8 @@ export default function DashboardEscolaView() {
     return _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
   };
 
-  const getTotalAlfabetizados = () => _.sumBy(dados.grid_professores, (s) => s.alfabetizados);
-  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_professores, (s) => s.avaliados);
+  const getTotalAlfabetizados = () => _.sumBy(dados.grid_turmas, (s) => s.alfabetizados);
+  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_turmas, (s) => s.avaliados);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -483,7 +483,7 @@ export default function DashboardEscolaView() {
               <IndicesCompostosAlfabetizacaoGeralWidget
                 title="por turma"
                 indice_alfabetizacao={[
-                  ...dados.grid_professores.map((e) => {
+                  ...dados.grid_turmas.map((e) => {
                     return {
                       ...e,
                       title: `${e.turma_ano_escolar} ${e.turma_nome}`,
@@ -521,7 +521,7 @@ export default function DashboardEscolaView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={dados.grid_professores.length}
+                  rowCount={dados.grid_turmas.length}
                   onSort={table.onSort}
                 />
 
@@ -540,7 +540,7 @@ export default function DashboardEscolaView() {
                     emptyRows={emptyRows(
                       table.page,
                       table.rowsPerPage,
-                      dados.grid_professores.length
+                      dados.grid_turmas.length
                     )}
                   />
 
@@ -609,10 +609,10 @@ function Row(props) {
       key={`tableStyledRowDash_${row.key}`}
       sx={{ '& > *': { borderBottom: 'unset' } }}
     >
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.professor}</TableCell>
       <TableCell>{row.turma_ano_escolar}º</TableCell>
       <TableCell>{row.turma_nome}</TableCell>
       <TableCell>{row.turma_turno}</TableCell>
+      <TableCell>{(row.turma_professor ?? []).map((prof) => prof.nome).join(`, `)}</TableCell>
       <TableCell>{row.alunos ?? 0}</TableCell>
       <TableCell>{row.avaliados ?? 0}</TableCell>
       <TableCell>{row.alfabetizados ?? 0}</TableCell>
