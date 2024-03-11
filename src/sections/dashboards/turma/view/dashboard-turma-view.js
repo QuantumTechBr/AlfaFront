@@ -18,10 +18,13 @@ import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context
 import { paths } from 'src/routes/paths';
 import { useSearchParams } from 'src/routes/hook';
 
+// hooks
+import { useBoolean } from 'src/hooks/use-boolean';
+import { useAuthContext } from 'src/auth/hooks';
+
 // components
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
-import { useBoolean } from 'src/hooks/use-boolean';
 import _, { first, last } from 'lodash';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
@@ -46,6 +49,7 @@ import IndicesCompostosFasesAlfabetizacaoWidget from '../../widgets/indices-comp
 import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
 
 export default function DashboardTurmaView() {
+  const { checkPermissaoModulo } = useAuthContext();
   const ICON_SIZE = 65;
 
   const theme = useTheme();
@@ -64,6 +68,9 @@ export default function DashboardTurmaView() {
   const [_turmasFiltered, setTurmasFiltered] = useState([]);
 
   const contextReady = useBoolean(false);
+  
+  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
+
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(false);
   const [zonaFiltro, setZonaFiltro] = useState([]);
@@ -391,6 +398,7 @@ export default function DashboardTurmaView() {
             <Typography variant="h3">Dashboard (Turma)</Typography>
           </Grid>
 
+          {permissaoCadastrar &&
           <Grid xs={12} md="auto">
             <Button
               variant="contained"
@@ -400,7 +408,7 @@ export default function DashboardTurmaView() {
             >
               Registro de Aprendizagem
             </Button>
-          </Grid>
+          </Grid>}
         </Stack>
 
         {/* TODO  {!!contextReady.value && ( */}
