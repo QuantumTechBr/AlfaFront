@@ -173,9 +173,7 @@ export default function DashboardTurmaView() {
 
       await Promise.all([
         // ## INDICE DE FASES
-        getIndiceFases(1, payloadFilters),
-        getIndiceFases(2, payloadFilters),
-        getIndiceFases(3, payloadFilters),
+        ...anos_options.map((_anoOption) => getIndiceFases(parseInt(_anoOption), payloadFilters)),
         getIndiceFases(null, payloadFilters),
 
         // ## DESEMPENHO ALUNO
@@ -269,12 +267,12 @@ export default function DashboardTurmaView() {
       const _filters = {
         ...filters,
         ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
-        zona: zonas.filter((z) => z.id == _escola[0]?.zona.id),
-        escola: _escola,
-        turma: _turma,
+        zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
+        escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
+        turma: _turma.length > 0 ? _turma : turmas.length == 1 ? turmas : [],
         ...(bimestres && bimestres.length ? { bimestre: last(bimestres) } : {}),
       };
-      setFilters(_filters);
+      setFilters((prevState) => ({...prevState, ..._filters}));
       preencheGraficos(_filters);
     }
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
