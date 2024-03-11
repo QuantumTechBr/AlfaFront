@@ -514,7 +514,7 @@ export default function DashboardEscolaView() {
           <CardHeader title="Professores" />
           <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
-          <TableContainer sx={{ mt: 1, height: 50 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
+          <TableContainer sx={{ mt: 1, height: 70 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
             <Scrollbar>
               <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                 <TableHeadCustom
