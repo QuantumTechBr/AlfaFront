@@ -19,7 +19,6 @@ import DialogContent from '@mui/material/DialogContent';
 import LoadingBox from 'src/components/helpers/loading-box';
 
 // assets
-import { countries } from 'src/assets/data';
 import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
 // components
 import { useSnackbar } from 'src/components/snackbar';
@@ -28,16 +27,14 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import turmaMethods from '../turma/turma-repository';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaQuickEditForm({ id, open, onClose }) {
+export default function TurmaQuickEditForm({ row, open, onClose, onSave }) {
   const [currentTurma, setCurrentTurma] = useState();
   const contextReady = useBoolean(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
 
@@ -47,6 +44,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
+      setCurrentTurma(row);
       Promise.all([
         buscaEscolas().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de escolas');
@@ -54,19 +52,18 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
         buscaAnosLetivos().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Anos Letivos');
         }),
-        turmaMethods.getTurmaById(id).then((response) => {
-          setCurrentTurma(response.data);
-        })
       ]).then(() => {
         contextReady.onTrue();
       });
+    } else {
+      setCurrentTurma(undefined);
     }
   }, [buscaEscolas, buscaAnosLetivos, open]);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
     ano: Yup.string().required('Ano é obrigatório'),
-    escola: Yup.string().required('Escola é obrigatório')
+    escola: Yup.string().required('Escola é obrigatório'),
   });
 
   const defaultValues = useMemo(
@@ -78,7 +75,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
       escola: currentTurma?.escola || '',
       escola_id: currentTurma?.escola?.id || '',
       turno: currentTurma?.turno?.toLowerCase() || '',
-      status: (currentTurma?.status ? 'true' : 'false')  || ''
+      status: (currentTurma?.status && currentTurma?.status === 'true' ? 'true' : 'false') || '',
     }),
     [currentTurma]
   );
@@ -87,6 +84,10 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
     // resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [currentTurma]);
 
   const {
     reset,
@@ -97,32 +98,29 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       var novaTurma = {
-        nome:  data.nome,
+        nome: data.nome,
         turno: data.turno,
-        ano_letivo: data.ano_letivo
-      }
-    
-      novaTurma.escola_id = data.escola_id;
-      novaTurma.ano_id = data.ano_id;
-      novaTurma.status = data.status;
-      novaTurma.ano_escolar = data.ano_escolar;
+        ano_letivo: data.ano_letivo,
+        escola_id: data.escola_id,
+        ano_id: data.ano_id,
+        status: data.status,
+        ano_escolar: data.ano_escolar,
+      };
 
-      const retornoPatch = await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
-        throw error;
-      });
+      const retornoPatch = await turmaMethods
+        .updateTurmaById(currentTurma.id, novaTurma)
+        .catch((error) => {
+          throw error;
+        });
+
+      retornoPatch.data.status = novaTurma.status;
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
-      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da turma falhou');
       console.error(error);
     }
   });
-
-  useEffect(() => {
-    reset(defaultValues);
-  }, [currentTurma]);
-
 
   return (
     <Dialog
@@ -134,7 +132,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -152,7 +150,6 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-
               <RHFSelect name="ano_escolar" label="Ano Escolar">
                 {_anosSerie.map((ano) => (
                   <MenuItem key={ano} value={ano}>
@@ -166,7 +163,6 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
                   <MenuItem key={turno} value={turno} sx={{ textTransform: 'capitalize' }}>
                     {turno}
                   </MenuItem>
-
                 ))}
               </RHFSelect>
 
@@ -178,17 +174,22 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
                 ))}
               </RHFSelect>
 
-              {currentTurma ? 
-                (<RHFTextField name="escola" disabled={true} value={currentTurma.escola?.nome} sx={{ mb: 3 }}/>)
-                :
-                (<RHFSelect name="escola_id" label="Escola" >
+              {currentTurma ? (
+                <RHFTextField
+                  name="escola"
+                  disabled={true}
+                  value={currentTurma.escola?.nome}
+                  sx={{ mb: 3 }}
+                />
+              ) : (
+                <RHFSelect name="escola_id" label="Escola">
                   {escolas.map((escola) => (
-                    <MenuItem key={escola.id} value={escola.id} >
+                    <MenuItem key={escola.id} value={escola.id}>
                       {escola.nome}
                     </MenuItem>
                   ))}
-                </RHFSelect>)
-                }
+                </RHFSelect>
+              )}
 
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
@@ -197,7 +198,6 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
-
             </Box>
           </DialogContent>
 
@@ -217,7 +217,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
 }
 
 TurmaQuickEditForm.propTypes = {
-  id: PropTypes.string,
+  row: PropTypes.object,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,
