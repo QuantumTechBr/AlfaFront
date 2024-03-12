@@ -134,7 +134,7 @@ export default function TurmaQuickEditForm({ id, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox />}
+      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
