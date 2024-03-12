@@ -13,6 +13,7 @@ export const getDashboardTotalUsuariosAtivos = payload => axios.post(endpoints.d
 export const getDashboardGridRede = payload => axios.post(endpoints.dashboard.grid_rede, payload);
 export const getDashboardGridEscolas = payload => axios.post(endpoints.dashboard.grid_escolas, payload);
 export const getDashboardGridProfessores = payload => axios.post(endpoints.dashboard.grid_professores, payload);
+export const getDashboardGridTurmas = payload => axios.post(endpoints.dashboard.grid_turmas, payload);
 
 //
 const dashboardsMethods = {
@@ -26,11 +27,8 @@ const dashboardsMethods = {
     getDashboardTotalUsuariosAtivos,
     getDashboardGridRede,
     getDashboardGridEscolas,
-    getDashboardGridProfessores
+    getDashboardGridProfessores,
+    getDashboardGridTurmas
 };
 
 export default dashboardsMethods;
-
-
-
-

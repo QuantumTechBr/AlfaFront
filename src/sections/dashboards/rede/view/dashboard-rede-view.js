@@ -44,8 +44,6 @@ import {
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first } from 'lodash';
-
 // ----------------------------------------------------------------------
 import DashboardRedeTableToolbar from './dashboard-rede-table-toolbar';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
@@ -74,7 +72,7 @@ export default function DashboardRedeView() {
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
-  const isGettingGraphics = useBoolean(false);
+  const isGettingGraphics = useBoolean(true);
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
@@ -89,9 +87,12 @@ export default function DashboardRedeView() {
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = useCallback((anoEscolar) => {
-    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  }, [turmas]);
+  const getTurmasPorAnoEscolar = useCallback(
+    (anoEscolar) => {
+      return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    },
+    [turmas]
+  );
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -102,7 +103,8 @@ export default function DashboardRedeView() {
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos))?.id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos))
+            ?.id,
         ],
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
@@ -115,7 +117,9 @@ export default function DashboardRedeView() {
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           // adequação dos dados
           const result = response.data.map((i) => {
-            const _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            const _avaliados = _.isArray(i.qtd_avaliados)
+              ? _.last(i.qtd_avaliados)
+              : i.qtd_avaliados;
             const _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado;
@@ -181,12 +185,11 @@ export default function DashboardRedeView() {
     }
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
 
-
   useEffect(() => {
     if (contextReady.value) {
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);
@@ -197,8 +200,6 @@ export default function DashboardRedeView() {
   useEffect(() => {
     preparacaoInicial(); // chamada unica
   }, []);
-
-
 
   // TABLE GRID
   const TABLE_HEAD = [
@@ -227,7 +228,7 @@ export default function DashboardRedeView() {
     filters: debouncedGridFilter,
   });
 
-  const notFound = !dataFiltered.length;
+  const notFound = dataFiltered.length == 0;
 
   const handleTableFilters = useCallback(
     (nome, value) => {
@@ -308,90 +309,46 @@ export default function DashboardRedeView() {
 
         {!!contextReady.value && (
           <>
-          <Stack
-            flexGrow={1}
-            direction={{
-              xs: "column",
-              md: "row"
-            }}
-            width="100%"
-            spacing={{
-              xs: 1,
-              md: 0
-            }}
-            alignItems="center"
-            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
-            paddingY={1}
-          >
-            <Grid xs={12} md="auto" paddingY={0}>
-              <DashboardRedeTableToolbar
-                filters={filters}
-                onFilters={handleFilters}
-                anoLetivoOptions={anosLetivos}
-                anoEscolarOptions={[1, 2, 3]}
-              />
-            </Grid>
-            <Grid xs={12} md="auto" paddingY={0}>
-              <Button
-                variant="contained"
-                sx={{
-                  width:{
-                    xs: "100%",
-                    md: "auto"
-                  }
-                }}
-                onClick={() => {
-                  preencheGraficos();
-                }}
-              >
-                Aplicar filtros
-              </Button>
-            </Grid>
-          </Stack>
-          
-          <Grid container marginX={0} spacing={3} marginTop={3}>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes"
-                total={getTotalEstudandes()}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes Avaliados"
-                total={dados.total_alunos_avaliados ?? 0}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-
-            <Grid xs={12} md={4}>
-              {!!contextReady.value && !isGettingGraphics.value && (
-                <MetaComponent
-                  title="Meta"
-                  subtitle="entre a média das séries"
-                  meta={calculaMeta()}
-                  alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalEstudandesAvaliados()}
-                ></MetaComponent>
-              )}
-            </Grid>
+            <Stack
+              flexGrow={1}
+              direction={{
+                xs: 'column',
+                md: 'row',
+              }}
+              width="100%"
+              spacing={{
+                xs: 1,
+                md: 0,
+              }}
+              alignItems="center"
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              paddingY={1}
+            >
+              <Grid xs={12} md="auto" paddingY={0}>
+                <DashboardRedeTableToolbar
+                  filters={filters}
+                  onFilters={handleFilters}
+                  anoLetivoOptions={anosLetivos}
+                  anoEscolarOptions={[1, 2, 3]}
+                />
+              </Grid>
+              <Grid xs={12} md="auto" paddingY={0}>
+                <Button
+                  variant="contained"
+                  sx={{
+                    width: {
+                      xs: '100%',
+                      md: 'auto',
+                    },
+                  }}
+                  onClick={() => {
+                    preencheGraficos();
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
+              </Grid>
+            </Stack>
 
             {!!isGettingGraphics.value && (
               <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
@@ -400,93 +357,149 @@ export default function DashboardRedeView() {
             )}
 
             {!isGettingGraphics.value && (
-              <Grid xs={12}>
-                <IndiceAlfabetizacaoBimestreComponent
-                  title="Índice de alfabetização - Bimestre"
-                  grid_ddz={dados.grid_ddz}
-                ></IndiceAlfabetizacaoBimestreComponent>
-              </Grid>
-            )}
-
-            {!isGettingGraphics.value && (
-              <IndicesCompostosAlfabetizacaoGeralWidget
-                title="por DDZ"
-                indice_alfabetizacao={[
-                  ...dados.grid_ddz.map((e) => {
-                    return {
-                      ...e,
-                      title: e.zona_nome,
-                    };
-                  }),
-                ]}
-                indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-              />
-            )}
-
-            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
-              dados.desempenho_alunos.chart && dados.desempenho_alunos && dados.desempenho_alunos.chart.series && (
-                <Grid xs={12}>
-                  <DesempenhoAlunosWidget
-                    title="Desempenho dos Estudantes - Índice de fases"
-                    subheader={dados.desempenho_alunos.subheader ?? ''}
-                    chart={dados.desempenho_alunos.chart}
+              <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes"
+                    total={getTotalEstudandes()}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
                   />
                 </Grid>
-              )}
-          </Grid>
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes Avaliados"
+                    total={dados.total_alunos_avaliados ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+
+                <Grid xs={12} md={4}>
+                  <MetaComponent
+                    title="Meta"
+                    subtitle="entre a média das séries"
+                    meta={calculaMeta()}
+                    alfabetizados={getTotalAlfabetizados()}
+                    total={getTotalEstudandesAvaliados()}
+                  ></MetaComponent>
+                </Grid>
+
+                <Grid xs={12}>
+                  <IndiceAlfabetizacaoBimestreComponent
+                    title="Índice de alfabetização - Bimestre"
+                    grid_ddz={dados.grid_ddz}
+                  ></IndiceAlfabetizacaoBimestreComponent>
+                </Grid>
+
+                <IndicesCompostosAlfabetizacaoGeralWidget
+                  title="por DDZ"
+                  indice_alfabetizacao={[
+                    ...dados.grid_ddz.map((e) => {
+                      return {
+                        ...e,
+                        title: e.zona_nome,
+                      };
+                    }),
+                  ]}
+                  indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
+                />
+
+                {dados.desempenho_alunos.chart &&
+                  dados.desempenho_alunos.chart &&
+                  dados.desempenho_alunos &&
+                  dados.desempenho_alunos.chart.series && (
+                    <Grid xs={12}>
+                      <DesempenhoAlunosWidget
+                        title="Desempenho dos Estudantes - Índice de fases"
+                        subheader={dados.desempenho_alunos.subheader ?? ''}
+                        chart={dados.desempenho_alunos.chart}
+                      />
+                    </Grid>
+                  )}
+
+                <Grid xs={12}>
+                  <Card sx={{ mt: 3, mb: 4 }}>
+                    <CardHeader title="DDZs" />
+                    <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
+
+                    <TableContainer
+                      sx={{
+                        mt: 1,
+                        height:
+                          70 +
+                          (dataFiltered.length == 0
+                            ? 350
+                            : (dataFiltered.length < table.rowsPerPage
+                                ? dataFiltered.length
+                                : table.rowsPerPage) * 43),
+                      }}
+                    >
+                      <Scrollbar>
+                        <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
+                          <TableHeadCustom
+                            order={table.order}
+                            orderBy={table.orderBy}
+                            headLabel={TABLE_HEAD}
+                            rowCount={dados.grid_ddz.length}
+                            onSort={table.onSort}
+                          />
+
+                          <TableBody>
+                            {Object.entries(
+                              dataFiltered.slice(
+                                table.page * table.rowsPerPage,
+                                table.page * table.rowsPerPage + table.rowsPerPage
+                              )
+                            ).map(([key, row]) => (
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                            ))}
+
+                            <TableEmptyRows
+                              height={43}
+                              emptyRows={emptyRows(
+                                table.page,
+                                table.rowsPerPage,
+                                dados.grid_ddz.length
+                              )}
+                            />
+
+                            <TableNoData notFound={notFound} />
+                          </TableBody>
+                        </Table>
+                      </Scrollbar>
+                    </TableContainer>
+
+                    <TablePaginationCustom
+                      count={dataFiltered.length}
+                      page={table.page}
+                      rowsPerPage={table.rowsPerPage}
+                      rowsPerPageOptions={[5, 10, 15, 25]}
+                      onPageChange={table.onChangePage}
+                      onRowsPerPageChange={table.onChangeRowsPerPage}
+                      dense={table.dense}
+                    />
+                  </Card>
+                </Grid>
+              </Grid>
+            )}
           </>
         )}
       </Grid>
-
-      {!!contextReady.value && !isGettingGraphics.value && (
-        <Card sx={{ mt: 3, mb: 4 }}>
-          <CardHeader title="DDZs" />
-          <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-          <TableContainer sx={{ mt: 1, height: 50 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
-            <Scrollbar>
-              <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dados.grid_ddz.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {Object.entries(
-                    dataFiltered.slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                  ).map(([key, row]) => (
-                    <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
-                  ))}
-
-                  <TableEmptyRows
-                    height={43}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, dados.grid_ddz.length)}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            rowsPerPageOptions={[5, 10, 15, 25]}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-          />
-        </Card>
-      )}
     </Container>
   );
 }
@@ -532,7 +545,7 @@ function Row(props) {
   return (
     <StyledTableRow
       key={`tableStyledRowDash_${row.key}`}
-      sx={{ '& > *': { borderBottom: 'unset'} }}
+      sx={{ '& > *': { borderBottom: 'unset' } }}
     >
       <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona_nome}</TableCell>
       <TableCell>{row.qtd_escolas ?? 0}</TableCell>

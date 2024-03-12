@@ -28,6 +28,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
 
   const { categories: bimestres, series: chartSeries, options } = chart;
 
+  const _columnWith = 56;
   const chartOptions = useChart({
     chart: { toolbar: { show: true } },
     colors: colors,
@@ -42,7 +43,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     },
     plotOptions: {
       bar: {
-        columnWidth: '95%',
+        columnWidth: _columnWith,
         borderRadius: 12,
         dataLabels: {
           position: 'top',
@@ -105,38 +106,44 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     [popover]
   );
 
-  const prepareData = useCallback((originalData) => {
-    const newData = [];
+  const prepareData = useCallback(
+    (originalData) => {
+      const newData = [];
 
-    for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
-      const valoresParaFase = originalData.find((item) => item.name == fase);
-      if (valoresParaFase?.data) {
-        newData.push(valoresParaFase);
-      } else {
-        newData.push({
-          name: fase,
-          data: _.times(bimestres.length, _.constant(0)),
-        });
-      }
-    }
-
-    newData.map((itemData) => {
-      itemData.totalBimestre = [];
-      itemData.porcentagem = [];
-      for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
-        const bimestreQuant = newData.reduce((total, item) => total + item.data[indexBimestre], 0);
-        itemData.totalBimestre[indexBimestre] = bimestreQuant;
-
-        itemData.porcentagem[indexBimestre] = Math.round(
-          (itemData.data[indexBimestre] / bimestreQuant) * 100
-        );
+      for (const [key, fase] of Object.entries(RegistroAprendizagemFases)) {
+        const valoresParaFase = originalData.find((item) => item.name == fase);
+        if (valoresParaFase?.data) {
+          newData.push(valoresParaFase);
+        } else {
+          newData.push({
+            name: fase,
+            data: _.times(bimestres.length, _.constant(0)),
+          });
+        }
       }
 
-      return itemData;
-    });
+      newData.map((itemData) => {
+        itemData.totalBimestre = [];
+        itemData.porcentagem = [];
+        for (let indexBimestre = 0; indexBimestre < bimestres.length; indexBimestre++) {
+          const bimestreQuant = newData.reduce(
+            (total, item) => total + item.data[indexBimestre],
+            0
+          );
+          itemData.totalBimestre[indexBimestre] = bimestreQuant;
 
-    return newData;
-  }, [bimestres.length]);
+          itemData.porcentagem[indexBimestre] = Math.round(
+            (itemData.data[indexBimestre] / bimestreQuant) * 100
+          );
+        }
+
+        return itemData;
+      });
+
+      return newData;
+    },
+    [bimestres.length]
+  );
 
   useEffect(() => {
     if (chartSeries.length) {
@@ -167,9 +174,20 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
     return series.find((item) => item.year === _seriesYearData)?.data ?? [];
   };
 
+  // DIMENSÕES
+  const [boxWidth, setWidth] = useState(null);
+  const boxRef = useCallback((node) => {
+    if (node !== null) {
+      setWidth(node.getBoundingClientRect().width);
+    }
+  }, []);
+
+  const _widthBimestre = getChartSeries(seriesYearData).length * _columnWith;
+  const _widthPorQuantidade = chart.categories.length * _widthBimestre;
+
   return (
     <>
-      <Card sx={{paddingBottom: 3}} {...other}>
+      <Card sx={{ paddingBottom: 3 }} {...other}>
         <CardHeader
           title={title}
           subheader={subheader}
@@ -196,16 +214,16 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
           }
         />
 
-        {series.length && series.find((item) => item.year === seriesYearData) && (
-          <Box sx={{ mt: 3, mx: 3 }}>
-            <Scrollbar sx={{overflowY:'hidden'}}>
+        {series.length > 0 && series.find((item) => item.year === seriesYearData) && (
+          <Box sx={{ mt: 3, mx: 3 }} ref={boxRef}>
+            <Scrollbar sx={{ overflowY: 'hidden' }}>
               <Chart
                 dir="ltr"
                 type="bar"
                 height={364}
                 series={getChartSeries(seriesYearData)}
                 options={chartOptions}
-                width={chart.categories.length * getChartSeries(seriesYearData).length * 56}
+                width={_.max([boxWidth, _widthPorQuantidade])}
               />
             </Scrollbar>
           </Box>

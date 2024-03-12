@@ -84,7 +84,7 @@ export default function DashboardTurmaTableToolbar({
           md: 'row',
         }}
       >
-        {anoLetivoOptions && !!anoLetivoOptions.length && (
+        {anoLetivoOptions && anoLetivoOptions.length > 0 && (
           <FormControl
             sx={{
               flexShrink: 0,
@@ -172,7 +172,7 @@ export default function DashboardTurmaTableToolbar({
           </Select>
         </FormControl>
 
-        {anoTurmaOptions && (
+        {anoTurmaOptions && filters.escola.length > 0 && (
           <FormControl
             sx={{
               flexShrink: 0,
@@ -210,7 +210,7 @@ export default function DashboardTurmaTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 120 },
+              width: { xs: 1, md: 100 },
             }}
           >
             <InputLabel size="small">Bimestre</InputLabel>
