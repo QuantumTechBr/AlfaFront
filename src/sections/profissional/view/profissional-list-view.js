@@ -332,7 +332,7 @@ export default function ProfissionalListView() {
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
               {!preparado.value ? (
-                <LoadingBox />
+                <LoadingBox texto='Buscando profissionais' />
               ) : (
                 <Table size='small' sx={{ minWidth: 960 }}>
                   <TableHeadCustom

@@ -38,7 +38,7 @@ import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
+export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
   const [currentAluno, setCurrentAluno] = useState();
 
   const contextReady = useBoolean(false);
@@ -61,6 +61,10 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
+      setCurrentAluno({
+        ...row,
+        data_nascimento: parseISO(row.data_nascimento),
+      });
       Promise.all([
         buscaEscolas()
           .then((_escolas) => setEscolasAssessor(_escolas))
@@ -72,11 +76,6 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
         }),
         buscaAnosLetivos().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de anos letivos');
-        }),
-        alunoMethods.getAlunoById(id).then((response) => {
-          const _currentAluno = Object.assign(response.data);
-          _currentAluno.data_nascimento = parseISO(_currentAluno.data_nascimento);
-          setCurrentAluno(_currentAluno);
         }),
       ]).then(() => {
         contextReady.onTrue();
@@ -187,7 +186,7 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -208,16 +207,6 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
               <RHFTextField name="nome" label="Nome do Estudante" />
 
               <RHFTextField name="matricula" label="Matrícula" />
-
-              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-                <Controller
-                  name="data_nascimento"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker value={value} onChange={onChange} label="Data de Nascimento" />
-                  )}
-                />
-              </LocalizationProvider>
 
               <RHFSelect
                 sx={{}}
@@ -246,10 +235,20 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
                   .filter((te) => te.escola_id == getValues('escola'))
                   .map((turma) => (
                     <MenuItem key={turma.id} value={turma.id}>
-                      {turma.ano_escolar}º {turma.nome}
+                      {turma.ano_escolar}º {turma.nome} ({turma.turno})
                     </MenuItem>
                   ))}
               </RHFSelect>
+
+              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                <Controller
+                  name="data_nascimento"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <DatePicker value={value} onChange={onChange} label="Data de Nascimento" />
+                  )}
+                />
+              </LocalizationProvider>
             </Box>
           </DialogContent>
 

@@ -22,7 +22,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
+export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { nome, email, funcao_usuario, status } = row;
 
@@ -32,7 +32,7 @@ export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit })
   const confirm = useBoolean();
   const popover = usePopover();
 
-  const deteleRow = () => {
+  const deleteRow = () => {
     onDeleteRow();
     confirm.onFalse();
   };
@@ -111,7 +111,7 @@ export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit })
         title="Excluir Usuário"
         content="Tem certeza que deseja excluir o usuário?"
         action={
-          <Button variant="contained" color="error" onClick={deteleRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -121,10 +121,8 @@ export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit })
 }
 
 UserTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
-  quickEdit: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

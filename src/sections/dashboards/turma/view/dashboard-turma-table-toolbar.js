@@ -27,6 +27,8 @@ export default function DashboardTurmaTableToolbar({
 }) {
   const { user } = useContext(AuthContext);
 
+  const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
+
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
     [onFilters]
@@ -198,7 +200,7 @@ export default function DashboardTurmaTableToolbar({
                 <MenuItem key={option.id} value={option}>
                   <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
                   {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
-                    filters.escola.length != 1 ? ` (${option.escola?.nome})` : ''
+                    filters.escola.length != 1 ? ` (${getEscola(option.escola_id)?.nome})` : ''
                   } `}
                 </MenuItem>
               ))}

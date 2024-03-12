@@ -1,6 +1,5 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import { alpha } from '@mui/material/styles';
@@ -10,10 +9,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import Stack from '@mui/material/Stack';
 // routes
@@ -81,24 +78,23 @@ export default function UserListView() {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
-  const liberaResults = useBoolean(false);
+  
   const [countAtivos, setCountAtivos] = useState(0);
   const [countInativos, setCountInativos] = useState(0);
   const [countAll, setCountAll] = useState(0);
   const [countUsuarios, setCountUsuarios] = useState(0);
   const [filters, setFilters] = useState(defaultFilters);
-  
+
   const permissaoCadastrar = checkPermissaoModulo('usuario', 'cadastrar');
-  
+
   const table = useTable();
-  
+
   const settings = useSettingsContext();
-  
+
   const router = useRouter();
-  
+
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
-  
 
   const [tableData, setTableData] = useState([]);
 
@@ -324,10 +320,10 @@ export default function UserListView() {
     [tableData]
   );
 
-  const saveAndClose = (retorno=null) => {
-    handleSaveRow({...rowToEdit, ...retorno});
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow({ ...rowToEdit, ...retorno });
     quickEdit.onFalse();
-  }
+  };
 
   const handleFilterStatus = useCallback(
     (event, newValue) => {
@@ -338,21 +334,6 @@ export default function UserListView() {
     },
     [handleFilters]
   );
-
-  const handleResetFilters = useCallback(() => {
-    const resetFilters = {
-      nome: '',
-      role: [],
-      ddz: [],
-      escola: [],
-      status: 'all',
-    };
-    setTableData([]);
-    setUserList([]);
-    setFilters(resetFilters);
-    contarUsuarios();
-    buscaUsuarios(table.page, table.rowsPerPage);
-  }, [buscaUsuarios, table.page, table.rowsPerPage, contarUsuarios]);
 
   return (
     <>
@@ -461,12 +442,11 @@ export default function UserListView() {
           </Stack>
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-
             <Scrollbar>
               {!preparado.value ? (
-                <LoadingBox />
+                <LoadingBox texto="Buscando usuários" />
               ) : (
-                <Table size='small' sx={{ minWidth: 960 }}>
+                <Table size="small" sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
@@ -485,9 +465,12 @@ export default function UserListView() {
                         <UserTableRow
                           key={row.id}
                           row={row}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
+                          quickEdit={(row) => {
+                            quickEdit.onTrue();
+                            setRowToEdit(row);
+                          }}
                           onEditRow={() => handleEditRow(row.id)}
-                          quickEdit={(row) => { quickEdit.onTrue(); setRowToEdit(row); }}
+                          onDeleteRow={() => handleDeleteRow(row.id)}
                         />
                       ))}
 
@@ -523,40 +506,4 @@ export default function UserListView() {
       )}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { nome, status, role, ddz, escola } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (nome) {
-    inputData = inputData.filter(
-      (user) => user.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
-    );
-  }
-
-  if (status !== 'all') {
-    inputData = inputData.filter((user) => user.status === status);
-  }
-
-  if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.funcao));
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
-  }
-
-  return inputData;
 }

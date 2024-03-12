@@ -1,6 +1,5 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
@@ -8,10 +7,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import Stack from '@mui/material/Stack';
 // routes
@@ -28,16 +25,13 @@ import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 
@@ -46,24 +40,20 @@ import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
 
 import alunoMethods from '../aluno-repository';
-import { USER_STATUS_OPTIONS } from 'src/_mock';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
-import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
+
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
+import AlunoQuickEditForm from '../aluno-quick-edit-form';
 // ----------------------------------------------------------------------
-
-const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
   { id: 'nome', label: 'Estudante', width: 300 },
   { id: 'matricula', label: 'Matrícula', width: 200 },
-  { id: 'ano', label: 'Ano', width: 200, notsortable: true },
-  { id: 'turma', label: 'Turma', width: 200, notsortable: true },
-  { id: 'turno', label: 'Turno', width: 200, notsortable: true },
   { id: 'escola', label: 'Escola', width: 200, notsortable: true },
+  { id: 'ano', label: 'Ano-Turma', width: 200, notsortable: true },
+  { id: 'turno', label: 'Turno', width: 200, notsortable: true },
   { id: 'fase', label: 'Fase', width: 200, notsortable: true },
   { id: 'data_nascimento', label: 'Data de Nascimento', width: 100, notsortable: true },
   { id: '', width: 88 },
@@ -73,7 +63,6 @@ const TABLE_HEAD = [
 
 export default function AlunoListView() {
   const { checkPermissaoModulo } = useAuthContext();
-  // let turmaFiltro = sessionStorage.getItem('filtroTurmaId') ? [sessionStorage.getItem('filtroTurmaId')] : [];
 
   const defaultFilters = {
     nome: '',
@@ -87,7 +76,6 @@ export default function AlunoListView() {
 
   const [alunoList, setAlunoList] = useState([]);
   const [countAlunos, setCountAlunos] = useState(0);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
@@ -98,12 +86,10 @@ export default function AlunoListView() {
 
   const table = useTable();
 
-  const settings = useSettingsContext();
-
   const router = useRouter();
 
-  const confirm = useBoolean();
-
+  const quickEdit = useBoolean();
+  const [rowToEdit, setRowToEdit] = useState();
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
@@ -147,9 +133,6 @@ export default function AlunoListView() {
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
-      buscaAnosLetivos().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de anos letivos');
-      }),
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
@@ -162,15 +145,7 @@ export default function AlunoListView() {
       }),
     ]);
     contextReady.onTrue();
-  }, [
-    buscaAnosLetivos,
-    buscaEscolas,
-    buscaTurmas,
-    buscaAlunos,
-    contextReady,
-    table.page,
-    table.rowsPerPage,
-  ]);
+  }, [buscaEscolas, buscaTurmas, buscaAlunos, contextReady, table.page, table.rowsPerPage]);
 
   const onChangePage = async (event, newPage) => {
     if (alunoList.length < (newPage + 1) * table.rowsPerPage) {
@@ -199,7 +174,7 @@ export default function AlunoListView() {
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const notFound = !tableData.length;
+  const notFound = tableData.length == 0;
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -254,6 +229,11 @@ export default function AlunoListView() {
     [tableData]
   );
 
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow({ ...rowToEdit, ...retorno });
+    quickEdit.onFalse();
+  };
+
   return (
     <>
       <Container maxWidth="xxl">
@@ -303,7 +283,11 @@ export default function AlunoListView() {
               filters={filters}
               onFilters={handleFilters}
               escolaOptions={escolas}
-              turmaOptions={turmas}
+              turmaOptions={
+                filters.escola.length > 0
+                  ? turmas.filter((_turma) => filters.escola.includes(_turma.escola_id))
+                  : null
+              }
               faseOptions={fases}
             />
             <Button
@@ -337,12 +321,6 @@ export default function AlunoListView() {
                     headLabel={TABLE_HEAD}
                     rowCount={tableData.length}
                     onSort={table.onSort}
-                    onSelectAllRows={(checked) =>
-                      table.onSelectAllRows(
-                        checked,
-                        tableData.map((row) => row.id)
-                      )
-                    }
                   />
 
                   <TableBody>
@@ -355,11 +333,12 @@ export default function AlunoListView() {
                         <AlunoTableRow
                           key={row.id}
                           row={row}
-                          selected={table.selected.includes(row.id)}
-                          onSelectRow={() => table.onSelectRow(row.id)}
+                          quickEdit={(row) => {
+                            quickEdit.onTrue();
+                            setRowToEdit(row);
+                          }}
                           onDeleteRow={() => handleDeleteRow(row.id)}
                           onEditRow={() => handleEditRow(row.id)}
-                          onSaveRow={(novosDados) => handleSaveRow(novosDados)}
                         />
                       ))}
 
@@ -384,47 +363,15 @@ export default function AlunoListView() {
           />
         </Card>
       </Container>
+
+      {checkPermissaoModulo('aluno', 'editar') && (
+        <AlunoQuickEditForm
+          row={rowToEdit}
+          open={quickEdit.value}
+          onClose={quickEdit.onFalse}
+          onSave={saveAndClose}
+        />
+      )}
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { nome, matricula, escola, turma, fase } = filters;
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (nome) {
-    inputData = inputData.filter(
-      (aluno) => aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
-    );
-  }
-
-  if (matricula) {
-    inputData = inputData.filter(
-      (aluno) => aluno.matricula.toLowerCase().indexOf(matricula.toLowerCase()) !== -1
-    );
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((aluno) => escola.includes(aluno.escola.id));
-  }
-
-  if (turma?.length) {
-    inputData = inputData.filter((aluno) => turma.includes(aluno.turma.id));
-  }
-
-  if (fase.length) {
-    inputData = inputData.filter((aluno) => fase.includes(aluno.fase.toLowerCase()));
-  }
-
-  return inputData;
 }
