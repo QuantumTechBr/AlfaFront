@@ -1,16 +1,13 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
@@ -22,157 +19,91 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
   useTable,
-  getComparator,
   emptyRows,
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
-// import ZonaTableRow from '../zona-table-row';
-// import ZonaTableToolbar from '../zona-table-toolbar';
-// import ZonaTableFiltersResult from '../zona-table-filters-result';
+
 import ZonaTableRow from '../zona-table-row';
 //
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import zonaMethods from '../zona-repository';
+import ZonaQuickEditForm from '../zona-quick-edit-form';
 // ----------------------------------------------------------------------
 
-
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 300 },
-  { id: 'cidade', label: 'Cidade', width: 200 },
-  { id: 'nome_responsavel', label: 'Responsável', width: 200 },
-  { id: 'email_responsavel', label: 'E-Mail Responsável', width: 300 },
-  { id: 'fone_responsavel', label: 'Fone Responsável', width: 200 },
-  { id: '', width: 88 },
+  { id: 'nome', label: 'Nome', width: 300, notsortable: true },
+  { id: 'cidade', label: 'Cidade', width: 200, notsortable: true },
+  { id: 'nome_responsavel', label: 'Responsável', width: 200, notsortable: true },
+  { id: 'email_responsavel', label: 'E-Mail Responsável', width: 300, notsortable: true },
+  { id: 'fone_responsavel', label: 'Fone Responsável', width: 200, notsortable: true },
+  { id: '', width: 88, notsortable: true },
 ];
-
-const defaultFilters = {
-  nome: '',
-  ddz: [],
-  escola: [],
-  status: 'all',
-};
 
 // ----------------------------------------------------------------------
 
 export default function ZonaListView() {
-
-  const [_zonaList, setZonaList] = useState([]);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [errorMsg, setErrorMsg] = useState('');
-  const [warningMsg, setWarningMsg] = useState('');
+  const [warningMsg] = useState('');
   const preparado = useBoolean(false);
-  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { buscaZonas } = useContext(ZonasContext);
   const [tableData, setTableData] = useState([]);
-  const [filters, setFilters] = useState(defaultFilters);
 
   useEffect(() => {
-    buscaZonas({ force: true }).then(_zonas => {
-      setTableData(_zonas);
-      preparado.onTrue();
-    }).catch((error) => {
-      console.log(error)
-      setErrorMsg('Erro de comunicação com a API de zonas');
-      preparado.onTrue();
-    })
-    
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-      preparado.onTrue();
-    });
-    
+    buscaZonas({ force: true })
+      .then((_zonas) => {
+        setTableData(_zonas);
+      })
+      .catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+        console.log(error);
+      })
+      .finally(() => {
+        preparado.onTrue();
+      });
   }, []);
-  
+
   const table = useTable();
 
   const settings = useSettingsContext();
 
   const router = useRouter();
 
-  const confirm = useBoolean();
+  const quickEdit = useBoolean();
+  const [rowToEdit, setRowToEdit] = useState();
 
-
-  const dataFiltered = applyFilter({
-    inputData: tableData,
-    comparator: getComparator(table.order, table.orderBy),
-    filters,
-  });
-
-  const dataInPage = dataFiltered.slice(
+  const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
 
-  const denseHeight = table.dense ? 52 : 72;
-
-  const canReset = !isEqual(defaultFilters, filters);
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  const handleFilters = useCallback(
-    (nome, value) => {
-      table.onResetPage();
-      setFilters((prevState) => ({
-        ...prevState,
-        [nome]: value,
-      }));
-    },
-    [table]
-  );
+  const notFound = tableData.length == 0;
 
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      zonaMethods.deleteZonaById(id).then(retorno => {
-        setTableData(deleteRow);
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
-      });
+      zonaMethods
+        .deleteZonaById(id)
+        .then((retorno) => {
+          setTableData(deleteRow);
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
+        });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if(table.selected.includes(row.id)) {
-        const newPromise = zonaMethods.deleteZonaById(row.id).catch((error) => {
-          remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
-          throw error;
-        });
-        promises.push(newPromise)
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then(
-      retorno => {
-        setTableData(remainingRows);
-      }
-    )
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -181,26 +112,23 @@ export default function ZonaListView() {
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
+  const handleSaveRow = useCallback(
+    (novosDados) => {
+      const _tableData = tableData.map((item) => {
+        if (item.id === novosDados.id) {
+          return { ...item, ...novosDados };
+        }
+        return item;
+      });
+      setTableData(_tableData);
     },
-    [handleFilters]
+    [tableData]
   );
-  
-  const handleSaveRow = useCallback((novosDados) => {
-    const _tableData = tableData.map((item) => {
-      if (item.id === novosDados.id) {
-        return {...item, ...novosDados};
-      }
-      return item;
-    });
-    setTableData(_tableData);
-  }, [tableData]);
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow({ ...rowToEdit, ...retorno });
+    quickEdit.onFalse();
+  };
 
   return (
     <>
@@ -219,7 +147,7 @@ export default function ZonaListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
-                bgcolor: "#00A5AD",
+                bgcolor: '#00A5AD',
               }}
             >
               Adicionar
@@ -230,145 +158,66 @@ export default function ZonaListView() {
           }}
         />
 
-        {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        {warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
             <Scrollbar>
-            {!preparado.value ? (
-                <LoadingBox />
+              {!preparado.value ? (
+                <LoadingBox texto="Buscando DDZs" />
               ) : (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
+                <Table size="small" sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    onSort={table.onSort}
+                  />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  <TableBody>
+                    {dataInPage.map((row) => (
                       <ZonaTableRow
                         key={row.id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
-                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        quickEdit={(row) => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
                         onEditRow={() => handleEditRow(row.id)}
-                        onSaveRow={(novosDados) => handleSaveRow(novosDados)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                    <TableEmptyRows
+                      height={52}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>)}
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              )}
             </Scrollbar>
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={tableData.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> zonas?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
+      <ZonaQuickEditForm
+        row={rowToEdit}
+        open={quickEdit.value}
+        onClose={quickEdit.onFalse}
+        onSave={saveAndClose}
       />
     </>
   );
-}
-
-// ----------------------------------------------------------------------
-
-function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz, escola } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (nome) {
-    inputData = inputData.filter(
-      (turma) => turma.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
-    );
-  }
-
-  if (ddz.length) {
-    inputData = inputData.filter((user) => ddz.includes(user.ddz));
-  }
-
-  if (escola.length) {
-    inputData = inputData.filter((user) => escola.includes(user.escola));
-  }
-
-  return inputData;
 }

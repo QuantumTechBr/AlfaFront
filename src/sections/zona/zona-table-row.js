@@ -1,66 +1,53 @@
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import Box from '@mui/material/Box';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-//
-import ZonaQuickEditForm from './zona-quick-edit-form';
-import { useRouter } from 'src/routes/hook';
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
 
 // ----------------------------------------------------------------------
 
-export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
-  const { id, nome, nome_responsavel, fone_responsavel, email_responsavel, cidade, created_at, updated_at, deleted_at } = row;
+export default function ZonaTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
+  const {
+    id,
+    nome,
+    nome_responsavel,
+    fone_responsavel,
+    email_responsavel,
+    cidade,
+    created_at,
+    updated_at,
+    deleted_at,
+  } = row;
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
-
-  const router = useRouter();
-
   const popover = usePopover();
 
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
+  const deleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  };
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
+      <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{cidade.nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome_responsavel}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email_responsavel}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{fone_responsavel}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton onClick={() => quickEdit(row)}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
@@ -71,14 +58,22 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
         </TableCell>
       </TableRow>
 
-      <ZonaQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
-
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        <MenuItem
+          onClick={() => {
+            onEditRow();
+            popover.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Editar
+        </MenuItem>
+
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -89,16 +84,6 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
         </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
       </CustomPopover>
 
       <ConfirmDialog
@@ -107,7 +92,7 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
         title="Excluir Zona"
         content="Tem certeza que deseja excluir a zona?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -117,10 +102,8 @@ export default function ZonaTableRow({ row, selected, onEditRow, onSelectRow, on
 }
 
 ZonaTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

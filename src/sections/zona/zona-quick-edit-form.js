@@ -28,25 +28,22 @@ import zonaMethods from './zona-repository';
 
 // ----------------------------------------------------------------------
 
-export default function ZonaQuickEditForm({ id, open, onClose, onSave }) {
+export default function ZonaQuickEditForm({ row, open, onClose, onSave }) {
   const [currentZona, setCurrentZona] = useState();
   const contextReady = useBoolean(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   useEffect(() => {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
-      Promise.all([
-        zonaMethods.getZonaById(id).then((response) => {
-          setCurrentZona(response.data);
-        }),
-      ]).then(() => {
-        contextReady.onTrue();
-      });
+      setCurrentZona(row);
+      contextReady.onTrue();
+    } else {
+      setCurrentZona(undefined);
     }
   }, [open]);
 
@@ -89,10 +86,12 @@ export default function ZonaQuickEditForm({ id, open, onClose, onSave }) {
         cidade_id: '4a12c279-f19a-fae9-9c97-9b503e4bbc2c',
       };
 
-      const retornoPatch = await zonaMethods.updateZonaById(currentZona.id, novaZona).catch((error) => {
-        throw error;
-      });
-      
+      const retornoPatch = await zonaMethods
+        .updateZonaById(currentZona.id, novaZona)
+        .catch((error) => {
+          throw error;
+        });
+
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
       reset();
@@ -116,7 +115,7 @@ export default function ZonaQuickEditForm({ id, open, onClose, onSave }) {
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
