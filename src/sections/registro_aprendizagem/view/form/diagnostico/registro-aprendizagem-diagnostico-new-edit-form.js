@@ -76,63 +76,97 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
 
   const onSubmit = handleSubmit(async (data) => {
     console.log(data)
-    // const registrosAprendizagem = [];
-    // alunosTurma.forEach((itemList) => {
-    //   const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
-    //   const habilidadesRegistroAprendizagem = [];
-    //   for (const item in dataHabilidades) {
-    //     if (typeof (dataHabilidades[item]) == 'string') {
-    //       if (itemList.id_habilidades_registro_aprendizagem) {
-    //         const encontrada = itemList.id_habilidades_registro_aprendizagem[item];
-    //         const habilidadeRegistroAprendizagem = {
-    //           habilidade_id: item,
-    //           nota: dataHabilidades[item],
-    //           id: encontrada,
-    //         }
-    //         habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
-    //       } else {
-    //         const habilidadeRegistroAprendizagem = {
-    //           habilidade_id: item,
-    //           nota: dataHabilidades[item],
-    //         }
-    //         habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
-    //       }
-    //     }
-    //   }
-    //   if (itemList.id_registro) {
-    //     const registroAprendizagem = {
-    //       nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-    //       tipo: 'Diagnóstico',
-    //       periodo: periodo,
-    //       aluno_turma_id: itemList.id,
-    //       promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
-    //       habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
-    //       avaliacao_id: itemList.id_registro,
-    //     }
-    //     registrosAprendizagem.push(registroAprendizagem);
-    //   } else {
-    //     const registroAprendizagem = {
-    //       nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-    //       tipo: 'Diagnóstico',
-    //       periodo: periodo,
-    //       aluno_turma_id: itemList.id,
-    //       promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
-    //       habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
-    //     }
-    //     registrosAprendizagem.push(registroAprendizagem);
-    //   }
-    // });
-    // try {
-    //   await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
-    //     throw error;
-    //   });
-    //   limparMapCache();
-    //   reset();
-    //   enqueueSnackbar('Atualizado com sucesso!');
-    //   router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
-    // } catch (error) {
-    //   setErrorMsg('Erro ao Salvar o Registro de Aprendizagem Diagnóstica')
-    // }
+    const registrosAprendizagem = [];
+    alunosTurma.forEach((itemList) => {
+      // const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
+      // const habilidadesRegistroAprendizagem = [];
+      // for (const item in dataHabilidades) {
+      //   if (typeof (dataHabilidades[item]) == 'string') {
+      //     if (itemList.id_habilidades_registro_aprendizagem) {
+      //       const encontrada = itemList.id_habilidades_registro_aprendizagem[item];
+      //       const habilidadeRegistroAprendizagem = {
+      //         habilidade_id: item,
+      //         nota: dataHabilidades[item],
+      //         id: encontrada,
+      //       }
+      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+      //     } else {
+      //       const habilidadeRegistroAprendizagem = {
+      //         habilidade_id: item,
+      //         nota: dataHabilidades[item],
+      //       }
+      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+      //     }
+      //   }
+      // }
+      let habilidades_registro_aprendizagem = [];
+      let mediaLP = 0;
+      let mediaMAT = 0;
+      let mediaFINAL = 0;
+      for (let index = 0; index < 20; index++) {
+        if (index < 10) {
+          mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+          mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+          const habRegAp = {
+            nota: data.registros[itemList.id].r[index],
+            numero_resposta: index + 1,
+          }
+          habilidades_registro_aprendizagem.push(habRegAp);
+        } else {
+          mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+          mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+          const habRegAp = {
+            nota: data.registros[itemList.id].r[index],
+            numero_resposta: index + 1,
+          }
+          habilidades_registro_aprendizagem.push(habRegAp);
+        }
+      }
+      mediaLP = (mediaLP * 10) / 11;
+      mediaMAT = (mediaMAT * 10) / 11;
+      mediaFINAL = (mediaFINAL * 10) / 22;
+      
+
+      if (itemList.id_registro) {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+          media_lingua_portuguesa: mediaLP,
+          media_matematica: mediaMAT,
+          media_final: mediaFINAL,
+          habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+          avaliacao_id: itemList.id_registro,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
+      } else {
+        const registroAprendizagem = {
+          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          tipo: 'Diagnóstico',
+          periodo: periodo,
+          aluno_turma_id: itemList.id,
+          frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+          media_lingua_portuguesa: mediaLP,
+          media_matematica: mediaMAT,
+          media_final: mediaFINAL,
+          habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+        }
+        registrosAprendizagem.push(registroAprendizagem);
+      }
+    });
+    try {
+      await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
+        throw error;
+      });
+      limparMapCache();
+      reset();
+      enqueueSnackbar('Atualizado com sucesso!');
+      router.push(paths.dashboard.registro_aprendizagem.root_diagnostico);
+    } catch (error) {
+      setErrorMsg('Erro ao Salvar o Registro de Aprendizagem Diagnóstica')
+    }
   });
 
   return (

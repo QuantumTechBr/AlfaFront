@@ -131,10 +131,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 0; index < 10; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10) / 11;
-    if (media != number) {
-      return '-'
-    }
+    media = (media * 10) / 11.00;
     return media;
   }
 
@@ -167,10 +164,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 10; index < 20; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10) / 11;
-    if (media != number) {
-      return '-'
-    }
+    media = (media * 10) / 11.00;
     return media;
   }
    
@@ -203,10 +197,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 0; index < 20; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10) / 22;
-    if (media != number) {
-      return '-'
-    }
+    media = (media * 10.00) / 22.00;
     return media;
   }
    
