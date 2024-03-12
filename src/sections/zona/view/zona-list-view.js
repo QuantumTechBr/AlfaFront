@@ -187,7 +187,7 @@ export default function ZonaListView() {
                       <ZonaTableRow
                         key={row.id}
                         row={row}
-                        quickEdit={(row) => {
+                        quickEdit={() => {
                           quickEdit.onTrue();
                           setRowToEdit(row);
                         }}

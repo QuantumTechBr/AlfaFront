@@ -230,7 +230,7 @@ export default function EscolaListView() {
                       <EscolaTableRow
                         key={row.id}
                         row={row}
-                        quickEdit={(row) => {
+                        quickEdit={() => {
                           quickEdit.onTrue();
                           setRowToEdit(row);
                         }}

@@ -104,7 +104,7 @@ export default function TurmaTableRow({ row, showEscola, quickEdit, onEditRow, o
           {!isProfessor && (
             <Tooltip title="Edição Rápida" placement="top" arrow>
               {checkPermissaoModulo('turma', 'editar') && (
-                <IconButton onClick={() => quickEdit(row)}>
+                <IconButton onClick={quickEdit}>
                   <Iconify icon="solar:pen-bold" />
                 </IconButton>
               )}

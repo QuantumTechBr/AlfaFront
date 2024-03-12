@@ -465,7 +465,7 @@ export default function UserListView() {
                         <UserTableRow
                           key={row.id}
                           row={row}
-                          quickEdit={(row) => {
+                          quickEdit={() => {
                             quickEdit.onTrue();
                             setRowToEdit(row);
                           }}

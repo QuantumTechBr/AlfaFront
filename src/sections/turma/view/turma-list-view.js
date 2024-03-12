@@ -426,7 +426,7 @@ export default function TurmaListView() {
                           key={row.id}
                           row={row}
                           showEscola={escolas.length > 1}
-                          quickEdit={(row) => {
+                          quickEdit={() => {
                             quickEdit.onTrue();
                             setRowToEdit(row);
                           }}

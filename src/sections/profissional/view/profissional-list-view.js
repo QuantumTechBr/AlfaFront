@@ -355,7 +355,7 @@ export default function ProfissionalListView() {
                           row={row}
                           onDeleteRow={() => handleDeleteRow(row.id)}
                           onEditRow={() => handleEditRow(row.id)}
-                          quickEdit={(row) => { quickEdit.onTrue(); setRowToEdit(row); }}
+                          quickEdit={() => { quickEdit.onTrue(); setRowToEdit(row); }}
                         />
                       ))}
 

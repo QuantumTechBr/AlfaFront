@@ -111,7 +111,7 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
           {checkPermissaoModulo('profissionais', 'editar') && 
-            <IconButton onClick={() => quickEdit(row)}>
+            <IconButton onClick={quickEdit}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>}
           </Tooltip>

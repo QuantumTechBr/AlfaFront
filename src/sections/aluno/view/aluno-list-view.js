@@ -333,7 +333,7 @@ export default function AlunoListView() {
                         <AlunoTableRow
                           key={row.id}
                           row={row}
-                          quickEdit={(row) => {
+                          quickEdit={() => {
                             quickEdit.onTrue();
                             setRowToEdit(row);
                           }}
