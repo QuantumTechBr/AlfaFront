@@ -101,6 +101,9 @@ export default function ZonaListView() {
         });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
+
+      // CONTEXT - ATUALIZA GERAL DO SISTEMA
+      buscaZonas({ force: true });
     },
     [dataInPage.length, table, tableData]
   );
@@ -121,6 +124,9 @@ export default function ZonaListView() {
         return item;
       });
       setTableData(_tableData);
+
+      // CONTEXT - ATUALIZA GERAL DO SISTEMA
+      buscaZonas({ force: true });
     },
     [tableData]
   );

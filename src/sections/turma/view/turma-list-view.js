@@ -251,6 +251,9 @@ export default function TurmaListView() {
         });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
+      
+      // CONTEXT - ATUALIZA GERAL DO SISTEMA
+      buscaTurmas({ force: true });
     },
     [dataInPage.length, table, tableData, buscarTurmas]
   );
@@ -278,7 +281,7 @@ export default function TurmaListView() {
   const saveAndClose = (retorno = null) => {
     handleSaveRow({ ...rowToEdit, ...retorno });
     quickEdit.onFalse();
-    // ATUALIZA CONTEXTO GERAL DO SISTEMA
+    // CONTEXT - ATUALIZA GERAL DO SISTEMA
     buscaTurmas({force: true});
   };
 
