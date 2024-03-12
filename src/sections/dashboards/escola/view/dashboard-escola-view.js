@@ -236,10 +236,10 @@ export default function DashboardEscolaView() {
       const _filters = {
         ...filters,
         ...(_escola.length > 0 ? { escola: _escola } : {}),
-        ...(zonaFiltro.length && _escola.length == 0
+        ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -312,7 +312,7 @@ export default function DashboardEscolaView() {
     filters: debouncedGridFilter,
   });
 
-  const notFound = !dataFiltered.length;
+  const notFound = dataFiltered.length == 0;
 
   const handleTableFilters = useCallback(
     (nome, value) => {

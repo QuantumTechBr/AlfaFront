@@ -214,7 +214,7 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
           }
         />
 
-        {series.length && series.find((item) => item.year === seriesYearData) && (
+        {series.length > 0 && series.find((item) => item.year === seriesYearData) && (
           <Box sx={{ mt: 3, mx: 3 }} ref={boxRef}>
             <Scrollbar sx={{ overflowY: 'hidden' }}>
               <Chart

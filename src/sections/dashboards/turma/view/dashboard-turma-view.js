@@ -109,7 +109,7 @@ export default function DashboardTurmaView() {
 
   const getTurmasPorAnoEscolar = useCallback(
     (anoEscolar) => {
-      const _turmas = filters.turma.length ? filters.turma : _turmasFiltered;
+      const _turmas = filters.turma.length > 0 ? filters.turma : _turmasFiltered;
       return _turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
     },
     [filters, _turmasFiltered]
@@ -118,7 +118,7 @@ export default function DashboardTurmaView() {
   const getIndiceFases = useCallback(
     async (anoEscolar, payloadFilters) => {
       let _turmasPorAno = getTurmasPorAnoEscolar(anoEscolar);
-      if (payloadFilters.turma && payloadFilters.turma.length) {
+      if (payloadFilters.turma && payloadFilters.turma.length > 0) {
         _turmasPorAno = _turmasPorAno.filter((e) => payloadFilters.turma.includes(e));
       }
 
@@ -135,7 +135,7 @@ export default function DashboardTurmaView() {
           ...payloadFilters,
           turma: anoEscolar
             ? _turmasPorAno
-            : payloadFilters.turma.length
+            : payloadFilters.turma.length > 0
             ? payloadFilters.turma.map((t) => t.id ?? t)
             : null,
         })
@@ -287,11 +287,11 @@ export default function DashboardTurmaView() {
 
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
         zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
         escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
         turma: _turma.length > 0 ? _turma : turmas.length == 1 ? turmas : [],
-        ...(bimestres && bimestres.length ? { bimestre: _.last(bimestres) } : {}),
+        ...(bimestres && bimestres.length > 0 ? { bimestre: _.last(bimestres) } : {}),
       };
       setFilters((prevState) => ({ ...prevState, ..._filters }));
       preencheGraficos(_filters);

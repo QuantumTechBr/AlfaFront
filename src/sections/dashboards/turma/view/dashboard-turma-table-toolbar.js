@@ -84,7 +84,7 @@ export default function DashboardTurmaTableToolbar({
           md: 'row',
         }}
       >
-        {anoLetivoOptions && !!anoLetivoOptions.length && (
+        {anoLetivoOptions && anoLetivoOptions.length > 0 && (
           <FormControl
             sx={{
               flexShrink: 0,
