@@ -24,10 +24,11 @@ import { useAuthContext } from 'src/auth/hooks';
 
 export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
-  const { nome, email, funcao_usuario, status } = row;
 
   const funcaoNome =
-    funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : '';
+    row.funcao_usuario?.length > 0 && frow.uncao_usuario[0].funcao
+      ? row.funcao_usuario[0].funcao.nome
+      : '';
 
   const confirm = useBoolean();
   const popover = usePopover();
@@ -40,21 +41,21 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
   return (
     <>
       <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.funcaoNome}</TableCell>
 
         <TableCell>
           <Label
             variant="soft"
             color={
-              (status === 'true' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'false' && 'error') ||
+              (row.status === 'true' && 'success') ||
+              (row.status === 'pending' && 'warning') ||
+              (row.status === 'false' && 'error') ||
               'default'
             }
           >
-            {status === 'true' ? 'Ativo' : 'Inativo'}
+            {row.status === 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 

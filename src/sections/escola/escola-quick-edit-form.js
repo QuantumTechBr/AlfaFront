@@ -27,7 +27,7 @@ import escolaMethods from './escola-repository';
 
 // ----------------------------------------------------------------------
 
-export default function EscolaQuickEditForm({ id, open, onClose, onSave }) {
+export default function EscolaQuickEditForm({ row, open, onClose, onSave }) {
   const [currentEscola, setCurrentEscola] = useState();
   const contextReady = useBoolean(false);
 
@@ -40,16 +40,16 @@ export default function EscolaQuickEditForm({ id, open, onClose, onSave }) {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
+      setCurrentEscola(row);
       Promise.all([
         buscaZonas().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de zonas');
         }),
-        escolaMethods.getEscolaById(id).then((response) =>{
-          setCurrentEscola(response.data);
-        }),
       ]).then(() => {
         contextReady.onTrue();
       });
+    }else{
+      setCurrentEscola(undefined);
     }
   }, [buscaZonas, open]);
 
@@ -165,7 +165,7 @@ export default function EscolaQuickEditForm({ id, open, onClose, onSave }) {
 }
 
 EscolaQuickEditForm.propTypes = {
-  id: PropTypes.string,
+  row: PropTypes.object,
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,
