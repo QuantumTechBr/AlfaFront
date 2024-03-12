@@ -234,7 +234,6 @@ export default function AlunoListView() {
     [dataInPage.length, table, tableData, buscaTurmas]
   );
 
-
   const handleEditRow = useCallback(
     (id) => {
       router.push(paths.dashboard.aluno.edit(id));
@@ -257,7 +256,7 @@ export default function AlunoListView() {
 
   return (
     <>
-      <Container maxWidth='xxl'>
+      <Container maxWidth="xxl">
         <CustomBreadcrumbs
           heading="Listar"
           links={[
@@ -327,10 +326,9 @@ export default function AlunoListView() {
           </Stack>
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            
             <Scrollbar>
               {!contextReady.value ? (
-                <LoadingBox />
+                <LoadingBox texto="Buscando estudantes" />
               ) : (
                 <Table size="small" sx={{ minWidth: 960 }}>
                   <TableHeadCustom
@@ -386,8 +384,6 @@ export default function AlunoListView() {
           />
         </Card>
       </Container>
-
-      
     </>
   );
 }

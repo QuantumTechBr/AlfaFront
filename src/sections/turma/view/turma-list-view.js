@@ -57,8 +57,6 @@ import { useAuthContext } from 'src/auth/hooks';
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
-
-
 const anoAtual = new Date().getFullYear();
 const defaultFilters = {
   nome: '',
@@ -71,7 +69,6 @@ const defaultFilters = {
 
 // TODO quando limpa os filtros não está atualizando o contador de ativos e inativos
 export default function TurmaListView() {
-
   const { checkPermissaoModulo } = useAuthContext();
   const { turmas, buscaTurmasPaginado } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -89,7 +86,7 @@ export default function TurmaListView() {
   const contextReady = useBoolean(false);
   const liberaResults = useBoolean(false);
 
-  const permissaoCadastrar = checkPermissaoModulo("turma", "cadastrar");
+  const permissaoCadastrar = checkPermissaoModulo('turma', 'cadastrar');
 
   const table = useTable();
 
@@ -113,65 +110,80 @@ export default function TurmaListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
-  const buscarTurmas = useCallback(async (pagina = 0, linhasPorPagina = 25, oldTurmaList = [], filtros = filters) => {
-    liberaResults.onFalse();
-    setWarningMsg('');
-    setErrorMsg('');
-    contextReady.onFalse();
-    const offset = (pagina) * linhasPorPagina;
-    const limit = linhasPorPagina;
-    const { nome, escola, ddz, status } = filtros;
-    let statusFilter = '';
+  const buscarTurmas = useCallback(
+    async (pagina = 0, linhasPorPagina = 25, oldTurmaList = [], filtros = filters) => {
+      liberaResults.onFalse();
+      setWarningMsg('');
+      setErrorMsg('');
+      contextReady.onFalse();
+      const offset = pagina * linhasPorPagina;
+      const limit = linhasPorPagina;
+      const { nome, escola, ddz, status } = filtros;
+      let statusFilter = '';
 
-    switch (status) {
-      case "false":
-        statusFilter = "False"
-        break;
-      case "true":
-        statusFilter = "True"
-    }
-
-    await buscaTurmasPaginado({ args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: statusFilter } }).then(async resultado => {
-
-      if (resultado.count == 0) {
-        setWarningMsg('A API retornou uma lista vazia de turmas');
-        setTableData([]);
-        contextReady.onTrue();
-      } else {
-        const listaTurmas = resultado.results;
-        listaTurmas.map((turma) => {
-          turma.status = turma.status.toString()
-        })
-        setTurmaList([...oldTurmaList, ...listaTurmas]);
-        setTableData([...oldTurmaList, ...listaTurmas]);
-        contextReady.onTrue();
+      switch (status) {
+        case 'false':
+          statusFilter = 'False';
+          break;
+        case 'true':
+          statusFilter = 'True';
       }
-      setCountTurmas(resultado.count);
-      liberaResults.onTrue();
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
-      console.log(error);
-      contextReady.onTrue();
-    });
-  }, [contextReady, filters, liberaResults]);
 
-  const contarTurmas = useCallback(async (filtros = filters) => {
-    const offset = 0;
-    const limit = 1;
-    const { nome, escola, ddz, status } = filtros;
+      await buscaTurmasPaginado({
+        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: statusFilter },
+      })
+        .then(async (resultado) => {
+          if (resultado.count == 0) {
+            setWarningMsg('A API retornou uma lista vazia de turmas');
+            setTableData([]);
+            contextReady.onTrue();
+          } else {
+            const listaTurmas = resultado.results;
+            listaTurmas.map((turma) => {
+              turma.status = turma.status.toString();
+            });
+            setTurmaList([...oldTurmaList, ...listaTurmas]);
+            setTableData([...oldTurmaList, ...listaTurmas]);
+            contextReady.onTrue();
+          }
+          setCountTurmas(resultado.count);
+          liberaResults.onTrue();
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turmas');
+          console.log(error);
+          contextReady.onTrue();
+        });
+    },
+    [contextReady, filters, liberaResults]
+  );
 
-    await buscaTurmasPaginado({ args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: "" } }).then(async resultado => {
-      setCountAll(resultado.count);
-    });
+  const contarTurmas = useCallback(
+    async (filtros = filters) => {
+      const offset = 0;
+      const limit = 1;
+      const { nome, escola, ddz, status } = filtros;
 
-    await buscaTurmasPaginado({ args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: "True" } }).then(async resultado => {
-      setCountAtivos(resultado.count);
-    });
+      await buscaTurmasPaginado({
+        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: '' },
+      }).then(async (resultado) => {
+        setCountAll(resultado.count);
+      });
 
-    await buscaTurmasPaginado({ args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: "False" } }).then(async resultado => {
-      setCountInativos(resultado.count);
-    });
-  }, [filters]);
+      await buscaTurmasPaginado({
+        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
+      }).then(async (resultado) => {
+        setCountAtivos(resultado.count);
+      });
+
+      await buscaTurmasPaginado({
+        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'False' },
+      }).then(async (resultado) => {
+        setCountInativos(resultado.count);
+      });
+    },
+    [filters]
+  );
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -185,7 +197,7 @@ export default function TurmaListView() {
         setErrorMsg('Erro de comunicação com a API de turmas');
         console.log(error);
       }),
-      contarTurmas()
+      contarTurmas(),
     ]);
     contextReady.onTrue();
   }, [buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
@@ -197,13 +209,16 @@ export default function TurmaListView() {
     table.setPage(newPage);
   };
 
-  const onChangeRowsPerPage = useCallback((event) => {
-    table.setPage(0);
-    table.setRowsPerPage(parseInt(event.target.value, 10));
-    setTurmaList([]);
-    setTableData([]);
-    buscarTurmas(0, event.target.value);
-  }, [buscarTurmas, table]);
+  const onChangeRowsPerPage = useCallback(
+    (event) => {
+      table.setPage(0);
+      table.setRowsPerPage(parseInt(event.target.value, 10));
+      setTurmaList([]);
+      setTableData([]);
+      buscarTurmas(0, event.target.value);
+    },
+    [buscarTurmas, table]
+  );
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -223,7 +238,7 @@ export default function TurmaListView() {
       const novosFiltros = {
         ...filters,
         [nome]: value,
-      }
+      };
       setFilters(novosFiltros);
     },
     [table, filters, liberaResults]
@@ -232,12 +247,15 @@ export default function TurmaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      turmaMethods.deleteTurmaById(id).then(retorno => {
-        setTableData(deleteRow);
-        // buscarTurmas({force: true});
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
-      });
+      turmaMethods
+        .deleteTurmaById(id)
+        .then((retorno) => {
+          setTableData(deleteRow);
+          // buscarTurmas({force: true});
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
+        });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
     },
@@ -254,17 +272,15 @@ export default function TurmaListView() {
           setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
           throw error;
         });
-        promises.push(newPromise)
+        promises.push(newPromise);
       } else {
         remainingRows.push(row);
       }
     });
-    Promise.all(promises).then(
-      retorno => {
-        setTableData(remainingRows);
-        // buscarTurmas({force: true});
-      }
-    )
+    Promise.all(promises).then((retorno) => {
+      setTableData(remainingRows);
+      // buscarTurmas({force: true});
+    });
 
     table.onUpdatePageDeleteRows({
       totalRows: tableData.length,
@@ -279,22 +295,25 @@ export default function TurmaListView() {
     },
     [router]
   );
-  
-  const handleSaveRow = useCallback((novosDados) => {
-    const _tableData = tableData.map((item) => {
-      if (item.id === novosDados.id) {
-        return {...item, ...novosDados};
-      }
-      return item;
-    });
-    setTableData(_tableData);
-  }, [tableData]);
+
+  const handleSaveRow = useCallback(
+    (novosDados) => {
+      const _tableData = tableData.map((item) => {
+        if (item.id === novosDados.id) {
+          return { ...item, ...novosDados };
+        }
+        return item;
+      });
+      setTableData(_tableData);
+    },
+    [tableData]
+  );
 
   const handleFilterStatus = useCallback(
     (event, newValue) => {
       handleFilters('status', newValue);
-      const filtrosNovos = {...filters};
-      filtrosNovos.status = newValue
+      const filtrosNovos = { ...filters };
+      filtrosNovos.status = newValue;
       buscarTurmas(table.page, table.rowsPerPage, [], filtrosNovos);
     },
     [handleFilters]
@@ -324,18 +343,20 @@ export default function TurmaListView() {
             { name: 'Listar' },
           ]}
           // TODO: trocar por teste de permissão
-          action={permissaoCadastrar &&
-            <Button
-              component={RouterLink}
-              href={paths.dashboard.turma.new}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: "#00A5AD",
-              }}
-            >
-              Adicionar
-            </Button>
+          action={
+            permissaoCadastrar && (
+              <Button
+                component={RouterLink}
+                href={paths.dashboard.turma.new}
+                variant="contained"
+                startIcon={<Iconify icon="mingcute:add-line" />}
+                sx={{
+                  bgcolor: '#00A5AD',
+                }}
+              >
+                Adicionar
+              </Button>
+            )
           }
           sx={{
             mb: { xs: 3, md: 5 },
@@ -391,9 +412,7 @@ export default function TurmaListView() {
             sx={{
               pr: { xs: 2.5, md: 2.5 },
             }}
-
           >
-
             <TurmaTableToolbar
               filters={filters}
               onFilters={handleFilters}
@@ -405,10 +424,9 @@ export default function TurmaListView() {
               variant="contained"
               sx={{
                 width: {
-                  xs: "100%",
-                  md: "15%",
+                  xs: '100%',
+                  md: '15%',
                 },
-
               }}
               onClick={() => {
                 contextReady.onFalse();
@@ -455,7 +473,7 @@ export default function TurmaListView() {
 
             <Scrollbar>
               {!contextReady.value ? (
-                <LoadingBox />
+                <LoadingBox texto="Buscando turmas" />
               ) : (
                 <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                   <TableHeadCustom
@@ -499,7 +517,8 @@ export default function TurmaListView() {
 
                     <TableNoData notFound={notFound} />
                   </TableBody>
-                </Table>)}
+                </Table>
+              )}
             </Scrollbar>
           </TableContainer>
 
