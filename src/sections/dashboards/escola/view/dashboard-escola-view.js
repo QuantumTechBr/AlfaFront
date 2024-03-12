@@ -48,8 +48,6 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { useRouter, useSearchParams } from 'src/routes/hook';
 import { useDebounce } from 'src/hooks/use-debounce';
 
-import { first } from 'lodash';
-
 // ----------------------------------------------------------------------
 import DashboardEscolaTableToolbar from './dashboard-escola-table-toolbar';
 import dashboardsMethods from 'src/sections/overview/dashboards-repository';
@@ -84,7 +82,7 @@ export default function DashboardEscolaView() {
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
-  const isGettingGraphics = useBoolean(false);
+  const isGettingGraphics = useBoolean(true);
   const [zonaFiltro, setZonaFiltro] = useState([]);
   const [escolaFiltro, setEscolaFiltro] = useState([]);
 
@@ -99,13 +97,16 @@ export default function DashboardEscolaView() {
   const [dados, setDados] = useState({
     total_alunos_avaliados: null,
     //
-    grid_professores: [],
+    grid_turmas: [],
     desempenho_alunos: {},
   });
 
-  const getTurmasPorAnoEscolar = useCallback((anoEscolar) => {
-    return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
-  }, [turmas]);
+  const getTurmasPorAnoEscolar = useCallback(
+    (anoEscolar) => {
+      return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
+    },
+    [turmas]
+  );
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -115,7 +116,7 @@ export default function DashboardEscolaView() {
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
@@ -128,10 +129,12 @@ export default function DashboardEscolaView() {
 
       await Promise.all([
         //
-        dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
+        dashboardsMethods.getDashboardGridTurmas(fullFilters).then((response) => {
           // adequação dos dados
           const result = response.data.map((i) => {
-            const _avaliados = _.isArray(i.qtd_avaliados) ? _.last(i.qtd_avaliados) : i.qtd_avaliados;
+            const _avaliados = _.isArray(i.qtd_avaliados)
+              ? _.last(i.qtd_avaliados)
+              : i.qtd_avaliados;
             const _alfabetizados = _.isArray(i.qtd_alfabetizado)
               ? _.last(i.qtd_alfabetizado)
               : i.qtd_alfabetizado;
@@ -160,7 +163,7 @@ export default function DashboardEscolaView() {
           setDados((prevState) => ({
             ...prevState,
             total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
-            grid_professores: result,
+            grid_turmas: result,
           }));
         }),
 
@@ -217,7 +220,14 @@ export default function DashboardEscolaView() {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaEscolas, buscaTurmas, contextReady]);
+  }, [
+    preparacaoInicialRunned,
+    buscaAnosLetivos,
+    buscaZonas,
+    buscaEscolas,
+    buscaTurmas,
+    contextReady,
+  ]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -226,10 +236,10 @@ export default function DashboardEscolaView() {
       const _filters = {
         ...filters,
         ...(_escola.length > 0 ? { escola: _escola } : {}),
-        ...(zonaFiltro.length && _escola.length == 0
+        ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length ? { anoLetivo: first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -265,7 +275,7 @@ export default function DashboardEscolaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: first(anosLetivos),
+      anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
@@ -276,10 +286,10 @@ export default function DashboardEscolaView() {
   // TABLE GRID
   const router = useRouter();
   const TABLE_HEAD = [
-    { id: 'professor', label: 'Professor', notsortable: true },
     { id: 'ano_escolar', label: 'Ano', width: 110, notsortable: true },
     { id: 'turma_nome', label: 'Turma', width: 110, notsortable: true },
     { id: 'turno', label: 'Turno', width: 110, notsortable: true },
+    { id: 'professores', label: 'Professores', notsortable: true },
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
     { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
@@ -297,12 +307,12 @@ export default function DashboardEscolaView() {
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
   const dataFiltered = applyTableFilter({
-    inputData: dados.grid_professores,
+    inputData: dados.grid_turmas,
     comparator: getComparator(table.order, table.orderBy),
     filters: debouncedGridFilter,
   });
 
-  const notFound = !dataFiltered.length;
+  const notFound = dataFiltered.length == 0;
 
   const handleTableFilters = useCallback(
     (nome, value) => {
@@ -323,15 +333,15 @@ export default function DashboardEscolaView() {
           series: [
             {
               name: 'Alfabetizado',
-              amount: _.sumBy(dados.grid_professores, (s) => s.alfabetizados),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.alfabetizados),
             },
             {
               name: 'Não alfabetizado',
-              amount: _.sumBy(dados.grid_professores, (s) => s.nao_alfabetizados),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.nao_alfabetizados),
             },
             {
               name: 'Deixou de frequentar',
-              amount: _.sumBy(dados.grid_professores, (s) => s.deixou_de_frequentar),
+              amount: _.sumBy(dados.grid_turmas, (s) => s.deixou_de_frequentar),
             },
           ],
         },
@@ -340,7 +350,7 @@ export default function DashboardEscolaView() {
   };
 
   const getTotalEstudandes = useCallback(() => {
-    return _.sumBy(dados.grid_professores ?? [], (turma) => turma.alunos);
+    return _.sumBy(dados.grid_turmas ?? [], (turma) => turma.alunos);
   }, [dados]);
 
   const calculaMeta = () => {
@@ -350,8 +360,8 @@ export default function DashboardEscolaView() {
     return _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
   };
 
-  const getTotalAlfabetizados = () => _.sumBy(dados.grid_professores, (s) => s.alfabetizados);
-  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_professores, (s) => s.avaliados);
+  const getTotalAlfabetizados = () => _.sumBy(dados.grid_turmas, (s) => s.alfabetizados);
+  const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_turmas, (s) => s.avaliados);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -376,22 +386,22 @@ export default function DashboardEscolaView() {
 
         {!!contextReady.value && (
           <>
-          <Stack
-            flexGrow={1}
-            direction={{
-              xs: "column",
-              md: "row"
-            }}
-            width="100%"
-            spacing={{
-              xs: 1,
-              md: 0
-            }}
-            alignItems="center"
-            sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
-            paddingY={1}
-          >
-            <Grid xs={12} md="auto" paddingY={0}>
+            <Stack
+              flexGrow={1}
+              direction={{
+                xs: 'column',
+                md: 'row',
+              }}
+              width="100%"
+              spacing={{
+                xs: 1,
+                md: 0,
+              }}
+              alignItems="center"
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              paddingY={1}
+            >
+              <Grid xs={12} md="auto" paddingY={0}>
                 <DashboardEscolaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -402,78 +412,36 @@ export default function DashboardEscolaView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={0}>
-              <Button
-                variant="contained"
-                sx={{
-                  width:{
-                    xs: "70%",
-                    md: "auto"
-                  }
-                }}
-                onClick={() => {
-                  preencheGraficos();
-                }}
-              >
-                Aplicar filtros
-              </Button>
+                <Button
+                  variant="contained"
+                  sx={{
+                    width: {
+                      xs: '70%',
+                      md: 'auto',
+                    },
+                  }}
+                  onClick={() => {
+                    preencheGraficos();
+                  }}
+                >
+                  Aplicar filtros
+                </Button>
 
-              <Button variant="soft" 
-                sx={{
-                  width:{
-                    xs: "calc(30% - 10px)",
-                    md: "auto"
-                  },
-                  marginLeft: {xs: "10px", md:2 }
-                }}
-                onClick={filtroReset}>
-                Limpar
-              </Button>
+                <Button
+                  variant="soft"
+                  sx={{
+                    width: {
+                      xs: 'calc(30% - 10px)',
+                      md: 'auto',
+                    },
+                    marginLeft: { xs: '10px', md: 2 },
+                  }}
+                  onClick={filtroReset}
+                >
+                  Limpar
+                </Button>
               </Grid>
             </Stack>
-
-            <Grid container marginX={0} spacing={3} marginTop={3}>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes"
-                total={getTotalEstudandes()}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-            <Grid xs={12} md={4}>
-              <NumeroComponent
-                title="Total de Estudantes Avaliados"
-                total={dados.total_alunos_avaliados ?? 0}
-                icon={
-                  <Iconify
-                    width={ICON_SIZE}
-                    icon="bi:people-fill"
-                    sx={{
-                      color: theme.palette['primary'].main,
-                    }}
-                  />
-                }
-              />
-            </Grid>
-
-            <Grid xs={12} md={4}>
-              {!!contextReady.value && !isGettingGraphics.value && (
-                <MetaComponent
-                  title="Meta"
-                  subtitle="entre a média das séries"
-                  meta={calculaMeta()}
-                  alfabetizados={getTotalAlfabetizados()}
-                  total={getTotalEstudandesAvaliados()}
-                ></MetaComponent>
-              )}
-            </Grid>
 
             {!!isGettingGraphics.value && (
               <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
@@ -482,88 +450,140 @@ export default function DashboardEscolaView() {
             )}
 
             {!isGettingGraphics.value && (
-              <IndicesCompostosAlfabetizacaoGeralWidget
-                title="por turma"
-                indice_alfabetizacao={[
-                  ...dados.grid_professores.map((e) => {
-                    return {
-                      ...e,
-                      title: `${e.turma_ano_escolar} ${e.turma_nome}`,
-                    };
-                  }),
-                ]}
-                indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-              />
-            )}
-
-            {!isGettingGraphics.value && dados.desempenho_alunos.chart &&
-              (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
-                <Grid xs={12}>
-                  <DesempenhoAlunosWidget
-                    title="Desempenho dos Estudantes - Índice de fases"
-                    subheader={dados.desempenho_alunos.subheader}
-                    chart={dados.desempenho_alunos.chart}
+              <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes"
+                    total={getTotalEstudandes()}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
                   />
                 </Grid>
-              )}
-          </Grid>
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Total de Estudantes Avaliados"
+                    total={dados.total_alunos_avaliados ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+
+                <Grid xs={12} md={4}>
+                  <MetaComponent
+                    title="Meta"
+                    subtitle="entre a média das séries"
+                    meta={calculaMeta()}
+                    alfabetizados={getTotalAlfabetizados()}
+                    total={getTotalEstudandesAvaliados()}
+                  ></MetaComponent>
+                </Grid>
+
+                <IndicesCompostosAlfabetizacaoGeralWidget
+                  title="por turma"
+                  indice_alfabetizacao={[
+                    ...dados.grid_turmas.map((e) => {
+                      return {
+                        ...e,
+                        title: `${e.turma_ano_escolar} ${e.turma_nome}`,
+                      };
+                    }),
+                  ]}
+                  indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
+                />
+
+                {dados.desempenho_alunos.chart &&
+                  (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                    <Grid xs={12}>
+                      <DesempenhoAlunosWidget
+                        title="Desempenho dos Estudantes - Índice de fases"
+                        subheader={dados.desempenho_alunos.subheader}
+                        chart={dados.desempenho_alunos.chart}
+                      />
+                    </Grid>
+                  )}
+
+                <Grid xs={12}>
+                  <Card sx={{ mt: 3, mb: 4 }}>
+                    <CardHeader title="Professores" />
+                    <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
+
+                    <TableContainer
+                      sx={{
+                        mt: 1,
+                        height:
+                          70 +
+                          (dataFiltered.length == 0
+                            ? 350
+                            : (dataFiltered.length < table.rowsPerPage
+                                ? dataFiltered.length
+                                : table.rowsPerPage) * 43),
+                      }}
+                    >
+                      <Scrollbar>
+                        <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
+                          <TableHeadCustom
+                            order={table.order}
+                            orderBy={table.orderBy}
+                            headLabel={TABLE_HEAD}
+                            rowCount={dados.grid_turmas.length}
+                            onSort={table.onSort}
+                          />
+
+                          <TableBody>
+                            {Object.entries(
+                              dataFiltered.slice(
+                                table.page * table.rowsPerPage,
+                                table.page * table.rowsPerPage + table.rowsPerPage
+                              )
+                            ).map(([key, row]) => (
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                            ))}
+
+                            <TableEmptyRows
+                              height={43}
+                              emptyRows={emptyRows(
+                                table.page,
+                                table.rowsPerPage,
+                                dados.grid_turmas.length
+                              )}
+                            />
+
+                            <TableNoData notFound={notFound} />
+                          </TableBody>
+                        </Table>
+                      </Scrollbar>
+                    </TableContainer>
+
+                    <TablePaginationCustom
+                      count={dataFiltered.length}
+                      page={table.page}
+                      rowsPerPage={table.rowsPerPage}
+                      rowsPerPageOptions={[5, 10, 15, 25]}
+                      onPageChange={table.onChangePage}
+                      onRowsPerPageChange={table.onChangeRowsPerPage}
+                      dense={table.dense}
+                    />
+                  </Card>
+                </Grid>
+              </Grid>
+            )}
           </>
         )}
       </Grid>
-
-      {!!contextReady.value && !isGettingGraphics.value && (
-        <Card sx={{ mt: 3, mb: 4 }}>
-          <CardHeader title="Professores" />
-          <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-          <TableContainer sx={{ mt: 1, height: 50 + ((dataFiltered.length < table.rowsPerPage) ? dataFiltered.length : table.rowsPerPage) * 43 }}>
-            <Scrollbar>
-              <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={dados.grid_professores.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {Object.entries(
-                    dataFiltered.slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                  ).map(([key, row]) => (
-                    <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
-                  ))}
-
-                  <TableEmptyRows
-                    height={43}
-                    emptyRows={emptyRows(
-                      table.page,
-                      table.rowsPerPage,
-                      dados.grid_professores.length
-                    )}
-                  />
-
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>
-            </Scrollbar>
-          </TableContainer>
-
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            rowsPerPageOptions={[5, 10, 15, 25]}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            dense={table.dense}
-          />
-        </Card>
-      )}
     </Container>
   );
 }
@@ -611,10 +631,10 @@ function Row(props) {
       key={`tableStyledRowDash_${row.key}`}
       sx={{ '& > *': { borderBottom: 'unset' } }}
     >
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.professor}</TableCell>
       <TableCell>{row.turma_ano_escolar}º</TableCell>
       <TableCell>{row.turma_nome}</TableCell>
       <TableCell>{row.turma_turno}</TableCell>
+      <TableCell>{(row.turma_professor ?? []).map((prof) => prof.nome).join(`, `)}</TableCell>
       <TableCell>{row.alunos ?? 0}</TableCell>
       <TableCell>{row.avaliados ?? 0}</TableCell>
       <TableCell>{row.alfabetizados ?? 0}</TableCell>

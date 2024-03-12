@@ -47,7 +47,7 @@ export default function DashboardDDZTableToolbar({
 
   return (
     <Grid container spacing={2}>
-      {anoLetivoOptions && !!anoLetivoOptions.length && (
+      {anoLetivoOptions && anoLetivoOptions.length > 0 && (
         <Grid xs={6} md="auto">
         <FormControl sx={{ width: {xs: "100%", md: 120 } }}>
           <InputLabel size="small">Ano Letivo</InputLabel>

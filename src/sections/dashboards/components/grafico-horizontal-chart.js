@@ -68,7 +68,7 @@ export default function GraficoHorizontalChart({
       formatter: (value, opt) => {
         const { goals } = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex];
 
-        if (goals && goals.length) {
+        if (goals && goals.length > 0) {
           if (value == 0) return '';
           return `${value ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
