@@ -141,7 +141,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           ? _.first(currentUser?.funcao)
           : currentUser?.funcao
         : '',
-      status: (currentUser?.status ? 'true' : 'false') || '',
+      status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),

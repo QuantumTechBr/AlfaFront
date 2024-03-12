@@ -141,7 +141,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           ? _.first(currentUser?.funcao)
           : currentUser?.funcao
         : '',
-      status: (currentUser?.status ? 'true' : 'false') || '',
+      status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
@@ -355,7 +355,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
