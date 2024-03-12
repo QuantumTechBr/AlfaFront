@@ -129,7 +129,7 @@ export default function DashboardEscolaView() {
 
       await Promise.all([
         //
-        dashboardsMethods.getDashboardGridProfessores(fullFilters).then((response) => {
+        dashboardsMethods.getDashboardGridTurmas(fullFilters).then((response) => {
           // adequação dos dados
           const result = response.data.map((i) => {
             const _avaliados = _.isArray(i.qtd_avaliados)
@@ -526,10 +526,11 @@ export default function DashboardEscolaView() {
                         mt: 1,
                         height:
                           70 +
-                          (dataFiltered.length < table.rowsPerPage
-                            ? dataFiltered.length
-                            : table.rowsPerPage) *
-                            43,
+                          (dataFiltered.length == 0
+                            ? 350
+                            : (dataFiltered.length < table.rowsPerPage
+                                ? dataFiltered.length
+                                : table.rowsPerPage) * 43),
                       }}
                     >
                       <Scrollbar>

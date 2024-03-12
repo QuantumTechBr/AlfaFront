@@ -442,10 +442,11 @@ export default function DashboardRedeView() {
                         mt: 1,
                         height:
                           70 +
-                          (dataFiltered.length < table.rowsPerPage
-                            ? dataFiltered.length
-                            : table.rowsPerPage) *
-                            43,
+                          (dataFiltered.length == 0
+                            ? 350
+                            : (dataFiltered.length < table.rowsPerPage
+                                ? dataFiltered.length
+                                : table.rowsPerPage) * 43),
                       }}
                     >
                       <Scrollbar>
