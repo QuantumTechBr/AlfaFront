@@ -1,16 +1,13 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
@@ -30,7 +27,6 @@ import {
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
@@ -240,7 +236,7 @@ export default function EscolaListView() {
                     ))}
 
                     <TableEmptyRows
-                      height={52}
+                      height={49}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 
