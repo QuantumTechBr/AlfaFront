@@ -72,10 +72,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
       cabecalho.push({ id: `R${i}`, label: `R${i}`, width: 50 });
     }
     cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
-    cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 150 });
+    cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvLP', label: 'NÍVEL_LP', width: 50 });
     cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
-    cabecalho.push({ id: 'nvResolucao', label: 'Nível Resolução de problemas - MAT (resultado do item 20)', width: 150 });
+    cabecalho.push({ id: 'nvResolucao', label: 'Nível Resolução de problemas - MAT (resultado do item 20)', width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
     cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
@@ -131,7 +131,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           <RegistroAprendizagemDiagnosticoNewEditTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            promoOptions={frequencia_options}
+            // promoOptions={frequencia_options}
             turma={turma}
             handleTurma={handleTurma}
           />
@@ -141,7 +141,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              promoOptions={frequencia_options}
+              // promoOptions={frequencia_options}
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />

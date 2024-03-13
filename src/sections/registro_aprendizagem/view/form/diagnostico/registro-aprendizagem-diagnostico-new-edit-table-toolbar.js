@@ -61,7 +61,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           p: 2.5,
         }}
       >
-        <FormControl
+        {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 140 },
@@ -86,9 +86,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
-        <FormControl
+        {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 200 },
@@ -127,7 +127,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField

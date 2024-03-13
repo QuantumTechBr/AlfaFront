@@ -24,7 +24,6 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   const prep = useBoolean(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  console.log(turma)
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then(habilidadesRetorno =>{
@@ -70,11 +69,13 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           } else {
             const _alunosTurma = (_turma.turmas_alunos == undefined) ? [] : _turma.turmas_alunos;
             const mapHabilidades = [];
+            let r = Array(20).fill("");
             for (var i = 0; i < habilidadesRetorno.data.length; i++) {
               mapHabilidades[habilidadesRetorno.data[i].id] = '';
             }
             _alunosTurma.map(alunoTurma => {
               alunoTurma.mapHabilidades = mapHabilidades;
+              alunoTurma.r = r;
             });
             setAlunosTurma(_alunosTurma);
             prep.onTrue();
@@ -84,6 +85,8 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           prep.onTrue();
         });
       } else {
+        console.log("use effect")
+        console.log(_turma)
         setWarningMsg('As informações da turma veio sem estudantes')
         setAlunosTurma([]);
         prep.onTrue();
@@ -146,11 +149,13 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         } else {
           const _alunosTurma = (novaTurma.turmas_alunos == undefined) ? [] : novaTurma.turmas_alunos;
           const mapHabilidades = [];
+          let r = Array(20).fill("");
           for (var i = 0; i < habilidade_turma.length; i++) {
             mapHabilidades[habilidade_turma[i].id] = '';
           }
           _alunosTurma.map(alunoTurma => {
             alunoTurma.mapHabilidades = mapHabilidades;
+            alunoTurma.r = r;
           });
           setAlunosTurma(_alunosTurma);
           prep.onTrue();
@@ -160,6 +165,8 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         prep.onTrue();
       })
     } else {
+      console.log("handle turma")
+        console.log(_turma.turmas_alunos)
       setWarningMsg('As informações da turma veio sem estudantes')
       setAlunosTurma([]);
       prep.onTrue();
