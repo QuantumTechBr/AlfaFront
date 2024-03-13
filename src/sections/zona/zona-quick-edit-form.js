@@ -134,10 +134,10 @@ export default function ZonaQuickEditForm({ row, open, onClose, onSave }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFTextField name="nome_responsavel" label="Nome do Responsável" sx={{ mb: 3 }} />
-              <RHFTextField name="fone_responsavel" label="Fone do Responsável" sx={{ mb: 3 }} />
-              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" sx={{ mb: 3 }} />
-              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }} />
+              <RHFTextField name="nome_responsavel" label="Nome do Responsável" />
+              <RHFTextField name="fone_responsavel" label="Fone do Responsável" />
+              <RHFTextField name="email_responsavel" label="E-Mail do Responsável" />
+              <RHFTextField name="cidade" label="Cidade" disabled={true} />
             </Box>
           </DialogContent>
 

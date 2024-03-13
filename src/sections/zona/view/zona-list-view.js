@@ -197,7 +197,7 @@ export default function ZonaListView() {
                     ))}
 
                     <TableEmptyRows
-                      height={52}
+                      height={49}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 
