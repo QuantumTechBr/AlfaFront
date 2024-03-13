@@ -11,89 +11,67 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useAuthContext } from 'src/auth/hooks';
+
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-//
-import UserQuickEditForm from './user-quick-edit-form';
-import { useRouter } from 'src/routes/hook';
-import { paths } from 'src/routes/paths';
-// auth
-import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
+export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
-  const { id, nome, login, email, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
 
-  const funcaoNome = funcao_usuario?.length > 0 && funcao_usuario[0].funcao ? funcao_usuario[0].funcao.nome : ''
+  const funcaoNome =
+    row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
+      ? row.funcao_usuario[0].funcao.nome
+      : '';
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
-
   const popover = usePopover();
 
-  const newDeleteRow = () => {
+  const deleteRow = () => {
     onDeleteRow();
     confirm.onFalse();
-  }
-
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
-
-  const closeQuickEdit = () => {
-    quickEdit.onFalse();
-  }
+  };
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-
+      <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
 
         <TableCell>
           <Label
             variant="soft"
             color={
-              (status === 'true' && 'success') ||
-              (status === 'pending' && 'warning') ||
-              (status === 'false' && 'error') ||
+              (row.status === 'true' && 'success') ||
+              (row.status === 'pending' && 'warning') ||
+              (row.status === 'false' && 'error') ||
               'default'
             }
           >
-            {status === 'true' ? 'Ativo' : 'Inativo'}
+            {row.status === 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
-          {checkPermissaoModulo('usuario', 'editar') && 
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>}
+            {checkPermissaoModulo('usuario', 'editar') && (
+              <IconButton onClick={quickEdit}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            )}
           </Tooltip>
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
       </TableRow>
-      {checkPermissaoModulo('usuario', 'editar') &&       
-        <UserQuickEditForm id={row.id} open={quickEdit.value} onClose={closeQuickEdit} onSave={saveAndClose} />
-      }
 
       <CustomPopover
         open={popover.open}
@@ -101,27 +79,30 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         arrow="right-top"
         sx={{ width: 140 }}
       >
-      {checkPermissaoModulo('usuario', 'deletar') && 
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>}
-      {checkPermissaoModulo('usuario', 'editar') && 
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>}
+        {checkPermissaoModulo('usuario', 'editar') && (
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Editar
+          </MenuItem>
+        )}
+
+        {checkPermissaoModulo('usuario', 'deletar') && (
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Deletar
+          </MenuItem>
+        )}
       </CustomPopover>
 
       <ConfirmDialog
@@ -130,7 +111,7 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
         title="Excluir Usuário"
         content="Tem certeza que deseja excluir o usuário?"
         action={
-          <Button variant="contained" color="error" onClick={newDeleteRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -140,10 +121,8 @@ export default function UserTableRow({ row, selected, onEditRow, onSelectRow, on
 }
 
 UserTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

@@ -4,12 +4,10 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
@@ -140,11 +138,11 @@ export default function TurmaTableToolbar({
         </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
+          {/* <TextField
             fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            placeholder="Pesquisar por nome da escola..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -152,7 +150,7 @@ export default function TurmaTableToolbar({
                 </InputAdornment>
               ),
             }}
-          />
+          /> */}
 
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -166,24 +164,6 @@ export default function TurmaTableToolbar({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        {/* <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Imprimir
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem> */}
-
         <MenuItem
           onClick={() => {
             const exportFilters = { ...filters, export: 'csv' };

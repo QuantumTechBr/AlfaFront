@@ -1,16 +1,13 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 // routes
 import { paths } from 'src/routes/paths';
@@ -19,9 +16,8 @@ import { RouterLink } from 'src/routes/components';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
+
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
@@ -31,27 +27,27 @@ import {
   TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
 //
 import EscolaTableRow from '../escola-table-row';
 import EscolaTableToolbar from '../escola-table-toolbar';
-import EscolaTableFiltersResult from '../escola-table-filters-result';
+
 //
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import escolaMethods from '../escola-repository';
 import { EscolasContext } from '../context/escola-context';
 import Iconify from 'src/components/iconify';
+import EscolaQuickEditForm from '../escola-quick-edit-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 300 },
-  { id: 'endereco', label: 'Endereço', width: 200 },
-  { id: 'zona', label: 'DDZ', width: 100 },
-  { id: 'cidade', label: 'Cidade', width: 100 },
-  { id: '', width: 88 },
+  { id: 'nome', label: 'Nome', notsortable: true },
+  { id: 'endereco', label: 'Endereço', width: 200, notsortable: true },
+  { id: 'zona', label: 'DDZ', width: 100, notsortable: true },
+  { id: 'cidade', label: 'Cidade', width: 100, notsortable: true },
+  { id: '', width: 88, notsortable: true },
 ];
 
 const defaultFilters = {
@@ -62,7 +58,6 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function EscolaListView() {
-
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [_escolaList, setEscolaList] = useState([]);
@@ -73,29 +68,34 @@ export default function EscolaListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
-  useEffect(() => {
-    buscaEscolas({force: true }).then(_escolas => {
-      setTableData(_escolas);
-      preparado.onTrue();
-    }).catch((error) => {
-      console.log(error)
-      setErrorMsg('Erro de comunicação com a API de escolas');
-      preparado.onTrue();
-    });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-    
-  }, []);
-  
   const table = useTable();
-
   const settings = useSettingsContext();
-
   const router = useRouter();
 
-  const confirm = useBoolean();
+  const quickEdit = useBoolean();
+  const [rowToEdit, setRowToEdit] = useState();
 
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaEscolas({ force: true })
+        .then((_escolas) => {
+          setTableData(_escolas);
+        })
+        .catch((error) => {
+          console.log(error);
+          setErrorMsg('Erro de comunicação com a API de escolas');
+        }),
+      buscaZonas().catch((error) => {
+        console.log(error);
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
+    ]);
+    preparado.onTrue();
+  }, [buscaEscolas, buscaZonas, preparado]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -103,16 +103,12 @@ export default function EscolaListView() {
     filters,
   });
 
+  const notFound = dataFiltered.length == 0;
+
   const dataInPage = dataFiltered.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
   );
-
-  const denseHeight = table.dense ? 52 : 72;
-
-  const canReset = !isEqual(defaultFilters, filters);
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
     (nome, value) => {
@@ -128,44 +124,22 @@ export default function EscolaListView() {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      escolaMethods.deleteEscolaById(id).then(retorno => {
-        setTableData(deleteRow);
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
-      });
+      escolaMethods
+        .deleteEscolaById(id)
+        .then((retorno) => {
+          setTableData(deleteRow);
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
+        });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
+      
+      // CONTEXT - ATUALIZA GERAL DO SISTEMA
+      buscaEscolas({ force: true });
     },
     [dataInPage.length, table, tableData]
   );
-
-  const handleDeleteRows = useCallback(() => {
-    const remainingRows = [];
-    const promises = [];
-    tableData.map((row) => {
-      if(table.selected.includes(row.id)) {
-        const newPromise = escolaMethods.deleteEscolaById(row.id).catch((error) => {
-          remainingRows.push(row);
-          setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
-          throw error;
-        });
-        promises.push(newPromise)
-      } else {
-        remainingRows.push(row);
-      }
-    });
-    Promise.all(promises).then(
-      retorno => {
-        setTableData(remainingRows);
-      }
-    )
-
-    table.onUpdatePageDeleteRows({
-      totalRows: tableData.length,
-      totalRowsInPage: dataInPage.length,
-      totalRowsFiltered: dataFiltered.length,
-    });
-  }, [dataFiltered.length, dataInPage.length, table, tableData]);
 
   const handleEditRow = useCallback(
     (id) => {
@@ -174,22 +148,26 @@ export default function EscolaListView() {
     [router]
   );
 
-  const handleFilterStatus = useCallback(
-    (event, newValue) => {
-      handleFilters('status', newValue);
+
+  const handleSaveRow = useCallback(
+    (novosDados) => {
+      const _tableData = tableData.map((item) => {
+        if (item.id === novosDados.id) {
+          return { ...item, ...novosDados };
+        }
+        return item;
+      });
+      setTableData(_tableData);
     },
-    [handleFilters]
+    [tableData]
   );
-  
-  const handleSaveRow = useCallback((novosDados) => {
-    const _tableData = tableData.map((item) => {
-      if (item.id === novosDados.id) {
-        return {...item, ...novosDados};
-      }
-      return item;
-    });
-    setTableData(_tableData);
-  }, [tableData]);
+
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow({ ...rowToEdit, ...retorno });
+    quickEdit.onFalse();
+    // CONTEXT - ATUALIZA GERAL DO SISTEMA
+    buscaEscolas({force: true});
+  };
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
@@ -212,7 +190,7 @@ export default function EscolaListView() {
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
-                bgcolor: "#00A5AD",
+                bgcolor: '#00A5AD',
               }}
             >
               Adicionar
@@ -227,91 +205,45 @@ export default function EscolaListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         <Card>
-          <EscolaTableToolbar
-            filters={filters}
-            onFilters={handleFilters}
-            ddzOptions={zonas}
-
-          />
-
-          {canReset && (
-            <EscolaTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              ddzOptions={zonas}
-              onResetFilters={handleResetFilters}
-              //
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
+          <EscolaTableToolbar filters={filters} onFilters={handleFilters} ddzOptions={zonas} />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-            <TableSelectedAction
-              dense={table.dense}
-              numSelected={table.selected.length}
-              rowCount={tableData.length}
-              onSelectAllRows={(checked) =>
-                table.onSelectAllRows(
-                  checked,
-                  tableData.map((row) => row.id)
-                )
-              }
-              action={
-                <Tooltip title="Delete">
-                  <IconButton color="primary" onClick={confirm.onTrue}>
-                    <Iconify icon="solar:trash-bin-trash-bold" />
-                  </IconButton>
-                </Tooltip>
-              }
-            />
-
             <Scrollbar>
-            {!preparado.value ? (
-                <LoadingBox />
-                ) : (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
-                  onSelectAllRows={(checked) =>
-                    table.onSelectAllRows(
-                      checked,
-                      tableData.map((row) => row.id)
-                    )
-                  }
-                />
+              {!preparado.value ? (
+                <LoadingBox texto="Buscando escolas" />
+              ) : (
+                <Table size="small" sx={{ minWidth: 960 }}>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    onSort={table.onSort}
+                  />
 
-                <TableBody>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
+                  <TableBody>
+                    {dataInPage.map((row) => (
                       <EscolaTableRow
                         key={row.id}
                         row={row}
-                        selected={table.selected.includes(row.id)}
-                        onSelectRow={() => table.onSelectRow(row.id)}
+                        quickEdit={() => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
                         onDeleteRow={() => handleDeleteRow(row.id)}
                         onEditRow={() => handleEditRow(row.id)}
-                        onSaveRow={(novosDados) => handleSaveRow(novosDados)}
                       />
                     ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                    <TableEmptyRows
+                      height={49}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>)}
+                    <TableNoData notFound={notFound} />
+                  </TableBody>
+                </Table>
+              )}
             </Scrollbar>
           </TableContainer>
 
@@ -321,34 +253,16 @@ export default function EscolaListView() {
             rowsPerPage={table.rowsPerPage}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
           />
-          </Card> 
+        </Card>
       </Container>
 
-      <ConfirmDialog
-        open={confirm.value}
-        onClose={confirm.onFalse}
-        title="Delete"
-        content={
-          <>
-            Tem certeza que deseja excluir <strong> {table.selected.length} </strong> escolas?
-          </>
-        }
-        action={
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => {
-              handleDeleteRows();
-              confirm.onFalse();
-            }}
-          >
-            Delete
-          </Button>
-        }
-      />
+      <EscolaQuickEditForm
+          row={rowToEdit}
+          open={quickEdit.value}
+          onClose={quickEdit.onFalse}
+          onSave={saveAndClose}
+        />
     </>
   );
 }

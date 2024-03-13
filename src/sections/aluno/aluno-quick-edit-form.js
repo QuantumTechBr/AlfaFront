@@ -38,11 +38,11 @@ import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
+export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
   const [currentAluno, setCurrentAluno] = useState();
 
   const contextReady = useBoolean(false);
-  
+
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
   const { user } = useContext(AuthContext);
@@ -61,6 +61,10 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
+      setCurrentAluno({
+        ...row,
+        data_nascimento: parseISO(row.data_nascimento),
+      });
       Promise.all([
         buscaEscolas()
           .then((_escolas) => setEscolasAssessor(_escolas))
@@ -73,29 +77,23 @@ export default function AlunoQuickEditForm({ id, open, onClose, onSave }) {
         buscaAnosLetivos().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de anos letivos');
         }),
-        alunoMethods.getAlunoById(id).then((response) => {
-          const _currentAluno = Object.assign(response.data);
-          _currentAluno.data_nascimento = parseISO(_currentAluno.data_nascimento);
-          setCurrentAluno(_currentAluno);
-        }),
       ]).then(() => {
         contextReady.onTrue();
       });
     }
   }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, open]);
 
-useEffect(() => {
-  if (contextReady.value) {
-    if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
-      setValue('escola', user.funcao_usuario[0].escola.id);
-    } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-      setEscolasAssessor(
-        escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
-      );
+  useEffect(() => {
+    if (contextReady.value) {
+      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+        setValue('escola', user.funcao_usuario[0].escola.id);
+      } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
+        setEscolasAssessor(
+          escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
+        );
+      }
     }
-  }
-}, [contextReady.value]);
-
+  }, [contextReady.value]);
 
   const defaultValues = useMemo(
     () => ({
@@ -125,40 +123,44 @@ useEffect(() => {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const anoLetivoAtual = anosLetivos.find((ano) => {
-        if (ano.status === "NÃO FINALIZADO") {
+        if (ano.status === 'NÃO FINALIZADO') {
           return ano.id;
         }
-      })
-      let aluno_escolas = []
-      let aluno_turmas = []
+      });
+      let aluno_escolas = [];
+      let aluno_turmas = [];
       if (data.escola != '') {
         aluno_escolas = [
           {
             escola_id: data.escola,
-            ano_id: anoLetivoAtual.id
-          }
-        ]
-      } 
+            ano_id: anoLetivoAtual.id,
+          },
+        ];
+      }
       if (data.turma) {
         aluno_turmas = [
           {
-            turma_id: data.turma
-          }
-        ]
+            turma_id: data.turma,
+          },
+        ];
       }
-      const nascimento = new Date(data.data_nascimento)
+      const nascimento = new Date(data.data_nascimento);
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
-        data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
+        data_nascimento:
+          nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
-        alunos_turmas: aluno_turmas
-      }
-      
-      const retornoPatch = await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
-        throw error;
-      });
-      
+        alunos_turmas: aluno_turmas,
+      };
+
+      const retornoPatch = await alunoMethods
+        .updateAlunoById(currentAluno.id, toSend)
+        .then(buscaTurmas({ force: true }))
+        .catch((error) => {
+          throw error;
+        });
+
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
       reset();
@@ -169,11 +171,11 @@ useEffect(() => {
   });
 
   useEffect(() => {
-    if(currentAluno){
+    if (currentAluno) {
       reset(defaultValues);
     }
   }, [currentAluno]);
-  
+
   return (
     <Dialog
       fullWidth
@@ -184,73 +186,82 @@ useEffect(() => {
         sx: { maxWidth: 720 },
       }}
     >
-
-      {!contextReady.value && <LoadingBox />}
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
 
-        <DialogContent>
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        <br></br>
-          <Box
-            rowGap={3}
-            columnGap={2}
-            display="grid"
-            gridTemplateColumns={{
-              xs: 'repeat(1, 1fr)',
-              sm: 'repeat(2, 1fr)',
-            }}
-          >
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
+              <RHFTextField name="nome" label="Nome do Estudante" />
 
-            <RHFTextField name="nome" label="Nome do Estudante" />
+              <RHFTextField name="matricula" label="Matrícula" />
 
-            <RHFTextField name="matricula" label="Matrícula" />
-
-            <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-              <Controller
-                name="data_nascimento"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <DatePicker value={value} onChange={onChange} label='Data de Nascimento' />
-                )}
-              />
-            </LocalizationProvider>
-
-            <RHFSelect sx={{
-              }} id={`escola_`+`${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
+              <RHFSelect
+                sx={{}}
+                id={`escola_` + `${currentAluno?.id}`}
+                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
+                name="escola"
+                label="Escola"
+              >
                 {escolasAssessor.map((escola) => (
                   <MenuItem key={escola.id} value={escola.id}>
                     {escola.nome}
                   </MenuItem>
                 ))}
-            </RHFSelect>
+              </RHFSelect>
 
-            <RHFSelect sx={{
-              display: getValues('escola') ? "inherit" : "none"
-              }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                {turmas.filter((te) => te.escola_id == getValues('escola'))
-                .map((turma) => (
-                  <MenuItem key={turma.id} value={turma.id}>
-                    {turma.ano_escolar}º {turma.nome}
-                  </MenuItem>
-                ))}
-            </RHFSelect>  
+              <RHFSelect
+                sx={{
+                  display: getValues('escola') ? 'inherit' : 'none',
+                }}
+                id={`turma_` + `${currentAluno?.id}`}
+                disabled={getValues('escola') == '' ? true : false}
+                name="turma"
+                label="Turma"
+              >
+                {turmas
+                  .filter((te) => te.escola_id == getValues('escola'))
+                  .map((turma) => (
+                    <MenuItem key={turma.id} value={turma.id}>
+                      {turma.ano_escolar}º {turma.nome} ({turma.turno})
+                    </MenuItem>
+                  ))}
+              </RHFSelect>
 
-          </Box>
-        </DialogContent>
+              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                <Controller
+                  name="data_nascimento"
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <DatePicker value={value} onChange={onChange} label="Data de Nascimento" />
+                  )}
+                />
+              </LocalizationProvider>
+            </Box>
+          </DialogContent>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancelar
-          </Button>
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancelar
+            </Button>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
       )}
     </Dialog>
   );

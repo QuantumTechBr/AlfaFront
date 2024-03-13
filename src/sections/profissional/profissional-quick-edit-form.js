@@ -39,7 +39,7 @@ import _ from 'lodash';
 const filtros = {
   escolasAG: [],
 };
-export default function ProfissionalQuickEditForm({ id, open, onClose, onSave }) {
+export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }) {
   const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(filtros);
   const contextReady = useBoolean(false);
@@ -60,6 +60,7 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
+      setCurrentUser({ nome: row.profissional, ...row });
       Promise.all([
         buscaFuncoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de funções');
@@ -72,15 +73,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
         }),
         buscaPermissoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de permissoes');
-        }),
-        userMethods.getUserById(id).then((response) => {
-          const _currentUser = Object.assign(response.data);
-
-          _currentUser.funcao = _currentUser.funcao_usuario.map((item) => item.funcao.id);
-          _currentUser.escola = _currentUser.funcao_usuario.map((item) => item.escola?.id);
-          _currentUser.zona = _currentUser.funcao_usuario.map((item) => item.zona?.id);
-
-          setCurrentUser(_currentUser);
         }),
       ]).then(() => {
         contextReady.onTrue();
@@ -103,7 +95,7 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       setIdAssessorGestao(idAG);
     }
   }, [contextReady.value]);
-  
+
   useEffect(() => {
     if (currentUser) {
       //
@@ -136,7 +128,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
     email: Yup.string()
       .required('Email é obrigatório')
       .email('Email tem que ser um endereço de email válido'),
-    senha: Yup.string(),
     funcao_usuario: Yup.string(),
     escola: Yup.string(),
   });
@@ -145,9 +136,12 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
     () => ({
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
-      senha: currentUser?.senha || '',
-      funcao: currentUser ? typeof currentUser?.funcao == 'object' ? _.first(currentUser?.funcao) : currentUser?.funcao :  '',
-      status: (currentUser?.status ? 'true' : 'false') || '',
+      funcao: currentUser
+        ? typeof currentUser?.funcao == 'object'
+          ? _.first(currentUser?.funcao)
+          : currentUser?.funcao
+        : '',
+      status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
     }),
@@ -172,23 +166,13 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      var novoUsuario = {};
-      if (data.senha) {
-        novoUsuario = {
-          nome: data.nome,
-          email: data.email,
-          senha: data.senha,
-          login: data.email,
-          status: data.status,
-        };
-      } else {
-        novoUsuario = {
-          nome: data.nome,
-          email: data.email,
-          login: data.email,
-          status: data.status,
-        };
-      }
+      var novoUsuario = {
+        nome: data.nome,
+        email: data.email,
+        login: data.email,
+        status: data.status,
+      };
+
       if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
@@ -230,11 +214,14 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
       novoUsuario.permissao_usuario_id = [permissao.id];
 
-      const retornoPatch = await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-        throw error;
-      });
-      
+      const retornoPatch = await userMethods
+        .updateUserById(currentUser.id, novoUsuario)
+        .catch((error) => {
+          throw error;
+        });
+
       retornoPatch.data.profissional = retornoPatch.data.nome;
+      retornoPatch.data.status = novoUsuario.status;
 
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
@@ -365,12 +352,15 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
       fullWidth
       maxWidth={false}
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        setCurrentUser();
+        onClose();
+      }}
       PaperProps={{
         sx: { maxWidth: 720 },
       }}
     >
-      {!contextReady.value && <LoadingBox />}
+      {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -384,6 +374,7 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
               rowGap={3}
               columnGap={2}
               display="grid"
+              mb={3}
               gridTemplateColumns={{
                 xs: 'repeat(1, 1fr)',
                 sm: 'repeat(2, 1fr)',
@@ -391,7 +382,6 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
             >
               <RHFTextField name="nome" label="Nome Completo" />
               <RHFTextField name="email" label="Email" />
-              <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
                 {funcoes.map((_funcao) => (
@@ -401,6 +391,19 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
                 ))}
               </RHFSelect>
 
+              {escolaOuZona()}
+            </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              mb={3}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+                sm: 'repeat(2, 1fr)',
+              }}
+            >
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
                   <MenuItem key={status.value} value={status.value}>
@@ -408,14 +411,12 @@ export default function ProfissionalQuickEditForm({ id, open, onClose, onSave })
                   </MenuItem>
                 ))}
               </RHFSelect>
-
-              {escolaOuZona()}
             </Box>
           </DialogContent>
 
           <DialogActions>
             <Button variant="outlined" onClick={onClose}>
-            Cancelar
+              Cancelar
             </Button>
 
             <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

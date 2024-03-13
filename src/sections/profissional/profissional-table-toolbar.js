@@ -28,7 +28,7 @@ export default function ProfissionalTableToolbar({
 }) {
   const popover = usePopover();
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
       onFilters('nome', event.target.value);
     },
@@ -97,7 +97,7 @@ export default function ProfissionalTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 200 },
           }}
         >
           <InputLabel>Função</InputLabel>
@@ -156,8 +156,8 @@ export default function ProfissionalTableToolbar({
           <TextField
             fullWidth
             value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            onChange={handleFilterPesquisa}
+            placeholder="Pesquisar nome do profissional..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

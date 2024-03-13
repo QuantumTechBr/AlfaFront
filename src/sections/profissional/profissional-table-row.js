@@ -14,7 +14,6 @@ import Box from '@mui/material/Box';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
@@ -22,7 +21,6 @@ import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 //
-import ProfissionalQuickEditForm from './profissional-quick-edit-form';
 import Typography from '@mui/material/Typography';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
@@ -30,7 +28,7 @@ import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
+export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
   // console.log(row)
@@ -59,14 +57,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     confirm.onFalse();
   }
 
-  const quickEdit = useBoolean();
-
   const popover = usePopover();
-
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
 
   const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
@@ -109,27 +100,18 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+      <TableRow hover>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{renderFuncao()}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderEscola()}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderZona()}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.turma ? 'SIM' : 'NÃO'}</TableCell>
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
           {checkPermissaoModulo('profissionais', 'editar') && 
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton onClick={quickEdit}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>}
           </Tooltip>
@@ -140,9 +122,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      {checkPermissaoModulo('profissionais', 'editar') && 
-        <ProfissionalQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
-      }
 
       <CustomPopover
         open={popover.open}
@@ -150,7 +129,18 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        {checkPermissaoModulo('profissionais', 'deletar') && 
+       {checkPermissaoModulo('profissionais', 'editar') && 
+        <MenuItem
+          onClick={() => {
+            onEditRow();
+            popover.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Editar
+        </MenuItem>}
+
+         {checkPermissaoModulo('profissionais', 'deletar') && 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -161,17 +151,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
         </MenuItem> }
-
-        {checkPermissaoModulo('profissionais', 'editar') && 
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>}
       </CustomPopover>
 
       <ConfirmDialog
@@ -192,8 +171,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 ProfissionalTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
+  quickEdit: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
 };

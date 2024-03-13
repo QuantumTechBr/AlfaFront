@@ -25,40 +25,27 @@ import EscolaQuickEditForm from './escola-quick-edit-form';
 
 // ----------------------------------------------------------------------
 
-export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow, onSaveRow }) {
-  const { id, nome, endereco, zona, cidade, created_at, updated_at, deleted_at } = row;
+export default function EscolaTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
-
-  const router = useRouter();
-
   const popover = usePopover();
 
-  const saveAndClose = (retorno=null) => {
-    onSaveRow({...row, ...retorno});
-    quickEdit.onFalse();
-  }
+  const deleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  };
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{endereco}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{cidade.nome}</TableCell>
+      <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.endereco}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.cidade.nome}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+            <IconButton onClick={quickEdit}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
@@ -69,14 +56,22 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
         </TableCell>
       </TableRow>
 
-      <EscolaQuickEditForm id={row.id} open={quickEdit.value} onClose={quickEdit.onFalse} onSave={saveAndClose} />
-
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
+        <MenuItem
+          onClick={() => {
+            onEditRow();
+            popover.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Editar
+        </MenuItem>
+
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -87,16 +82,6 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
         </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
       </CustomPopover>
 
       <ConfirmDialog
@@ -105,7 +90,7 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
         title="Excluir Escola"
         content="Tem certeza que deseja excluir a Escola?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -115,10 +100,8 @@ export default function EscolaTableRow({ row, selected, onEditRow, onSelectRow, 
 }
 
 EscolaTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
-  onSaveRow: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

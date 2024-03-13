@@ -334,7 +334,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       />
 
       {!contextReady.value ? (
-        <LoadingBox />
+        <LoadingBox texto="Buscando registros" />
       ) : (
         <FormProvider methods={methods} onSubmit={onSubmit}>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
@@ -431,9 +431,7 @@ function applyFilter({ inputData, comparator, filters }) {
   const _pesquisa = pesquisa.trim().toLowerCase();
 
   if (_pesquisa.length) {
-    inputData = inputData.filter(
-      (item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0
-    );
+    inputData = inputData.filter((item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0);
   }
 
   return inputData;

@@ -1,14 +1,15 @@
-'use client';
-
+import PropTypes from 'prop-types';
+// mui
 import { Box, Button, CircularProgress } from '@mui/material';
 
-export default function LoadingBox() {
+export default function LoadingBox({texto, ...other}) {
   return (
     <Box
       sx={{
         height: 100,
         textAlign: 'center',
       }}
+      {...other}
     >
       <Button
         disabled
@@ -18,8 +19,12 @@ export default function LoadingBox() {
           bgcolor: 'white',
         }}
       >
-        Carregando
+        {texto ?? 'Carregando'}
       </Button>
     </Box>
   );
 }
+
+LoadingBox.propTypes = {
+  texto: PropTypes.string,
+};
