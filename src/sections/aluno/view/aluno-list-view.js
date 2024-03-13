@@ -49,8 +49,8 @@ import AlunoQuickEditForm from '../aluno-quick-edit-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Estudante', width: 300 },
-  { id: 'matricula', label: 'Matrícula', width: 200 },
+  { id: 'nome', label: 'Estudante', notsortable: true },
+  { id: 'matricula', label: 'Matrícula', width: 200, notsortable: true },
   { id: 'escola', label: 'Escola', width: 200, notsortable: true },
   { id: 'ano', label: 'Ano-Turma', width: 200, notsortable: true },
   { id: 'turno', label: 'Turno', width: 200, notsortable: true },
@@ -59,22 +59,21 @@ const TABLE_HEAD = [
   { id: '', width: 88 },
 ];
 
+const defaultFilters = {
+  nome: '',
+  matricula: '',
+  escola: [],
+  turma: [],
+  fase: [],
+};
+
 // ----------------------------------------------------------------------
 
 export default function AlunoListView() {
   const { checkPermissaoModulo } = useAuthContext();
 
-  const defaultFilters = {
-    nome: '',
-    matricula: '',
-    escola: [],
-    turma: [],
-    fase: [],
-  };
-
   const fases = Object.values(RegistroAprendizagemFasesCRUD);
 
-  const [alunoList, setAlunoList] = useState([]);
   const [countAlunos, setCountAlunos] = useState(0);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -96,9 +95,9 @@ export default function AlunoListView() {
 
   const buscaAlunos = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldAlunoList = [], filtros = filters) => {
+      contextReady.onFalse();
       setWarningMsg('');
       setErrorMsg('');
-      contextReady.onFalse();
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       const { nome, matricula, escola, turma, fase } = filtros;
@@ -108,6 +107,7 @@ export default function AlunoListView() {
         .then(async (alunos) => {
           if (alunos.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de estudantes');
+            setTableData([]);
             contextReady.onTrue();
           } else {
             const listaAlunos = alunos.data.results;
@@ -116,17 +116,15 @@ export default function AlunoListView() {
                 ? JSON.parse(aluno.necessidades_especiais)
                 : '';
             });
-            setAlunoList([...oldAlunoList, ...listaAlunos]);
             setTableData([...oldAlunoList, ...listaAlunos]);
-            contextReady.onTrue();
           }
           setCountAlunos(alunos.data.count);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de estudantes');
           console.log(error);
-          contextReady.onTrue();
         });
+      contextReady.onTrue();
     },
     [contextReady, filters]
   );
@@ -148,8 +146,8 @@ export default function AlunoListView() {
   }, [buscaEscolas, buscaTurmas, buscaAlunos, contextReady, table.page, table.rowsPerPage]);
 
   const onChangePage = async (event, newPage) => {
-    if (alunoList.length < (newPage + 1) * table.rowsPerPage) {
-      buscaAlunos(newPage, table.rowsPerPage, alunoList);
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscaAlunos(newPage, table.rowsPerPage, tableData);
     }
     table.setPage(newPage);
   };
@@ -158,7 +156,6 @@ export default function AlunoListView() {
     (event) => {
       table.setPage(0);
       table.setRowsPerPage(parseInt(event.target.value, 10));
-      setAlunoList([]);
       setTableData([]);
       buscaAlunos(0, event.target.value);
     },
@@ -301,7 +298,6 @@ export default function AlunoListView() {
               onClick={() => {
                 contextReady.onFalse();
                 setTableData([]);
-                setAlunoList([]);
                 buscaAlunos(table.page, table.rowsPerPage, [], filters);
               }}
             >
@@ -324,19 +320,18 @@ export default function AlunoListView() {
                   />
 
                   <TableBody>
-                    {dataInPage
-                      .map((row) => (
-                        <AlunoTableRow
-                          key={row.id}
-                          row={row}
-                          quickEdit={() => {
-                            quickEdit.onTrue();
-                            setRowToEdit(row);
-                          }}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.id)}
-                        />
-                      ))}
+                    {dataInPage.map((row) => (
+                      <AlunoTableRow
+                        key={row.id}
+                        row={row}
+                        quickEdit={() => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onEditRow={() => handleEditRow(row.id)}
+                      />
+                    ))}
 
                     <TableEmptyRows
                       height={52}

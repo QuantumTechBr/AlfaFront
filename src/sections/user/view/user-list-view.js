@@ -129,7 +129,6 @@ export default function UserListView() {
           if (usuarios.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de usuários');
             setTableData([]);
-            preparado.onTrue();
           } else {
             const users = usuarios.data.results;
 
@@ -155,15 +154,14 @@ export default function UserListView() {
             }
 
             setTableData([...oldUserList, ...users]);
-            preparado.onTrue();
           }
           setCountUsuarios(usuarios.data.count);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de usuários');
           console.log(error);
-          preparado.onTrue();
         });
+        preparado.onTrue();
     },
     [preparado, filters]
   );

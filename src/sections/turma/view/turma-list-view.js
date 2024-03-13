@@ -71,7 +71,6 @@ export default function TurmaListView() {
   const { buscaTurmas, buscaTurmasPaginado } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [turmaList, setTurmaList] = useState([]);
   const [countTurmas, setCountTurmas] = useState(0);
   const [countAtivos, setCountAtivos] = useState(0);
   const [countInativos, setCountInativos] = useState(0);
@@ -108,9 +107,9 @@ export default function TurmaListView() {
 
   const buscarTurmas = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldTurmaList = [], filtros = filters) => {
+      contextReady.onFalse();
       setWarningMsg('');
       setErrorMsg('');
-      contextReady.onFalse();
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       const { nome, escola, ddz, status } = filtros;
@@ -131,23 +130,20 @@ export default function TurmaListView() {
           if (resultado.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de turmas');
             setTableData([]);
-            contextReady.onTrue();
           } else {
             const listaTurmas = resultado.results;
             listaTurmas.map((turma) => {
               turma.status = turma.status.toString();
             });
-            setTurmaList([...oldTurmaList, ...listaTurmas]);
             setTableData([...oldTurmaList, ...listaTurmas]);
-            contextReady.onTrue();
           }
           setCountTurmas(resultado.count);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de turmas');
           console.log(error);
-          contextReady.onTrue();
         });
+      contextReady.onTrue();
     },
     [contextReady, filters]
   );
@@ -158,23 +154,23 @@ export default function TurmaListView() {
       const limit = 1;
       const { nome, escola, ddz, status } = filtros;
 
-      await buscaTurmasPaginado({
-        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: '' },
-      }).then(async (resultado) => {
-        setCountAll(resultado.count);
-      });
+      let _countAll = 0;
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
       }).then(async (resultado) => {
         setCountAtivos(resultado.count);
+        _countAll += resultado.count;
       });
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'False' },
       }).then(async (resultado) => {
         setCountInativos(resultado.count);
+        _countAll += resultado.count;
       });
+
+      setCountAll(_countAll);
     },
     [filters]
   );
@@ -197,8 +193,8 @@ export default function TurmaListView() {
   }, [buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
 
   const onChangePage = async (event, newPage) => {
-    if (turmaList.length < (newPage + 1) * table.rowsPerPage) {
-      buscarTurmas(newPage, table.rowsPerPage, turmaList);
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscarTurmas(newPage, table.rowsPerPage, tableData);
     }
     table.setPage(newPage);
   };
@@ -207,7 +203,6 @@ export default function TurmaListView() {
     (event) => {
       table.setPage(0);
       table.setRowsPerPage(parseInt(event.target.value, 10));
-      setTurmaList([]);
       setTableData([]);
       buscarTurmas(0, event.target.value);
     },
@@ -251,7 +246,7 @@ export default function TurmaListView() {
         });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
-      
+
       // CONTEXT - ATUALIZA GERAL DO SISTEMA
       buscaTurmas({ force: true });
     },
@@ -282,7 +277,7 @@ export default function TurmaListView() {
     handleSaveRow({ ...rowToEdit, ...retorno });
     quickEdit.onFalse();
     // CONTEXT - ATUALIZA GERAL DO SISTEMA
-    buscaTurmas({force: true});
+    buscaTurmas({ force: true });
   };
 
   const handleFilterStatus = useCallback(
@@ -295,8 +290,6 @@ export default function TurmaListView() {
     [handleFilters]
   );
 
-
-
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -307,7 +300,6 @@ export default function TurmaListView() {
             { name: 'Turmas', href: paths.dashboard.turma.root },
             { name: 'Listar' },
           ]}
-          // TODO: trocar por teste de permissão
           action={
             permissaoCadastrar && (
               <Button
@@ -396,7 +388,7 @@ export default function TurmaListView() {
               onClick={() => {
                 contextReady.onFalse();
                 setTableData([]);
-                setTurmaList([]);
+                table.setPage(0);
                 contarTurmas();
                 buscarTurmas(table.page, table.rowsPerPage, [], filters);
               }}
@@ -420,20 +412,19 @@ export default function TurmaListView() {
                   />
 
                   <TableBody>
-                    {dataInPage
-                      .map((row) => (
-                        <TurmaTableRow
-                          key={row.id}
-                          row={row}
-                          showEscola={escolas.length > 1}
-                          quickEdit={() => {
-                            quickEdit.onTrue();
-                            setRowToEdit(row);
-                          }}
-                          onEditRow={() => handleEditRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                        />
-                      ))}
+                    {dataInPage.map((row) => (
+                      <TurmaTableRow
+                        key={row.id}
+                        row={row}
+                        showEscola={escolas.length > 1}
+                        quickEdit={() => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
+                        onEditRow={() => handleEditRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                      />
+                    ))}
 
                     <TableEmptyRows
                       height={52}
