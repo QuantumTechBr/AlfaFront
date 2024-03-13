@@ -36,23 +36,33 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           if (registrosAprendizagemTurma) {
             const _alunosTurma = (_turma.turmas_alunos == undefined) ? [] : _turma.turmas_alunos;
             registrosAprendizagemTurma.forEach(registro => {
+              let r = Array(20).fill("");
               const mapHabilidades = [];
               const idHabilidadesRegistroAprendizagem = [];
-              habilidade_turma.forEach(hab => {
-                const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
-                  return habReg.habilidade.id == hab.id;
-                });
-                if (encontrada){
-                  mapHabilidades[encontrada.habilidade.id] = encontrada.nota
-                  idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
-                }
-              })
+              if (registro.habilidades_registro_aprendizagem.length > 0) {
+                registro.habilidades_registro_aprendizagem.forEach(resposta => {
+                  if (0 < resposta.numero_resposta <= 20)  {
+                    r[resposta.numero_resposta - 1] = resposta.nota == "" || resposta.nota == 'NR' ? resposta.nota : Number(resposta.nota);
+                  }
+                })
+              }
+              // habilidade_turma.forEach(hab => {
+              //   const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
+              //     return habReg.habilidade.id == hab.id;
+              //   });
+              //   if (encontrada){
+              //     mapHabilidades[encontrada.habilidade.id] = encontrada.nota
+              //     idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
+              //   }
+              // })
               const searchIndex = _alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
               if (searchIndex >= 0) {
                 _alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
                 _alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
                 _alunosTurma[searchIndex].id_registro = registro.id;
                 _alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
+                _alunosTurma[searchIndex].frequencia = registro.frequencia; 
+                _alunosTurma[searchIndex].r = r; 
               }
             });
             setAlunosTurma(_alunosTurma);
@@ -102,24 +112,34 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         if (novoRegistrosAprendizagemTurma) {
           const _alunosTurma = (novaTurma.turmas_alunos == undefined) ? [] : novaTurma.turmas_alunos;
           novoRegistrosAprendizagemTurma.forEach(registro => {
+            let r = Array(20).fill("");
             const mapHabilidades = [];
             const idHabilidadesRegistroAprendizagem = [];
-            habilidade_turma.forEach(hab => {
-              const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
-                return habReg.habilidade.id == hab.id;
-              });
-              if (encontrada){
-                mapHabilidades[encontrada.habilidade.id] = encontrada.nota
-                idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
-              }
-            })
+            if (registro.habilidades_registro_aprendizagem.length > 0) {
+              registro.habilidades_registro_aprendizagem.forEach(resposta => {
+                if (0 < resposta.numero_resposta <= 20)  {
+                  r[resposta.numero_resposta - 1] = resposta.nota == "" || resposta.nota == 'NR' ? resposta.nota : Number(resposta.nota);
+                }
+              })
+            }
+            // habilidade_turma.forEach(hab => {
+            //   const encontrada = registro.habilidades_registro_aprendizagem.find((habReg) => {
+            //     return habReg.habilidade.id == hab.id;
+            //   });
+            //   if (encontrada){
+            //     mapHabilidades[encontrada.habilidade.id] = encontrada.nota
+            //     idHabilidadesRegistroAprendizagem[encontrada.habilidade.id] = encontrada.id
+            //   }
+            // })
             const searchIndex = _alunosTurma.findIndex((aluno) => aluno.id==registro.aluno_turma.id);
-              if (searchIndex >= 0) {
-                _alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
-                _alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
-                _alunosTurma[searchIndex].id_registro = registro.id;
-                _alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
-              }
+            if (searchIndex >= 0) {
+              _alunosTurma[searchIndex].mapHabilidades = mapHabilidades;
+              _alunosTurma[searchIndex].promo_ano_anterior = registro.promo_ano_anterior;
+              _alunosTurma[searchIndex].id_registro = registro.id;
+              _alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
+              _alunosTurma[searchIndex].frequencia = registro.frequencia; 
+              _alunosTurma[searchIndex].r = r; 
+            }
           });
           setAlunosTurma(_alunosTurma);
           prep.onTrue();

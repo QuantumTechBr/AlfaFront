@@ -66,6 +66,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           habilidades_registro_aprendizagem: alunoTurma.mapHabilidades,
           id_aluno_turma: alunoTurma.id,
           promo_ano_anterior: alunoTurma.promo_ano_anterior,
+          frequencia: alunoTurma.frequencia,
+          r: alunoTurma.r,
         }       
       })
       setValue('registros', novosRegistros); 
@@ -103,23 +105,28 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       let mediaLP = 0;
       let mediaMAT = 0;
       let mediaFINAL = 0;
+      const dataR = data.registros[itemList.id].r;
       for (let index = 0; index < 20; index++) {
         if (index < 10) {
-          mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
-          mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
-          const habRegAp = {
-            nota: data.registros[itemList.id].r[index],
-            numero_resposta: index + 1,
-          }
-          habilidades_registro_aprendizagem.push(habRegAp);
+          if (dataR != undefined) {
+            mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            const habRegAp = {
+              nota: data.registros[itemList.id].r[index],
+              numero_resposta: index + 1,
+            }
+            habilidades_registro_aprendizagem.push(habRegAp);
+          } 
         } else {
-          mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
-          mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
-          const habRegAp = {
-            nota: data.registros[itemList.id].r[index],
-            numero_resposta: index + 1,
+          if (dataR != undefined) {
+            mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            const habRegAp = {
+              nota: data.registros[itemList.id].r[index],
+              numero_resposta: index + 1,
+            }
+            habilidades_registro_aprendizagem.push(habRegAp);
           }
-          habilidades_registro_aprendizagem.push(habRegAp);
         }
       }
       mediaLP = (mediaLP * 10) / 11;
@@ -134,9 +141,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP,
-          media_matematica: mediaMAT,
-          media_final: mediaFINAL,
+          media_lingua_portuguesa: mediaLP.toFixed(1),
+          media_matematica: mediaMAT.toFixed(1),
+          media_final: mediaFINAL.toFixed(1),
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
           avaliacao_id: itemList.id_registro,
         }
@@ -148,9 +155,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP,
-          media_matematica: mediaMAT,
-          media_final: mediaFINAL,
+          media_lingua_portuguesa: mediaLP.toFixed(1),
+          media_matematica: mediaMAT.toFixed(1),
+          media_final: mediaFINAL.toFixed(1),
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
         }
         registrosAprendizagem.push(registroAprendizagem);

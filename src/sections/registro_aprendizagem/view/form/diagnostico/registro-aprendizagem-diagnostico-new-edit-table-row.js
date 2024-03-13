@@ -128,8 +128,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const mediaLP = () => {
     let media = 0;
+    
     for (let index = 0; index < 10; index++) {
+      // console.log(getValues('registros['+id+'].r['+index+']'))
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+      console.log(media)
     }
     media = (media * 10) / 11.00;
     return media;
@@ -197,7 +200,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 0; index < 20; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10.00) / 22.00;
+    media = (media * 10) / 22;
     return media;
   }
    
@@ -278,7 +281,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         {preenche_R()}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaLP()}  
+          {mediaLP().toFixed(1)}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -290,7 +293,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaMAT()}  
+          {mediaMAT().toFixed(1)}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -302,7 +305,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaFinal()}  
+          {mediaFinal().toFixed(1)}  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
