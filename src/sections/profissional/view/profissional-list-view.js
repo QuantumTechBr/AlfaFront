@@ -1,6 +1,5 @@
 'use client';
 
-import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useContext } from 'react';
 
 // @mui
@@ -36,7 +35,6 @@ import {
 //
 import ProfissionalTableRow from '../profissional-table-row';
 import ProfissionalTableToolbar from '../profissional-table-toolbar';
-import ProfissionalTableFiltersResult from '../profissional-table-filters-result';
 import profissionalMethods from '../profissional-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
@@ -48,13 +46,13 @@ import ProfissionalQuickEditForm from '../profissional-quick-edit-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'profissional', label: 'Profissional', width: 300 },
-  { id: 'email', label: 'E-Mail', width: 200 },
-  { id: 'funcao', label: 'Função', width: 100 },
-  { id: 'escola', label: 'Escola', width: 100 },
-  { id: 'zona', label: 'DDZ', width: 100 },
-  { id: 'turma', label: 'turma?', width: 100 },
-  { id: '', width: 88 },
+  { id: 'profissional', label: 'Profissional', notsortable: true },
+  { id: 'email', label: 'E-Mail', width: 200, notsortable: true },
+  { id: 'funcao', label: 'Função', width: 100, notsortable: true },
+  { id: 'escola', label: 'Escola', width: 100, notsortable: true },
+  { id: 'zona', label: 'DDZ', width: 100, notsortable: true },
+  { id: 'turma', label: 'turma?', width: 100, notsortable: true },
+  { id: '', width: 88, notsortable: true },
 ];
 
 const defaultFilters = {
@@ -68,7 +66,6 @@ const defaultFilters = {
 export default function ProfissionalListView() {
   const { checkPermissaoModulo } = useAuthContext();
 
-  const [_profissionalList, setProfissionalList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const [countProfissionais, setCountProfissionais] = useState(0);
@@ -92,6 +89,7 @@ export default function ProfissionalListView() {
 
   const buscaProfissionais = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldProfissionalList = [], filtros = filters) => {
+      preparado.onFalse();
       setWarningMsg('');
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
@@ -103,7 +101,8 @@ export default function ProfissionalListView() {
         .then(async (profissionais) => {
           if (profissionais.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de profissionais');
-            preparado.onFalse();
+            setTableData([]);
+            preparado.onTrue();
           } else {
             const pros = profissionais.data.results;
 
@@ -128,11 +127,7 @@ export default function ProfissionalListView() {
               pros[i].status = pros[i].status.toString();
             }
 
-            setProfissionalList([...oldProfissionalList, ...pros]);
             setTableData([...oldProfissionalList, ...pros]);
-            // const listaProfissionais = profissionais.data.results;
-            // setProfissionalList([...oldProfissionalList, ...listaProfissionais]);
-            // setTableData([...oldProfissionalList, ...listaProfissionais]);
             preparado.onTrue();
           }
           setCountProfissionais(profissionais.data.count);
@@ -162,8 +157,8 @@ export default function ProfissionalListView() {
   }, [buscaEscolas, buscaFuncoes, buscaProfissionais]);
 
   const onChangePage = async (event, newPage) => {
-    if (_profissionalList.length < (newPage + 1) * table.rowsPerPage) {
-      buscaProfissionais(newPage, table.rowsPerPage, _profissionalList);
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscaProfissionais(newPage, table.rowsPerPage, tableData);
     }
     table.setPage(newPage);
   };
@@ -172,7 +167,6 @@ export default function ProfissionalListView() {
     (event) => {
       table.setPage(0);
       table.setRowsPerPage(parseInt(event.target.value, 10));
-      setProfissionalList([]);
       setTableData([]);
       buscaProfissionais(0, event.target.value);
     },
@@ -241,10 +235,10 @@ export default function ProfissionalListView() {
     [tableData]
   );
 
-  const saveAndClose = (retorno=null) => {
-    handleSaveRow({...rowToEdit, ...retorno});
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow({ ...rowToEdit, ...retorno });
     quickEdit.onFalse();
-  }
+  };
 
   const handleResetFilters = useCallback(() => {
     const resetFilters = {
@@ -253,7 +247,6 @@ export default function ProfissionalListView() {
       role: [],
     };
     setTableData([]);
-    setProfissionalList([]);
     setFilters(resetFilters);
     buscaProfissionais(table.page, table.rowsPerPage);
   }, [buscaProfissionais, table.page, table.rowsPerPage]);
@@ -321,7 +314,6 @@ export default function ProfissionalListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
-                setProfissionalList([]);
                 buscaProfissionais(table.page, table.rowsPerPage, [], filters);
               }}
             >
@@ -332,9 +324,9 @@ export default function ProfissionalListView() {
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
               {!preparado.value ? (
-                <LoadingBox texto='Buscando profissionais' />
+                <LoadingBox texto="Buscando profissionais" />
               ) : (
-                <Table size='small' sx={{ minWidth: 960 }}>
+                <Table size="small" sx={{ minWidth: 960 }}>
                   <TableHeadCustom
                     order={table.order}
                     orderBy={table.orderBy}
@@ -344,16 +336,18 @@ export default function ProfissionalListView() {
                   />
 
                   <TableBody>
-                    {dataInPage
-                      .map((row) => (
-                        <ProfissionalTableRow
-                          key={row.id}
-                          row={row}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                          onEditRow={() => handleEditRow(row.id)}
-                          quickEdit={() => { quickEdit.onTrue(); setRowToEdit(row); }}
-                        />
-                      ))}
+                    {dataInPage.map((row) => (
+                      <ProfissionalTableRow
+                        key={row.id}
+                        row={row}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                        onEditRow={() => handleEditRow(row.id)}
+                        quickEdit={() => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
+                      />
+                    ))}
 
                     <TableEmptyRows
                       height={52}

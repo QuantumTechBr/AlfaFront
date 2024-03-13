@@ -51,11 +51,11 @@ import UserQuickEditForm from '../user-quick-edit-form';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', width: 200 },
-  { id: 'email', label: 'E-Mail', width: 300 },
-  { id: 'funcao', label: 'Função', width: 200 },
-  { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
+  { id: 'nome', label: 'Nome', notsortable: true },
+  { id: 'email', label: 'E-Mail', width: 300, notsortable: true },
+  { id: 'funcao', label: 'Função', width: 200, notsortable: true },
+  { id: 'status', label: 'Status', width: 200, notsortable: true },
+  { id: '', width: 88, notsortable: true },
 ];
 
 const defaultFilters = {
@@ -71,14 +71,13 @@ const defaultFilters = {
 export default function UserListView() {
   const { checkPermissaoModulo } = useAuthContext();
 
-  const [_userList, setUserList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
-  
+
   const [countAtivos, setCountAtivos] = useState(0);
   const [countInativos, setCountInativos] = useState(0);
   const [countAll, setCountAll] = useState(0);
@@ -155,7 +154,6 @@ export default function UserListView() {
               users[i].status = users[i].status.toString();
             }
 
-            setUserList([...oldUserList, ...users]);
             setTableData([...oldUserList, ...users]);
             preparado.onTrue();
           }
@@ -241,8 +239,8 @@ export default function UserListView() {
   }, [buscaEscolas, buscaUsuarios, preparado, table.page, table.rowsPerPage]);
 
   const onChangePage = async (event, newPage) => {
-    if (_userList.length < (newPage + 1) * table.rowsPerPage) {
-      buscaUsuarios(newPage, table.rowsPerPage, _userList);
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscaUsuarios(newPage, table.rowsPerPage, tableData);
     }
     table.setPage(newPage);
   };
@@ -251,7 +249,6 @@ export default function UserListView() {
     (event) => {
       table.setPage(0);
       table.setRowsPerPage(parseInt(event.target.value, 10));
-      setUserList([]);
       setTableData([]);
       buscaUsuarios(0, event.target.value);
     },
@@ -432,7 +429,6 @@ export default function UserListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
-                setUserList([]);
                 contarUsuarios();
                 buscaUsuarios(table.page, table.rowsPerPage, [], filters);
               }}
@@ -456,19 +452,18 @@ export default function UserListView() {
                   />
 
                   <TableBody>
-                    {dataInPage
-                      .map((row) => (
-                        <UserTableRow
-                          key={row.id}
-                          row={row}
-                          quickEdit={() => {
-                            quickEdit.onTrue();
-                            setRowToEdit(row);
-                          }}
-                          onEditRow={() => handleEditRow(row.id)}
-                          onDeleteRow={() => handleDeleteRow(row.id)}
-                        />
-                      ))}
+                    {dataInPage.map((row) => (
+                      <UserTableRow
+                        key={row.id}
+                        row={row}
+                        quickEdit={() => {
+                          quickEdit.onTrue();
+                          setRowToEdit(row);
+                        }}
+                        onEditRow={() => handleEditRow(row.id)}
+                        onDeleteRow={() => handleDeleteRow(row.id)}
+                      />
+                    ))}
 
                     <TableEmptyRows
                       height={52}
