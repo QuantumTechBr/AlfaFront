@@ -298,6 +298,7 @@ export default function AlunoListView() {
               onClick={() => {
                 contextReady.onFalse();
                 setTableData([]);
+                table.setPage(0);
                 buscaAlunos(table.page, table.rowsPerPage, [], filters);
               }}
             >
@@ -334,7 +335,7 @@ export default function AlunoListView() {
                     ))}
 
                     <TableEmptyRows
-                      height={52}
+                      height={49}
                       emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                     />
 

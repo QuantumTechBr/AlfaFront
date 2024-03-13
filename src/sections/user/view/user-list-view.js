@@ -427,6 +427,7 @@ export default function UserListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
+                table.setPage(0);
                 contarUsuarios();
                 buscaUsuarios(table.page, table.rowsPerPage, [], filters);
               }}

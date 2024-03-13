@@ -314,6 +314,7 @@ export default function ProfissionalListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
+                table.setPage(0);
                 buscaProfissionais(table.page, table.rowsPerPage, [], filters);
               }}
             >
