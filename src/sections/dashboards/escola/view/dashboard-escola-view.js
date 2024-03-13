@@ -518,7 +518,7 @@ export default function DashboardEscolaView() {
 
                 <Grid xs={12}>
                   <Card sx={{ mt: 3, mb: 4 }}>
-                    <CardHeader title="Professores" />
+                    <CardHeader title="Turmas" />
                     <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
                     <TableContainer
