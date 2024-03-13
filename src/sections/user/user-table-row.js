@@ -11,14 +11,13 @@ import IconButton from '@mui/material/IconButton';
 import ListItemText from '@mui/material/ListItemText';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
+import { useAuthContext } from 'src/auth/hooks';
+
 // components
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-
-// auth
-import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
@@ -43,7 +42,7 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
       <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.funcaoNome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
 
         <TableCell>
           <Label
@@ -68,7 +67,7 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
             )}
           </Tooltip>
 
-          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+          <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </TableCell>
