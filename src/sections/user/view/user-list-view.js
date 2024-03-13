@@ -40,7 +40,7 @@ import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 //
 import userMethods from '../user-repository';
-import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 // auth
@@ -53,14 +53,12 @@ const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS
 const TABLE_HEAD = [
   { id: 'nome', label: 'Nome', notsortable: true },
   { id: 'email', label: 'E-Mail', width: 300, notsortable: true },
-  { id: 'funcao', label: 'Função', width: 200, notsortable: true },
   { id: 'status', label: 'Status', width: 200, notsortable: true },
   { id: '', width: 88, notsortable: true },
 ];
 
 const defaultFilters = {
   nome: '',
-  role: [],
   ddz: [],
   escola: [],
   status: 'all',
@@ -74,7 +72,6 @@ export default function UserListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
-  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
 
@@ -104,7 +101,7 @@ export default function UserListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, role, zona, status } = filtros;
+      const { nome, escola, zona, status } = filtros;
       let statusFilter = '';
 
       switch (status) {
@@ -121,7 +118,6 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          funcao: role,
           zona: zona,
           status: statusFilter,
         })
@@ -133,20 +129,16 @@ export default function UserListView() {
             const users = usuarios.data.results;
 
             for (var i = 0; i < users.length; i++) {
-              const funcao = [];
               const userZona = [];
               const userEscola = [];
               if (users[i].funcao_usuario?.length > 0) {
                 for (let index = 0; index < users[i].funcao_usuario.length; index++) {
-                  funcao.push(users[i].funcao_usuario[index].funcao?.id);
                   userEscola.push(users[i].funcao_usuario[index].escola?.id);
                   userZona.push(users[i].funcao_usuario[index].zona?.id);
                 }
-                users[i].funcao = funcao[0] ? funcao[0] : '';
                 users[i].escola = userEscola ? userEscola : '';
                 users[i].zona = userZona[0] ? userZona[0] : '';
               } else {
-                users[i].funcao = '';
                 users[i].escola = '';
                 users[i].zona = '';
               }
@@ -170,7 +162,7 @@ export default function UserListView() {
     async (filtros = filters) => {
       const offset = 0;
       const limit = 1;
-      const { nome, escola, role, zona, status } = filtros;
+      const { nome, escola, zona, status } = filtros;
 
       await userMethods
         .getAllUsersPaginado({
@@ -178,7 +170,6 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          funcao: role,
           zona: zona,
           status: '',
         })
@@ -192,7 +183,6 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          funcao: role,
           zona: zona,
           status: 'True',
         })
@@ -206,7 +196,6 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          funcao: role,
           zona: zona,
           status: 'False',
         })
@@ -221,10 +210,6 @@ export default function UserListView() {
     await Promise.all([
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
-        preparado.onTrue();
-      }),
-      buscaFuncoes().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de funções');
         preparado.onTrue();
       }),
       buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
@@ -413,7 +398,6 @@ export default function UserListView() {
             <UserTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              roleOptions={funcoes}
               escolaOptions={escolas}
             />
             <Button

@@ -24,11 +24,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
 
-  const funcaoNome =
-    row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
-      ? row.funcao_usuario[0].funcao.nome
-      : '';
-
   const confirm = useBoolean();
   const popover = usePopover();
 
@@ -42,7 +37,6 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
       <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
 
         <TableCell>
           <Label
