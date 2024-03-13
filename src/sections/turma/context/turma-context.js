@@ -33,10 +33,15 @@ export const TurmasProvider = ({ children }) => {
     if (force || turmas.length == 0) {
       if (!_consultaAtual || force) {
         _consultaAtual = turmaMethods.getAllTurmas().then((response) => {
-          if (response.data == '' || response.data === undefined) response.data = [];
-          setTurmas(response.data);
-          returnData = response.data;
-          return returnData;
+          let responseData = response.data;
+          if (responseData == '' || responseData === undefined) responseData = [];
+          let toReturn = responseData;
+          if (responseData.length > 0) {
+            const sortedData = _.orderBy(toReturn, ['ano_escolar', 'nome'], ['asc', 'asc']);
+            toReturn = sortedData;
+          }
+          setTurmas(toReturn);
+          return toReturn;
         });
       }
 

@@ -12,10 +12,15 @@ export const AnosLetivosProvider = ({ children }) => {
     if (force || anosLetivos.length == 0) {
       if (!_consultaAtual || force) {
         _consultaAtual = anoLetivoMethods.getAllAnosLetivos().then((response) => {
-          if (response.data == '' || response.data === undefined) response.data = [];
-          returnData = response.data.sort((a, b) => b.ano - a.ano);
-          setAnosLetivos(returnData);
-          return returnData;
+          let responseData = response.data;
+          if (responseData == '' || responseData === undefined) responseData = [];
+          let toReturn = responseData;
+          if (responseData.length > 0) {
+            const sortedData = _.orderBy(toReturn, ['ano'], ['desc']);
+            toReturn = sortedData;
+          }
+          setAnosLetivos(toReturn);
+          return toReturn;
         });
       }
 

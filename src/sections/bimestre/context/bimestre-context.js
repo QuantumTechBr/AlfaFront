@@ -12,10 +12,15 @@ export const BimestresProvider = ({ children }) => {
     if (force || bimestres.length == 0) {
       if (!_consultaAtual || force) {
         _consultaAtual = bimestreMethods.getAllBimestres().then((response) => {
-          if (response.data == '' || response.data === undefined) response.data = [];
-          setBimestres(response.data);
-          returnData = response.data;
-          return returnData;
+          let responseData = response.data;
+          if (responseData == '' || responseData === undefined) responseData = [];
+          let toReturn = responseData;
+          if (responseData.length > 0) {
+            const sortedData = _.orderBy(toReturn, ['ordinal'], ['asc']);
+            toReturn = sortedData;
+          }
+          setBimestres(toReturn);
+          return toReturn;
         });
       }
 

@@ -12,10 +12,15 @@ export const EscolasProvider = ({ children }) => {
     if (force || escolas.length == 0) {
       if (!_consultaAtual || force) {
         _consultaAtual = escolaMethods.getAllEscolas().then((response) => {
-          if (response.data == '' || response.data === undefined) response.data = [];
-          setEscolas(response.data);
-          returnData = response.data;
-          return returnData;
+          let responseData = response.data;
+          if (responseData == '' || responseData === undefined) responseData = [];
+          let toReturn = responseData;
+          if (responseData.length > 0) {
+            const sortedData = _.orderBy(toReturn, ['nome'], ['asc']);
+            toReturn = sortedData;
+          }
+          setEscolas(toReturn);
+          return toReturn;
         });
       }
 
