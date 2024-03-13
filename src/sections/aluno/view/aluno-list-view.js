@@ -324,11 +324,7 @@ export default function AlunoListView() {
                   />
 
                   <TableBody>
-                    {tableData
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
+                    {dataInPage
                       .map((row) => (
                         <AlunoTableRow
                           key={row.id}

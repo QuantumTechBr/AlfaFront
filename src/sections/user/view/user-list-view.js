@@ -456,11 +456,7 @@ export default function UserListView() {
                   />
 
                   <TableBody>
-                    {tableData
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
+                    {dataInPage
                       .map((row) => (
                         <UserTableRow
                           key={row.id}

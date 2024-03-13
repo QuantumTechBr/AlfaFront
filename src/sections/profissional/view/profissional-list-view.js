@@ -344,11 +344,7 @@ export default function ProfissionalListView() {
                   />
 
                   <TableBody>
-                    {tableData
-                      .slice(
-                        table.page * table.rowsPerPage,
-                        table.page * table.rowsPerPage + table.rowsPerPage
-                      )
+                    {dataInPage
                       .map((row) => (
                         <ProfissionalTableRow
                           key={row.id}
