@@ -259,7 +259,9 @@ export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografi
 
 export const habilidades_options = ['', 'D', 'DP', 'ND'];
 
-export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
+export const r_options = ['', 'NR', 0, 1];
+
+export const frequencia_options = ['Presente', 'Ausente', 'Transferido(a)', 'Presente mas não respondeu o teste', 'Aluno Novo'];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
