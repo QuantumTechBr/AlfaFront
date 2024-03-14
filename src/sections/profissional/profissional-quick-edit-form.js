@@ -173,6 +173,10 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
         status: data.status,
       };
 
+      const _funcao = funcoes.find((funcaoEscolhida) => funcaoEscolhida.id == data.funcao);
+      const _permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
+      const _isSingleEscola = ['PROFESSOR', 'DIRETOR'].includes(_funcao.nome);
+
       if (idsAssessorCoordenador.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
@@ -205,14 +209,13 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           novoUsuario.funcao_usuario = [
             {
               funcao_id: data.funcao,
-              escola_id: data.escola,
+              escola_id: _isSingleEscola && _.isArray(data.escola) ? _.first(data.escola) : data.escola,
             },
           ];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) => funcaoEscolhida.id == data.funcao);
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
-      novoUsuario.permissao_usuario_id = [permissao.id];
+      
+      novoUsuario.permissao_usuario_id = [_permissao.id];
 
       const retornoPatch = await userMethods
         .updateUserById(currentUser.id, novoUsuario)
