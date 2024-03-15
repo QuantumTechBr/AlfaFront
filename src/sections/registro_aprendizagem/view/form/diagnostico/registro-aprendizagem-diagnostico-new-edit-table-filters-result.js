@@ -41,7 +41,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.nome !== '' && (
-          <Block label="Nome:">
+          <Block label="Nome/Matrícula:">
             <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
           </Block>
         )}
