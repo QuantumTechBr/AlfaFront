@@ -1,4 +1,4 @@
-import PropTypes from 'prop-types';
+import PropTypes, { number } from 'prop-types';
 // @mui
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
@@ -8,7 +8,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Label from 'src/components/label';
 //
-import { _habilidades, habilidades_options, promo_options } from 'src/_mock';
+import { _habilidades, habilidades_options, frequencia_options, r_options } from 'src/_mock';
 import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
@@ -21,12 +21,13 @@ import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, aluno, mapHabilidades, promo_ano_anterior, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
+  const { id, nome, aluno, mapHabilidades, frequencia, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
 
   const [mapResultados, setMapResultados] = useState([]);
-  const { control } = useFormContext();
+  const { control, getValues } = useFormContext();
+
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -98,12 +99,125 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
 
+  const preenche_R = () => {
+    const retorno = []
+    for (let index = 0; index < 20; index++) {
+      retorno.push(
+        <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
+              <RHFSelect 
+              // disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} 
+              name={'registros['+id+'].r['+index+']'}  
+              label="">
+                {r_options.map((r) => (
+                  <MenuItem 
+                  // disabled={disableMenuItem(hab, habilidade.id)} 
+                  key={id + '_r_' + index} value={r} sx={{ height: '34px' }}>
+                        {r}
+                    </MenuItem>
+                ))}
+                {(index == 9 || index == 19) && 
+                <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
+                  {2}
+                </MenuItem>}
+              </RHFSelect>
+        </TableCell>
+      ) 
+    }
+    return retorno;
+  }
+
+  const mediaLP = () => {
+    let media = 0;
+    
+    for (let index = 0; index < 10; index++) {
+      // console.log(getValues('registros['+id+'].r['+index+']'))
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+      console.log(media)
+    }
+    media = (media * 10) / 11.00;
+    return media;
+  }
+
+  const nivelEscritaLP = () => {
+    if (getValues('registros['+id+'].r[9]') == 2) {
+      return 'Completo';
+    } else if (getValues('registros['+id+'].r[9]') == 1) {
+      return 'Parcial';
+    } else if (getValues('registros['+id+'].r[9]') === 0) {
+      return 'Insuficiente';
+    } else {
+      return '-';
+    }
+  }
+
+  const nivelLP = () => {
+    if (mediaLP() <= 4) {
+      return 'N1';
+    } else if (mediaLP() <= 8) {
+      return 'N2';
+    } else if (mediaLP() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+   
+  const mediaMAT = () => {
+    let media = 0;
+    for (let index = 10; index < 20; index++) {
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+    }
+    media = (media * 10) / 11.00;
+    return media;
+  }
+   
+  const nivelResProb = () => {
+    if (getValues('registros['+id+'].r[19]') == 2) {
+      return 'Completo'
+    } else if (getValues('registros['+id+'].r[19]') == 1) {
+      return 'Parcial'
+    } else if (getValues('registros['+id+'].r[19]') === 0) {
+      return 'Insuficiente'
+    } else {
+      return '-'
+    }
+  }
+   
+  const nivelMAT = () => {
+    if (mediaMAT() <= 4) {
+      return 'N1';
+    } else if (mediaMAT() <= 8) {
+      return 'N2';
+    } else if (mediaMAT() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+   
+  const mediaFinal = () => {
+    let media = 0;
+    for (let index = 0; index < 20; index++) {
+      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+    }
+    media = (media * 10) / 22;
+    return media;
+  }
+   
+  const nivelFinal = () => {
+    if (mediaFinal() <= 4) {
+      return 'N1';
+    } else if (mediaFinal() <= 8) {
+      return 'N2';
+    } else if (mediaFinal() > 8) {
+      return 'N3';
+    } else {
+      return '-';
+    }
+  }
+  
   return (
     <TableRow hover selected={selected}>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nomeAluno()}  
-        </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >
           <Controller
@@ -122,19 +236,27 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-            <RHFSelect key={id+'promo'} name={'registros[' + id + '].promo_ano_anterior'} > 
-                <MenuItem key={id + '_promo_vazio'} value='' sx={{ height: '34px' }}>
+          {row.aluno.matricula}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nomeAluno()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+            <RHFSelect key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
+                <MenuItem key={id + 'freq'} value='' sx={{ height: '34px' }}>
                   
                 </MenuItem>
-              {promo_options.map((promo) => (
-                <MenuItem key={id + '_promo_' + promo} value={promo} sx={{ height: '34px' }}>
-                  {promo}
+              {frequencia_options.map((freq) => (
+                <MenuItem key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
+                  {freq}
                 </MenuItem>
               ))}
             </RHFSelect>
         </TableCell>
 
-        {habilidades.map((habilidade) => {
+        {/* {habilidades.map((habilidade) => {
           return (
             <TableCell key={id+'habcell'+habilidade.id}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
@@ -154,7 +276,42 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               </RHFSelect>
             </TableCell>
           );
-        })}
+        })} */}
+
+        {preenche_R()}
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaLP().toFixed(1)}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelEscritaLP()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelLP()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaMAT().toFixed(1)}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelResProb()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelMAT()}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {mediaFinal().toFixed(1)}  
+        </TableCell>
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {nivelFinal()}  
+        </TableCell>
+
       </TableRow>
   );
 }
