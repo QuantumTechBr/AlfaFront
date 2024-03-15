@@ -16,9 +16,9 @@ export default function OverviewAppView() {
     console.log('redirecionando');
     if (checkFuncao('SUPERADMIN')) {
       router.push(`${paths.dashboard.root}/dash-rede`);
-    } else if (checkFuncao('ASSESSOR DDZ')) {
+    } else if (checkFuncao('ASSESSOR DDZ') || checkFuncao('COORDENADOR DE GESTÃO')) {
       router.push(`${paths.dashboard.root}/dash-ddz`);
-    } else if (checkFuncao('DIRETOR')) {
+    } else if (checkFuncao('DIRETOR') || checkFuncao('ASSESSOR DE GESTÃO')) {
       router.push(`${paths.dashboard.root}/dash-escola`);
     } else if (checkFuncao('PROFESSOR')) {
       router.push(`${paths.dashboard.root}/dash-turma`);
