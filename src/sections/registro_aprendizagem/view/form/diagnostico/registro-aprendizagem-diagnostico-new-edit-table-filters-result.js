@@ -16,7 +16,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
   onFilters,
   onResetFilters,
   results,
-  promoOptions,
+  freqOptions,
   ...other
 }) 
   {
@@ -25,9 +25,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
     onFilters('nome', '');
   };
 
-  const handleRemovePromo = (inputValue) => {
-    const newValue = filters.promo_ano_anterior.filter((item) => item !== inputValue);
-    onFilters('promo_ano_anterior', newValue);
+  const handleRemoveFreq = (inputValue) => {
+    const newValue = filters.frequencia.filter((item) => item !== inputValue);
+    onFilters('frequencia', newValue);
   };
 
   return (
@@ -46,13 +46,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
           </Block>
         )}
 
-        {/* {!!filters.promo_ano_anterior.length && (
-          <Block label="Promoção no ano anterior:">
-            {filters.promo_ano_anterior.map((item) => (
-              <Chip key={item} label={item == '' ? 'Não Preenchido' : item} size="small" onDelete={() => handleRemovePromo(item)} />
+        {!!filters.frequencia.length && (
+          <Block label="Frequência:">
+            {filters.frequencia.map((item) => (
+              <Chip key={item} label={item == '' ? 'Não Preenchido' : item} size="small" onDelete={() => handleRemoveFreq(item)} />
             ))}
           </Block>
-        )} */}
+        )}
 
         <Button
           color="error"
@@ -71,7 +71,7 @@ RegistroAprendizagemDiagnosticoNewEditTableFiltersResult.propTypes = {
   onFilters: PropTypes.func,
   onResetFilters: PropTypes.func,
   results: PropTypes.number,
-  promoOptions: PropTypes.array,
+  freqOptions: PropTypes.array,
 };
 
 // ----------------------------------------------------------------------
