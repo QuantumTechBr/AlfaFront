@@ -190,7 +190,7 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogTitle>Edição Rápida de Aluno</DialogTitle>
 
           <DialogContent>
             {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}

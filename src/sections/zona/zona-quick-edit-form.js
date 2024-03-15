@@ -119,7 +119,7 @@ export default function ZonaQuickEditForm({ row, open, onClose, onSave }) {
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogTitle>Edição Rápida de DDZ</DialogTitle>
           <DialogContent>
             {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
             <br></br>

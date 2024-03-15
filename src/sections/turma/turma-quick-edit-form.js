@@ -136,7 +136,7 @@ export default function TurmaQuickEditForm({ row, open, onClose, onSave }) {
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogTitle>Edição Rápida de Turma</DialogTitle>
           <DialogContent>
             {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
             <br></br>
