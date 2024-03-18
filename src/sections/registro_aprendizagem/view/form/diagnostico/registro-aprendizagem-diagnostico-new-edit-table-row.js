@@ -43,7 +43,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }, [periodo, getMapResultados]);
 
   const nomeAluno = () => {
-    const necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : '';
+    const  necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : '';
     return (
         <Box>
           {row.aluno.nome}
@@ -67,10 +67,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }, []);
 
   const mapDesabilitarMenuItem = {
-    '' : 5,
-    'ND': 2,
-    'DP': 3,
-    'D': 4,
+    '' : 6,
+    'NR': 2,
+    '0': 3,
+    '1': 4,
+    '2': 5
   };
 
   const disableSelect = (notaHab) => {

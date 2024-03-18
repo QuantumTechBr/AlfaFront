@@ -11,6 +11,7 @@ import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import RegistroAprendizagemDiagnosticoNewEditForm from '../../form/diagnostico/registro-aprendizagem-diagnostico-new-edit-form';
 import { useState, useEffect, useCallback } from 'react';
 import habilidadeMethods from '../../../../habilidade/habilidade-repository';
+import turmaMethods from 'src/sections/turma/turma-repository';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -85,8 +86,6 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           prep.onTrue();
         });
       } else {
-        console.log("use effect")
-        console.log(_turma)
         setWarningMsg('As informações da turma veio sem estudantes')
         setAlunosTurma([]);
         prep.onTrue();
@@ -98,11 +97,11 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   }, [_turma, periodo]);
 
   const handleTurma = useCallback(async (event) => {
-    const novaTurma = event.target.value;
+    const novaTurma = (await turmaMethods.getTurmaById(event.target.value.id)).data;
     setErrorMsg('');
     setWarningMsg('');
     prep.onFalse();
-    setTurma(event.target.value);
+    setTurma(novaTurma);
     const novaTodasHabilidades = await habilidadeMethods.getAllHabilidades().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
@@ -165,8 +164,6 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
         prep.onTrue();
       })
     } else {
-      console.log("handle turma")
-        console.log(_turma.turmas_alunos)
       setWarningMsg('As informações da turma veio sem estudantes')
       setAlunosTurma([]);
       prep.onTrue();
