@@ -108,7 +108,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
     const mR = [];
     if (resultados.length > 0) {
       for (let index = 0; index < resultados[0].habilidades_registro_aprendizagem.length; index++) {
-        mR[resultados[0].habilidades_registro_aprendizagem[index].habilidade.id] = resultados[0].habilidades_registro_aprendizagem[index].nota
+        mR[resultados[0].habilidades_registro_aprendizagem[index].numero_resposta - 1] = resultados[0].habilidades_registro_aprendizagem[index].nota
       }
     }
     return mR;

@@ -24,10 +24,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const { id, nome, aluno, mapHabilidades, frequencia, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
+  
 
   const [mapResultados, setMapResultados] = useState([]);
   const { control, getValues } = useFormContext();
-
+  console.log(getValues('registros'))
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -74,30 +75,26 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     '2': 5
   };
 
-  const disableSelect = (notaHab) => {
-    if (notaHab == '') {
+  const disableSelect = (rNota) => {
+    if (rNota == '') {
       return false    
     }
-    if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
+    if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
       return true
     } else {
       return false;
     }
   }
 
-  const disableMenuItem = (hab, habId) => {
-    if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
-      if (mapResultados[habId] == '') {
+  const disableMenuItem = (rNota, rNumero) => {
+    if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR") {
+      if (mapResultados[rNumero] == '') {
         return false
       } else {
-        return mapDesabilitarMenuItem[hab] < mapDesabilitarMenuItem[mapResultados[habId]] ? true : false;
+        return mapDesabilitarMenuItem[rNota] < mapDesabilitarMenuItem[mapResultados[rNumero]] ? true : false;
       }
     }
-    if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
-      return true
-    } else {
-      return false
-    }
+    return false
   }
 
   const preenche_R = () => {
@@ -106,12 +103,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       retorno.push(
         <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect 
-              // disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} 
+              disabled={getValues('registros['+id+'].r['+index+']') != '' ? disableSelect(getValues('registros['+id+'].r['+index+']')) : false} 
               name={'registros['+id+'].r['+index+']'}  
               label="">
                 {r_options.map((r) => (
                   <MenuItem 
-                  // disabled={disableMenuItem(hab, habilidade.id)} 
+                  disabled={disableMenuItem(r, index)} 
                   key={id + '_r_' + index} value={r} sx={{ height: '34px' }}>
                         {r}
                     </MenuItem>
@@ -133,7 +130,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 0; index < 10; index++) {
       // console.log(getValues('registros['+id+'].r['+index+']'))
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
-      console.log(media)
+
     }
     media = (media * 10) / 11.00;
     return media;
