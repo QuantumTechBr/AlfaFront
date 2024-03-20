@@ -20,17 +20,35 @@ import turmaMethods from 'src/sections/turma/turma-repository';
 export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   filters,
   onFilters,
-  promoOptions,
+  anoLetivoOptions,
+  escolaOptions,
+  freqOptions,
   turma,
   handleTurma,
 }) {
   const [turmas, setTurmas] = useState([]);
+  const [escola, setEscola] = useState([]);
 
   useEffect(() => {
     turmaMethods.getAllTurmas().then((response) => {
       setTurmas(response.data);
     });
   }, []);
+
+  useEffect(() => {
+    const esc = escolaOptions.filter((_escola) => turma.escola.id == _escola.id);
+    setEscola(esc[0]);
+  }, [escolaOptions, turma]);
+
+  const handleFilterAnoLetivo = useCallback(
+    (event) => onFilters('anoLetivo', event.target.value),
+    [onFilters]
+  );
+
+  const handleFilterEscola = useCallback(
+    (event) => setEscola(event.target.value),
+    [setEscola],
+  );
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -39,10 +57,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
     [onFilters]
   );
 
-  const handleFilterPromo = useCallback(
+  const handleFilterFreq = useCallback(
     (event) => {
       onFilters(
-        'promo_ano_anterior',
+        'frequencia',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -61,7 +79,69 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           p: 2.5,
         }}
       >
-        {/* <FormControl
+
+        {/* {anoLetivoOptions && !!anoLetivoOptions.length && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel>Ano Letivo</InputLabel>
+
+            <Select
+              value={filters.anoLetivo}
+              onChange={handleFilterAnoLetivo}
+              input={<OutlinedInput label="Ano Letivo" />}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {anoLetivoOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    {`${option.ano}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )} */}
+
+        {escolaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
+            }}
+          >
+            <InputLabel>Escola</InputLabel>
+
+            <Select
+              name='escola_teste'
+              value={escola}
+              onChange={handleFilterEscola}
+              input={<OutlinedInput label="Escola" />}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    {`${option.nome}`}
+                  </MenuItem>
+                );
+              })}
+            </Select>
+          </FormControl>
+        )}
+
+        <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 140 },
@@ -80,27 +160,27 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
-            {turmas.map((option) => (
+            {turmas.filter((_turma) => escola?.id == _turma.escola_id).map((option) => (
               <MenuItem key={option.id} value={option}>
-                {` ${option.ano_escolar}º ${option.nome}`}
+                {` ${option.ano_escolar}º ${option.nome} (${option.turno})`}
               </MenuItem>
             ))}
           </Select>
-        </FormControl> */}
+        </FormControl>
 
-        {/* <FormControl
+        <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 200 },
           }}
         >
-          <InputLabel>Promoção no ano anterior</InputLabel>
+          <InputLabel>Frequência</InputLabel>
 
           <Select
             multiple
-            value={filters.promo_ano_anterior}
-            onChange={handleFilterPromo}
-            input={<OutlinedInput label="Promoçao no ano anterior" />}
+            value={filters.frequencia}
+            onChange={handleFilterFreq}
+            input={<OutlinedInput label="Frequência" />}
             renderValue={(selected) => selected.map((value) => value).join(', ')}
             MenuProps={{
               PaperProps: {
@@ -108,33 +188,33 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
-            <MenuItem key="promo_vazio" value="">
+            <MenuItem key="freq_vazio" value="">
               <Checkbox
                 disableRipple
                 size="small"
-                checked={filters.promo_ano_anterior.includes('')}
+                checked={filters.frequencia.includes('')}
               />
               Não Preenchido
             </MenuItem>
-            {promoOptions.map((option) => (
+            {freqOptions.map((option) => (
               <MenuItem key={option} value={option}>
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={filters.promo_ano_anterior.includes(option)}
+                  checked={filters.frequencia.includes(option)}
                 />
                 {option}
               </MenuItem>
             ))}
           </Select>
-        </FormControl> */}
+        </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            placeholder="Nome/Matrícula..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -151,6 +231,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
 RegistroAprendizagemDiagnosticoNewEditTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  promoOptions: PropTypes.array,
+  anoLetivoOptions: PropTypes.array,
+  escolaOptions: PropTypes.array,
+  freqOptions: PropTypes.array,
   handleTurma: PropTypes.func,
 };

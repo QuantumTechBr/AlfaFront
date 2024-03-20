@@ -33,14 +33,22 @@ import { Box } from '@mui/material';
 import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro-aprendizagem-diagnostico-new-edit-table-filters-result';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { useContext } from 'react';
+
+
 // ----------------------------------------------------------------------
 export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
   const defaultFilters = useMemo(() => {
     return {
       nome: '',
-      promo_ano_anterior: [],
+      frequencia: [],
     }
   }, []);
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
 
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -61,6 +69,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
         </Box>
     );
   };
+
+  useEffect(() => {
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+    });
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+  }, []);
 
   useEffect(() => {
     const cabecalho = [
@@ -131,7 +148,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           <RegistroAprendizagemDiagnosticoNewEditTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            // promoOptions={frequencia_options}
+            anoLetivoOptions={anosLetivos}
+            escolaOptions={escolas}
+            freqOptions={frequencia_options}
             turma={turma}
             handleTurma={handleTurma}
           />
@@ -141,7 +160,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              // promoOptions={frequencia_options}
+              freqOptions={frequencia_options}
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -197,7 +216,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            rowsPerPageOptions={[5]}
+            rowsPerPageOptions={[5, 15, 25]}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             //
@@ -221,7 +240,7 @@ RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, promo_ano_anterior } = filters;
+  const { nome, frequencia } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -234,18 +253,18 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (alunosTurma) => alunosTurma.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (alunosTurma) => alunosTurma.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1 || alunosTurma.aluno.matricula.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
-  if (promo_ano_anterior.length) {
+  if (frequencia.length) {
     inputData = inputData.filter((alunosTurma) => {
-      if (promo_ano_anterior.includes('')) {
-        if (alunosTurma.promo_ano_anterior == undefined) {
+      if (frequencia.includes('')) {
+        if (alunosTurma.frequencia == undefined) {
           return alunosTurma
         }
       } 
-      return promo_ano_anterior.includes(alunosTurma.promo_ano_anterior);
+      return frequencia.includes(alunosTurma.frequencia);
     }
     )
   }
