@@ -77,8 +77,8 @@ export default function DashboardEscolaView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const [_escolasFiltered, setEscolasFiltered] = useState([]);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const [_escolasFiltered, setEscolasFiltered] = useState([]);
 
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
@@ -407,7 +407,7 @@ export default function DashboardEscolaView() {
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
-                  escolaOptions={_escolasFiltered || escolas}
+                  escolaOptions={_escolasFiltered.length > 0 ? _escolasFiltered : escolas}
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>

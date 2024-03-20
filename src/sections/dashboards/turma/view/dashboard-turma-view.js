@@ -467,8 +467,8 @@ export default function DashboardTurmaView() {
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
-                  escolaOptions={_escolasFiltered || escolas}
-                  anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
+                  escolaOptions={_escolasFiltered.length > 0 ? _escolasFiltered : escolas}
+                  anoTurmaOptions={(_turmasFiltered.length > 0 ? _turmasFiltered : turmas).filter((t) =>
                     filters.escola.map((e) => e.id).includes(t.escola_id)
                   )}
                   bimestreOptions={bimestres}

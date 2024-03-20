@@ -1,28 +1,38 @@
 import PropTypes from 'prop-types';
+import { useContext, useEffect, useState } from 'react';
+import _ from 'lodash';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
-import { useAuthContext } from 'src/auth/hooks';
-
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
+import Label from 'src/components/label';
+import { Alert } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
+export default function UserTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
   const { checkPermissaoModulo } = useAuthContext();
+
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+    });
+  }, [buscaFuncoes]);
 
   const confirm = useBoolean();
   const popover = usePopover();
@@ -32,40 +42,54 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
     confirm.onFalse();
   };
 
+  // const renderTurma = (row.turma ?? []).length > 0 ? row.turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
+
+  const renderFuncao = () => {
+    if (row.funcao_usuario.length > 0) {
+      return funcoes.find((f) => f.id == _.first(row.funcao_usuario).funcao.id)?.nome ?? '';
+    }
+    return '';
+  };
+
   return (
     <>
-      <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      {!errorMsg && (
+        <TableRow hover>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome || row.profissional}</TableCell>
+          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
+          <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+            {renderFuncao()}
+          </TableCell>
+          <TableCell>
+            <Label
+              variant="soft"
+              color={
+                (row.status === 'true' && 'success') ||
+                (row.status === 'pending' && 'warning') ||
+                (row.status === 'false' && 'error') ||
+                'default'
+              }
+            >
+              {row.status === 'true' ? 'Ativo' : 'Inativo'}
+            </Label>
+          </TableCell>
 
-        <TableCell>
-          <Label
-            variant="soft"
-            color={
-              (row.status === 'true' && 'success') ||
-              (row.status === 'pending' && 'warning') ||
-              (row.status === 'false' && 'error') ||
-              'default'
-            }
-          >
-            {row.status === 'true' ? 'Ativo' : 'Inativo'}
-          </Label>
-        </TableCell>
+          <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
+            <Tooltip title="Edição Rápida" placement="top" arrow>
+              {checkPermissaoModulo('usuario', 'editar') && (
+                <IconButton onClick={quickEdit}>
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              )}
+            </Tooltip>
 
-        <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Edição Rápida" placement="top" arrow>
-            {checkPermissaoModulo('usuario', 'editar') && (
-              <IconButton onClick={quickEdit}>
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
-            )}
-          </Tooltip>
-
-          <IconButton onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
-      </TableRow>
+            <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+              <Iconify icon="eva:more-vertical-fill" />
+            </IconButton>
+          </TableCell>
+        </TableRow>
+      )}
 
       <CustomPopover
         open={popover.open}
@@ -103,7 +127,7 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
         open={confirm.value}
         onClose={confirm.onFalse}
         title="Excluir Usuário"
-        content="Tem certeza que deseja excluir o usuário?"
+        content="Tem certeza que deseja excluir este usuário?"
         action={
           <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
@@ -116,7 +140,7 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
 
 UserTableRow.propTypes = {
   row: PropTypes.object,
-  quickEdit: PropTypes.func,
-  onEditRow: PropTypes.func,
   onDeleteRow: PropTypes.func,
+  onEditRow: PropTypes.func,
+  quickEdit: PropTypes.func,
 };

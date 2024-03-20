@@ -40,6 +40,7 @@ import AlunoTableRow from '../aluno-table-row';
 import AlunoTableToolbar from '../aluno-table-toolbar';
 
 import alunoMethods from '../aluno-repository';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 
@@ -60,11 +61,12 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  nome: '',
-  matricula: '',
+  zona: [],
   escola: [],
   turma: [],
   fase: [],
+  nome: '',
+  matricula: '',
 };
 
 // ----------------------------------------------------------------------
@@ -75,8 +77,10 @@ export default function AlunoListView() {
   const fases = Object.values(RegistroAprendizagemFasesCRUD);
 
   const [countAlunos, setCountAlunos] = useState(0);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const [_escolasFiltered, setEscolasFiltered] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const contextReady = useBoolean(false);
@@ -131,6 +135,9 @@ export default function AlunoListView() {
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de DDZ');
+      }),
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
@@ -174,13 +181,30 @@ export default function AlunoListView() {
   const notFound = tableData.length == 0;
 
   const handleFilters = useCallback(
-    async (nome, value) => {
-      table.onResetPage();
-      const novosFiltros = {
-        ...filters,
-        [nome]: value,
-      };
-      setFilters(novosFiltros);
+    async (campo, value) => {
+      if (campo == 'zona') {
+        if (value.length == 0) {
+          setEscolasFiltered(escolas);
+        } else {
+          var escolasFiltered = escolas.filter((escola) =>
+            value.map((zona) => zona.id).includes(escola.zona.id)
+          );
+          setEscolasFiltered(escolasFiltered);
+        }
+
+        setFilters((prevState) => ({
+          ...prevState,
+          ['escola']: [],
+          [campo]: value,
+        }));
+      } else {
+        const novosFiltros = {
+          ...filters,
+          [campo]: value,
+        };
+
+        setFilters(novosFiltros);
+      }
     },
     [table, filters]
   );
@@ -235,7 +259,7 @@ export default function AlunoListView() {
     <>
       <Container maxWidth="xxl">
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Estudantes"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Estudantes', href: paths.dashboard.aluno.root },
@@ -279,7 +303,8 @@ export default function AlunoListView() {
             <AlunoTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              escolaOptions={escolas}
+              ddzOptions={zonas}
+              escolaOptions={_escolasFiltered.length > 0 ? _escolasFiltered : escolas}
               turmaOptions={
                 filters.escola.length > 0
                   ? turmas.filter((_turma) => filters.escola.includes(_turma.escola_id))
@@ -298,7 +323,7 @@ export default function AlunoListView() {
               onClick={() => {
                 contextReady.onFalse();
                 setTableData([]);
-                table.setPage(0);
+                table.onResetPage();
                 buscaAlunos(table.page, table.rowsPerPage, [], filters);
               }}
             >

@@ -2,8 +2,8 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useCallback, useEffect, useState, useContext } from 'react';
+// import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect, useState, useContext, useCallback } from 'react';
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -15,16 +15,17 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 // _mock
-import { USER_STATUS_OPTIONS } from 'src/_mock';
+import { USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
-import userMethods from './user-repository';
+import userMethods from '../user/user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
 import { useBoolean } from 'src/hooks/use-boolean';
+import { ZonasContext } from '../zona/context/zona-context';
+import { AuthContext } from 'src/auth/context/alfa';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
@@ -35,32 +36,34 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import _ from 'lodash';
 
 // ----------------------------------------------------------------------
-
-export default function UserQuickEditForm({ row, open, onClose, onSave }) {
-  const defaultFilters = {
-    escolasAG: [],
-  };
-
-  const { enqueueSnackbar } = useSnackbar();
-
+const filtros = {
+  escolas: [],
+};
+export default function UserQuickEditForm({ tela, row, onClose, onSave, open }) {
   const [currentUser, setCurrentUser] = useState();
-  const [filters, setFilters] = useState(defaultFilters);
+  const [filters, setFilters] = useState(filtros);
   const contextReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
-  const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
+  const [idsAssessorDdzCoordenadorGestao, setIdsAssessorDdzCoordenadorGestao] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
+  const [idProfessor, setIdProfessor] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
+
+  const isTelaProfissionais = tela == 'Profissionais';
 
   useEffect(() => {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
-      setCurrentUser(row);
+      setCurrentUser({ nome: row.profissional, ...row });
       Promise.all([
         buscaFuncoes().catch((error) => {
           setErrorMsg('Erro de comunicação com a API de funções');
@@ -81,6 +84,26 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
 
   useEffect(() => {
+    if (contextReady.value) {
+      const _idsAssessorDdzCoodenadorGestao = [];
+      let _idProfessor = '';
+      let _idAssessorGestao = '';
+      funcoes.map((_funcao) => {
+        if (_funcao.nome == 'ASSESSOR DDZ' || _funcao.nome == 'COORDENADOR DE GESTÃO') {
+          _idsAssessorDdzCoodenadorGestao.push(_funcao.id);
+        } else if (_funcao.nome == 'ASSESSOR DE GESTÃO') {
+          _idAssessorGestao = _funcao.id;
+        } else if (_funcao.nome == 'PROFESSOR') {
+          _idProfessor = _funcao.id;
+        }
+      });
+      setIdsAssessorDdzCoordenadorGestao(_idsAssessorDdzCoodenadorGestao);
+      setIdAssessorGestao(_idAssessorGestao);
+      setIdProfessor(_idProfessor);
+    }
+  }, [contextReady.value]);
+
+  useEffect(() => {
     if (currentUser) {
       //
       const escIds = [];
@@ -95,27 +118,11 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
         });
       }
       const novosFiltros = {
-        escolasAG: escIds,
+        escolas: escIds,
       };
       setFilters(novosFiltros);
     }
   }, [currentUser]);
-
-  useEffect(() => {
-    if (contextReady.value) {
-      const idsAC = [];
-      let idAG = '';
-      funcoes.map((_funcao) => {
-        if (_funcao.nome == 'ASSESSOR DDZ' || _funcao.nome == 'COORDENADOR DE GESTÃO') {
-          idsAC.push(_funcao.id);
-        } else if (_funcao.nome == 'ASSESSOR DE GESTÃO') {
-          idAG = _funcao.id;
-        }
-      });
-      setIdsAssessorCoordenador(idsAC);
-      setIdAssessorGestao(idAG);
-    }
-  }, [contextReady.value]);
 
   useEffect(() => {
     if (permissoes.length > 0) {
@@ -136,11 +143,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     () => ({
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
-      funcao: currentUser
-        ? typeof currentUser?.funcao == 'object'
-          ? _.first(currentUser?.funcao)
-          : currentUser?.funcao
-        : '',
+      funcao: currentUser?.funcao_usuario ? _.first(currentUser?.funcao_usuario)?.funcao?.id ?? '' : '',
       status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
@@ -156,25 +159,28 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   const {
     reset,
     handleSubmit,
+    getValues,
+    setValue,
     watch,
     formState: { isSubmitting },
-    setValue,
-    getValues,
   } = methods;
 
   const values = watch();
-
-  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
       var novoUsuario = {
         nome: data.nome,
         email: data.email,
+        login: data.email,
         status: data.status,
       };
 
-      if (idsAssessorCoordenador.includes(data.funcao)) {
+      const _funcao = funcoes.find((funcaoEscolhida) => funcaoEscolhida.id == data.funcao);
+      const _permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
+      const _isSingleEscola = ['DIRETOR'].includes(_funcao.nome);
+
+      if (idsAssessorDdzCoordenadorGestao.includes(data.funcao)) {
         if (data.zona == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return;
@@ -186,12 +192,12 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
             },
           ];
         }
-      } else if (data.funcao == idAssessorGestao) {
-        if (filters.escolasAG.length == 0) {
+      } else if (data.funcao == idAssessorGestao || data.funcao == idProfessor) {
+        if (filters.escolas.length == 0) {
           setErrorMsg('Voce deve selecionar uma ou mais escolas');
         } else {
           novoUsuario.funcao_usuario = [];
-          filters.escolasAG.map((escolaId) => {
+          filters.escolas.map((escolaId) => {
             novoUsuario.funcao_usuario.push({
               funcao_id: data.funcao,
               escola_id: escolaId,
@@ -206,14 +212,14 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           novoUsuario.funcao_usuario = [
             {
               funcao_id: data.funcao,
-              escola_id: data.escola, // TODO CHECK: ao alterar DIRETOR sem nenhuma alteração envia no payload um Array e isso retorna ERRO da API
+              escola_id:
+                _isSingleEscola && _.isArray(data.escola) ? _.first(data.escola) : data.escola,
             },
           ];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) => funcaoEscolhida.id == data.funcao);
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome);
-      novoUsuario.permissao_usuario_id = [permissao.id];
+
+      novoUsuario.permissao_usuario_id = [_permissao.id];
 
       const retornoPatch = await userMethods
         .updateUserById(currentUser.id, novoUsuario)
@@ -221,6 +227,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           throw error;
         });
 
+      retornoPatch.data.profissional = retornoPatch.data.nome;
       retornoPatch.data.status = novoUsuario.status;
 
       enqueueSnackbar('Atualizado com sucesso!');
@@ -232,16 +239,14 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
       );
       const mensagem = arrayMsg.join(' ');
       currentUser
-        ? setErrorMsg(`Tentativa de atualização do usuário falhou - ` + `${mensagem}`)
+        ? setErrorMsg(`Tentativa de atualização do profissional falhou - ` + `${mensagem}`)
         : setErrorMsg(`Tentativa de criação do usuário falhou - ` + `${mensagem}`);
       console.error(error);
     }
   });
 
   useEffect(() => {
-    if (currentUser) {
-      reset(defaultValues);
-    }
+    reset(defaultValues);
   }, [currentUser]);
 
   const handleFilters = useCallback(
@@ -255,17 +260,17 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     [filters]
   );
 
-  const handleEscolasAG = useCallback(
+  const handleEscolas = useCallback(
     (event) => {
       handleFilters(
-        'escolasAG',
+        'escolas',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
     [handleFilters]
   );
 
-  const renderValueEscolasAG = (selected) =>
+  const renderValueEscolas = (selected) =>
     selected
       .map((escolaId) => {
         return escolas.find((option) => option.id == escolaId)?.nome;
@@ -273,7 +278,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
       .join(', ');
 
   const escolaOuZona = () => {
-    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
+    if (idsAssessorDdzCoordenadorGestao.includes(getValues('funcao'))) {
       return (
         <RHFSelect
           id={`zona_` + `${currentUser?.id}`}
@@ -289,7 +294,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
         </RHFSelect>
       );
     }
-    if (getValues('funcao') == idAssessorGestao) {
+    if (getValues('funcao') == idAssessorGestao || getValues('funcao') == idProfessor) {
       return (
         <FormControl
           sx={{
@@ -301,10 +306,10 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
             multiple
             name="escola"
             disabled={getValues('funcao') == '' ? true : false}
-            value={filters.escolasAG}
-            onChange={handleEscolasAG}
+            value={filters.escolas}
+            onChange={handleEscolas}
             input={<OutlinedInput label="Escolas" />}
-            renderValue={renderValueEscolasAG}
+            renderValue={renderValueEscolas}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -316,7 +321,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
                 <Checkbox
                   disableRipple
                   size="small"
-                  checked={filters.escolasAG.includes(escola.id)}
+                  checked={filters.escolas.includes(escola.id)}
                 />
                 {escola.nome}
               </MenuItem>
@@ -342,6 +347,13 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     }
   };
 
+  const desabilitaMudarFuncao = () => {
+    if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+      return true;
+    }
+    return false;
+  };
+
   return (
     <Dialog
       fullWidth
@@ -359,11 +371,14 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 
       {contextReady.value && (
         <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogTitle>
+            Edição Rápida de {isTelaProfissionais ? 'Profissional de Educação' : 'Usuário'}
+          </DialogTitle>
 
           <DialogContent>
             {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
             <br></br>
+
             <Box
               rowGap={3}
               columnGap={2}
@@ -376,50 +391,15 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
             >
               <RHFTextField name="nome" label="Nome Completo" />
               <RHFTextField name="email" label="Email" />
-            </Box>
 
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              mb={3}
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(1, 1fr)',
-              }}
-            >
-              <RHFSelect name="funcao" label="Função">
+              <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
                 {funcoes.map((_funcao) => (
                   <MenuItem key={_funcao.id} value={_funcao.id}>
                     {_funcao.nome}
                   </MenuItem>
                 ))}
               </RHFSelect>
-            </Box>
 
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              mb={3}
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(1, 1fr)',
-              }}
-            >
-              {escolaOuZona()}
-            </Box>
-
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              mb={3}
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
                   <MenuItem key={status.value} value={status.value}>
@@ -428,6 +408,18 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
                 ))}
               </RHFSelect>
             </Box>
+
+            <Box
+              rowGap={3}
+              columnGap={2}
+              display="grid"
+              mb={3}
+              gridTemplateColumns={{
+                xs: 'repeat(1, 1fr)',
+              }}
+            >
+              {escolaOuZona()}
+            </Box>
           </DialogContent>
 
           <DialogActions>
@@ -435,12 +427,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
               Cancelar
             </Button>
 
-            <LoadingButton
-              disabled={liberaSalvar.value}
-              type="submit"
-              variant="contained"
-              loading={isSubmitting}
-            >
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
               Atualizar
             </LoadingButton>
           </DialogActions>
@@ -451,6 +438,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 }
 
 UserQuickEditForm.propTypes = {
+  tela: PropTypes.string,
   row: PropTypes.object,
   onClose: PropTypes.func,
   onSave: PropTypes.func,

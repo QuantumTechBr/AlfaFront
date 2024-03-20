@@ -85,7 +85,7 @@ export function useNavData() {
 
         // ALUNOS
         {
-          title: 'Lista de Estudantes',
+          title: 'Estudantes',
           path: paths.dashboard.aluno.list,
           icon: ICONS.alfaStudent,
         },
@@ -131,8 +131,8 @@ export function useNavData() {
           path: paths.dashboard.zona.list,
           icon: ICONS.alfaBuilding,
           children: [
-            { title: 'Lista de DDZ', path: paths.dashboard.zona.list },
-            { title: 'Lista de Escolas', path: paths.dashboard.escola.list },
+            { title: 'DDZ', path: paths.dashboard.zona.list },
+            { title: 'Escolas', path: paths.dashboard.escola.list },
           ],
         },
 
@@ -186,7 +186,7 @@ export function useNavData() {
         }
         if (checkPermissaoModulo('aluno', 'acesso')) {
           _items.push({
-            title: 'Lista de Estudantes',
+            title: 'Estudantes',
             path: paths.dashboard.aluno.list,
             icon: ICONS.alfaStudent,
           });
@@ -194,7 +194,7 @@ export function useNavData() {
 
         if (checkPermissaoModulo('calendario', 'acesso')) {
           _items.push({
-            title: 'Lista de Anos Letivos',
+            title: 'Anos Letivos',
             path: paths.dashboard.calendar,
             icon: ICONS.alfaCalendar,
             children: [{ title: t('calendário'), path: paths.dashboard.calendar }],
@@ -204,7 +204,7 @@ export function useNavData() {
         const turmaModuloChildren = [];
 
         if (checkPermissaoModulo('turma', 'acesso')) {
-          turmaModuloChildren.push({ title: 'Lista de Turmas', path: paths.dashboard.turma.list });
+          turmaModuloChildren.push({ title: 'Turmas', path: paths.dashboard.turma.list });
         }
         if (turmaModuloChildren.length) {
           _items.push({
@@ -241,13 +241,13 @@ export function useNavData() {
 
         if (checkPermissaoModulo('zonas', 'acesso')) {
           redesEnsinoModuloChildren.push({
-            title: 'Lista de DDZ',
+            title: 'DDZ',
             path: paths.dashboard.zona.list,
           });
         }
         if (checkPermissaoModulo('escola', 'acesso')) {
           redesEnsinoModuloChildren.push({
-            title: 'Lista de Escolas',
+            title: 'Escolas',
             path: paths.dashboard.escola.list,
           });
         }

@@ -22,7 +22,7 @@ import { saveCSVFile } from 'src/utils/functions';
 export default function ProfissionalTableToolbar({
   filters,
   onFilters,
-  roleOptions,
+  funcaoOptions,
   ddzOptions,
   escolaOptions,
 }) {
@@ -45,10 +45,10 @@ export default function ProfissionalTableToolbar({
     [onFilters]
   );
 
-  const handleFilterRole = useCallback(
+  const handleFilterFuncao = useCallback(
     (event) => {
       onFilters(
-        'role',
+        'funcao',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
@@ -68,7 +68,7 @@ export default function ProfissionalTableToolbar({
   const renderValueFuncao = (selected) =>
     selected
       .map((funcaoId) => {
-        return roleOptions.find((option) => option.id == funcaoId)?.nome;
+        return funcaoOptions.find((option) => option.id == funcaoId)?.nome;
       })
       .join(', ');
 
@@ -104,8 +104,8 @@ export default function ProfissionalTableToolbar({
 
           <Select
             multiple
-            value={filters.role}
-            onChange={handleFilterRole}
+            value={filters.funcao}
+            onChange={handleFilterFuncao}
             input={<OutlinedInput label="Função" />}
             renderValue={renderValueFuncao}
             MenuProps={{
@@ -114,9 +114,9 @@ export default function ProfissionalTableToolbar({
               },
             }}
           >
-            {roleOptions.map((funcao) => (
+            {funcaoOptions.map((funcao) => (
               <MenuItem key={funcao.id} value={funcao.id}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.id)} />
+                <Checkbox disableRipple size="small" checked={filters.funcao.includes(funcao.id)} />
                 {funcao.nome}
               </MenuItem>
             ))}
@@ -209,7 +209,7 @@ export default function ProfissionalTableToolbar({
 ProfissionalTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  roleOptions: PropTypes.array,
+  funcaoOptions: PropTypes.array,
   ddzOptions: PropTypes.array,
   escolaOptions: PropTypes.array,
 };

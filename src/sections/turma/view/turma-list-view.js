@@ -292,7 +292,7 @@ export default function TurmaListView() {
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth="lg">
         <CustomBreadcrumbs
           heading="Turmas"
           links={[

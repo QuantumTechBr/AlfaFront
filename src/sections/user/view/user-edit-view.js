@@ -21,33 +21,37 @@ export default function UserEditView({ id }) {
   const settings = useSettingsContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-  const [currentUser, setCurrentUser] = useState({});
-  useEffect(()  => {
-    userMethods.getUserById(id).then(usuario => {
-      if (usuario.data.funcao_usuario.length > 0) {
-        const funcao = [];
-        const escola = [];
-        const zona = [];
-        for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {  
-          funcao.push(usuario.data.funcao_usuario[index].funcao?.id);
-          escola.push(usuario.data.funcao_usuario[index].escola?.id);
-          zona.push(usuario.data.funcao_usuario[index].zona?.id);
+  const [currentUser, setCurrentUser] = useState();
+  useEffect(() => {
+    userMethods
+      .getUserById(id)
+      .then((usuario) => {
+        const usuarioData = usuario.data;
+        if (usuarioData.funcao_usuario.length > 0) {
+          const _funcao = [];
+          const _escola = [];
+          const _zona = [];
+          for (let index = 0; index < usuarioData.funcao_usuario.length; index++) {
+            _funcao.push(usuarioData.funcao_usuario[index].funcao?.id);
+            _escola.push(usuarioData.funcao_usuario[index].escola?.id);
+            _zona.push(usuarioData.funcao_usuario[index].zona?.id);
+          }
+          usuarioData.funcao = _funcao[0] ? _funcao[0] : '';
+          usuarioData.escola = _escola ? _escola : '';
+          usuarioData.zona = _zona[0] ? _zona[0] : '';
+        } else {
+          usuarioData.funcao = '';
+          usuarioData.escola = '';
+          usuarioData.zona = '';
         }
-        usuario.data.funcao = funcao[0] ? funcao[0] : '';
-        usuario.data.escola = escola ? escola : '';
-        usuario.data.zona = zona[0] ? zona[0] : '';
-      } else {
-        usuario.data.funcao = '';
-        usuario.data.escola = '';
-        usuario.data.zona = '';
-      }
-      if (usuario.data.length === 0) {
-        setWarningMsg('A API retornou uma lista vazia de usuário');
-      }
-      setCurrentUser(usuario.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de usuários');
-    })
+        if (usuarioData.length === 0) {
+          setWarningMsg('A API retornou uma lista vazia de usuário');
+        }
+        setCurrentUser(usuarioData);
+      })
+      .catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de usuários');
+      });
   }, [id]);
 
   return (
@@ -72,7 +76,7 @@ export default function UserEditView({ id }) {
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
-      <UserNewEditForm currentUser={currentUser} />
+      <UserNewEditForm currentUser={currentUser} isNewUser={false} />
     </Container>
   );
 }

@@ -24,15 +24,9 @@ export default function UserTableToolbar({
   onFilters,
   //
   escolaOptions,
+  funcaoOptions: funcaoOptions,
 }) {
   const popover = usePopover();
-
-  const handleFilterPesquisa = useCallback(
-    (event) => {
-      onFilters('nome', event.target.value);
-    },
-    [onFilters]
-  );
 
   const handleFilterEscola = useCallback(
     (event) => {
@@ -43,6 +37,30 @@ export default function UserTableToolbar({
     },
     [onFilters]
   );
+
+  const handleFilterFuncao = useCallback(
+    (event) => {
+      onFilters(
+        'funcao',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const handleFilterPesquisa = useCallback(
+    (event) => {
+      onFilters('nome', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const renderValueFuncao = (selected) =>
+    selected
+      .map((funcaoId) => {
+        return funcaoOptions.find((option) => option.id == funcaoId)?.nome;
+      })
+      .join(', ');
 
   const renderValueEscola = (selected) =>
     selected
@@ -69,7 +87,36 @@ export default function UserTableToolbar({
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 420 },
+            width: { xs: 1, md: 250 },
+          }}
+        >
+          <InputLabel>Função</InputLabel>
+
+          <Select
+            multiple
+            value={filters.funcao}
+            onChange={handleFilterFuncao}
+            input={<OutlinedInput label="Função" />}
+            renderValue={renderValueFuncao}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 280 },
+              },
+            }}
+          >
+            {funcaoOptions.map((funcao) => (
+              <MenuItem key={funcao.id} value={funcao.id}>
+                <Checkbox disableRipple size="small" checked={filters.funcao.includes(funcao.id)} />
+                {funcao.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 340 },
           }}
         >
           <InputLabel>Escola</InputLabel>
@@ -82,7 +129,7 @@ export default function UserTableToolbar({
             renderValue={renderValueEscola}
             MenuProps={{
               PaperProps: {
-                sx: { maxHeight: 240 },
+                sx: { maxHeight: 280 },
               },
             }}
           >
@@ -153,4 +200,5 @@ UserTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
   escolaOptions: PropTypes.array,
+  funcaoOptions: PropTypes.array,
 };

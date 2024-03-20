@@ -15,88 +15,52 @@ import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
+import Alert from '@mui/material/Alert';
+
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, {
-  RHFSelect,
-  RHFTextField,
-} from 'src/components/hook-form';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
-import Alert from '@mui/material/Alert';
+import { useBoolean } from 'src/hooks/use-boolean';
+import LoadingBox from 'src/components/helpers/loading-box';
 
 // ----------------------------------------------------------------------
-const filtros = {
-  escolasAG: [],
+const defaultFilters = {
+  escolasAssessorGestao: [],
 };
-export default function UserNewEditForm({ currentUser }) {
+export default function UserNewEditForm({ currentUser, isNewUser = true }) {
   const router = useRouter();
 
-  const [filters, setFilters] = useState(filtros);
+  const [filters, setFilters] = useState(defaultFilters);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
+  const [idAdmin, setIdAdmin] = useState('');
 
   const [errorMsg, setErrorMsg] = useState('');
+  const contextReady = useBoolean(false);
+  const isFirstLayoutData = useBoolean(true);
 
-
-  useEffect(() => {
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
-    });
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-    buscaPermissoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissoes');
-    });
-  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
-
-  useEffect(() => {
-    const idsAC = [];
-    let idAG = '';
-    funcoes.map((_funcao) => {
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(_funcao.id);
-      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = _funcao.id;
-      }
-    });
-    setIdsAssessorCoordenador(idsAC);
-    setIdAssessorGestao(idAG);
-  }, [funcoes]);
-
-
-  const { enqueueSnackbar } = useSnackbar();
-  const NewUserSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    email: Yup.string().required('Email é obrigatório').email('Email tem que ser um endereço de email válido'),
-    senha: Yup.string(),
-    funcao_usuario: Yup.string(),
-  });
-  
   const defaultValues = useMemo(
     () => ({
       nome: currentUser?.nome || '',
-      email: currentUser?.email || '',
-      senha: currentUser?.senha || '',
+      emailFormUser: currentUser?.email || '',
+      senhaFormUser: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
-      status: (currentUser?.status ? "true" : "false") || '',
       zona: currentUser?.zona || '',
       escola: currentUser?.escola || '',
+      status: (currentUser?.status ? 'true' : 'false') || '',
     }),
     [currentUser]
   );
@@ -106,118 +70,113 @@ export default function UserNewEditForm({ currentUser }) {
     defaultValues,
   });
 
-
   const {
-    register,
     reset,
     watch,
-    control,
     setValue,
     handleSubmit,
-    getValues,
     formState: { isSubmitting },
   } = methods;
 
   const values = watch();
-
   const { funcao } = values;
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      var novoUsuario = {}
-      if (data.senha) {
-        novoUsuario = {
-          nome:  data.nome,
-          email: data.email,
-          senha: data.senha, 
-          login: data.email,
-          status: data.status,
-        }
-      } else {
-        novoUsuario = {
-          nome:  data.nome,
-          email: data.email,
-          login: data.email,
-          status: data.status,
-        }
+  const _funcaoSelected = funcoes.find((_funcao) => _funcao.id == funcao);
+  const _isSingleEscola = _funcaoSelected
+    ? ['DIRETOR'].includes(_funcaoSelected.nome)
+    : true;
+
+  const preparacaoInicial = useCallback(async () => {
+    isFirstLayoutData.onTrue();
+    console.log('!!! preparacaoInicial !!!');
+
+    await Promise.all([
+      buscaFuncoes().catch((error) => {
+        console.error(error);
+        setErrorMsg('Erro de comunicação com a API de funções');
+      }),
+      buscaEscolas().catch((error) => {
+        console.error(error);
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaZonas().catch((error) => {
+        console.error(error);
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
+      buscaPermissoes().catch((error) => {
+        console.error(error);
+        setErrorMsg('Erro de comunicação com a API de permissoes');
+      }),
+    ]);
+
+    contextReady.onTrue();
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, contextReady]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    if (contextReady.value) {
+      if (idsAssessorCoordenador.length == 0 && idAssessorGestao.length == 0) {
+        setIdsAssessorCoordenador(
+          funcoes
+            .filter((_funcao) =>
+              ['ASSESSOR DDZ', 'COORDENADOR DE GESTÃO'].includes(_funcao.nome.toUpperCase())
+            )
+            .map((_funcao) => _funcao.id)
+        );
+
+        setIdAssessorGestao(
+          funcoes.find((_funcao) => _funcao.nome.toUpperCase() == 'ASSESSOR DE GESTÃO')?.id ?? ''
+        );
+
+        setIdAdmin(funcoes.find((_funcao) => _funcao.nome.toUpperCase() == 'ADMIN')?.id ?? '');
       }
-      if (idsAssessorCoordenador.includes(data.funcao)) {
-        if (data.zona == '') {
-          setErrorMsg('Voce deve selecionar uma zona');
-          return
-        } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
-            zona_id: data.zona,
-          }];
-        }
-      } else if (data.funcao == idAssessorGestao) {
-        if (filters.escolasAG.length == 0) {
-          setErrorMsg('Voce deve selecionar uma ou mais escolas');
-        } else {
-          novoUsuario.funcao_usuario = [];
-          filters.escolasAG.map((escolaId) => {
-            novoUsuario.funcao_usuario.push({
-              funcao_id: data.funcao,
-              escola_id: escolaId,
-            })
-          })
+
+      if (!!currentUser) {
+        const __funcaoSelected = funcoes.find((_funcao) => _funcao.id == currentUser.funcao);
+        const __isSingleEscola = __funcaoSelected
+          ? ['DIRETOR'].includes(__funcaoSelected.nome)
+          : true;
+
+        if (currentUser?.escola && _.isArray(currentUser?.escola) && !__isSingleEscola) {
+          setFilters(() => ({ escolasAssessorGestao: currentUser?.escola }));
         }
 
-      } else {
-        if (data.escola == '') {
-          setErrorMsg('Voce deve selecionar uma escola');
-          return
-        } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
-            escola_id: data.escola,
-          }];
-        }
+        const _no = {
+          ...defaultValues,
+          ...(__isSingleEscola && _.isArray(currentUser?.escola)
+            ? { escola: _.first(currentUser.escola) }
+            : {}),
+        };
+        reset(_no);
+      } else if (isNewUser) {
+        isFirstLayoutData.onFalse();
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
-      if (currentUser) {
-        await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
-          throw error;
-        });
-        
-      } else {
-        await userMethods.insertUser(novoUsuario).catch((error) => {
-          throw error;
-        });
-      }
-      reset();
-      enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      router.push(paths.dashboard.user.list);
-      console.info('DATA', data);
-    } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
-      });
-      const mensagem = arrayMsg.join(' ');
-      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
-      console.error(error);
     }
+  }, [contextReady.value, currentUser]);
+  const { enqueueSnackbar } = useSnackbar();
+
+  const NewUserSchema = Yup.object().shape({
+    nome: Yup.string().required('Nome é obrigatório'),
+    emailFormUser: Yup.string()
+      .required('Email é obrigatório')
+      .email('Email tem que ser um endereço de email válido'),
+    senhaFormUser: Yup.string(),
+    funcao_usuario: Yup.string(),
   });
 
-  useEffect(()  => {
-    reset(defaultValues)
-    const escIds = [];
-    currentUser?.escola?.map((escolaId) => {
-      escIds.push(escolaId)
-    })
-    const novosFiltros = {
-      escolasAG: escIds
+  useEffect(() => {
+    if (contextReady.value) {
+      if (!isFirstLayoutData.value) {
+        setValue('escola', '');
+        setValue('zona', '');
+        setFilters(defaultFilters);
+      } else {
+        isFirstLayoutData.onFalse();
+      }
     }
-    setFilters(novosFiltros);
-  }, [reset, currentUser?.escola, defaultValues]);
-  
-  useEffect(()  => {
-    setFilters(filtros);
-    setValue('escola', '');
-    setValue('zona', '');
   }, [funcao, setValue]);
 
   const handleFilters = useCallback(
@@ -225,138 +184,238 @@ export default function UserNewEditForm({ currentUser }) {
       const novosFiltros = {
         ...filters,
         [nome]: value,
-      }
+      };
       setFilters(novosFiltros);
     },
     [filters]
   );
-  
-  const handleEscolasAG = useCallback(
+
+  const handleEscolasAssessorGestao = useCallback(
     (event) => {
       handleFilters(
-        'escolasAG',
+        'escolasAssessorGestao',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
     },
     [handleFilters]
   );
 
-  const renderValueEscolasAG = (selected) => 
-    selected.map((escolaId) => {
-      return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+  const renderValueEscolasAssessorGestao = (selected) =>
+    selected
+      .map((escolaId) => {
+        return escolas.find((option) => option.id == escolaId)?.nome;
+      })
+      .join(', ');
 
-  const escolaOuZona = () => {
-    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
-      return (
-        <RHFSelect
-          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
-          {zonas.map((zona) => (
-            <MenuItem key={zona.id} value={zona.id}>
-              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-            </MenuItem>
-          ))}
-        </RHFSelect>
-      )
-    } 
-    if ( getValues('funcao') == idAssessorGestao ) {
-      return (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-          }}
-        >      
-          <InputLabel>Escolas</InputLabel>
-          <Select
-            multiple
-            name="escola"
-            disabled={getValues('funcao') == '' ? true : false}
-            value={filters.escolasAG}
-            onChange={handleEscolasAG}
-            input={<OutlinedInput label="Escolas" />}
-            renderValue={renderValueEscolasAG}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {escolas?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
-                  {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )
-    } else {
-      return (
-        <RHFSelect 
-          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-          {escolas.map((escola) => (
-            <MenuItem key={escola.id} value={escola.id}>
-              {escola.nome}
-            </MenuItem>
-          ))}
-        </RHFSelect>
-      )
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      var payloadUsuario = {};
+      if (data.senhaFormUser) {
+        payloadUsuario = {
+          nome: data.nome,
+          email: data.emailFormUser,
+          senha: data.senhaFormUser,
+          login: data.emailFormUser,
+          status: data.status,
+        };
+      } else {
+        payloadUsuario = {
+          nome: data.nome,
+          email: data.emailFormUser,
+          login: data.emailFormUser,
+          status: data.status,
+        };
+      }
+
+      const _permissao = permissoes.find((permissao) => permissao.nome == _funcaoSelected.nome);
+
+      if (idsAssessorCoordenador.includes(data.funcao)) {
+        if (data.zona == '') {
+          setErrorMsg('Voce deve selecionar uma zona');
+          return;
+        } else {
+          payloadUsuario.funcao_usuario = [
+            {
+              funcao_id: data.funcao,
+              zona_id: data.zona,
+            },
+          ];
+        }
+      } else if (data.funcao == idAssessorGestao) {
+        if (filters.escolasAssessorGestao.length == 0) {
+          setErrorMsg('Voce deve selecionar uma ou mais escolas');
+        } else {
+          payloadUsuario.funcao_usuario = [];
+          filters.escolasAssessorGestao.map((escolaId) => {
+            payloadUsuario.funcao_usuario.push({
+              funcao_id: data.funcao,
+              escola_id: escolaId,
+            });
+          });
+        }
+      } else {
+        if (data.escola == '') {
+          setErrorMsg('Voce deve selecionar uma escola');
+          return;
+        } else {
+          payloadUsuario.funcao_usuario = [
+            {
+              funcao_id: data.funcao,
+              escola_id:
+                _isSingleEscola && _.isArray(data.escola) ? _.first(data.escola) : data.escola,
+            },
+          ];
+        }
+      }
+
+      payloadUsuario.permissao_usuario_id = [_permissao.id];
+
+      if (currentUser) {
+        await userMethods.updateUserById(currentUser.id, payloadUsuario).catch((error) => {
+          throw error;
+        });
+      } else {
+        await userMethods.insertUser(payloadUsuario).catch((error) => {
+          throw error;
+        });
+      }
+      reset();
+      enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+      console.info('DATA', data);
+      router.push(paths.dashboard.user.list);
+    } catch (error) {
+      const arrayMsg = Object.values(error).map((msg) => {
+        return msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '';
+      });
+      const mensagem = arrayMsg.join(' ');
+      currentUser
+        ? setErrorMsg(`Tentativa de atualização do usuário falhou - ${mensagem}`)
+        : setErrorMsg(`Tentativa de criação do usuário falhou - ${mensagem}`);
+      console.error(error);
     }
-  }
-
-
+  });
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
-              <RHFTextField name="nome" label="Nome Completo" />
-              <RHFTextField name="email" label="Email" />
-              <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-              <RHFSelect name="funcao" label="Função">
-                {funcoes.map((_funcao) => (
-                  <MenuItem key={_funcao.id} value={_funcao.id}>
-                    {_funcao.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+      {!contextReady.value && <LoadingBox texto="Carregando dependências" />}
+      {!!contextReady.value && (
+        <Grid container spacing={3}>
+          <Grid xs={12} md={8}>
+            <Card sx={{ p: 3 }}>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
+              >
+                <RHFTextField name="nome" label="Nome Completo" />
+                <RHFTextField
+                  name="emailFormUser"
+                  label="Email"
+                  type="email"
+                  inputProps={{ autoComplete: 'off' }}
+                />
 
-              <RHFSelect name="status" label="Status">
-                {USER_STATUS_OPTIONS.map((status) => (
-                  <MenuItem key={status.value} value={status.value}>
-                    {status.label}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
+                <RHFSelect name="funcao" label="Função">
+                  {funcoes.map((_funcao) => (
+                    <MenuItem key={_funcao.id} value={_funcao.id}>
+                      {_funcao.nome}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
 
-              {escolaOuZona()}
+                {idsAssessorCoordenador.includes(funcao) && (
+                  <RHFSelect disabled={funcao == '' ? true : false} name="zona" label="DDZ">
+                    {zonas.map((_zona) => (
+                      <MenuItem key={_zona.id} value={_zona.id}>
+                        <Box sx={{ textTransform: 'capitalize' }}>{_zona.nome}</Box>
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
+                )}
 
-            </Box>
+                {funcao == idAssessorGestao && (
+                  <FormControl
+                    sx={{
+                      flexShrink: 0,
+                    }}
+                  >
+                    <InputLabel>Escolas</InputLabel>
+                    <Select
+                      multiple
+                      name="escola"
+                      disabled={funcao == '' ? true : false}
+                      value={filters.escolasAssessorGestao}
+                      onChange={handleEscolasAssessorGestao}
+                      input={<OutlinedInput label="Escolas" />}
+                      renderValue={renderValueEscolasAssessorGestao}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: { maxHeight: 240 },
+                        },
+                      }}
+                    >
+                      {escolas?.map((_escola) => (
+                        <MenuItem key={_escola.id} value={_escola.id}>
+                          <Checkbox
+                            disableRipple
+                            size="small"
+                            checked={filters.escolasAssessorGestao.includes(_escola.id)}
+                          />
+                          {_escola.nome}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
 
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
-              </LoadingButton>
-            </Stack>
-          </Card>
+                {![...idsAssessorCoordenador, idAssessorGestao, idAdmin].includes(funcao) && (
+                  <RHFSelect disabled={funcao == '' ? true : false} name="escola" label="Escola">
+                    {escolas.map((_escola) => (
+                      <MenuItem key={_escola.id} value={_escola.id}>
+                        {_escola.nome}
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
+                )}
+
+                {funcao == idAdmin && <Box></Box>}
+
+                <RHFTextField
+                  name="senhaFormUser"
+                  label={currentUser ? 'Nova senha' : 'Senha'}
+                  type="password"
+                  inputProps={{ autoComplete: 'off' }}
+                />
+
+                <RHFSelect name="status" label="Status">
+                  {USER_STATUS_OPTIONS.map((status) => (
+                    <MenuItem key={status.value} value={status.value}>
+                      {status.label}
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
+              </Box>
+
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
+                </LoadingButton>
+              </Stack>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+      )}
     </FormProvider>
   );
 }
 
 UserNewEditForm.propTypes = {
   currentUser: PropTypes.object,
+  isNewUser: PropTypes.bool,
 };

@@ -42,23 +42,23 @@ import userMethods from 'src/sections/user/user-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
-import ProfissionalQuickEditForm from '../profissional-quick-edit-form';
+import UserQuickEditForm from 'src/sections/user/user-quick-edit-form';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: 'profissional', label: 'Profissional', notsortable: true },
+  { id: 'profissional', label: 'Profissional', width: 120, notsortable: true },
   { id: 'email', label: 'E-Mail', width: 200, notsortable: true },
   { id: 'funcao', label: 'Função', width: 100, notsortable: true },
   { id: 'escola', label: 'Escola', width: 100, notsortable: true },
   { id: 'zona', label: 'DDZ', width: 100, notsortable: true },
-  { id: 'turma', label: 'turma?', width: 100, notsortable: true },
+  { id: 'turma', label: 'turma?', notsortable: true },
   { id: '', width: 88, notsortable: true },
 ];
 
 const defaultFilters = {
   nome: '',
   escola: [],
-  role: [],
+  funcao: [],
 };
 
 // ----------------------------------------------------------------------
@@ -94,10 +94,10 @@ export default function ProfissionalListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, role } = filtros;
+      const { nome, escola, funcao } = filtros;
 
       await profissionalMethods
-        .getAllProfissionaisPaginado({ offset, limit, nome: nome, escolas: escola, funcao: role })
+        .getAllProfissionaisPaginado({ offset, limit, nome: nome, escolas: escola, funcao: funcao })
         .then(async (profissionais) => {
           if (profissionais.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de profissionais');
@@ -186,7 +186,6 @@ export default function ProfissionalListView() {
 
   const handleFilters = useCallback(
     async (nome, value) => {
-      table.onResetPage();
       const novosFiltros = {
         ...filters,
         [nome]: value,
@@ -240,22 +239,11 @@ export default function ProfissionalListView() {
     quickEdit.onFalse();
   };
 
-  const handleResetFilters = useCallback(() => {
-    const resetFilters = {
-      nome: '',
-      escola: [],
-      role: [],
-    };
-    setTableData([]);
-    setFilters(resetFilters);
-    buscaProfissionais(table.page, table.rowsPerPage);
-  }, [buscaProfissionais, table.page, table.rowsPerPage]);
-
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth="xl">
         <CustomBreadcrumbs
-          heading="Listar"
+          heading="Profissionais da Educação"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
             { name: 'Profissionais', href: paths.dashboard.profissional.root },
@@ -299,7 +287,7 @@ export default function ProfissionalListView() {
             <ProfissionalTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              roleOptions={funcoes}
+              funcaoOptions={funcoes}
               escolaOptions={escolas}
             />
 
@@ -314,7 +302,7 @@ export default function ProfissionalListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
-                table.setPage(0);
+                table.onResetPage();
                 buscaProfissionais(table.page, table.rowsPerPage, [], filters);
               }}
             >
@@ -373,7 +361,8 @@ export default function ProfissionalListView() {
       </Container>
 
       {checkPermissaoModulo('profissionais', 'editar') && (
-        <ProfissionalQuickEditForm
+        <UserQuickEditForm
+          tela='Profissionais'
           row={rowToEdit}
           open={quickEdit.value}
           onClose={quickEdit.onFalse}

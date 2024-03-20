@@ -40,7 +40,7 @@ import UserTableRow from '../user-table-row';
 import UserTableToolbar from '../user-table-toolbar';
 //
 import userMethods from '../user-repository';
-
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 // auth
@@ -51,8 +51,9 @@ import UserQuickEditForm from '../user-quick-edit-form';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: 'nome', label: 'Nome', notsortable: true },
-  { id: 'email', label: 'E-Mail', width: 300, notsortable: true },
+  { id: 'nome', label: 'Nome', width: 120, notsortable: true },
+  { id: 'email', label: 'E-Mail', width: 200, notsortable: true },
+  { id: 'funcao', label: 'Função', width: 100, notsortable: true },
   { id: 'status', label: 'Status', width: 200, notsortable: true },
   { id: '', width: 88, notsortable: true },
 ];
@@ -60,6 +61,7 @@ const TABLE_HEAD = [
 const defaultFilters = {
   nome: '',
   ddz: [],
+  funcao: [],
   escola: [],
   status: 'all',
 };
@@ -72,6 +74,7 @@ export default function UserListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const preparado = useBoolean(false);
 
@@ -101,7 +104,7 @@ export default function UserListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, zona, status } = filtros;
+      const { funcao, escola, nome, status } = filtros;
       let statusFilter = '';
 
       switch (status) {
@@ -118,7 +121,7 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          zona: zona,
+          funcao: funcao,
           status: statusFilter,
         })
         .then(async (usuarios) => {
@@ -153,7 +156,7 @@ export default function UserListView() {
           setErrorMsg('Erro de comunicação com a API de usuários');
           console.log(error);
         });
-        preparado.onTrue();
+      preparado.onTrue();
     },
     [preparado, filters]
   );
@@ -162,7 +165,9 @@ export default function UserListView() {
     async (filtros = filters) => {
       const offset = 0;
       const limit = 1;
-      const { nome, escola, zona, status } = filtros;
+      const { funcao, escola, nome, status } = filtros;
+
+      let _total = 0;
 
       await userMethods
         .getAllUsersPaginado({
@@ -170,24 +175,12 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          zona: zona,
-          status: '',
-        })
-        .then(async (resultado) => {
-          setCountAll(resultado.data.count);
-        });
-
-      await userMethods
-        .getAllUsersPaginado({
-          offset,
-          limit,
-          nome: nome,
-          escolas: escola,
-          zona: zona,
+          funcao: funcao,
           status: 'True',
         })
         .then(async (resultado) => {
           setCountAtivos(resultado.data.count);
+          _total += resultado.data.count;
         });
 
       await userMethods
@@ -196,12 +189,15 @@ export default function UserListView() {
           limit,
           nome: nome,
           escolas: escola,
-          zona: zona,
+          funcao: funcao,
           status: 'False',
         })
         .then(async (resultado) => {
           setCountInativos(resultado.data.count);
+          _total += resultado.data.count;
         });
+
+      setCountAll(_total);
     },
     [filters]
   );
@@ -210,6 +206,10 @@ export default function UserListView() {
     await Promise.all([
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
+        preparado.onTrue();
+      }),
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
         preparado.onTrue();
       }),
       buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
@@ -251,7 +251,6 @@ export default function UserListView() {
 
   const handleFilters = useCallback(
     (nome, value) => {
-      table.onResetPage();
       const novosFiltros = {
         ...filters,
         [nome]: value,
@@ -317,7 +316,7 @@ export default function UserListView() {
 
   return (
     <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+      <Container maxWidth="xl">
         <CustomBreadcrumbs
           heading="Usuários"
           links={[
@@ -399,6 +398,7 @@ export default function UserListView() {
               filters={filters}
               onFilters={handleFilters}
               escolaOptions={escolas}
+              funcaoOptions={funcoes}
             />
             <Button
               variant="contained"
@@ -411,7 +411,7 @@ export default function UserListView() {
               onClick={() => {
                 preparado.onFalse();
                 setTableData([]);
-                table.setPage(0);
+                table.onResetPage();
                 contarUsuarios();
                 buscaUsuarios(table.page, table.rowsPerPage, [], filters);
               }}
@@ -473,9 +473,9 @@ export default function UserListView() {
       {checkPermissaoModulo('usuario', 'editar') && (
         <UserQuickEditForm
           row={rowToEdit}
-          open={quickEdit.value}
           onClose={quickEdit.onFalse}
           onSave={saveAndClose}
+          open={quickEdit.value}
         />
       )}
     </>

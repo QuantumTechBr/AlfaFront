@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -17,29 +17,33 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import alunoMethods from './aluno-repository';
 import { saveCSVFile } from 'src/utils/functions';
 
+import { AuthContext } from 'src/auth/context/alfa';
+
 // ----------------------------------------------------------------------
 
 export default function AlunoTableToolbar({
   filters,
   onFilters,
+  ddzOptions,
   escolaOptions,
   turmaOptions,
   faseOptions,
 }) {
-  const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
-  
-  const popover = usePopover();
+  const { user } = useContext(AuthContext);
 
-  const handleFilterNome = useCallback(
-    (event) => {
-      onFilters('nome', event.target.value);
-    },
-    [onFilters]
+  const getEscola = useCallback(
+    (escolaId) => escolaOptions.find((e) => e.id == escolaId),
+    [escolaOptions]
   );
 
-  const handleFilterMatricula = useCallback(
+  const popover = usePopover();
+
+  const handleFilterZona = useCallback(
     (event) => {
-      onFilters('matricula', event.target.value);
+      onFilters(
+        'zona',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
     },
     [onFilters]
   );
@@ -70,6 +74,20 @@ export default function AlunoTableToolbar({
         'fase',
         typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
       );
+    },
+    [onFilters]
+  );
+
+  const handleFilterNome = useCallback(
+    (event) => {
+      onFilters('nome', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterMatricula = useCallback(
+    (event) => {
+      onFilters('matricula', event.target.value);
     },
     [onFilters]
   );
@@ -112,6 +130,32 @@ export default function AlunoTableToolbar({
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+          {ddzOptions && (
+            <FormControl sx={{ flexShrink: 0, width: { xs: '100%', md: 140 } }}>
+              <InputLabel>DDZ</InputLabel>
+              <Select
+                multiple
+                disabled={user?.funcao_usuario?.length > 0 ? true : false}
+                value={filters.zona}
+                onChange={handleFilterZona}
+                input={<OutlinedInput fullWidth label="DDZ" />}
+                renderValue={(selected) => selected.map((value) => value.nome).join(', ')}
+                MenuProps={{
+                  PaperProps: {
+                    sx: { maxHeight: 240 },
+                  },
+                }}
+              >
+                {ddzOptions?.map((option) => (
+                  <MenuItem key={option.id} value={option}>
+                    <Checkbox disableRipple size="small" checked={filters.zona.includes(option)} />
+                    {option.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
           <FormControl
             sx={{
               flexShrink: 0,
@@ -282,4 +326,8 @@ export default function AlunoTableToolbar({
 AlunoTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
+  ddzOptions: PropTypes.array,
+  escolaOptions: PropTypes.array,
+  turmaOptions: PropTypes.array,
+  faseOptions: PropTypes.array,
 };
