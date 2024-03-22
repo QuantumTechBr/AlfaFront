@@ -107,18 +107,18 @@ export default function ProfissionalListView() {
             const pros = profissionais.data.results;
 
             for (var i = 0; i < pros.length; i++) {
-              const funcao = [];
-              const zona = [];
-              const proEscola = [];
+              const _funcao = [];
+              const _zona = [];
+              const _proEscola = [];
               if (pros[i].funcao_usuario?.length > 0) {
                 for (let index = 0; index < pros[i].funcao_usuario.length; index++) {
-                  funcao.push(pros[i].funcao_usuario[index].funcao?.id);
-                  proEscola.push(pros[i].funcao_usuario[index].escola?.id);
-                  zona.push(pros[i].funcao_usuario[index].zona?.id);
+                  _funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+                  _proEscola.push(pros[i].funcao_usuario[index].escola?.id);
+                  _zona.push(pros[i].funcao_usuario[index].zona?.id);
                 }
-                pros[i].funcao = funcao[0] ? funcao[0] : '';
-                pros[i].escola = proEscola ? proEscola : '';
-                pros[i].zona = zona[0] ? zona[0] : '';
+                pros[i].funcao = _funcao[0] ? _funcao[0] : '';
+                pros[i].escola = _proEscola ? _proEscola : '';
+                pros[i].zona = _zona[0] ? _zona[0] : '';
               } else {
                 pros[i].funcao = '';
                 pros[i].escola = '';
