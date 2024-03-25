@@ -1,5 +1,5 @@
 'use client';
-
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useMemo } from 'react';
@@ -36,6 +36,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { useContext } from 'react';
+import Typography from '@mui/material/Typography';
 
 
 // ----------------------------------------------------------------------
@@ -54,12 +55,31 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
 
-  const labelHabilidade = (habilidade) => {
-    const { nome, descricao } = habilidade;
+  const labelHabilidade = (habilidades, i) => {
+    const list_retorno = [];
+    list_retorno.push(`- ${habilidades[0].nome}: `);
+    list_retorno.push(` ${habilidades[0].descricao}\n`);
+    list_retorno.push(`- ${habilidades[1].nome}: `);
+    list_retorno.push(` ${habilidades[1].descricao} `);
+    // const nome_1 = habilidades[0].nome;
+    // const descricao_1 = habilidades[0].descricao;
+    // const nome_2 = habilidades[1].nome;
+    // const descricao_2 = habilidades[1].descricao;
+    // ''.concat(...list_retorno)]
+    <br></br>
     return (
         <Box>
-          {nome}
-          <Tooltip title={descricao}>
+          {`R${i}`}
+          <Tooltip 
+          title={
+            // ''.concat(...list_retorno)
+            <React.Fragment>
+            <Typography color="inherit">Tooltip with HTML</Typography>
+            <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
+            {"It's very engaging. Right?"}
+            </React.Fragment>
+          }
+          >
           <InfoIcon 
               sx={{
                 fontSize: 'large',
@@ -80,13 +100,14 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   }, []);
 
   useEffect(() => {
+    console.log(habilidades)
     const cabecalho = [
         { id: 'matricula', label: 'Matrícula', width: 150 },
         { id: 'nome', label: 'Nome', width: 150 },
         { id: 'frequencia', label: 'Frequência', width: 200 },
     ];
     for (var i = 1; i < 21; i++) {
-      cabecalho.push({ id: `R${i}`, label: `R${i}`, width: 50 });
+      cabecalho.push({ id: `R${i}`, label: habilidades.length > 0 ? labelHabilidade(habilidades, i) : `R${i}`, width: 50 });
     }
     cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
     cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 200, minWidth: 200 });
