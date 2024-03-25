@@ -129,27 +129,32 @@ export default function RegistroAprendizagemFaseListView() {
       }));
 
       if (_filters.anoLetivo) {
-        buscarAvaliacoes();
+        buscarAvaliacoes(table.page, table.rowsPerPage)
       }
     }
   }, [contextReady.value]);
 
-  const buscarAvaliacoes = async () => {
+  const buscarAvaliacoes = useCallback(async (pagina = 0, linhasPorPagina = 25, prevList = [], filtros = filters) => {
     if (contextReady.value && anosLetivos.length && turmas.length && bimestres.length) {
-      setTableData([]);
-      tabelaPreparada.onFalse();
-      buscando.onTrue();
+      // setTableData([]);
       setWarningMsg('');
       setErrorMsg('');
+      tabelaPreparada.onFalse();
+      buscando.onTrue();
 
-      const _registrosAprendizagemFase = [];
-
+      const offset = pagina * linhasPorPagina;
+      const limit = linhasPorPagina;
+      
       const _filtersToSend = {
-        turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
-        bimestreId: (filters.bimestre.length ? filters.bimestre : bimestres).map(
+        turmaId: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
+        bimestreId: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
           (bimestre) => bimestre.id
-        ),
+          ),
+        offset:offset,
+        limit:limit
       };
+        
+      const _newList = [];
 
       await registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
@@ -158,7 +163,7 @@ export default function RegistroAprendizagemFaseListView() {
             const _turma = turmas.find((turma) => turma.id == registro.turma_id);
             if (_turma?.id) {
               const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
-              _registrosAprendizagemFase.push({
+              _newList.push({
                 id: _turma.id,
                 ano_letivo: anosLetivos.find((a) => a.id == _turma.ano_id).ano,
                 ano_escolar: _turma.ano_escolar,
@@ -171,7 +176,8 @@ export default function RegistroAprendizagemFaseListView() {
               });
             }
           });
-          setTableData(_registrosAprendizagemFase);
+          setTableData([...prevList, ..._newList]);
+
           tabelaPreparada.onTrue();
         })
         .catch((error) => {
@@ -180,7 +186,7 @@ export default function RegistroAprendizagemFaseListView() {
 
       buscando.onFalse();
     }
-  };
+  }, [contextReady, anosLetivos, turmas, bimestres, filters]);
 
   useEffect(() => {
     const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
@@ -248,6 +254,23 @@ export default function RegistroAprendizagemFaseListView() {
     novaAvaliacao.onFalse();
   };
 
+  const onChangePage = async (event, newPage) => {
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscarAvaliacoes(newPage, table.rowsPerPage, tableData);
+    }
+    table.setPage(newPage);
+  };
+
+  const onChangeRowsPerPage = useCallback(
+    (event) => {
+      table.setPage(0);
+      table.setRowsPerPage(parseInt(event.target.value, 10));
+      setTableData([]);
+      buscarAvaliacoes(0, event.target.value);
+    },
+    [buscarAvaliacoes, table]
+  );
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <Stack
@@ -313,7 +336,11 @@ export default function RegistroAprendizagemFaseListView() {
                 md: '15%',
               },
             }}
-            onClick={buscarAvaliacoes}
+            onClick={() => {
+              setTableData([]);
+              table.setPage(0);
+              buscarAvaliacoes(table.page, table.rowsPerPage, []);
+            }}
           >
             Aplicar filtros
           </Button>
@@ -359,8 +386,8 @@ export default function RegistroAprendizagemFaseListView() {
           count={tableData.length}
           page={table.page}
           rowsPerPage={table.rowsPerPage}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
+          onPageChange={onChangePage}
+          onRowsPerPageChange={onChangeRowsPerPage}
         />
       </Card>
     </Container>
