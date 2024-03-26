@@ -192,7 +192,7 @@ export default function RegistroAprendizagemComponenteListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação por componente</Typography>
+          <Typography variant="h4">Acompanhamento por componente</Typography>
           {/* <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_componente}
