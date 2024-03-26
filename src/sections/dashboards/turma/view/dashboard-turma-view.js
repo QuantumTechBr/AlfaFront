@@ -185,7 +185,7 @@ export default function DashboardTurmaView() {
           (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
         ],
         laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
-        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`[\"${_filtersToSearch.pneItem}\"]`],
+        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`["${_filtersToSearch.pneItem}"]`],
       };
 
       await Promise.all([

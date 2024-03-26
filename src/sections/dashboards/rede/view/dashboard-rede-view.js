@@ -114,7 +114,7 @@ export default function DashboardRedeView() {
           })
         ),
         laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
-        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`[\"${_filtersToSearch.pneItem}\"]`],
+        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`["${_filtersToSearch.pneItem}"]`],
       };
 
       await Promise.all([

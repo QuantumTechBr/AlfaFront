@@ -157,13 +157,13 @@ export default function DashboardDDZTableToolbar({
               },
             }}
           >
-            <MenuItem key={`pneOption_unset`} value={'-'}>
+            <MenuItem key="pneOption_unset" value="-">
               Todos os estudantes
             </MenuItem>
-            <MenuItem key={`pneOption_semPne`} value={'false'}>
+            <MenuItem key="pneOption_semPne" value="false">
               Sem necessidades especiais
             </MenuItem>
-            <MenuItem key={`pneOption_comPne`} value={'true'}>
+            <MenuItem key="pneOption_comPne" value="true">
               Com necessidades especiais
             </MenuItem>
           </Select>
