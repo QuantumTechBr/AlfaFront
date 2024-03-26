@@ -140,7 +140,7 @@ export default function DashboardDDZView() {
               const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) =>
                 _.last(s.qtd_nao_alfabetizado)
               );
-              const _deixou_de_frequentar = _.sumBy(escolaTurmas, (s) =>
+              const _nao_avaliados = _.sumBy(escolaTurmas, (s) =>
                 _.last(s.qtd_nao_avaliado)
               );
 
@@ -154,7 +154,7 @@ export default function DashboardDDZView() {
                 avaliados: _avaliados,
                 alfabetizados: _alfabetizados,
                 nao_alfabetizados: _nao_alfabetizados,
-                deixou_de_frequentar: _deixou_de_frequentar,
+                nao_avaliados: _nao_avaliados,
                 //
                 indice_alfabetizacao:
                   _avaliados > 0
@@ -250,7 +250,7 @@ export default function DashboardDDZView() {
     { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
     { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
     { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 160, notsortable: true },
-    { id: 'deixou_de_frequentar', label: 'Deixou de frequentar', width: 180, notsortable: true },
+    { id: 'nao_avaliados', label: 'Não avaliados', width: 180, notsortable: true },
     { id: '', width: 88, notsortable: true },
   ];
 
@@ -296,8 +296,8 @@ export default function DashboardDDZView() {
               amount: _.sumBy(dados.grid_escolas, (s) => s.nao_alfabetizados),
             },
             {
-              name: 'Deixou de frequentar',
-              amount: _.sumBy(dados.grid_escolas, (s) => s.deixou_de_frequentar),
+              name: 'Não avaliados',
+              amount: _.sumBy(dados.grid_escolas, (s) => s.nao_avaliados),
             },
           ],
         },
@@ -584,7 +584,7 @@ function Row(props) {
         <TableCell>{row.avaliados ?? 0}</TableCell>
         <TableCell>{row.alfabetizados ?? 0}</TableCell>
         <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
-        <TableCell>{row.deixou_de_frequentar ?? 0}</TableCell>
+        <TableCell>{row.nao_avaliados ?? 0}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
             component={RouterLink}
@@ -610,7 +610,7 @@ function Row(props) {
                     <TableCell>Avaliados</TableCell>
                     <TableCell>Alfabetizados</TableCell>
                     <TableCell>Não alfabetizados</TableCell>
-                    <TableCell>Deixou de frequentar</TableCell>
+                    <TableCell>Não avaliados</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 </TableHead>
