@@ -203,7 +203,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const _bimestre = getValues('bimestre');
 
     const retornoPadrao = {
-      nome: `Avaliação de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${
+      nome: `Acompanhamento de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${
         _bimestre.ordinal
       }º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
       bimestre_id: _bimestre.id,
@@ -316,17 +316,17 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
       <CustomBreadcrumbs
-        heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
+        heading="Criação/Edição Acompanhamento de Fase do Desenvolvimento da Leitura e da Escrita"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Avaliações de Fase',
+            name: 'Acompanhamentos de Fase',
             href: paths.dashboard.registro_aprendizagem.root_fase,
           },
-          { name: 'Avaliação de Fase' },
+          { name: 'Acompanhamento de Fase' },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

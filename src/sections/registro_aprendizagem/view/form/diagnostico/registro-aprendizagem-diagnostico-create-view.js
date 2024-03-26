@@ -174,17 +174,17 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
       <CustomBreadcrumbs
-        heading="Criar nova Avaliação Diagnóstica"
+        heading="Criar novo Acompanhamento Diagnóstico"
         links={[
           {
             name: 'Dashboard',
             href: paths.dashboard.root,
           },
           {
-            name: 'Avaliações Diagnósticas',
+            name: 'Acompanhamentos Diagnósticos',
             href: paths.dashboard.registro_aprendizagem.root_diagnostico,
           },
-          { name: 'Avaliação Diagnóstica - ' + `${periodo}` },
+          { name: 'Acompanhamento Diagnóstico - ' + `${periodo}` },
         ]}
         sx={{
           mb: { xs: 3, md: 5 },

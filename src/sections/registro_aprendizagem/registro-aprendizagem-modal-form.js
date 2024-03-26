@@ -100,8 +100,8 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   const { tipo, escola, turma, periodo, bimestre } = values;
 
-  const isTipoFase = tipo == 'Avaliação de Fase';
-  const isTipoDiagnostico = tipo == 'Avaliação Diagnóstica';
+  const isTipoFase = tipo == 'Acompanhamento de Fase';
+  const isTipoDiagnostico = tipo == 'Acompanhamento Diagnóstico';
 
   const podeAvancar = (isTipoFase && escola && turma && bimestre) || (isTipoDiagnostico && escola && turma && periodo);
 
@@ -159,7 +159,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Registro de Avaliação</DialogTitle>
+        <DialogTitle>Registro de Acompanhamento</DialogTitle>
 
         <IconButton
           aria-label="close"

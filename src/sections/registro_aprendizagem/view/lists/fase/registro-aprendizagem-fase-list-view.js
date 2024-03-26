@@ -282,7 +282,7 @@ export default function RegistroAprendizagemFaseListView() {
         }}
       >
         <Typography variant="h4">
-          Avaliação de Fases do Desenvolvimento da Leitura e da Escrita
+        Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita
         </Typography>
         {permissaoCadastrar &&
           <Button
@@ -301,7 +301,7 @@ export default function RegistroAprendizagemFaseListView() {
       <NovaAvaliacaoForm
         open={novaAvaliacao.value}
         onClose={closeNovaAvaliacao}
-        initialTipo="Avaliação de Fase"
+        initialTipo="Acompanhamento de Fase"
       />
 
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}

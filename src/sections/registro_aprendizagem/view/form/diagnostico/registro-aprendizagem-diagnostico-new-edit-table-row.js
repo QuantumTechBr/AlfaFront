@@ -79,7 +79,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     if (rNota == '') {
       return false    
     }
-    if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
+    if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
       return true
     } else {
       return false;
@@ -87,14 +87,18 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }
 
   const disableMenuItem = (rNota, rNumero) => {
-    if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR") {
+    if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
       if (mapResultados[rNumero] == '') {
         return false
       } else {
         return mapDesabilitarMenuItem[rNota] < mapDesabilitarMenuItem[mapResultados[rNumero]] ? true : false;
       }
     }
-    return false
+    if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
+      return true
+    } else {
+      return false
+    }
   }
 
   const preenche_R = () => {

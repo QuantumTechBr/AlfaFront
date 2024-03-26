@@ -84,8 +84,8 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Avaliação"
-        content="Tem certeza que deseja excluir a avaliação?"
+        title="Excluir Acompanhamento"
+        content="Tem certeza que deseja excluir o Acompanhamento?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar
