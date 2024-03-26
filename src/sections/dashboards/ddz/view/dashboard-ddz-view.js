@@ -93,6 +93,8 @@ export default function DashboardDDZView() {
     anoLetivo: '',
     zona: zonaFiltro,
     anoEscolar: [],
+    pne: '-',
+    pneItem: '-',
   });
 
   const [dados, setDados] = useState({
@@ -125,6 +127,8 @@ export default function DashboardDDZView() {
             return getTurmasPorAnoEscolar(aE);
           })
         ),
+        laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
+        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`[\"${_filtersToSearch.pneItem}\"]`],
       };
 
       await Promise.all([
