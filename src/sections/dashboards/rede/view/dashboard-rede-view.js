@@ -96,6 +96,17 @@ export default function DashboardRedeView() {
     [turmas]
   );
 
+  //
+  const preDefinedOrder = {
+    'SUL': 0,
+    'OESTE': 1,
+    'NORTE': 2,
+    'CENTRO-SUL': 3,
+    'LESTE I': 4,
+    'LESTE II': 5,
+    'RURAL': 6,
+  };
+
   const preencheGraficos = useCallback(
     async (_filters) => {
       table.onResetPage();
@@ -114,7 +125,10 @@ export default function DashboardRedeView() {
           })
         ),
         laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
-        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`["${_filtersToSearch.pneItem}"]`],
+        necessidades_especiais:
+          _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-'
+            ? []
+            : [`["${_filtersToSearch.pneItem}"]`],
       };
 
       await Promise.all([
@@ -149,10 +163,16 @@ export default function DashboardRedeView() {
             };
           });
 
+          const _sorted = result.sort((a,b) => {
+            const na = preDefinedOrder[a.zona_nome] ?? 0;
+            const nb = preDefinedOrder[b.zona_nome] ?? 0;
+            return na - nb;
+          });
+
           setDados((prevState) => ({
             ...prevState,
             total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
-            grid_ddz: result,
+            grid_ddz: _sorted,
           }));
         }),
 
