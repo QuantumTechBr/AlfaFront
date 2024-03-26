@@ -55,12 +55,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
 
-  const labelHabilidade = (habilidades, i) => {
+  const labelHabilidade = (hab, i) => {
     const list_retorno = [];
-    list_retorno.push(`- ${habilidades[0].nome}: `);
-    list_retorno.push(` ${habilidades[0].descricao}\n`);
-    list_retorno.push(`- ${habilidades[1].nome}: `);
-    list_retorno.push(` ${habilidades[1].descricao} `);
+    list_retorno.push(`- ${hab[0].nome}: `);
+    list_retorno.push(` ${hab[0].descricao}\n`);
+    list_retorno.push(`- ${hab[1].nome}: `);
+    list_retorno.push(` ${hab[1].descricao} `);
     // const nome_1 = habilidades[0].nome;
     // const descricao_1 = habilidades[0].descricao;
     // const nome_2 = habilidades[1].nome;
