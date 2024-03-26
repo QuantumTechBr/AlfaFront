@@ -75,8 +75,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
             // ''.concat(...list_retorno)
             <React.Fragment>
             <Typography color="inherit">Tooltip with HTML</Typography>
-            <em>{"And here's"}</em> <b>{'some'}</b> <u>{'amazing content'}</u>.{' '}
-            {"It's very engaging. Right?"}
+            <em>"And here's"</em> <b>'some'</b> <u>'amazing content'</u>.' '
+            "It's very engaging. Right?"
             </React.Fragment>
           }
           >
