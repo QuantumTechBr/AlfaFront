@@ -228,7 +228,7 @@ export default function DashboardEscolaTableToolbar({
                 },
               }}
             >
-              <MenuItem key="pneItemOption_unset" value={'-'}>
+              <MenuItem key="pneItemOption_unset" value="-">
                 Todas as necessidades
               </MenuItem>
 
