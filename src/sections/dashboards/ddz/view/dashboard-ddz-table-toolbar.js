@@ -16,7 +16,6 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 import { necessidades_especiais } from 'src/_mock';
 
-
 // ----------------------------------------------------------------------
 
 export default function DashboardDDZTableToolbar({
@@ -49,7 +48,10 @@ export default function DashboardDDZTableToolbar({
   );
 
   const handleFilterPne = useCallback((event) => onFilters('pne', event.target.value), [onFilters]);
-  const handleFilterPneItem = useCallback((event) => onFilters('pneItem', event.target.value), [onFilters]);
+  const handleFilterPneItem = useCallback(
+    (event) => onFilters('pneItem', event.target.value),
+    [onFilters]
+  );
 
   return (
     <Grid container spacing={2}>
@@ -183,7 +185,7 @@ export default function DashboardDDZTableToolbar({
                 },
               }}
             >
-              <MenuItem key={`pneItemOption_unset`} value={'-'}>
+              <MenuItem key="pneItemOption_unset" value={'-'}>
                 Todas as necessidades
               </MenuItem>
 

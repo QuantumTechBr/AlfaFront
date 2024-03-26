@@ -141,7 +141,7 @@ export default function DashboardRedeTableToolbar({
                 },
               }}
             >
-              <MenuItem key={`pneItemOption_unset`} value={'-'}>
+              <MenuItem key="pneItemOption_unset" value={'-'}>
                 Todas as necessidades
               </MenuItem>
 
