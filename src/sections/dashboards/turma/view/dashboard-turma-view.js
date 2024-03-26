@@ -81,6 +81,8 @@ export default function DashboardTurmaView() {
     escola: [],
     turma: [],
     bimestre: '',
+    pne: '-',
+    pneItem: '-',
   });
 
   const _objDados = {
@@ -182,6 +184,8 @@ export default function DashboardTurmaView() {
         bimestre: [
           (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
         ],
+        laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
+        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`[\"${_filtersToSearch.pneItem}\"]`],
       };
 
       await Promise.all([
@@ -314,6 +318,8 @@ export default function DashboardTurmaView() {
       escola: [],
       turma: [],
       bimestre: '',
+      pne: '-',
+      pneItem: '-',
     });
   }, [user?.funcao_usuario]);
 
@@ -328,6 +334,8 @@ export default function DashboardTurmaView() {
       escola: [],
       turma: [],
       bimestre: _.last(bimestres),
+      pne: '-',
+      pneItem: '-',
     });
   };
 
