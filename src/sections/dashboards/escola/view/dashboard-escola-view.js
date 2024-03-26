@@ -92,6 +92,8 @@ export default function DashboardEscolaView() {
     escola: [],
     turma: [],
     anoEscolar: [],
+    pne: '-',
+    pneItem: '-',
   });
 
   const [dados, setDados] = useState({
@@ -125,6 +127,8 @@ export default function DashboardEscolaView() {
             return getTurmasPorAnoEscolar(aE);
           })
         ),
+        laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
+        necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`[\"${_filtersToSearch.pneItem}\"]`],
       };
 
       await Promise.all([
@@ -280,6 +284,8 @@ export default function DashboardEscolaView() {
       escola: [],
       turma: [],
       anoEscolar: [],
+      pne: '-',
+      pneItem: '-',
     });
   };
 
