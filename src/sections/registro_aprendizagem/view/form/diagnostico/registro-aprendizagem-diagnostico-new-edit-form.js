@@ -136,7 +136,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
 
       if (itemList.id_registro) {
         const registroAprendizagem = {
-          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
           tipo: 'Diagnóstico',
           periodo: periodo,
           aluno_turma_id: itemList.id,
@@ -150,7 +150,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
         registrosAprendizagem.push(registroAprendizagem);
       } else {
         const registroAprendizagem = {
-          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+          nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
           tipo: 'Diagnóstico',
           periodo: periodo,
           aluno_turma_id: itemList.id,

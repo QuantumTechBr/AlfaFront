@@ -239,9 +239,9 @@ export const _phoneNumbers = [
 // ----------------------------------------------------------------------
 
 export const _tiposAvaliacao = [
-  'Avaliação de Fase',
-  // 'Avaliação de Componente Curricular',
-  'Avaliação Diagnóstica',
+  'Acompanhamento de Fase',
+  // 'Acompanhamento de Componente Curricular',
+  'Acompanhamento Diagnóstico',
 ];
 
 export const _habilidades = [

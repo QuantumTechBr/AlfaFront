@@ -5,7 +5,7 @@ import { RegistroAprendizagemFaseListView } from "src/sections/registro_aprendiz
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Avaliações de Fases',
+  title: 'Acompanhamentos de Fases',
 };
 
 export default function RegistroAprendizagemFaseListPage() {

@@ -320,13 +320,13 @@ export default function RegistroAprendizagemTableToolbar({
             if (export_type == `fase`) {
               registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {
                 saveCSVFile(
-                  'Avaliação de Fases do Desenvolvimento da Leitura e da Escrita',
+                  'Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita',
                   csvFile.data
                 );
               });
             } else if (export_type == `diagnostico`) {
               registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
-                saveCSVFile('Avaliação Diagnóstica', csvFile.data);
+                saveCSVFile('Acompanhamento Diagnóstico', csvFile.data);
               });
             }
             popover.onClose();

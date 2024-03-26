@@ -45,7 +45,6 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   const contextReady = useBoolean(false);
   const liberaSalvar = useBoolean(true);
   const { enqueueSnackbar } = useSnackbar();
-
   const { user } = useContext(AuthContext);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);

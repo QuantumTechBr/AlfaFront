@@ -332,7 +332,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Registro de Avaliação</DialogTitle>
+        <DialogTitle>Registro de Acompanhamento</DialogTitle>
 
         <IconButton
           aria-label="close"

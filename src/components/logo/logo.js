@@ -29,7 +29,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
     <Box
       component="img"
       src="/assets/illustrations/escudo_prefeitura_manaus.png"
-      sx={{ width: 173, height: 60, cursor: 'pointer', ...sx }}
+      sx={{ width: '100%', height: 60, cursor: 'pointer', ...sx }}
     />
   ) : <Box
       component="img"

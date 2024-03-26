@@ -106,7 +106,7 @@ export function useNavData() {
 
         // AVALIAÇÕES
         {
-          title: t('avaliações'),
+          title: t('acompanhamentos'),
           path: paths.dashboard.registro_aprendizagem.root_diagnostico,
           icon: ICONS.alfaBookAccount,
           children: [
@@ -217,7 +217,7 @@ export function useNavData() {
 
         if (checkPermissaoModulo('registro_aprendizagem', 'acesso')) {
           _items.push({
-            title: t('avaliações'),
+            title: t('acompanhamentos'),
             path: paths.dashboard.registro_aprendizagem.root,
             icon: ICONS.alfaBookAccount,
             children: [

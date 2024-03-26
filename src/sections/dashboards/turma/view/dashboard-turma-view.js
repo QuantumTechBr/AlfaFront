@@ -615,7 +615,7 @@ export default function DashboardTurmaView() {
                     href={paths.dashboard.registro_aprendizagem.root_diagnostico}
                     sx={{ mr: 3, marginTop: 2 }}
                   >
-                    Ir para Avaliação Diagnóstica
+                    Ir para Acompanhamento Diagnóstico
                   </Button>
                   <Button
                     variant="contained"
@@ -624,7 +624,7 @@ export default function DashboardTurmaView() {
                     href={paths.dashboard.registro_aprendizagem.root_componente}
                     sx={{ mr: 3, marginTop: 2 }}
                   >
-                    Ir para Avaliação por Componente
+                    Ir para Acompanhamento por Componente
                   </Button>
                 </Grid>
               </Grid>

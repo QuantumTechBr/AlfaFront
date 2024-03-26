@@ -131,25 +131,28 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       }));
 
       if (_filters.anoLetivo) {
-        buscarAvaliacoes();
+        buscarAvaliacoes(table.page, table.rowsPerPage);
       }
     }
   }, [contextReady.value]);
 
-  const buscarAvaliacoes = async () => {
+  const buscarAvaliacoes = useCallback(async (pagina = 0, linhasPorPagina = 25, prevList = [], filtros = filters) => {
     if (contextReady.value && anosLetivos.length && turmas.length) {
-      setTableData([]);
-      tabelaPreparada.onFalse();
-      buscando.onTrue();
+      // setTableData([]);
       setWarningMsg('');
       setErrorMsg('');
+      tabelaPreparada.onFalse();
+      buscando.onTrue();
 
-      let turmasComRegistroNovo = [];
+      const offset = pagina * linhasPorPagina;
+      const limit = linhasPorPagina;
 
       const _filtersToSend = {
         turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
       };
+
+      const _newList = [];
 
       // INICIAL E FINAL
       await registroAprendizagemMethods
@@ -165,23 +168,21 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                 retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
                 retorno.atualizado_por = registro.atualizado_por;
 
-                turmasComRegistroNovo.push(retorno);
+                _newList.push(retorno);
               }
             });
+            setTableData([...prevList, ..._newList]);
+
+            tabelaPreparada.onTrue();
           }
-        })
-        .finally(() => {
-          setTableData(turmasComRegistroNovo);
-          tabelaPreparada.onTrue();
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Inicial');
           console.error(error);
         });
+      buscando.onFalse();
     }
-
-    buscando.onFalse();
-  };
+  }, [contextReady, anosLetivos, turmas, filters]);
 
   useEffect(() => {
     const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
@@ -253,6 +254,23 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     novaAvaliacao.onFalse();
   };
 
+  const onChangePage = async (event, newPage) => {
+    if (tableData.length < (newPage + 1) * table.rowsPerPage) {
+      buscarAvaliacoes(newPage, table.rowsPerPage, tableData);
+    }
+    table.setPage(newPage);
+  };
+
+  const onChangeRowsPerPage = useCallback(
+    (event) => {
+      table.setPage(0);
+      table.setRowsPerPage(parseInt(event.target.value, 10));
+      setTableData([]);
+      buscarAvaliacoes(0, event.target.value);
+    },
+    [buscarAvaliacoes, table]
+  );
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -264,7 +282,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação Diagnóstica</Typography>
+          <Typography variant="h4">Acompanhamento Diagnóstico</Typography>
           {permissaoCadastrar && (
             <Button
               onClick={novaAvaliacao.onTrue}
@@ -282,7 +300,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         <NovaAvaliacaoForm
           open={novaAvaliacao.value}
           onClose={closeNovaAvaliacao}
-          initialTipo="Avaliação Diagnóstica"
+          initialTipo="Acompanhamento Diagnóstico"
         />
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
@@ -318,7 +336,11 @@ export default function RegistroAprendizagemDiagnosticoListView() {
                   md: '15%',
                 },
               }}
-              onClick={buscarAvaliacoes}
+              onClick={() => {
+                setTableData([]);
+                table.setPage(0);
+                buscarAvaliacoes(table.page, table.rowsPerPage, []);
+              }}
             >
               Aplicar filtros
             </Button>
@@ -364,8 +386,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
+            onPageChange={onChangePage}
+            onRowsPerPageChange={onChangeRowsPerPage}
           />
         </Card>
       </Container>
