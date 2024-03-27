@@ -79,7 +79,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-
+  const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -148,8 +148,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const limit = linhasPorPagina;
 
       const _filtersToSend = {
-        turmaId: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+        turmas: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
+        offset:offset,
+        limit:limit,
+        ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
+        escolas: filtros.escola ? [filtros.escola.id] : [],
       };
 
       const _newList = [];
@@ -158,8 +162,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       await registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico(_filtersToSend)
         .then((response) => {
-          if (response.data?.length) {
-            response.data.forEach((registro) => {
+          if (response.data?.results.length) {
+            response.data.results.forEach((registro) => {
               const turma = turmas.find((turma) => turma.id == registro.turma_id);
               if (turma?.id) {
                 const retorno = { ...turma };
@@ -172,7 +176,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               }
             });
             setTableData([...prevList, ..._newList]);
-
+            setCountAcompanhamentos(response.data.count);
             tabelaPreparada.onTrue();
           }
         })
@@ -383,7 +387,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           </TableContainer>
 
           <TablePaginationCustom
-            count={dataFiltered.length}
+            count={countAcompanhamentos}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
             onPageChange={onChangePage}
