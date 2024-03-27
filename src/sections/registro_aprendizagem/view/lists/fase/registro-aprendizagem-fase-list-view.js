@@ -79,6 +79,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
+  const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -146,12 +147,14 @@ export default function RegistroAprendizagemFaseListView() {
       const limit = linhasPorPagina;
       
       const _filtersToSend = {
-        turmaId: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
-        bimestreId: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
+        turmas: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
+        bimestres: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
           (bimestre) => bimestre.id
           ),
         offset:offset,
-        limit:limit
+        limit:limit,
+        ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
+        escolas: filtros.escola ? [filtros.escola.id] : [],
       };
         
       const _newList = [];
@@ -159,7 +162,7 @@ export default function RegistroAprendizagemFaseListView() {
       await registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
         .then((_turmasComRegistros) => {
-          _turmasComRegistros.data.forEach((registro) => {
+          _turmasComRegistros.data.results.forEach((registro) => {
             const _turma = turmas.find((turma) => turma.id == registro.turma_id);
             if (_turma?.id) {
               const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
@@ -177,7 +180,7 @@ export default function RegistroAprendizagemFaseListView() {
             }
           });
           setTableData([...prevList, ..._newList]);
-
+          setCountAcompanhamentos(_turmasComRegistros.data.count);
           tabelaPreparada.onTrue();
         })
         .catch((error) => {
@@ -383,7 +386,7 @@ export default function RegistroAprendizagemFaseListView() {
         </TableContainer>
 
         <TablePaginationCustom
-          count={tableData.length}
+          count={countAcompanhamentos}
           page={table.page}
           rowsPerPage={table.rowsPerPage}
           onPageChange={onChangePage}
