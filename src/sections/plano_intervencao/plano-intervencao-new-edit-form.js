@@ -535,7 +535,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     router.push(paths.dashboard.plano_intervencao.documento(currentPlano?.id));
   }
 
-
+  const escolaNome = (escolaId) => {
+    let escola_nome = '';
+    escolas.map((esc) => {
+      if (esc.id == escolaId) {
+        escola_nome = esc.nome
+      }
+    })
+    return escola_nome;
+  }
 
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
@@ -626,7 +634,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             {turmas?.map((turma) => (
               <MenuItem key={turma.id} value={turma.id}>
                 <Checkbox disableRipple size="small" checked={filters.turmas.includes(turma.id)} />
-                {` ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${turma.escola.nome})`}
+                {` ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`}
               </MenuItem>
             ))}
           </Select>
