@@ -171,6 +171,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         setWarningMsg('A API retornou uma lista vazia de profissionais');
         preparado.onTrue(); 
       }
+      console.log(profissionais)
       profissionais.data.map((profissional) => {
         // if (profissional.funcao.nome == "PROFESSOR") {
           const pro = {
@@ -249,7 +250,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         setAOF(aplicacao_options.slice(1)) 
       }
     }
-  }, [buscaEscolas, buscaTurmas, buscaZonas, user?.funcao_usuario, user?.permissao_usuario, reset]);
+  }, []); // eslint-disable-line
 
 
   useEffect(() => {
@@ -402,7 +403,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentPlano, defaultValues, reset]);
+  }, [currentPlano]); // eslint-disable-line
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -516,7 +517,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     if (ano_escolar == '3') {
       setHab(habilidades_3ano);
     }
-    setFilters(filtros);
+    let novoFiltro = filtros;
+    novoFiltro.ano = ano_escolar;
+    setFilters(novoFiltro);
   }, [ano_escolar]);
 
   useEffect(() => {
