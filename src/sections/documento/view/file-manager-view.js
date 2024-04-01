@@ -53,6 +53,8 @@ export default function FileManagerView() {
 
   const confirm = useBoolean();
 
+  const preparado = useBoolean(false);
+
   const upload = useBoolean();
 
   const [view, setView] = useState('list');
@@ -83,7 +85,6 @@ export default function FileManagerView() {
   const canReset =
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
 
 
@@ -117,6 +118,7 @@ export default function FileManagerView() {
         setWarningMsg('A API retornou uma lista vazia de documentos');
       }
       setTableData(retorno);
+      preparado.onTrue();
     });
   }, []);
 
@@ -235,6 +237,8 @@ export default function FileManagerView() {
     />
   );
 
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -263,7 +267,7 @@ export default function FileManagerView() {
           {canReset && renderResults}
         </Stack>
 
-        {notFound ? (
+        {!preparado.value ? (
                 <LoadingBox />
                 ) : (
           <>
