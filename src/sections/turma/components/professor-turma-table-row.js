@@ -25,7 +25,7 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
 
   const emOutraTurma = useBoolean(false)
 
-
+   console.log(row)
   // let outrasTurmas = alunos_turmas.filter((at) => at.turma !=  currentTurma.id);
   // let emOutraTurma = alunos_turmas.length == 0 ? false : outrasTurmas.length > 0 ;
   // selected = emOutraTurma ? false : selected;
@@ -34,7 +34,7 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
     <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox 
-          disabled={(row.turma.length > 0) && (row.turma[0].id != currentTurma.id) ? true : false} 
+          disabled={row?.turma ? true : false} 
           checked={selected} onClick={onSelectRow} />
         </TableCell>
 

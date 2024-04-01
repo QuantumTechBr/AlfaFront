@@ -93,6 +93,16 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     // preparado.onTrue()
   }, []);
 
+  const escolaNome = (escolaId) => {
+    let escola_nome = '';
+    escolas.map((esc) => {
+      if (esc.id == escolaId) {
+        escola_nome = esc.nome
+      }
+    })
+    return escola_nome;
+  }
+
   const mostrarAplicacao = () => {
     const list_retorno = [];
     let aplicacao = '';
@@ -112,7 +122,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
         turmas.map((turma) => {
           if (turma.id == turmaId) {
             list_retorno.push(
-              `- ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${turma.escola.nome})`
+              `- ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`
             );
           }
         });

@@ -59,10 +59,6 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       .getProfessoresByEscolaId({ escolaId: id })
       .then((professores) => {
         const professoresEscola = professores.data;
-        const professorTurma = professoresEscola.filter((professor) => professor?.turma[0]?.id === turma.id)
-        if (professorTurma.length > 0) {
-          table.setSelected(professorTurma[0].id);
-        }
         setCurrentProfessoresEscola(professoresEscola);
       })
       .catch((error) => {
@@ -81,7 +77,10 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
   useEffect(() => {
     if (open) {
       setCurrentProfessoresEscola(null);
-      getProfessoresEscola(turma.escola_id);
+      getProfessoresEscola(turma.escola.id);
+      if (turma?.professor_turma.length > 0) {
+        table.setSelected(turma?.professor_turma[0]?.usuario?.id)
+      }
     }
   }, [open]);
 
