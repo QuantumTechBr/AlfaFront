@@ -24,8 +24,10 @@ export default function AlunoTurmaTableRow({ row, selected, currentTurma, onSele
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
-  const outrasTurmas = alunos_turmas.filter((at) => at.turma !=  currentTurma.id);
-  const emOutraTurma = alunos_turmas.length == 0 ? false : outrasTurmas.length > 0 ;
+  console.log(row)
+
+  const outrasTurmas = alunos_turmas?.filter((at) => at.turma !=  currentTurma.id);
+  const emOutraTurma = alunos_turmas?.length == 0 ? false : outrasTurmas?.length > 0 ;
   selected = emOutraTurma ? false : selected;
  
   return (
