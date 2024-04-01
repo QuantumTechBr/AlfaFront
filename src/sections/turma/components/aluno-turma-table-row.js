@@ -26,14 +26,14 @@ export default function AlunoTurmaTableRow({ row, selected, currentTurma, onSele
 
   console.log(row)
 
-  const outrasTurmas = alunos_turmas?.filter((at) => at.turma !=  currentTurma.id);
-  const emOutraTurma = alunos_turmas?.length == 0 ? false : outrasTurmas?.length > 0 ;
-  selected = emOutraTurma ? false : selected;
+  // const outrasTurmas = alunos_turmas?.filter((at) => at.turma !=  currentTurma.id);
+  // const emOutraTurma = alunos_turmas?.length == 0 ? false : outrasTurmas?.length > 0 ;
+  // selected = emOutraTurma ? false : selected;
  
   return (
     <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
-          <Checkbox {...emOutraTurma ? {disabled:true} : null} checked={selected} onClick={onSelectRow} />
+          <Checkbox disabled={selected ? false : (row?.turma ? true : false)} checked={selected} onClick={onSelectRow} />
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>

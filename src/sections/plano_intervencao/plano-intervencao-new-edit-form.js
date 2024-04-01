@@ -119,14 +119,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     if (currentPlano) {
       return parseISO(currentPlano.inicio_previsto);
     }
-    return new Date('01-01-2000');
+    return new Date();
   }, [currentPlano]) ;
   
   const terminoPrevisto = useMemo(()=> {
     if (currentPlano) {
       return parseISO(currentPlano.termino_previsto);
     }
-    return new Date('01-01-2000');
+    return new Date();
   }, [currentPlano]) ;
 
 
