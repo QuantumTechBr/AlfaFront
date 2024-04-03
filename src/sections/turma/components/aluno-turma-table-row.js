@@ -20,11 +20,9 @@ import { disableCache } from '@iconify/react';
 // ----------------------------------------------------------------------
 
 export default function AlunoTurmaTableRow({ row, selected, currentTurma, onSelectRow }) {
-  const { id, nome, matricula, data_nascimento, alunos_turmas, created_at, updated_at, deleted_at } = row;
+  const { id, nome, matricula, data_nascimento, alunos_turmas, created_at, updated_at, deleted_at } = row.aluno;
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
-
-  console.log(row)
 
   // const outrasTurmas = alunos_turmas?.filter((at) => at.turma !=  currentTurma.id);
   // const emOutraTurma = alunos_turmas?.length == 0 ? false : outrasTurmas?.length > 0 ;
