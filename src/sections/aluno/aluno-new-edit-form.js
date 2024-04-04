@@ -131,7 +131,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
         alunoEscolas: aluno_escolas,
         alunos_turmas: aluno_turmas,
         necessidades_especiais: necessidades_especiais_data,
-        laudo_necessidade: data.laudo
+        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo
       }
       if (currentAluno) {
         await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
@@ -241,7 +241,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
             </RHFMultiSelect>
 
             <RHFSelect sx={{
-              display: getValues('necessidades_especiais') ? "inherit" : "none"
+              display: getValues('necessidades_especiais') == '' ? "none" : "inherit"
               }} id="laudo" disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
                 <MenuItem key='laudo_sim' value='true'>
                   SIM
