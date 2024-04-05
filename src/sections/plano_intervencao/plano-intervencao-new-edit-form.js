@@ -195,6 +195,17 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     })
   }
 
+  const getAlunoById =  (id) => {
+    alunoMethods.getAlunoById(id).then(aluno => {
+      console.log(aluno)
+      const al = {
+        label: aluno.data.nome,
+        id: aluno.data.id,
+      }
+      return al
+    }) 
+  }
+
   const getAluno = (pesquisa = '') => {
     alunoMethods.getAllAlunos({offset: 0, limit: 10, pesquisa: pesquisa}).then(response => {
       const auto_complete_aluno = []
@@ -213,7 +224,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(() => {
     preparado.onFalse();
-    console.log('oi')
     getAllProfissionais();
     getAluno();
     habilidadeMethods.getAllHabilidades().then((response) => {
@@ -277,6 +287,20 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
   }, [allHab])
 
+  const  handleAlunosEdit = (alunos_id) => {
+    let alunosEdit = [];
+    alunos_id.map( (alunoId) => {
+      const r = getAlunoById(alunoId);
+      alunosEdit.push(r);
+    })
+
+      console.log(alunosEdit)
+      setAlunosSelecionados(alunosEdit)
+
+
+    
+  }
+
   useEffect(()  => {
     if (currentPlano) {
       const novoFiltros = {
@@ -286,7 +310,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         escolas: currentPlano.aplicacao?.escolas ? currentPlano.aplicacao?.escolas : [],
         zonas: currentPlano.aplicacao?.zonas ? currentPlano.aplicacao?.zonas : [],
         turmas: currentPlano.aplicacao?.turmas ? currentPlano.aplicacao?.turmas : [],
-        alunos: currentPlano.aplicacao?.alunos ? console.log(currentPlano.aplicacao) : [],
+        alunos: currentPlano.aplicacao?.alunos ? handleAlunosEdit(currentPlano.aplicacao?.alunos) : [],
       };
 
       setFilters(novoFiltros);
@@ -475,26 +499,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const handleAlunos = (newInputValue) => {
-    let novoAlunos = []
-      if (alunosSelecionados.includes(newInputValue)) {
-        novoAlunos = alunosSelecionados.filter((alunos) => alunos?.id != newInputValue?.id)
-      } else {
-        novoAlunos = alunosSelecionados
-        novoAlunos.push(newInputValue)
-      }
+    let novoAlunos = alunosSelecionados.filter((alunos) => alunos?.id != newInputValue?.id);
+      if (novoAlunos.length == alunosSelecionados.length) {
+        novoAlunos.push(newInputValue);
+      } 
       setAlunosSelecionados(novoAlunos);
       setValue("alunos", newInputValue)
     }
-
-  // const handleFilterAluno = useCallback(
-  //  (event) => {
-  //    handleFilters(
-  //      'alunos',
-  //      typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //    );
-  //  },
-  //  [handleFilters]
-  // );
 
   const handleSelectDocumentoAntigo = (event) => {
     setDocumentosAntigosSelecionados(event);
@@ -574,14 +585,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     })
     return escola_nome;
   }
-
-  const onChangeBuscaPro = useCallback((event) => {
-    setBuscaPro(event.target.value);
-  }, []);
-
-  const onChangeBuscaAlu = useCallback((event) => {
-    setBuscaAlu(event.target.value);
-  }, []);
 
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
