@@ -686,7 +686,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             ))}
           </Select>
         </FormControl>
-        {!!escolaTurma && <FormControl
+        <FormControl
           sx={{
             flexShrink: 0,
             width: '100%',
@@ -715,7 +715,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
               </MenuItem>
             ))}
           </Select>
-        </FormControl>}
+        </FormControl>
         </Box>
       )
     }
