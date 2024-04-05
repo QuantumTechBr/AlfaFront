@@ -499,7 +499,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const handleAlunos = (newInputValue) => {
-    let novoAlunos = alunosSelecionados.filter((alunos) => alunos?.id != newInputValue?.id);
+    let novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
       if (novoAlunos.length == alunosSelecionados.length) {
         novoAlunos.push(newInputValue);
       } 
