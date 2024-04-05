@@ -10,12 +10,18 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DataGrid } from '@mui/x-data-grid';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Iconify from 'src/components/iconify';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -69,7 +75,6 @@ const filtros = {
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
   const { user } = useContext(AuthContext);
- 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -91,6 +96,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [zonasUsuario, setZonasUsuario] = useState([]);
   const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
   const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
+  const [buscaPro, setBuscaPro] = useState('');
+  const [buscaAlu, setBuscaAlu] = useState('');
+  const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
   
   let aplicarInicial = '';
@@ -132,7 +140,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const defaultValues = useMemo(
     () => ({
-      responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
+      responsavel: currentPlano?.responsavel ? setBuscaPro({id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome}) : '',
       acao: currentPlano?.acao || '',
       ano_escolar: currentPlano?.ano_escolar || '',
       inicio_previsto: inicioPrevisto,
@@ -162,17 +170,16 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     formState: { isSubmitting },
   } = methods;
 
-
-  useEffect(() => {
-    preparado.onFalse();
-    profissionalMethods.getAllProfissionais().then(profissionais => {
-      const lp = []
-      if (profissionais.data.length == 0) {
+  const getAllProfissionais = (nome = '') => {
+    profissionalMethods
+      .getAllProfissionaisPaginado({ offset: 0, limit: 5, nome: nome })
+      .then(profissionais => {
+        const lp = []
+      if (profissionais.data.results.length == 0) {
         setWarningMsg('A API retornou uma lista vazia de profissionais');
         preparado.onTrue(); 
       }
-      console.log(profissionais)
-      profissionais.data.map((profissional) => {
+      profissionais.data.results.map((profissional) => {
         // if (profissional.funcao.nome == "PROFESSOR") {
           const pro = {
             label: profissional.profissional,
@@ -186,7 +193,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       setErrorMsg('Erro de comunicação com a API de profissionais');
       preparado.onTrue(); 
     })
-    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
+  }
+
+  const getAluno = (pesquisa = '') => {
+    alunoMethods.getAllAlunos({offset: 0, limit: 10, pesquisa: pesquisa}).then(response => {
       const auto_complete_aluno = []
       response.data.results.map((aluno) => {
         const al = {
@@ -196,10 +206,16 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         auto_complete_aluno.push(al)
       });
       setAlunos(auto_complete_aluno)
-      reset();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
+  }
+
+  useEffect(() => {
+    preparado.onFalse();
+    console.log('oi')
+    getAllProfissionais();
+    getAluno();
     habilidadeMethods.getAllHabilidades().then((response) => {
       const hab1ano = [];
       const hab2ano = [];
@@ -270,7 +286,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         escolas: currentPlano.aplicacao?.escolas ? currentPlano.aplicacao?.escolas : [],
         zonas: currentPlano.aplicacao?.zonas ? currentPlano.aplicacao?.zonas : [],
         turmas: currentPlano.aplicacao?.turmas ? currentPlano.aplicacao?.turmas : [],
-        alunos: currentPlano.aplicacao?.alunos ? currentPlano.aplicacao?.alunos : [],
+        alunos: currentPlano.aplicacao?.alunos ? console.log(currentPlano.aplicacao) : [],
       };
 
       setFilters(novoFiltros);
@@ -350,7 +366,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         listaIdsAplicacao.turmas = filters.turmas; 
       }
       if (aplicar == 'Alunos') {
-        data.alunos.map((aluno) => {
+        alunosSelecionados.map((aluno) => {
           listaIdsAplicacao.alunos.push(aluno.id)
         })
       }
@@ -458,6 +474,18 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     [handleFilters]
   );
 
+  const handleAlunos = (newInputValue) => {
+    let novoAlunos = []
+      if (alunosSelecionados.includes(newInputValue)) {
+        novoAlunos = alunosSelecionados.filter((alunos) => alunos?.id != newInputValue?.id)
+      } else {
+        novoAlunos = alunosSelecionados
+        novoAlunos.push(newInputValue)
+      }
+      setAlunosSelecionados(novoAlunos);
+      setValue("alunos", newInputValue)
+    }
+
   // const handleFilterAluno = useCallback(
   //  (event) => {
   //    handleFilters(
@@ -495,8 +523,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }).join(', '); 
 
   const renderValueAluno = (selected) => 
-    selected.map((alunoId) => {
-      return alunos.find((option) => option.id == alunoId)?.nome;
+    selected.map((aluno) => {
+      return aluno?.label;
   }).join(', ');  
 
   const concluiPlano = async () => {
@@ -529,6 +557,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     novoFiltro.alunos = [];
     novoFiltro.turmas = [];
     setFilters(novoFiltro);
+    setAlunosSelecionados([]);
+    setBuscaAlu('');
   }, [aplicar]);
 
   const telaDocumento = () => {
@@ -544,6 +574,14 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     })
     return escola_nome;
   }
+
+  const onChangeBuscaPro = useCallback((event) => {
+    setBuscaPro(event.target.value);
+  }, []);
+
+  const onChangeBuscaAlu = useCallback((event) => {
+    setBuscaAlu(event.target.value);
+  }, []);
 
   const selecionarAplicacao = () => {
     if (aplicar == 'DDZs') {
@@ -643,13 +681,53 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
     if (aplicar == 'Alunos') {
       return (
-        <RHFAutocomplete
-          multiple
-          name="alunos"
-          options={alunos}
-          getOptionLabel={(option) => option.label}
-          label="Alunos"
-        />
+        <Box>
+        <Controller
+        name={"alunos"}
+        control={control}
+        render={({ field: { onChange, value } }) => (
+          <Autocomplete
+            onChange={(event, newInputValue) => handleAlunos(newInputValue)}
+            value={buscaAlu}
+            options={alunos}
+            noOptionsText="Nenhum aluno encontrado"
+            filterOptions={(x) => x}
+            onInputChange={(event, newInputValue) => {   
+              setBuscaAlu(newInputValue);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Nome/Matrícula"
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <IconButton type="button" sx={{ p: '10px' }} aria-label="search" 
+                      onClick={() => {
+                        getAluno(buscaAlu)}
+                      }
+                      >
+                        <SearchIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                
+                />
+                )}
+                />
+                )}
+      />   
+                <TextField
+                        label="Alunos Selecionados"
+                        value={renderValueAluno(alunosSelecionados)}
+                        sx={{
+                          mt: 2,
+                          width: '100%'
+                        }}
+                      />
+      </Box>
       )
     }
   }
@@ -748,11 +826,43 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
                 <RHFTextField  name="acao" label="Ação" />
 
-                <RHFAutocomplete
-                  name="responsavel"
-                  options={listaProfissionais}
-                  label="Responsável"
-                />
+                <Controller
+                  name={"responsavel"}
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <Autocomplete
+                      onChange={(event, newInputValue) => setValue("responsavel", newInputValue)}
+                      value={buscaPro}
+                      options={listaProfissionais}
+                      noOptionsText="Nenhum professor encontrado"
+                      filterOptions={(x) => x}
+                      onInputChange={(event, newInputValue) => {   
+                        setBuscaPro(newInputValue);
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Responsável"
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <IconButton type="button" sx={{ p: '10px' }} aria-label="search" 
+                                onClick={() => {
+                                  getAllProfissionais(buscaPro)}
+                                }
+                                >
+                                  <SearchIcon />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                          
+                        />
+                      )}
+                    />
+                   )}
+                />   
 
                 <RHFSelect name="aplicar" label="Aplicar Plano a...">
                   {aplicacao_options_filtrado.map((_aplicar) => (
