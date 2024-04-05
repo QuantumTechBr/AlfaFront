@@ -723,7 +723,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       return (
         <Box>
         <Controller
-        name={"alunos"}
+        name="alunos"
         control={control}
         render={({ field: { onChange, value } }) => (
           <Autocomplete
@@ -867,7 +867,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 <RHFTextField  name="acao" label="Ação" />
 
                 <Controller
-                  name={"responsavel"}
+                  name="responsavel"
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
