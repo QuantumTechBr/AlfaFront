@@ -63,6 +63,7 @@ import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/
 import { AuthContext } from 'src/auth/context/alfa';
 
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
+import { getValue } from '@mui/system';
 // ----------------------------------------------------------------------
 const filtros = {
   ano: '',
@@ -99,6 +100,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [buscaPro, setBuscaPro] = useState('');
   const [buscaAlu, setBuscaAlu] = useState('');
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
+  const [escolaTurma, setEscolaTurma] = useState({});
 
   
   let aplicarInicial = '';
@@ -300,6 +302,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
     
   }
+
+  const handleEscolaTurma = useCallback(
+    (event) => setEscolaTurma(event.target.value),
+    [setEscolaTurma],
+  );
 
   useEffect(()  => {
     if (currentPlano) {
@@ -652,9 +659,38 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
     if (aplicar == 'Turmas') {
       return (
-        <FormControl
+        <Box >
+          <FormControl
           sx={{
             flexShrink: 0,
+            width: '100%',
+          }}
+        >
+          <InputLabel>Escolas</InputLabel>
+
+          <Select
+            name="escola_turma"
+            value={escolaTurma}
+            onChange={handleEscolaTurma}
+            input={<OutlinedInput label="Escola" />}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {escolas?.map((escola) => (
+              <MenuItem key={escola.id} value={escola.id}>
+                {escola.nome}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        {!!escolaTurma && <FormControl
+          sx={{
+            flexShrink: 0,
+            width: '100%',
+            mt: 1.5,
           }}
         >
           <InputLabel>Turmas</InputLabel>
@@ -672,14 +708,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
               },
             }}
           >
-            {turmas?.map((turma) => (
+            {turmas?.filter((_turma) => escolaTurma == _turma.escola_id).map((turma) => (
               <MenuItem key={turma.id} value={turma.id}>
                 <Checkbox disableRipple size="small" checked={filters.turmas.includes(turma.id)} />
                 {` ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`}
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl>}
+        </Box>
       )
     }
     if (aplicar == 'Alunos') {
