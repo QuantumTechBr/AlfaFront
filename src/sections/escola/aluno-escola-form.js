@@ -66,11 +66,11 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const [allAlunos, setAllAlunos] = useState();
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
 
-  const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
+  // const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
-  const getAllAlunos = useCallback((id) => {
+  const getAllAlunos = useCallback((pesquisa) => {
     alunosMethods
-      .getAllAlunos({offset: 0, limit: 10000})
+      .getAllAlunos({offset: 0, limit: 10, pesquisa: pesquisa})
       .then((response) => {
         console.log(response)
         const _allAlunos = response.data.results;
@@ -123,10 +123,10 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     { id: 'data_nascimento', label: 'Data de Nascimento', width: 2 },
   ];
 
-  const dataFiltered = applyFilter({
-    inputData: allAlunos ?? [],
-    query: debouncedSearchFilter,
-  });
+  // const dataFiltered = applyFilter({
+  //   inputData: allAlunos ?? [],
+  //   query: debouncedSearchFilter,
+  // });
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -166,28 +166,35 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        {isLoading ? (
+        {/* {isLoading ? (
           <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-        ) : (
+        ) : ( */}
           <>
             <DialogTitle>Definir Estudantes da Escola: {escola.nome}</DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+              <Box direction="row" alignItems="center" display="flex">
+
+              <Button
+              variant="contained"
+              startIcon={<Iconify icon="eva:search-fill" sx={{ height: '100%' }}/>}
+              sx={{ height: '100%' }}
+              onClick={() => {
+                getAllAlunos(searchAlunosInput)
+              }}
+              />
               <TextField
                 value={searchAlunosInput}
                 onChange={onSearchAlunos}
                 placeholder="Procure pelo nome ou matrícula..."
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                    </InputAdornment>
-                  ),
-                }}
-                sx={{ mb: 1, width: { xs: 1, sm: '100%' } }}
-              />
+                sx={{ mb: 1, width: { xs: '100%', sm: '100%' } }}
+                />
+              
+              </Box>
+           
+         
 
               <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
                 <Table size="small" sx={{ width: '100%' }}>
@@ -195,11 +202,11 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                     order="asc"
                     orderBy="nome"
                     headLabel={TABLE_HEAD}
-                    rowCount={allAlunos.length}
+                    rowCount={allAlunos?.length}
                     numSelected={table.selected.length}
                   />
                   <TableBody>
-                    {dataFiltered.map((row) => (
+                    {allAlunos?.map((row) => (
                       <AlunoEscolaTableRow
                         key={`AlunoEscolaTableRow_${row.id}`}
                         row={row}
@@ -219,7 +226,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
               </Box>
             </DialogContent>
           </>
-        )}
+        {/* )} */}
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>

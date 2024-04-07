@@ -10,12 +10,18 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { DataGrid } from '@mui/x-data-grid';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import Iconify from 'src/components/iconify';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -27,8 +33,8 @@ import FormProvider, {
   RHFTextField,
   RHFAutocomplete,
 } from 'src/components/hook-form';
-import { 
-  anos_options, 
+import {
+  anos_options,
   permissao_values,
   fases_options,
   aplicacao_options,
@@ -57,6 +63,7 @@ import { PlanoIntervencaoFileManagerView } from 'src/sections/plano_intervencao/
 import { AuthContext } from 'src/auth/context/alfa';
 
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
+import { getValue } from '@mui/system';
 // ----------------------------------------------------------------------
 const filtros = {
   ano: '',
@@ -69,7 +76,6 @@ const filtros = {
 };
 export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = false, statusConcluido }) {
   const { user } = useContext(AuthContext);
- 
   const [filters, setFilters] = useState(filtros);
   const router = useRouter();
   const conclui = useBoolean();
@@ -91,8 +97,12 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [zonasUsuario, setZonasUsuario] = useState([]);
   const [maxPermissaoUsuario, setMaxPermissaoUsuario] = useState('');
   const [aplicacao_options_filtrado, setAOF] = useState(aplicacao_options);
+  const [buscaPro, setBuscaPro] = useState('');
+  const [buscaAlu, setBuscaAlu] = useState('');
+  const [alunosSelecionados, setAlunosSelecionados] = useState([]);
+  const [escolaTurma, setEscolaTurma] = useState({});
 
-  
+
   let aplicarInicial = '';
   const colunasDocumentosAntigos = [
     // { field: 'id', headerName: 'ID', width: 70 },
@@ -100,7 +110,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     { field: 'tamanho', headerName: 'Tamanho', width: 120 },
     { field: 'created_at', headerName: 'Criado em', width: 240 },
   ]
-  
+
 
 
   if (currentPlano?.aplicacao) {
@@ -115,24 +125,24 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
   }
 
-  const inicioPrevisto = useMemo(()=> {
+  const inicioPrevisto = useMemo(() => {
     if (currentPlano) {
       return parseISO(currentPlano.inicio_previsto);
     }
-    return new Date('01-01-2000');
-  }, [currentPlano]) ;
-  
-  const terminoPrevisto = useMemo(()=> {
+    return new Date();
+  }, [currentPlano]);
+
+  const terminoPrevisto = useMemo(() => {
     if (currentPlano) {
       return parseISO(currentPlano.termino_previsto);
     }
-    return new Date('01-01-2000');
-  }, [currentPlano]) ;
+    return new Date();
+  }, [currentPlano]);
 
 
   const defaultValues = useMemo(
     () => ({
-      responsavel: currentPlano?.responsavel ? {id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome} : '',
+      responsavel: currentPlano?.responsavel ? setBuscaPro({ id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome }) : '',
       acao: currentPlano?.acao || '',
       ano_escolar: currentPlano?.ano_escolar || '',
       inicio_previsto: inicioPrevisto,
@@ -146,7 +156,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     [aplicarInicial, currentPlano, filters.habilidades, inicioPrevisto, terminoPrevisto]
   );
 
-  
+
   const methods = useForm({
     defaultValues,
   });
@@ -162,31 +172,44 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     formState: { isSubmitting },
   } = methods;
 
-
-  useEffect(() => {
-    preparado.onFalse();
-    profissionalMethods.getAllProfissionais().then(profissionais => {
-      const lp = []
-      if (profissionais.data.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de profissionais');
-        preparado.onTrue(); 
-      }
-      console.log(profissionais)
-      profissionais.data.map((profissional) => {
-        // if (profissional.funcao.nome == "PROFESSOR") {
+  const getAllProfissionais = (nome = '') => {
+    profissionalMethods
+      .getAllProfissionaisPaginado({ offset: 0, limit: 5, nome: nome })
+      .then(profissionais => {
+        const lp = []
+        if (profissionais.data.results.length == 0) {
+          setWarningMsg('A API retornou uma lista vazia de profissionais');
+          preparado.onTrue();
+        }
+        profissionais.data.results.map((profissional) => {
+          // if (profissional.funcao.nome == "PROFESSOR") {
           const pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
           lp.push(pro)
-        // }
-      });
-      setListaProfissionais(lp);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de profissionais');
-      preparado.onTrue(); 
+          // }
+        });
+        setListaProfissionais(lp);
+      }).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de profissionais');
+        preparado.onTrue();
+      })
+  }
+
+  const getAlunoById = (id) => {
+    return alunoMethods.getAlunoById(id).then(aluno => {
+      // console.log(aluno)
+      const al = {
+        label: aluno.data.nome,
+        id: aluno.data.id,
+      }
+      return al
     })
-    alunoMethods.getAllAlunos({offset: 0, limit: 10000}).then(response => {
+  }
+
+  const getAluno = (pesquisa = '') => {
+    alunoMethods.getAllAlunos({ offset: 0, limit: 10, pesquisa: pesquisa }).then(response => {
       const auto_complete_aluno = []
       response.data.results.map((aluno) => {
         const al = {
@@ -196,10 +219,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         auto_complete_aluno.push(al)
       });
       setAlunos(auto_complete_aluno)
-      reset();
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de alunos');
     });
+  }
+
+  useEffect(() => {
+    preparado.onFalse();
+    getAllProfissionais();
+    getAluno();
     habilidadeMethods.getAllHabilidades().then((response) => {
       const hab1ano = [];
       const hab2ano = [];
@@ -247,7 +275,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       })
       setZonasUsuario(buscandoZona);
       if (permissao_values[maxPU] < 5) { // RETIRAMOS A OPÇÃO DE APLICAR PLANO A ZONAS 
-        setAOF(aplicacao_options.slice(1)) 
+        setAOF(aplicacao_options.slice(1))
       }
     }
   }, []); // eslint-disable-line
@@ -255,13 +283,34 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   useEffect(() => {
     if (url.includes('/new/')) {
-      if (allHab.length > 0 ) {
+      if (allHab.length > 0) {
         preparado.onTrue();
-      }        
+      }
     }
   }, [allHab])
 
-  useEffect(()  => {
+  const handleAlunosEdit = async (alunos_id) => {
+    let alunosEdit = [];
+    alunos_id.map((alunoId) => {
+      const r = getAlunoById(alunoId);
+      alunosEdit.push(r);
+    })
+    await Promise.all(alunosEdit).then((resultado) => {
+      setAlunosSelecionados(resultado) 
+    });
+    console.log(alunosEdit)
+    // setAlunosSelecionados(alunosEdit)
+
+
+
+  }
+
+  const handleEscolaTurma = useCallback(
+    (event) => setEscolaTurma(event.target.value),
+    [setEscolaTurma],
+  );
+
+  useEffect(() => {
     if (currentPlano) {
       const novoFiltros = {
         ano: '',
@@ -270,7 +319,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         escolas: currentPlano.aplicacao?.escolas ? currentPlano.aplicacao?.escolas : [],
         zonas: currentPlano.aplicacao?.zonas ? currentPlano.aplicacao?.zonas : [],
         turmas: currentPlano.aplicacao?.turmas ? currentPlano.aplicacao?.turmas : [],
-        alunos: currentPlano.aplicacao?.alunos ? currentPlano.aplicacao?.alunos : [],
+        alunos: currentPlano.aplicacao?.alunos ? handleAlunosEdit(currentPlano.aplicacao?.alunos) : [],
       };
 
       setFilters(novoFiltros);
@@ -284,16 +333,16 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
           case 2:
             setHab(habilidades_2ano)
             break;
-          
+
           case 3:
             setHab(habilidades_3ano)
             break;
 
-        
+
           default:
             break;
         }
-        preparado.onTrue();  
+        preparado.onTrue();
       }
       if (newFrom && currentPlano?.id) {
         documentoIntervencaoMethods.getAllDocumentos(currentPlano.id).then((response) => {
@@ -347,10 +396,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         listaIdsAplicacao.escolas = filters.escolas;
       }
       if (aplicar == 'Turmas') {
-        listaIdsAplicacao.turmas = filters.turmas; 
+        listaIdsAplicacao.turmas = filters.turmas;
       }
       if (aplicar == 'Alunos') {
-        data.alunos.map((aluno) => {
+        alunosSelecionados.map((aluno) => {
           listaIdsAplicacao.alunos.push(aluno.id)
         })
       }
@@ -363,9 +412,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         aplicacao,
         ano_escolar: parseInt(data.ano_escolar),
         fase: data.fase,
-        inicio_previsto: inicioPrev.getFullYear() + "-" + (inicioPrev.getMonth()+1) + "-" + inicioPrev.getDate(),
-        termino_previsto: terminoPrev.getFullYear() + "-" + (terminoPrev.getMonth()+1) + "-" + terminoPrev.getDate(),
-        habilidades_plano_intervencao: filters.habilidades.map((habilidade) => {return {'habilidade': {'habilidade_id': habilidade}, 'habilidade_id': habilidade}}),
+        inicio_previsto: inicioPrev.getFullYear() + "-" + (inicioPrev.getMonth() + 1) + "-" + inicioPrev.getDate(),
+        termino_previsto: terminoPrev.getFullYear() + "-" + (terminoPrev.getMonth() + 1) + "-" + terminoPrev.getDate(),
+        habilidades_plano_intervencao: filters.habilidades.map((habilidade) => { return { 'habilidade': { 'habilidade_id': habilidade }, 'habilidade_id': habilidade } }),
         status: 'Criado',
         copy_files: documentosAntigosSelecionados
       };
@@ -376,7 +425,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             router.push(paths.dashboard.plano_intervencao.edit(retorno.data.id));
           }).catch((error) => {
             throw error;
-          });  
+          });
         } else {
           await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano.id, toSend).catch((error) => {
             throw error;
@@ -396,12 +445,12 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         return ((msg[0] && msg[0].charAt(0))?.toUpperCase() ?? '') + (msg[0]?.slice(1) ?? '');
       });
       const mensagem = arrayMsg.join(' ');
-      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - `+`${mensagem}`);
+      currentPlano ? setErrorMsg(`Tentativa de atualização do plano falhou - ` + `${mensagem}`) : setErrorMsg(`Tentativa de criação do plano falhou - ` + `${mensagem}`);
       console.error(error);
     }
   });
 
-  useEffect(()  => {
+  useEffect(() => {
     reset(defaultValues)
   }, [currentPlano]); // eslint-disable-line
 
@@ -458,51 +507,50 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     [handleFilters]
   );
 
-  // const handleFilterAluno = useCallback(
-  //  (event) => {
-  //    handleFilters(
-  //      'alunos',
-  //      typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //    );
-  //  },
-  //  [handleFilters]
-  // );
+  const handleAlunos = (newInputValue) => {
+    let novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
+    if (novoAlunos.length == alunosSelecionados.length) {
+      novoAlunos.push(newInputValue);
+    }
+    setAlunosSelecionados(novoAlunos);
+    setValue("alunos", newInputValue)
+  }
 
   const handleSelectDocumentoAntigo = (event) => {
     setDocumentosAntigosSelecionados(event);
   }
-  
 
-  const renderValueHabilidade = (selected) => 
+
+  const renderValueHabilidade = (selected) =>
     selected.map((habId) => {
       return (hab.find((option) => option.id == habId)?.nome);
     }).join(', ');
 
-  const renderValueZona = (selected) => 
+  const renderValueZona = (selected) =>
     selected.map((zonaId) => {
       return zonas.find((option) => option.id == zonaId)?.nome;
-  }).join(', ');
+    }).join(', ');
 
-  const renderValueEscola = (selected) => 
+  const renderValueEscola = (selected) =>
     selected.map((escolaId) => {
       return escolas.find((option) => option.id == escolaId)?.nome;
-  }).join(', ');
+    }).join(', ');
 
-  const renderValueTurma = (selected) => 
+  const renderValueTurma = (selected) =>
     selected.map((turmaId) => {
       const turma = turmas.find((option) => option.id == turmaId);
       return turma?.ano_escolar.concat('º ', turma?.nome);
-  }).join(', '); 
+    }).join(', ');
 
-  const renderValueAluno = (selected) => 
-    selected.map((alunoId) => {
-      return alunos.find((option) => option.id == alunoId)?.nome;
-  }).join(', ');  
+  const renderValueAluno = (selected) =>
+    selected.map((aluno) => {
+      return aluno?.label;
+    }).join(', ');
 
   const concluiPlano = async () => {
-    await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, {status: 'Concluído'}).catch((error) => {
-        console.log(error);
-      });
+    await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, { status: 'Concluído' }).catch((error) => {
+      console.log(error);
+    });
     statusConcluido()
     conclui.onFalse();
   }
@@ -529,6 +577,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     novoFiltro.alunos = [];
     novoFiltro.turmas = [];
     setFilters(novoFiltro);
+    setAlunosSelecionados([]);
+    setBuscaAlu('');
   }, [aplicar]);
 
   const telaDocumento = () => {
@@ -611,45 +661,116 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
     if (aplicar == 'Turmas') {
       return (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-          }}
-        >
-          <InputLabel>Turmas</InputLabel>
-
-          <Select
-            multiple
-            name="turmas"
-            value={filters.turmas}
-            onChange={handleFilterTurma}
-            input={<OutlinedInput label="Turmas" />}
-            renderValue={renderValueTurma}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+        <Box >
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: '100%',
             }}
           >
-            {turmas?.map((turma) => (
-              <MenuItem key={turma.id} value={turma.id}>
-                <Checkbox disableRipple size="small" checked={filters.turmas.includes(turma.id)} />
-                {` ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            <InputLabel>Escolas</InputLabel>
+
+            <Select
+              name="escola_turma"
+              value={escolaTurma}
+              onChange={handleEscolaTurma}
+              input={<OutlinedInput label="Escola" />}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolas?.map((escola) => (
+                <MenuItem key={escola.id} value={escola.id}>
+                  {escola.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: '100%',
+              mt: 1.5,
+            }}
+          >
+            <InputLabel>Turmas</InputLabel>
+
+            <Select
+              multiple
+              name="turmas"
+              value={filters.turmas}
+              onChange={handleFilterTurma}
+              input={<OutlinedInput label="Turmas" />}
+              renderValue={renderValueTurma}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {turmas?.filter((_turma) => escolaTurma == _turma.escola_id).map((turma) => (
+                <MenuItem key={turma.id} value={turma.id}>
+                  <Checkbox disableRipple size="small" checked={filters.turmas.includes(turma.id)} />
+                  {` ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
       )
     }
     if (aplicar == 'Alunos') {
       return (
-        <RHFAutocomplete
-          multiple
-          name="alunos"
-          options={alunos}
-          getOptionLabel={(option) => option.label}
-          label="Alunos"
-        />
+        <Box>
+          <Controller
+            name="alunos"
+            control={control}
+            render={({ field: { onChange, value } }) => (
+              <Autocomplete
+                onChange={(event, newInputValue) => handleAlunos(newInputValue)}
+                value={buscaAlu}
+                options={alunos}
+                noOptionsText="Nenhum aluno encontrado"
+                filterOptions={(x) => x}
+                onInputChange={(event, newInputValue) => {
+                  setBuscaAlu(newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Nome/Matrícula"
+                    InputProps={{
+                      ...params.InputProps,
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
+                            onClick={() => {
+                              getAluno(buscaAlu)
+                            }
+                            }
+                          >
+                            <SearchIcon />
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+
+                  />
+                )}
+              />
+            )}
+          />
+          <TextField
+            label="Alunos Selecionados"
+            value={renderValueAluno(alunosSelecionados)}
+            sx={{
+              mt: 2,
+              width: '100%'
+            }}
+          />
+        </Box>
       )
     }
   }
@@ -659,171 +780,204 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!preparado.value ? (
-                  <LoadingBox />) : (
-        <Grid container spacing={3}>
-          <Grid xs={12} md={12}>
-            <Card sx={{ p: 3 }}>
-              <Box
-                rowGap={3}
-                columnGap={2}
-                display="grid"
-                gridTemplateColumns={{
-                  xs: 'repeat(1, 1fr)',
-                  sm: 'repeat(2, 1fr)',
-                }}
-              >
-
-              <RHFSelect name="ano_escolar" label="Ano Escolar">
-                  {anos_options.map((ano) => (
-                    <MenuItem key={ano} value={ano}>
-                      {ano}º
-                    </MenuItem>
-                  ))}
-              </RHFSelect>
-
-              <FormControl
-                  sx={{
-                    flexShrink: 0,
+          <LoadingBox />) : (
+          <Grid container spacing={3}>
+            <Grid xs={12} md={12}>
+              <Card sx={{ p: 3 }}>
+                <Box
+                  rowGap={3}
+                  columnGap={2}
+                  display="grid"
+                  gridTemplateColumns={{
+                    xs: 'repeat(1, 1fr)',
+                    sm: 'repeat(2, 1fr)',
                   }}
                 >
-              
-              <InputLabel>Habilidades</InputLabel>
 
-              <Select
-                multiple
-                name="habilidades_plano_intervencao"
-                value={filters.habilidades}
-                onChange={handleFilterHabilidade}
-                input={<OutlinedInput label="Habilidades" />}
-                renderValue={renderValueHabilidade}
-                MenuProps={{
-                  PaperProps: {
-                    sx: { maxHeight: 240 },
-                  },
-                }}
-              >
-                {hab?.map((habi) => (
-                  <MenuItem key={habi.id} value={habi.id}>
-                    <Checkbox disableRipple size="small" checked={filters.habilidades.includes(habi.id)} />
-                    {`${habi.nome} - ${habi.descricao}`}
-                  </MenuItem>
-                ))}
-              </Select>
-              </FormControl>
+                  <RHFSelect name="ano_escolar" label="Ano Escolar">
+                    {anos_options.map((ano) => (
+                      <MenuItem key={ano} value={ano}>
+                        {ano}º
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
 
+                  <FormControl
+                    sx={{
+                      flexShrink: 0,
+                    }}
+                  >
 
-              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-                <Controller
-                  name="inicio_previsto"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker value={value} onChange={onChange} label='Início Previsto' />
-                  )}
-                />
-              </LocalizationProvider>
-              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-                <Controller
-                  name="termino_previsto"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker value={value} onChange={onChange} label='Término Previsto' />
-                  )}
-                />
-              </LocalizationProvider>
+                    <InputLabel>Habilidades</InputLabel>
+
+                    <Select
+                      multiple
+                      name="habilidades_plano_intervencao"
+                      value={filters.habilidades}
+                      onChange={handleFilterHabilidade}
+                      input={<OutlinedInput label="Habilidades" />}
+                      renderValue={renderValueHabilidade}
+                      MenuProps={{
+                        PaperProps: {
+                          sx: { maxHeight: 240 },
+                        },
+                      }}
+                    >
+                      {hab?.map((habi) => (
+                        <MenuItem key={habi.id} value={habi.id}>
+                          <Checkbox disableRipple size="small" checked={filters.habilidades.includes(habi.id)} />
+                          {`${habi.nome} - ${habi.descricao}`}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
 
 
-                <RHFSelect name="fase" label="Fase">
-                  {fases_options.map((_fase) => (
-                    <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
-                      {_fase}
-                    </MenuItem>
-                  ))}
-                </RHFSelect>
+                  <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                    <Controller
+                      name="inicio_previsto"
+                      control={control}
+                      render={({ field: { onChange, value } }) => (
+                        <DatePicker value={value} onChange={onChange} label='Início Previsto' />
+                      )}
+                    />
+                  </LocalizationProvider>
+                  <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                    <Controller
+                      name="termino_previsto"
+                      control={control}
+                      render={({ field: { onChange, value } }) => (
+                        <DatePicker value={value} onChange={onChange} label='Término Previsto' />
+                      )}
+                    />
+                  </LocalizationProvider>
 
-                <RHFSelect name="" label="Variável a Melhorar" value="Índice de Alfabetização" disabled={true}>
+
+                  <RHFSelect name="fase" label="Fase">
+                    {fases_options.map((_fase) => (
+                      <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                        {_fase}
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
+
+                  <RHFSelect name="" label="Variável a Melhorar" value="Índice de Alfabetização" disabled={true}>
                     <MenuItem value="Índice de Alfabetização">
                       Índice de Alfabetização
                     </MenuItem>
-                </RHFSelect>
+                  </RHFSelect>
 
-                <RHFTextField  name="acao" label="Ação" />
+                  <RHFTextField name="acao" label="Ação" />
 
-                <RHFAutocomplete
-                  name="responsavel"
-                  options={listaProfissionais}
-                  label="Responsável"
-                />
+                  <Controller
+                    name="responsavel"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <Autocomplete
+                        onChange={(event, newInputValue) => setValue("responsavel", newInputValue)}
+                        value={buscaPro}
+                        options={listaProfissionais}
+                        noOptionsText="Nenhum professor encontrado"
+                        filterOptions={(x) => x}
+                        onInputChange={(event, newInputValue) => {
+                          setBuscaPro(newInputValue);
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Responsável"
+                            InputProps={{
+                              ...params.InputProps,
+                              startAdornment: (
+                                <InputAdornment position="start">
+                                  <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
+                                    onClick={() => {
+                                      getAllProfissionais(buscaPro)
+                                    }
+                                    }
+                                  >
+                                    <SearchIcon />
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
 
-                <RHFSelect name="aplicar" label="Aplicar Plano a...">
-                  {aplicacao_options_filtrado.map((_aplicar) => (
-                    <MenuItem key={_aplicar} value={_aplicar}>
-                      {_aplicar}
-                    </MenuItem>
-                  ))}
-                </RHFSelect>
+                          />
+                        )}
+                      />
+                    )}
+                  />
 
-              
-                {selecionarAplicacao()}
+                  <RHFSelect name="aplicar" label="Aplicar Plano a...">
+                    {aplicacao_options_filtrado.map((_aplicar) => (
+                      <MenuItem key={_aplicar} value={_aplicar}>
+                        {_aplicar}
+                      </MenuItem>
+                    ))}
+                  </RHFSelect>
 
 
-              </Box>
+                  {selecionarAplicacao()}
 
-              {currentPlano?.id && newFrom &&
-                <div>
-                  <Accordion sx={{ bgcolor: '#f5f5f5', my: 1}}>
-                    <AccordionSummary
-                      expandIcon={<ExpandMoreIcon />}
-                      aria-controls="panel1-content"
-                      id="panel1-header"
-                      sx={{ bgcolor: '#f5f5f5', borderRadius: 2, mt: 1}}
-                    >
-                      <h3>Anexos</h3>
-                    </AccordionSummary>
-                    <AccordionDetails >
-                      <DataGrid
-                        rows={documentosAntigos}
-                        columns={colunasDocumentosAntigos}
-                        checkboxSelection
-                        hideFooterPagination
-                        sx={{mt:3, bgcolor: "white"}}
-                        onRowSelectionModelChange={handleSelectDocumentoAntigo}
+
+                </Box>
+
+                {currentPlano?.id && newFrom &&
+                  <div>
+                    <Accordion sx={{ bgcolor: '#f5f5f5', my: 1 }}>
+                      <AccordionSummary
+                        expandIcon={<ExpandMoreIcon />}
+                        aria-controls="panel1-content"
+                        id="panel1-header"
+                        sx={{ bgcolor: '#f5f5f5', borderRadius: 2, mt: 1 }}
+                      >
+                        <h3>Anexos</h3>
+                      </AccordionSummary>
+                      <AccordionDetails >
+                        <DataGrid
+                          rows={documentosAntigos}
+                          columns={colunasDocumentosAntigos}
+                          checkboxSelection
+                          hideFooterPagination
+                          sx={{ mt: 3, bgcolor: "white" }}
+                          onRowSelectionModelChange={handleSelectDocumentoAntigo}
                         />
-                    </AccordionDetails>
-                  </Accordion>
-                </div>
-              }
+                      </AccordionDetails>
+                    </Accordion>
+                  </div>
+                }
 
-              <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }} alignItems="flex-end">
-              <Button disabled={getValues('status') == 'Concluído' ? true : false} variant="contained" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => {conclui.onTrue()}}>
-                  Status Concluído
-                </Button>
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                  {currentPlano ? (newFrom ? 'Criar Plano' : 'Atualizar Plano') : 'Criar Plano'}
-                </LoadingButton>
-                <ConfirmDialog
-                  open={conclui.value}
-                  onClose={conclui.onFalse}
-                  title="Plano Concluído"
-                  content="Tem certeza que deseja marcar esse plano como Concluído?"
-                  action={
-                    <Button variant="contained" color="success" onClick={concluiPlano}>
-                      Concluído
-                    </Button>
-                  }
-                />
-              </Stack>
-            </Card>
-          </Grid>
-        </Grid>)}
+                <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }} alignItems="flex-end">
+                  <Button disabled={getValues('status') == 'Concluído' ? true : false} variant="contained" color='success' sx={{ visibility: currentPlano ? (newFrom ? 'hidden' : 'inherit') : 'hidden' }} onClick={() => { conclui.onTrue() }}>
+                    Status Concluído
+                  </Button>
+                  <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                    {currentPlano ? (newFrom ? 'Criar Plano' : 'Atualizar Plano') : 'Criar Plano'}
+                  </LoadingButton>
+                  <ConfirmDialog
+                    open={conclui.value}
+                    onClose={conclui.onFalse}
+                    title="Plano Concluído"
+                    content="Tem certeza que deseja marcar esse plano como Concluído?"
+                    action={
+                      <Button variant="contained" color="success" onClick={concluiPlano}>
+                        Concluído
+                      </Button>
+                    }
+                  />
+                </Stack>
+              </Card>
+            </Grid>
+          </Grid>)}
       </FormProvider>
 
-      {currentPlano?.id && !newFrom && 
-        <Card sx={{mt:3}}>
-          <PlanoIntervencaoFileManagerView planoId={currentPlano?.id}/>
+      {currentPlano?.id && !newFrom &&
+        <Card sx={{ mt: 3 }}>
+          <PlanoIntervencaoFileManagerView planoId={currentPlano?.id} />
         </Card>
       }
 
-      
+
     </>
   );
 }

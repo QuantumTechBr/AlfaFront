@@ -28,7 +28,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const [mapResultados, setMapResultados] = useState([]);
   const { control, getValues } = useFormContext();
-  console.log(getValues('registros'))
+  const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -37,7 +37,23 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     setMapResultados(mp)
   }, [id, setMapResultados, mapResultadosAlunoTurmaInicial]);
 
+  const disableSelect = () => {
+    let mds = []
+    for (let index = 0; index < 20; index++) {
+      if (getValues('registros['+id+'].r['+index+']') === '') {
+        console.log(getValues('registros['+id+'].r['+index+']'))
+        mds[index] = false;
+      } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
+        mds[index] = true
+      } else {
+        mds[index] = false;
+      }
+    }
+    setMapDesabilitarSelect(mds);
+  }
+
   const preparacaoInicial = useCallback(async () => {
+    disableSelect();
     if (periodo == 'Final') {
       getMapResultados();
     }
@@ -75,17 +91,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     '2': 5
   };
 
-  const disableSelect = (rNota) => {
-    if (rNota == '') {
-      return false    
-    }
-    if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
-      return true
-    } else {
-      return false;
-    }
-  }
-
   const disableMenuItem = (rNota, rNumero) => {
     if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
       if (mapResultados[rNumero] == '') {
@@ -107,7 +112,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       retorno.push(
         <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect 
-              disabled={getValues('registros['+id+'].r['+index+']') != '' ? disableSelect(getValues('registros['+id+'].r['+index+']')) : false} 
+              disabled={mapDesabilitarSelect[index]} 
               name={'registros['+id+'].r['+index+']'}  
               label="">
                 {r_options.map((r) => (

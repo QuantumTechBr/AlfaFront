@@ -210,7 +210,7 @@ export const endpoints = {
     diagnostico: {
       post: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       list: '/api/v1/registros-aprendizagens/avaliacao-diagnostico',
-      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/turmas-ids/',
+      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/turmas-ids',
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       update: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
@@ -218,7 +218,7 @@ export const endpoints = {
     fase: {
       post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       list: '/api/v1/registros-aprendizagens/avaliacao-fase',
-      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-fase/turmas-ids/',
+      idsTurmaList: '/api/v1/registros-aprendizagens/avaliacao-fase/turmas-ids',
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',

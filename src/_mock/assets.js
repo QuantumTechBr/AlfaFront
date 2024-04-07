@@ -285,7 +285,7 @@ export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
 
 export const fases_options = ['', 'Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
 
-export const necessidades_especiais = ['', 'BAIXA VISAO', 'CEGUEIRA', 'DEFICIENCIA AUDITIVA', 'DEFICIENCIA LOCOMOTORA', 'AUTISMO', 'ALTAS HABILIDADES/SUPERDOTACAO', 'AUTISMO INFANTIL', 'DEFICIENCIA FISICA', 'DEFICIENCIA INTELECTUAL', 'DEFICIENCIAS MULTIPLAS', 'SINDROME DE ASPERGER'];
+export const necessidades_especiais = ['BAIXA VISAO', 'CEGUEIRA', 'DEFICIENCIA AUDITIVA', 'DEFICIENCIA LOCOMOTORA', 'AUTISMO', 'ALTAS HABILIDADES/SUPERDOTACAO', 'AUTISMO INFANTIL', 'DEFICIENCIA FISICA', 'DEFICIENCIA INTELECTUAL', 'DEFICIENCIAS MULTIPLAS', 'SINDROME DE ASPERGER'];
 
 export const habilidades_1ano = [
   {id: '33d4467f-c3a0-cf32-69dc-b98eb5e857bc', descricao: 'H1 - Respeita e expressa sentimentos e emoções.' },
