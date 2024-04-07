@@ -155,19 +155,19 @@ export default function EscolaNewEditForm({ currentEscola }) {
               </RHFSelect>
               <RHFTextField name="cidade" label="Cidade" disabled={true} />
 
-              {currentEscola && 
+              {/* {currentEscola && 
               (<Button
                 variant="contained"
                 onClick={modalAlunoEscola.onTrue}
-                startIcon={<Iconify icon="mingcute:add-line" />}
+                startIcon={<Iconify icon="mingcute:add-line" />} 
                 sx={{
                   bgcolor: "#00A5AD",
                   mb: 3,
                 }}
               >
-                Definir Estudantes da Escola
+                Definir Estudantes da Escola // MODAL SERÁ REFORMULADO
               </Button>)
-              }
+              } */}
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -179,7 +179,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
         </Grid>
       </Grid>
     </FormProvider>
-    <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} />
+    {/* <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} /> */}
     </>
   );
 }
