@@ -32,6 +32,7 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
+    root_diagnostico: `${ROOTS.DASHBOARD}/dash-diagnostica`,
     blank: `${ROOTS.DASHBOARD}/blank`,
     calendar: `${ROOTS.DASHBOARD}/calendar`,
     documento: `${ROOTS.DASHBOARD}/documento`,
