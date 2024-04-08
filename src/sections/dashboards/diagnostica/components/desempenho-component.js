@@ -15,9 +15,9 @@ import '../../components/style.css';
 
 // ----------------------------------------------------------------------
 
-export default function ParticipacaoChart({ title, chartSeries = [], options, ...other }) {
+export default function DesempenhoComponent({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
-  const colors = ['#d11400', '#FFBF00'];
+  const colors = ['#d11400', '#134EB4', '#009a50'];
 
   const chartOptions = useChart({
     colors: colors,
@@ -35,12 +35,15 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
       toolbar: { show: true },
     },
 
-    xaxis: options.xaxis,
+    xaxis: {
+      categories: ['N1', 'N2', 'N3'],
+    },
 
     plotOptions: {
       bar: {
         columnWidth: '85%',
         borderRadius: 11,
+        distributed: true, // CORES AUTOMATICAS E BOLINHAS
       },
     },
     stroke: {
@@ -90,12 +93,7 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
     },
 
     legend: {
-      show: true,
-      position: 'bottom',
-      formatter: (seriesName) => `% ${seriesName}`,
-      itemMargin: {
-        vertical: 30,
-      },
+      show: false,
     },
 
     yaxis: [{ show: true, min: 0, max: 100 }],
@@ -121,7 +119,7 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
   );
 }
 
-ParticipacaoChart.propTypes = {
+DesempenhoComponent.propTypes = {
   title: PropTypes.string,
   chartSeries: PropTypes.array,
   options: PropTypes.object,

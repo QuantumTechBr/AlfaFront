@@ -1,5 +1,3 @@
-'use client';
-
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
@@ -15,9 +13,9 @@ import '../../components/style.css';
 
 // ----------------------------------------------------------------------
 
-export default function ParticipacaoChart({ title, chartSeries = [], options, ...other }) {
+export default function ParticipacaoGridChart({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
-  const colors = ['#d11400', '#FFBF00'];
+  const colors = ['#134EB4', '#009a50'];
 
   const chartOptions = useChart({
     colors: colors,
@@ -33,23 +31,26 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
     },
     chart: {
       toolbar: { show: true },
+      stacked: true,
+      stackOnlyBar: true,
     },
 
     xaxis: options.xaxis,
 
     plotOptions: {
       bar: {
-        columnWidth: '85%',
-        borderRadius: 11,
+        columnWidth: '80%',
+        borderRadius: 0,
+        borderRadiusApplication: 'end', // around
+        borderRadiusWhenStacked: 'last', // last
       },
     },
     stroke: {
-      show: true,
-      width: 10,
-      colors: ['transparent'],
+      show: false,
     },
     dataLabels: {
       enabled: true,
+      // offsetY: 25,
       background: {
         enabled: true,
         padding: 7,
@@ -121,7 +122,7 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
   );
 }
 
-ParticipacaoChart.propTypes = {
+ParticipacaoGridChart.propTypes = {
   title: PropTypes.string,
   chartSeries: PropTypes.array,
   options: PropTypes.object,

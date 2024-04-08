@@ -15,7 +15,7 @@ import '../../components/style.css';
 
 // ----------------------------------------------------------------------
 
-export default function ParticipacaoChart({ title, chartSeries = [], options, ...other }) {
+export default function ParticipacaoSemedChart({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
   const colors = ['#d11400', '#FFBF00'];
 
@@ -121,7 +121,7 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
   );
 }
 
-ParticipacaoChart.propTypes = {
+ParticipacaoSemedChart.propTypes = {
   title: PropTypes.string,
   chartSeries: PropTypes.array,
   options: PropTypes.object,

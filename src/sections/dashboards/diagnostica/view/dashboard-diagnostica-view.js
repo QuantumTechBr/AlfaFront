@@ -55,11 +55,14 @@ import NumeroComponent from '../../components/numero-component';
 import DashboardGridFilters from '../../components/dashboard-grid-filter';
 import Scrollbar from 'src/components/scrollbar';
 
+import ParticipacaoGridChart from '../components/participacao-grid-chart';
+import ParticipacaoSemedChart from '../components/participacao-semed-chart';
+import ParticipacaoChart from '../components/participacao-chart';
+
 //
 import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
-import ParticipacaoChart from '../components/participacao-chart';
-import { object } from 'prop-types';
+import DesempenhoComponent from '../components/desempenho-component';
 
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
@@ -304,9 +307,10 @@ export default function DashboardDiagnosticaView() {
     return !Number.isNaN(_calculed) && Number.isFinite(_calculed) ? _calculed : 0;
   };
 
-  //
+  // GRÁFICOS
 
-  const participacaoChartSeries = useCallback(() => {
+  // GRÁFICO 1
+  const participacaoGridChartSeries = useCallback(() => {
     const series = [];
     if (isEscolaFiltered) {
       // FILTRADO POR ZONA
@@ -431,7 +435,7 @@ export default function DashboardDiagnosticaView() {
     return series;
   }, [dados, isZonaFiltered, isEscolaFiltered]);
 
-  const participacaoChartOptions = useCallback(() => {
+  const participacaoGridChartOptions = useCallback(() => {
     let options = {};
     if (isEscolaFiltered) {
       options = {
@@ -459,6 +463,157 @@ export default function DashboardDiagnosticaView() {
     }
     return options;
   }, [dados, isZonaFiltered, isEscolaFiltered]);
+
+  // GRÁFICO 2
+  const participacaoSemedChartSeries = useCallback(() => {
+    const series = [];
+
+    // SEM FILTROS
+    const porZona = dados.grid_ddz.map((item) => {
+      const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
+      let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
+      let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+
+      const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
+      let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
+      let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+
+      return {
+        name: item.zona_nome,
+        data: {
+          presentes: { _totalEntradaPresentes, _totalSaidaPresentes },
+          ausentes: { _totalEntradaAusentes, _totalSaidaAusentes },
+        },
+      };
+    });
+
+    const _entrada = [
+      porZona.reduce((total, pz) => (total += pz.data.presentes._totalEntradaPresentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalEntradaAusentes), 0),
+    ];
+
+    series.push({
+      name: 'Avaliação Entrada',
+      data: [
+        _percentCalc(_entrada[0], _entrada[0] + _entrada[1]),
+        _percentCalc(_entrada[1], _entrada[0] + _entrada[1]),
+      ],
+      quantidade: [_entrada[0], _entrada[1]],
+    });
+
+    const _saida = [
+      porZona.reduce((total, pz) => (total += pz.data.presentes._totalSaidaPresentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalSaidaAusentes), 0),
+    ];
+    series.push({
+      name: 'Avaliação Saída',
+      data: [
+        _percentCalc(_saida[0], _saida[0] + _saida[1]),
+        _percentCalc(_saida[1], _saida[0] + _saida[1]),
+      ],
+      quantidade: [_saida[0], _saida[1]],
+    });
+
+    return series;
+  }, [dados, isZonaFiltered, isEscolaFiltered]);
+
+  const participacaoSemedChartOptions = useCallback(() => {
+    let options = {
+      xaxis: {
+        categories: ['Presentes', 'Ausentes'],
+      },
+    };
+
+    return options;
+  }, []);
+
+  // GRÁFICO 3
+  const participacaoChartSeries = useCallback(() => {
+    const series = [];
+
+    // SEM FILTROS
+    const porZona = dados.grid_ddz.map((item) => {
+      const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
+      let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
+      let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+
+      const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
+      let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
+      let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+
+      return {
+        name: item.zona_nome,
+        data: {
+          presentes: { _totalEntradaPresentes, _totalSaidaPresentes },
+          ausentes: { _totalEntradaAusentes, _totalSaidaAusentes },
+        },
+      };
+    });
+
+    const _entrada = [
+      porZona.reduce((total, pz) => (total += pz.data.presentes._totalEntradaPresentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalEntradaAusentes), 0),
+    ];
+
+    series.push({
+      name: 'Avaliação Entrada',
+      data: [_percentCalc(_entrada[0], _entrada[0] + _entrada[1])],
+      quantidade: [_entrada[0]],
+    });
+
+    const _saida = [
+      porZona.reduce((total, pz) => (total += pz.data.presentes._totalSaidaPresentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalSaidaAusentes), 0),
+    ];
+    series.push({
+      name: 'Avaliação Saída',
+      data: [_percentCalc(_saida[0], _saida[0] + _saida[1])],
+      quantidade: [_saida[0]],
+    });
+
+    return series;
+  }, [dados, isZonaFiltered, isEscolaFiltered]);
+
+  const participacaoChartOptions = useCallback(() => {
+    let options = {
+      xaxis: {
+        categories: ['Presentes'],
+        labels: {
+          // show: false,
+        },
+      },
+    };
+
+    return options;
+  }, []);
+
+  // GRÁFICO 4
+  const desempenhoChartSeries = useCallback((metrica) => {
+    const porZona = dados.grid_ddz.map((item) => {
+      return {
+        name: item.zona_nome,
+        data: item.desempenho[metrica],
+      };
+    });
+
+    const _metricas = [
+      porZona.reduce((total, pz) => (total += pz.data.N1), 0),
+      porZona.reduce((total, pz) => (total += pz.data.N2), 0),
+      porZona.reduce((total, pz) => (total += pz.data.N3), 0),
+    ];
+
+    return [
+      {
+        name: 'Estudantes',
+        data: [
+          _percentCalc(_metricas[0], _.sum(_metricas)),
+          _percentCalc(_metricas[1], _.sum(_metricas)),
+          _percentCalc(_metricas[2], _.sum(_metricas)),
+        ],
+        quantidade: _metricas,
+      },
+    ];
+  }, [dados]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -595,10 +750,44 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
 
                 <Grid xs={12}>
+                  <ParticipacaoGridChart
+                    title="Participação"
+                    chartSeries={participacaoGridChartSeries()}
+                    options={participacaoGridChartOptions()}
+                  />
+                </Grid>
+
+                <Grid xs={12} lg={7}>
+                  <ParticipacaoSemedChart
+                    title="Participação SEMED"
+                    chartSeries={participacaoSemedChartSeries()}
+                    options={participacaoSemedChartOptions()}
+                  />
+                </Grid>
+                <Grid xs={12} lg={5}>
                   <ParticipacaoChart
                     title="Participação"
                     chartSeries={participacaoChartSeries()}
                     options={participacaoChartOptions()}
+                  />
+                </Grid>
+
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Geral"
+                    chartSeries={desempenhoChartSeries('geral')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Língua Portuguesa"
+                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Matemática"
+                    chartSeries={desempenhoChartSeries('matematica')}
                   />
                 </Grid>
 
