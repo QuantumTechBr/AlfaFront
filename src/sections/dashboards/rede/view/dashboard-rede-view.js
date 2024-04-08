@@ -59,7 +59,7 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
-import { anos_metas } from 'src/_mock/assets';
+import { anos_metas, preDefinedZonaOrder } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -95,17 +95,6 @@ export default function DashboardRedeView() {
     },
     [turmas]
   );
-
-  //
-  const preDefinedOrder = {
-    'SUL': 0,
-    'OESTE': 1,
-    'NORTE': 2,
-    'CENTRO-SUL': 3,
-    'LESTE I': 4,
-    'LESTE II': 5,
-    'RURAL': 6,
-  };
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -163,9 +152,9 @@ export default function DashboardRedeView() {
             };
           });
 
-          const _sorted = result.sort((a,b) => {
-            const na = preDefinedOrder[a.zona_nome] ?? 0;
-            const nb = preDefinedOrder[b.zona_nome] ?? 0;
+          const _sorted = result.sort((a, b) => {
+            const na = preDefinedZonaOrder[a.zona_nome] ?? 0;
+            const nb = preDefinedZonaOrder[b.zona_nome] ?? 0;
             return na - nb;
           });
 
