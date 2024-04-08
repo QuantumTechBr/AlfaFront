@@ -64,6 +64,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 import { getValue } from '@mui/system';
+import { set } from 'lodash';
 // ----------------------------------------------------------------------
 const filtros = {
   ano: '',
@@ -101,7 +102,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [buscaAlu, setBuscaAlu] = useState('');
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
   const [escolaTurma, setEscolaTurma] = useState({});
-
+  const [aplicacaoDefault, setAplicacaoDefault] = useState(filtros);
 
   let aplicarInicial = '';
   const colunasDocumentosAntigos = [
@@ -139,10 +140,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     return new Date();
   }, [currentPlano]);
 
+  const hanbleEditResponsavel = () => {
+    setBuscaPro({ id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome })
+    return { id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome };
+  }
+
 
   const defaultValues = useMemo(
     () => ({
-      responsavel: currentPlano?.responsavel ? setBuscaPro({ id: currentPlano.responsavel.id, label: currentPlano.responsavel.nome }) : '',
+      responsavel: currentPlano?.responsavel ? hanbleEditResponsavel() : '',
       acao: currentPlano?.acao || '',
       ano_escolar: currentPlano?.ano_escolar || '',
       inicio_previsto: inicioPrevisto,
@@ -199,7 +205,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const getAlunoById = (id) => {
     return alunoMethods.getAlunoById(id).then(aluno => {
-      // console.log(aluno)
       const al = {
         label: aluno.data.nome,
         id: aluno.data.id,
@@ -289,20 +294,15 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }
   }, [allHab])
 
-  const handleAlunosEdit = async (alunos_id) => {
+  const handleAlunosEdit = async (alunosAplicacao) => {
     let alunosEdit = [];
-    alunos_id.map((alunoId) => {
-      const r = getAlunoById(alunoId);
+    alunosAplicacao.map((estudante) => {
+      const r = getAlunoById(estudante?.id);
       alunosEdit.push(r);
     })
     await Promise.all(alunosEdit).then((resultado) => {
       setAlunosSelecionados(resultado) 
     });
-    console.log(alunosEdit)
-    // setAlunosSelecionados(alunosEdit)
-
-
-
   }
 
   const handleEscolaTurma = useCallback(
@@ -310,20 +310,47 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     [setEscolaTurma],
   );
 
+  const handleZonasEdit = (zonasAplicacao) => {
+    let zonasId = [];
+    zonasAplicacao?.map((zona) => {
+      zonasId.push(zona?.id);
+    })
+    return zonasId;
+  }
+
+  const handleEscolasEdit = (escolasAplicacao) => {
+    let escolasId = [];
+    escolasAplicacao?.map((esc) => {
+      escolasId.push(esc?.id);
+    })
+    return escolasId;
+  }
+
+  const handleTurmasEdit = (turmasAplicacao) => {
+    let turmasId = [];
+    turmasAplicacao?.map((tur) => {
+      turmasId.push(tur?.id);
+    })
+    return turmasId;
+  }
+
   useEffect(() => {
-    if (currentPlano) {
+    if (currentPlano.aplicacao) {
       const novoFiltros = {
         ano: '',
         fase: '',
         habilidades: currentPlano.habilidades_plano_intervencao ? currentPlano.habilidades_plano_intervencao : [],
-        escolas: currentPlano.aplicacao?.escolas ? currentPlano.aplicacao?.escolas : [],
-        zonas: currentPlano.aplicacao?.zonas ? currentPlano.aplicacao?.zonas : [],
-        turmas: currentPlano.aplicacao?.turmas ? currentPlano.aplicacao?.turmas : [],
+        escolas: currentPlano.aplicacao?.escolas ? handleEscolasEdit(currentPlano.aplicacao?.escolas) : [],
+        zonas: currentPlano.aplicacao?.zonas ? handleZonasEdit(currentPlano.aplicacao?.zonas) : [],
+        turmas: currentPlano.aplicacao?.turmas ? handleTurmasEdit(currentPlano.aplicacao?.turmas) : [],
         alunos: currentPlano.aplicacao?.alunos ? handleAlunosEdit(currentPlano.aplicacao?.alunos) : [],
       };
-
+      if (currentPlano.aplicacao.turmas) {
+        let etInicial = escolas?.filter((escola) => escola.id == currentPlano.aplicacao?.turmas[0].escola_id)
+        setEscolaTurma(etInicial[0]?.id)
+      }
+      setAplicacaoDefault(novoFiltros);
       setFilters(novoFiltros);
-
       if (currentPlano.ano_escolar) {
         switch (currentPlano.ano_escolar) {
           case 1:
@@ -353,7 +380,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         })
       }
     }
-  }, [currentPlano]);
+  }, [currentPlano, escolas]);
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -382,6 +409,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const { ano_escolar, fase, habilidades, aplicar } = values;
 
   const onSubmit = handleSubmit(async (data) => {
+    setErrorMsg('');
     try {
       const listaIdsAplicacao = {
         zonas: [],
@@ -457,7 +485,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const handleFilters = useCallback(
     async (nome, value) => {
       // table.onResetPage();
-      // console.log(filters)
       const novosFiltros = {
         ...filters,
         [nome]: value,
@@ -549,7 +576,6 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const concluiPlano = async () => {
     await planoIntervencaoMethods.updatePlanoIntervencaoById(currentPlano?.id, { status: 'Concluído' }).catch((error) => {
-      console.log(error);
     });
     statusConcluido()
     conclui.onFalse();
@@ -571,12 +597,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }, [ano_escolar]);
 
   useEffect(() => {
-    const novoFiltro = filters;
-    novoFiltro.escolas = [];
-    novoFiltro.zonas = [];
-    novoFiltro.alunos = [];
-    novoFiltro.turmas = [];
-    setFilters(novoFiltro);
+    setFilters(aplicacaoDefault);
     setAlunosSelecionados([]);
     setBuscaAlu('');
   }, [aplicar]);

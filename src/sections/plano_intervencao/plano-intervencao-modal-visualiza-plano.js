@@ -33,7 +33,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const [warningMsg, setWarningMsg] = useState('');
   const [allHab, setAllHab] = useState([]);
   const [documentos, setDocumentos] = useState([]);
-  const [plano, setPlano] = useState({});
+  const [planoModal, setPlanoModal] = useState({});
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -64,7 +64,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
     planoIntervencaoMethods
       .getPlanoIntervencaoById(currentPlano)
       .then((retorno) => {
-        setPlano(retorno.data);
+        setPlanoModal(retorno.data);
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de planos');
@@ -106,44 +106,27 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const mostrarAplicacao = () => {
     const list_retorno = [];
     let aplicacao = '';
-    if (plano?.aplicacao?.alunos?.length > 0) {
-      plano.aplicacao.alunos.map((alunoId) => {
-        turmas.map((turma) => {
-          turma?.turmas_alunos?.map((ta) => {
-            if (ta?.aluno?.id == alunoId) {
-              list_retorno.push(`- ${ta.aluno?.nome} `);
-            }
-          });
-        });
+    if (planoModal?.aplicacao?.alunos?.length > 0) {
+      console.log(planoModal.aplicacao)
+      planoModal.aplicacao.alunos.map((aluno) => {
+        list_retorno.push(`- ${aluno?.nome} `);
       });
       aplicacao = 'Alunos ';
-    } else if (plano?.aplicacao?.turmas?.length > 0) {
-      plano.aplicacao.turmas.map((turmaId) => {
-        turmas.map((turma) => {
-          if (turma.id == turmaId) {
-            list_retorno.push(
-              `- ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`
-            );
-          }
-        });
+    } else if (planoModal?.aplicacao?.turmas?.length > 0) {
+      planoModal.aplicacao.turmas.map((turma) => {
+        list_retorno.push(
+          `- ${turma.ano_escolar}º ${turma.nome} (${turma.turno})  (${escolaNome(turma.escola_id)})`
+        );
       });
       aplicacao = 'Turmas ';
-    } else if (plano?.aplicacao?.escolas?.length > 0) {
-      plano.aplicacao.escolas.map((escolaId) => {
-        escolas.map((escola) => {
-          if (escola.id == escolaId) {
-            list_retorno.push(`- ${escola.nome} `);
-          }
-        });
+    } else if (planoModal?.aplicacao?.escolas?.length > 0) {
+      planoModal.aplicacao.escolas.map((escola) => {
+        list_retorno.push(`- ${escola?.nome} `);
       });
       aplicacao = 'Escolas ';
-    } else if (plano?.aplicacao?.zonas?.length > 0) {
-      plano.aplicacao.zonas.map((zonaId) => {
-        zonas.map((zona) => {
-          if (zona.id == zonaId) {
-            list_retorno.push(`- ${zona.nome} `);
-          }
-        });
+    } else if (planoModal?.aplicacao?.zonas?.length > 0) {
+      planoModal.aplicacao.zonas.map((zona) => {
+        list_retorno.push(`- ${zona.nome} `);
       });
       aplicacao = 'Zonas ';
     }
@@ -166,7 +149,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
   const retornaHabilidades = () => {
     const list_retorno = [];
     allHab.map((habilidade) => {
-      if (plano?.habilidades_plano_intervencao?.includes(habilidade.id)) {
+      if (planoModal?.habilidades_plano_intervencao?.includes(habilidade.id)) {
         list_retorno.push(`- ${habilidade.nome} `);
       }
     });
@@ -216,7 +199,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
               >
                 <div>
                   <Label>Ano Escolar</Label>
-                  <Typography>{plano?.ano_escolar}</Typography>
+                  <Typography>{planoModal?.ano_escolar}</Typography>
                 </div>
                 <div>
                   <Label>Habilidades</Label>
@@ -224,23 +207,23 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                 </div>
                 <div>
                   <Label>Início Previsto</Label>
-                  <Typography>{plano?.inicio_previsto}</Typography>
+                  <Typography>{planoModal?.inicio_previsto}</Typography>
                 </div>
                 <div>
                   <Label>Término Previsto</Label>
-                  <Typography>{plano?.termino_previsto}</Typography>
+                  <Typography>{planoModal?.termino_previsto}</Typography>
                 </div>
                 <div>
                   <Label>Fase</Label>
-                  <Typography>{plano?.fase}</Typography>
+                  <Typography>{planoModal?.fase}</Typography>
                 </div>
                 <div>
                   <Label>Ação</Label>
-                  <Typography>{plano?.acao}</Typography>
+                  <Typography>{planoModal?.acao}</Typography>
                 </div>
                 <div>
                   <Label>Responsável</Label>
-                  <Typography>{plano?.responsavel?.nome}</Typography>
+                  <Typography>{planoModal?.responsavel?.nome}</Typography>
                 </div>
                 <div>
                   <Label>Aplicação</Label>
