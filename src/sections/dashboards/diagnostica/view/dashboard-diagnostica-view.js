@@ -112,9 +112,6 @@ export default function DashboardDiagnosticaView() {
     [turmas]
   );
 
-  
-  
-
   const preencheGraficos = useCallback(
     async (_filters) => {
       table.onResetPage();
@@ -171,19 +168,12 @@ export default function DashboardDiagnosticaView() {
           });
 
           result.grid_ddz = _sorted;
-
           // END adequação dos dados
-
-          
-          
 
           setDados((prevState) => ({
             ...prevState,
             ...result,
           }));
-
-          
-          
         }),
       ]);
 
