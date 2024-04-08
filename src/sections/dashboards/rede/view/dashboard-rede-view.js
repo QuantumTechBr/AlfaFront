@@ -228,7 +228,7 @@ export default function DashboardRedeView() {
   // TABLE GRID
   const TABLE_HEAD = [
     { id: 'ddz', label: 'DDZ', notsortable: true },
-    { id: 'escolae', label: 'Escolas', notsortable: true },
+    { id: 'escolas', label: 'Escolas', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
     { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },

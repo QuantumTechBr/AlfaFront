@@ -52,16 +52,12 @@ import dashboardsMethods from 'src/sections/overview/dashboards-repository';
 
 //
 import NumeroComponent from '../../components/numero-component';
-import DesempenhoAlunosWidget from '../../components/desempenho-alunos-widget';
-import MetaComponent from '../../components/meta-component';
-import IndicesCompostosAlfabetizacaoGeralWidget from '../../widgets/indices-compostos-alfabetizacao-geral-widget';
 import DashboardGridFilters from '../../components/dashboard-grid-filter';
 import Scrollbar from 'src/components/scrollbar';
 
 //
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
-import { anos_metas } from 'src/_mock/assets';
 
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
@@ -81,7 +77,7 @@ export default function DashboardDiagnosticaView() {
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
-    zona: [],
+    zona: '',
     escola: [],
     turma: [],
     anoEscolar: [],
@@ -89,12 +85,24 @@ export default function DashboardDiagnosticaView() {
     pneItem: '-',
   });
 
+  const isZonaFiltered = filters.zona && filters.zona != '';
+  const isEscolaFiltered = (filters.escola?.length ?? 0) > 0;
+
   const [dados, setDados] = useState({
-    total_alunos_avaliados: null,
+    total_alunos: null,
+    total_alunos_presentes: null,
+    total_alunos_ausentes: null,
     //
     grid_ddz: [],
-    desempenho_alunos: {},
+    grid_escolas: [],
+    grid_turmas: [],
   });
+
+  const grid = isEscolaFiltered
+    ? dados.grid_turmas
+    : isZonaFiltered
+    ? dados.grid_escolas
+    : dados.grid_ddz;
 
   const getTurmasPorAnoEscolar = useCallback(
     (anoEscolar) => {
@@ -126,7 +134,7 @@ export default function DashboardDiagnosticaView() {
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos))
             ?.id,
         ],
-        ddz: [_filtersToSearch.zona.id],
+        ddz: _filtersToSearch.zona.id ? [_filtersToSearch.zona.id] : [],
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
@@ -141,56 +149,48 @@ export default function DashboardDiagnosticaView() {
       };
 
       await Promise.all([
-        dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
-          // adequação dos dados
-          const result = response.data.map((i) => {
-            const _avaliados = _.isArray(i.qtd_avaliados)
-              ? _.last(i.qtd_avaliados)
-              : i.qtd_avaliados;
-            const _alfabetizados = _.isArray(i.qtd_alfabetizado)
-              ? _.last(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado;
-            const _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
-              ? _.last(i.qtd_nao_alfabetizado)
-              : i.qtd_nao_alfabetizado;
-            const _nao_avaliados = _.isArray(i.qtd_nao_avaliado)
-              ? _.last(i.qtd_nao_avaliado)
-              : i.qtd_nao_avaliado;
+        dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
+          const result = Object.assign({}, response.data);
 
-            return {
-              ...i,
-              alunos: i.qtd_alunos,
-              avaliados: _avaliados,
-              alfabetizados: _alfabetizados,
-              nao_alfabetizados: _nao_alfabetizados,
-              nao_avaliados: _nao_avaliados,
-              //
-              indice_alfabetizacao:
-                _avaliados > 0
-                  ? Number(`${((_alfabetizados / _avaliados) * 100).toFixed(0)}`)
-                  : _avaliados,
-            };
+          // BEGIN adequação dos dados
+          let _grid_escolas = Object.assign(
+            {},
+            _(result.grid_turmas)
+              .groupBy((item) => item.escola_id)
+              .value()
+          );
+          result.grid_escolas = [];
+
+          _(_grid_escolas).forEach((turmasEscola, escola_id) => {
+            result.grid_escolas.push({
+              escola_id: _.first(turmasEscola).escola_id,
+              escola_nome: _.first(turmasEscola).escola_nome,
+              qtd_turmas: turmasEscola.length,
+              qtd_alunos: _.sumBy(turmasEscola, (_turma) => _turma.qtd_alunos),
+              turmas: turmasEscola,
+            });
           });
 
-          const _sorted = result.sort((a, b) => {
+          const _sorted = result.grid_ddz.sort((a, b) => {
             const na = preDefinedOrder[a.zona_nome] ?? 0;
             const nb = preDefinedOrder[b.zona_nome] ?? 0;
             return na - nb;
           });
 
-          setDados((prevState) => ({
-            ...prevState,
-            total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
-            grid_ddz: _sorted,
-          }));
-        }),
+          result.grid_ddz = _sorted;
 
-        // ## DESEMPENHO ALUNO
-        dashboardsMethods.getDashboardDesempenhoAlunos(fullFilters).then((response) => {
+          // END adequação dos dados
+
+          
+          
+
           setDados((prevState) => ({
             ...prevState,
-            desempenho_alunos: response.data,
+            ...result,
           }));
+
+          
+          
         }),
       ]);
 
@@ -201,6 +201,7 @@ export default function DashboardDiagnosticaView() {
 
   const handleFilters = useCallback(
     (campo, value) => {
+      let _newFilters = filters;
       if (campo == 'zona') {
         if (value.length == 0) {
           setEscolasFiltered(escolas);
@@ -209,19 +210,15 @@ export default function DashboardDiagnosticaView() {
           setEscolasFiltered(escolasFiltered);
         }
 
-        setFilters((prevState) => ({
-          ...prevState,
-          ['escola']: [],
-          [campo]: value,
-        }));
+        _newFilters = { ...filters, ['escola']: [], [campo]: value };
+        setFilters(_newFilters);
       } else {
-        setFilters((prevState) => ({
-          ...prevState,
-          [campo]: value,
-        }));
+        _newFilters = { ...filters, [campo]: value };
+        setFilters(_newFilters);
       }
+      return _newFilters;
     },
-    [setFilters, setEscolasFiltered, escolas]
+    [setFilters, setEscolasFiltered, escolas, filters]
   );
 
   const preparacaoInicial = useCallback(() => {
@@ -268,18 +265,28 @@ export default function DashboardDiagnosticaView() {
 
   // TABLE GRID
   const TABLE_HEAD = [
-    { id: 'ddz', label: 'DDZ', notsortable: true },
-    { id: 'escolae', label: 'Escolas', notsortable: true },
-    { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+    ...(isEscolaFiltered
+      ? [
+          { id: 'escolas', label: 'Escolas', notsortable: true },
+          { id: 'turma', label: 'Turma', notsortable: true },
+        ]
+      : isZonaFiltered
+      ? [
+          { id: 'escolas', label: 'Escolas', notsortable: true },
+          { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+        ]
+      : [
+          { id: 'ddz', label: 'DDZ', notsortable: true },
+          { id: 'escolas', label: 'Escolas', width: 110, notsortable: true },
+          { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+        ]),
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
-    { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
-    { id: 'alfabetizados', label: 'Alfabetizados', width: 110, notsortable: true },
-    { id: 'nao_alfabetizados', label: 'Não alfabetizados', width: 160, notsortable: true },
-    { id: 'nao_avaliados', label: 'Não avaliados', width: 180, notsortable: true },
+    { id: 'presentes', label: 'Presentes', width: 110, notsortable: true },
+    { id: 'ausentes', label: 'Ausentes', width: 110, notsortable: true },
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = { zona: '' };
+  const defaultTableFilters = { campo: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -288,7 +295,9 @@ export default function DashboardDiagnosticaView() {
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
   const dataFiltered = applyTableFilter({
-    inputData: dados.grid_ddz,
+    isZonaFiltered: isZonaFiltered,
+    isEscolaFiltered: isEscolaFiltered,
+    inputData: grid,
     comparator: getComparator(table.order, table.orderBy),
     filters: debouncedGridFilter,
   });
@@ -300,56 +309,11 @@ export default function DashboardDiagnosticaView() {
       table.onResetPage();
       setTableFilters((prevState) => ({
         ...prevState,
-        zona: value,
+        campo: value,
       }));
     },
     [table]
   );
-
-  const reduceAlfabetizacaoGeral = () => {
-    return {
-      hasSeries: true,
-      categories: [
-        {
-          series: [
-            {
-              name: 'Alfabetizado',
-              amount: _.sumBy(dados.grid_ddz, (s) => s.alfabetizados),
-            },
-            {
-              name: 'Não alfabetizado',
-              amount: _.sumBy(dados.grid_ddz, (s) => s.nao_alfabetizados),
-            },
-            {
-              name: 'Não avaliados',
-              amount: _.sumBy(dados.grid_ddz, (s) => s.nao_avaliados),
-            },
-          ],
-        },
-      ],
-    };
-  };
-
-  const getTotalEstudandes = useCallback(() => {
-    return _.sumBy(dados.grid_ddz ?? [], (ddz) => ddz.alunos);
-  }, [dados]);
-
-  const calculaMeta = () => {
-    const _anos_metas = filters.anoEscolar.length
-      ? _.pickBy(anos_metas, (v, k) => filters.anoEscolar.includes(+k))
-      : anos_metas;
-    const _meta = _.sum(_.values(_anos_metas)) / _.values(_anos_metas).length;
-    return _meta;
-  };
-
-  const getTotalAlfabetizados = () => {
-    const _soma = _.sumBy(dados.grid_ddz, (s) => s.alfabetizados);
-    return _soma;
-  };
-  const getTotalEstudandesAvaliados = () => {
-    const _soma = _.sumBy(dados.grid_ddz, (s) => s.avaliados);
-    return _soma;
-  };
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -442,7 +406,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} md={4}>
                   <NumeroComponent
                     title="Total de Estudantes"
-                    total={getTotalEstudandes()}
+                    total={dados.total_alunos}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -456,8 +420,23 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
                 <Grid xs={12} md={4}>
                   <NumeroComponent
-                    title="Total de Estudantes Avaliados"
-                    total={dados.total_alunos_avaliados ?? 0}
+                    title="Estudantes Presentes"
+                    total={dados.total_alunos_presentes ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4}>
+                  <NumeroComponent
+                    title="Estudantes Ausentes"
+                    total={dados.total_alunos_ausentes ?? 0}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -470,52 +449,11 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                <Grid xs={12} md={4}>
-                  <MetaComponent
-                    title="Meta"
-                    subtitle="entre a média das séries"
-                    meta={calculaMeta()}
-                    alfabetizados={getTotalAlfabetizados()}
-                    total={getTotalEstudandesAvaliados()}
-                  ></MetaComponent>
-                </Grid>
-
-                <Grid xs={12}>
-                  <IndiceAlfabetizacaoBimestreComponent
-                    title="Índice de alfabetização - Bimestre"
-                    grid_ddz={dados.grid_ddz}
-                  ></IndiceAlfabetizacaoBimestreComponent>
-                </Grid>
-
-                <IndicesCompostosAlfabetizacaoGeralWidget
-                  title="por DDZ"
-                  indice_alfabetizacao={[
-                    ...dados.grid_ddz.map((e) => {
-                      return {
-                        ...e,
-                        title: e.zona_nome,
-                      };
-                    }),
-                  ]}
-                  indice_alfabetizacao_geral={reduceAlfabetizacaoGeral()}
-                />
-
-                {dados.desempenho_alunos.chart &&
-                  dados.desempenho_alunos.chart &&
-                  dados.desempenho_alunos &&
-                  dados.desempenho_alunos.chart.series && (
-                    <Grid xs={12}>
-                      <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes - Índice de fases"
-                        subheader={dados.desempenho_alunos.subheader ?? ''}
-                        chart={dados.desempenho_alunos.chart}
-                      />
-                    </Grid>
-                  )}
-
                 <Grid xs={12}>
                   <Card sx={{ mt: 3, mb: 4 }}>
-                    <CardHeader title="DDZs" />
+                    <CardHeader
+                      title={isEscolaFiltered ? 'Turmas' : isZonaFiltered ? 'Escolas' : 'DDZs'}
+                    />
                     <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
                     <TableContainer
@@ -536,7 +474,7 @@ export default function DashboardDiagnosticaView() {
                             order={table.order}
                             orderBy={table.orderBy}
                             headLabel={TABLE_HEAD}
-                            rowCount={dados.grid_ddz.length}
+                            rowCount={grid.length}
                             onSort={table.onSort}
                           />
 
@@ -547,16 +485,34 @@ export default function DashboardDiagnosticaView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                              <Row
+                                key={`tableRowDash_${key}`}
+                                row={{ ...row, key: key }}
+                                isZonaFiltered={isZonaFiltered}
+                                isEscolaFiltered={isEscolaFiltered}
+                                filterOnClick={(id) => {
+                                  if (isEscolaFiltered) {
+                                    return false;
+                                  } else if (isZonaFiltered) {
+                                    const _filters = handleFilters(
+                                      'escola',
+                                      _.filter(escolas, (_escola) => _escola.id == id)
+                                    );
+                                    preencheGraficos(_filters);
+                                  } else {
+                                    const _filters = handleFilters(
+                                      'zona',
+                                      _.find(zonas, (_zona) => _zona.id == id)
+                                    );
+                                    preencheGraficos(_filters);
+                                  }
+                                }}
+                              />
                             ))}
 
                             <TableEmptyRows
                               height={43}
-                              emptyRows={emptyRows(
-                                table.page,
-                                table.rowsPerPage,
-                                dados.grid_ddz.length
-                              )}
+                              emptyRows={emptyRows(table.page, table.rowsPerPage, grid.length)}
                             />
 
                             <TableNoData notFound={notFound} />
@@ -587,8 +543,8 @@ export default function DashboardDiagnosticaView() {
 
 // ----------------------------------------------------------------------
 
-function applyTableFilter({ inputData, comparator, filters }) {
-  const { zona } = filters;
+function applyTableFilter({ isZonaFiltered, isEscolaFiltered, inputData, comparator, filters }) {
+  const { campo } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -600,29 +556,77 @@ function applyTableFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (zona) {
-    inputData = inputData.filter(
-      (row) => row.zona_nome.toLowerCase().indexOf(zona.toLowerCase()) !== -1
-    );
+  if (campo) {
+    if (isEscolaFiltered) {
+      inputData = inputData.filter(
+        (row) =>
+          _.compact([
+            row.escola_nome.toLowerCase().indexOf(campo.toLowerCase()) !== -1,
+            `${row.turma_ano_escolar}${row.turma_nome}`
+              .toLowerCase()
+              .indexOf(campo.toLowerCase()) !== -1,
+            row.escola_nome.toLowerCase().indexOf(campo.toLowerCase()) !== -1,
+            `${row.turma_ano_escolar} ${row.turma_nome}`
+              .toLowerCase()
+              .indexOf(campo.toLowerCase()) !== -1,
+            `${row.turma_ano_escolar}º ${row.turma_nome}`
+              .toLowerCase()
+              .indexOf(campo.toLowerCase()) !== -1,
+          ]).length > 0
+      );
+    } else if (isZonaFiltered) {
+      inputData = inputData.filter(
+        (row) =>
+          _.compact([row.escola_nome.toLowerCase().indexOf(campo.toLowerCase()) !== -1]).length > 0
+      );
+    } else {
+      inputData = inputData.filter(
+        (row) => row.zona_nome.toLowerCase().indexOf(campo.toLowerCase()) !== -1
+      );
+    }
   }
 
   return inputData;
 }
 
 // ----------------------------------------------------------------------
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+  '&:nth-of-type(even)': {
+    backgroundColor: theme.palette.action.hover,
+  },
+  ':hover': {
+    backgroundColor: theme.palette.action.focus,
+  },
+}));
 
-function Row(props) {
-  const { row } = props;
+function RowZona(props) {
+  const { row, filterOnClick } = props;
 
-  // TODO REMOVER E MIGRAR PARA ACESSO UNICO
-  const StyledTableRow = styled(TableRow)(({ theme }) => ({
-    '&:nth-of-type(even)': {
-      backgroundColor: theme.palette.action.hover,
-    },
-    ':hover': {
-      backgroundColor: theme.palette.action.focus,
-    },
-  }));
+  let _totalEntradaPresentes = 0;
+  let _totalEntradaAusentes = 0;
+  _.forEach(row.qtd_alunos_entrada.frequencias, (frequencia, keyN) => {
+    if (['Presente'].includes(frequencia)) {
+      _totalEntradaPresentes += row.qtd_alunos_entrada.total[keyN];
+    }
+    if (['Ausente'].includes(frequencia)) {
+      _totalEntradaAusentes += row.qtd_alunos_entrada.total[keyN];
+    }
+  });
+
+  let _totalSaidaPresentes = 0;
+  let _totalSaidaAusentes = 0;
+  _.forEach(row.qtd_alunos_saida.frequencias, (frequencia, keyN) => {
+    if (['Presente'].includes(frequencia)) {
+      _totalSaidaPresentes += row.qtd_alunos_saida.total[keyN];
+    }
+    if (['Ausente'].includes(frequencia)) {
+      _totalSaidaAusentes += row.qtd_alunos_saida.total[keyN];
+    }
+  });
+
+  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
+  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+
   return (
     <StyledTableRow
       key={`tableStyledRowDash_${row.key}`}
@@ -631,22 +635,149 @@ function Row(props) {
       <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona_nome}</TableCell>
       <TableCell>{row.qtd_escolas ?? 0}</TableCell>
       <TableCell>{row.qtd_turmas ?? 0}</TableCell>
-      <TableCell>{row.alunos ?? 0}</TableCell>
-      <TableCell>{row.avaliados ?? 0}</TableCell>
-      <TableCell>{row.alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_avaliados ?? 0}</TableCell>
+      <TableCell>{row.qtd_alunos ?? 0}</TableCell>
+      <TableCell>{_totalPresentes ?? 0}</TableCell>
+      <TableCell>{_totalAusentes ?? 0}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <Button
+          color="primary"
+          variant="contained"
+          size="small"
+          onClick={() => filterOnClick(row.zona_id)}
+        >
+          Ver escolas
+        </Button>
+      </TableCell>
+    </StyledTableRow>
+  );
+}
+
+function RowEscola(props) {
+  const { row, filterOnClick } = props;
+
+  let _totalEntradaPresentes = 0;
+  let _totalEntradaAusentes = 0;
+
+  let _totalSaidaPresentes = 0;
+  let _totalSaidaAusentes = 0;
+
+  _.forEach(row.turmas, (_turma) => {
+    _.forEach(_turma.qtd_alunos_entrada.frequencias, (frequencia, keyN) => {
+      if (['Presente'].includes(frequencia)) {
+        _totalEntradaPresentes += _turma.qtd_alunos_entrada.total[keyN];
+      }
+      if (['Ausente'].includes(frequencia)) {
+        _totalEntradaAusentes += _turma.qtd_alunos_entrada.total[keyN];
+      }
+    });
+
+    _.forEach(_turma.qtd_alunos_saida.frequencias, (frequencia, keyN) => {
+      if (['Presente'].includes(frequencia)) {
+        _totalSaidaPresentes += _turma.qtd_alunos_saida.total[keyN];
+      }
+      if (['Ausente'].includes(frequencia)) {
+        _totalSaidaAusentes += _turma.qtd_alunos_saida.total[keyN];
+      }
+    });
+  });
+
+  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
+  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+
+  return (
+    <StyledTableRow
+      key={`tableStyledRowDash_${row.key}`}
+      sx={{ '& > *': { borderBottom: 'unset' } }}
+    >
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
+      <TableCell>{row.qtd_turmas ?? 0}</TableCell>
+      <TableCell>{row.qtd_alunos ?? 0}</TableCell>
+      <TableCell>{_totalPresentes ?? 0}</TableCell>
+      <TableCell>{_totalAusentes ?? 0}</TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <Button
+          color="primary"
+          variant="contained"
+          size="small"
+          onClick={() => filterOnClick(row.escola_id)}
+        >
+          Ver turmas
+        </Button>
+      </TableCell>
+    </StyledTableRow>
+  );
+}
+
+function RowTurma(props) {
+  const { row } = props;
+
+  let _totalEntradaPresentes = 0;
+  let _totalEntradaAusentes = 0;
+  _.forEach(row.qtd_alunos_entrada.frequencias, (frequencia, keyN) => {
+    if (['Presente'].includes(frequencia)) {
+      _totalEntradaPresentes += row.qtd_alunos_entrada.total[keyN];
+    }
+    if (['Ausente'].includes(frequencia)) {
+      _totalEntradaAusentes += row.qtd_alunos_entrada.total[keyN];
+    }
+  });
+
+  let _totalSaidaPresentes = 0;
+  let _totalSaidaAusentes = 0;
+  _.forEach(row.qtd_alunos_saida.frequencias, (frequencia, keyN) => {
+    if (['Presente'].includes(frequencia)) {
+      _totalSaidaPresentes += row.qtd_alunos_saida.total[keyN];
+    }
+    if (['Ausente'].includes(frequencia)) {
+      _totalSaidaAusentes += row.qtd_alunos_saida.total[keyN];
+    }
+  });
+
+  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
+  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+
+  return (
+    <StyledTableRow
+      key={`tableStyledRowDash_${row.key}`}
+      sx={{ '& > *': { borderBottom: 'unset' } }}
+    >
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
+      <TableCell>
+        {row.turma_ano_escolar}º {row.turma_nome}
+      </TableCell>
+      <TableCell>{row.qtd_alunos ?? 0}</TableCell>
+      <TableCell>{_totalPresentes ?? 0}</TableCell>
+      <TableCell>{_totalAusentes ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           component={RouterLink}
           color="primary"
           variant="contained"
           size="small"
-          href={`${paths.dashboard.root}/dash-ddz/?zona=${row.zona_id ?? ''}`}
+          href={`${paths.dashboard.registro_aprendizagem.root_diagnostico}`}
         >
-          Ver mais
+          Ver avaliações
         </Button>
       </TableCell>
     </StyledTableRow>
   );
+}
+
+function Row(props) {
+  const { row, isZonaFiltered, isEscolaFiltered, filterOnClick } = props;
+
+  if (isEscolaFiltered) {
+    return (
+      <RowTurma
+        row={{ ...row }}
+        isZonaFiltered={isZonaFiltered}
+        isEscolaFiltered={isEscolaFiltered}
+        filterOnClick={(id) => filterOnClick(id)}
+      />
+    );
+  } else if (isZonaFiltered) {
+    return <RowEscola row={{ ...row }} filterOnClick={(id) => filterOnClick(id)} />;
+  } else {
+    return <RowZona row={{ ...row }} filterOnClick={(id) => filterOnClick(id)} />;
+  }
 }
