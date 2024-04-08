@@ -310,7 +310,7 @@ export default function DashboardRedeView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (Rede)</Typography>
+            <Typography variant="h3">Dashboard: Fase (Rede)</Typography>
           </Grid>
         </Stack>
 
