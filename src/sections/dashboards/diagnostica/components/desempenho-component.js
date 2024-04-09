@@ -43,7 +43,7 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
       bar: {
         columnWidth: '85%',
         borderRadius: 11,
-        distributed: true, // CORES AUTOMATICAS E BOLINHAS
+        distributed: false, // CORES AUTOMATICAS E BOLINHAS
       },
     },
     stroke: {

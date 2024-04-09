@@ -15,6 +15,7 @@ import {
   TableCell,
   CardHeader,
 } from '@mui/material';
+import Box from '@mui/material/Box';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
@@ -158,6 +159,8 @@ export default function DashboardDiagnosticaView() {
 
           _(_grid_escolas).forEach((turmasEscola, escola_id) => {
             result.grid_escolas.push({
+              zona_id: _.first(turmasEscola).zona_id,
+              zona_nome: _.first(turmasEscola).zona_nome,
               escola_id: _.first(turmasEscola).escola_id,
               escola_nome: _.first(turmasEscola).escola_nome,
               qtd_turmas: turmasEscola.length,
@@ -596,31 +599,84 @@ export default function DashboardDiagnosticaView() {
 
   // GRÁFICO 4
   const desempenhoChartSeries = useCallback(
-    (metrica) => {
-      const porZona = dados.grid_ddz.map((item) => {
-        return {
-          name: item.zona_nome,
-          data: item.desempenho[metrica],
-        };
-      });
+    (metrica, _anoEscolar) => {
+      let _metricas = {};
 
-      const _metricas = [
-        porZona.reduce((total, pz) => (total += pz.data.N1), 0),
-        porZona.reduce((total, pz) => (total += pz.data.N2), 0),
-        porZona.reduce((total, pz) => (total += pz.data.N3), 0),
-      ];
+      if (_anoEscolar) {
+        const _turmasNoAnoEscolar = dados.grid_turmas.filter(
+          (_turma) => _turma.turma_ano_escolar == _anoEscolar
+        );
 
-      return [
+        _metricas.entrada = [
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N1),
+            0
+          ),
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N2),
+            0
+          ),
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N3),
+            0
+          ),
+        ];
+        _metricas.saida = [
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].saida.N1),
+            0
+          ),
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].saida.N2),
+            0
+          ),
+          _turmasNoAnoEscolar.reduce(
+            (total, _turma) => (total += _turma.desempenho[metrica].saida.N3),
+            0
+          ),
+        ];
+      } else {
+        const porZona = dados.grid_ddz.map((item) => {
+          return {
+            name: item.zona_nome,
+            data: item.desempenho[metrica],
+          };
+        });
+
+        _metricas.entrada = [
+          porZona.reduce((total, pz) => (total += pz.data.entrada.N1), 0),
+          porZona.reduce((total, pz) => (total += pz.data.entrada.N2), 0),
+          porZona.reduce((total, pz) => (total += pz.data.entrada.N3), 0),
+        ];
+        _metricas.saida = [
+          porZona.reduce((total, pz) => (total += pz.data.saida.N1), 0),
+          porZona.reduce((total, pz) => (total += pz.data.saida.N2), 0),
+          porZona.reduce((total, pz) => (total += pz.data.saida.N3), 0),
+        ];
+      }
+
+      const _series = [
         {
-          name: 'Estudantes',
+          name: 'Entrada',
           data: [
-            _percentCalc(_metricas[0], _.sum(_metricas)),
-            _percentCalc(_metricas[1], _.sum(_metricas)),
-            _percentCalc(_metricas[2], _.sum(_metricas)),
+            _percentCalc(_metricas.entrada[0], _metricas.entrada[0] + _metricas.saida[0]),
+            _percentCalc(_metricas.entrada[1], _metricas.entrada[1] + _metricas.saida[1]),
+            _percentCalc(_metricas.entrada[2], _metricas.entrada[2] + _metricas.saida[2]),
           ],
-          quantidade: _metricas,
+          quantidade: _metricas.entrada,
+        },
+        {
+          name: 'Saída',
+          data: [
+            _percentCalc(_metricas.saida[0], _metricas.entrada[0] + _metricas.saida[0]),
+            _percentCalc(_metricas.saida[1], _metricas.entrada[1] + _metricas.saida[1]),
+            _percentCalc(_metricas.saida[2], _metricas.entrada[2] + _metricas.saida[2]),
+          ],
+          quantidade: _metricas.saida,
         },
       ];
+
+      return _series;
     },
     [dados]
   );
@@ -713,7 +769,7 @@ export default function DashboardDiagnosticaView() {
 
             {!isGettingGraphics.value && (
               <Grid container marginX={0} spacing={3} marginTop={3} width="100%">
-                <Grid xs={12} md={4}>
+                <Grid xs={12} md={4} lg={4}>
                   <NumeroComponent
                     title="Total de Estudantes"
                     total={dados.total_alunos}
@@ -728,10 +784,11 @@ export default function DashboardDiagnosticaView() {
                     }
                   />
                 </Grid>
-                <Grid xs={12} md={4}>
+                <Grid xs={12} md={4} lg={2}>
                   <NumeroComponent
                     title="Estudantes Presentes"
-                    total={dados.total_alunos_presentes ?? 0}
+                    subtitle="Entrada"
+                    total={dados.total_alunos_presentes.entrada ?? 0}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -743,10 +800,43 @@ export default function DashboardDiagnosticaView() {
                     }
                   />
                 </Grid>
-                <Grid xs={12} md={4}>
+                <Grid xs={12} md={4} lg={2}>
+                  <NumeroComponent
+                    title="Estudantes Presentes"
+                    subtitle="Saída"
+                    total={dados.total_alunos_presentes.saida ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4} lg={2}>
                   <NumeroComponent
                     title="Estudantes Ausentes"
-                    total={dados.total_alunos_ausentes ?? 0}
+                    subtitle="Entrada"
+                    total={dados.total_alunos_ausentes.entrada ?? 0}
+                    icon={
+                      <Iconify
+                        width={ICON_SIZE}
+                        icon="bi:people-fill"
+                        sx={{
+                          color: theme.palette['primary'].main,
+                        }}
+                      />
+                    }
+                  />
+                </Grid>
+                <Grid xs={12} md={4} lg={2}>
+                  <NumeroComponent
+                    title="Estudantes Ausentes"
+                    subtitle="Saída"
+                    total={dados.total_alunos_ausentes.saida ?? 0}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -782,6 +872,7 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
+                {/* Desempenho */}
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Desempenho Geral - SEMED"
@@ -801,60 +892,44 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Geral - 1º Ano"
-                    chartSeries={desempenhoChartSeries('geral')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Língua Portuguesa - 1º Ano"
-                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Matemática - 1º Ano"
-                    chartSeries={desempenhoChartSeries('matematica')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Geral - 2º Ano"
-                    chartSeries={desempenhoChartSeries('geral')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Língua Portuguesa - 2º Ano"
-                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Matemática - 2º Ano"
-                    chartSeries={desempenhoChartSeries('matematica')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Geral - 3º Ano"
-                    chartSeries={desempenhoChartSeries('geral')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Língua Portuguesa - 3º Ano"
-                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
-                  />
-                </Grid>
-                <Grid xs={12} lg={4}>
-                  <DesempenhoComponent
-                    title="Desempenho Matemática - 3º Ano"
-                    chartSeries={desempenhoChartSeries('matematica')}
-                  />
-                </Grid>
+                {/* Desempenho 1º ano */}
+
+                {[1, 2, 3].map((_anoEscolar) => {
+                  const _desempenhoGeralChartSeries = desempenhoChartSeries('geral', _anoEscolar);
+                  if (
+                    _.sum(_desempenhoGeralChartSeries[0].quantidade) == 0 &&
+                    _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0
+                  )
+                    return <></>;
+
+                  return (
+                    <Grid
+                      container
+                      key={`desempenho_anoescolar_${_anoEscolar}`}
+                      spacing={3}
+                      width="100%"
+                    >
+                      <Grid xs={12} lg={4}>
+                        <DesempenhoComponent
+                          title={`Desempenho Geral - ${_anoEscolar}º Ano`}
+                          chartSeries={_desempenhoGeralChartSeries}
+                        />
+                      </Grid>
+                      <Grid xs={12} lg={4}>
+                        <DesempenhoComponent
+                          title={`Desempenho Língua Portuguesa - ${_anoEscolar}º Ano`}
+                          chartSeries={desempenhoChartSeries('lingua_portuguesa', _anoEscolar)}
+                        />
+                      </Grid>
+                      <Grid xs={12} lg={4}>
+                        <DesempenhoComponent
+                          title={`Desempenho Matemática - ${_anoEscolar}º Ano`}
+                          chartSeries={desempenhoChartSeries('matematica', _anoEscolar)}
+                        />
+                      </Grid>
+                    </Grid>
+                  );
+                })}
 
                 <Grid xs={12}>
                   <Card sx={{ mt: 3, mb: 4 }}>
