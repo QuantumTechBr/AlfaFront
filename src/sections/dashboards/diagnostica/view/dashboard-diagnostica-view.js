@@ -15,6 +15,7 @@ import {
   TableCell,
   CardHeader,
 } from '@mui/material';
+
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -440,7 +441,9 @@ export default function DashboardDiagnosticaView() {
     if (isEscolaFiltered) {
       options = {
         ...options,
+        plotOptions: { bar: { columnWidth: 60 } },
         xaxis: {
+          labels: { show: true },
           categories: dados.grid_turmas.map(
             (item) => `${item.turma_ano_escolar}º ${item.turma_nome}`
           ),
@@ -449,14 +452,18 @@ export default function DashboardDiagnosticaView() {
     } else if (isZonaFiltered) {
       options = {
         ...options,
+        plotOptions: { bar: { columnWidth: 100 } },
         xaxis: {
+          labels: { show: true, trim: true },
           categories: dados.grid_escolas.map((item) => item.escola_nome),
         },
       };
     } else {
       options = {
         ...options,
+        plotOptions: { bar: { columnWidth: '80%' } },
         xaxis: {
+          labels: { show: true },
           categories: dados.grid_ddz.map((item) => item.zona_nome),
         },
       };
@@ -588,32 +595,35 @@ export default function DashboardDiagnosticaView() {
   }, []);
 
   // GRÁFICO 4
-  const desempenhoChartSeries = useCallback((metrica) => {
-    const porZona = dados.grid_ddz.map((item) => {
-      return {
-        name: item.zona_nome,
-        data: item.desempenho[metrica],
-      };
-    });
+  const desempenhoChartSeries = useCallback(
+    (metrica) => {
+      const porZona = dados.grid_ddz.map((item) => {
+        return {
+          name: item.zona_nome,
+          data: item.desempenho[metrica],
+        };
+      });
 
-    const _metricas = [
-      porZona.reduce((total, pz) => (total += pz.data.N1), 0),
-      porZona.reduce((total, pz) => (total += pz.data.N2), 0),
-      porZona.reduce((total, pz) => (total += pz.data.N3), 0),
-    ];
+      const _metricas = [
+        porZona.reduce((total, pz) => (total += pz.data.N1), 0),
+        porZona.reduce((total, pz) => (total += pz.data.N2), 0),
+        porZona.reduce((total, pz) => (total += pz.data.N3), 0),
+      ];
 
-    return [
-      {
-        name: 'Estudantes',
-        data: [
-          _percentCalc(_metricas[0], _.sum(_metricas)),
-          _percentCalc(_metricas[1], _.sum(_metricas)),
-          _percentCalc(_metricas[2], _.sum(_metricas)),
-        ],
-        quantidade: _metricas,
-      },
-    ];
-  }, [dados]);
+      return [
+        {
+          name: 'Estudantes',
+          data: [
+            _percentCalc(_metricas[0], _.sum(_metricas)),
+            _percentCalc(_metricas[1], _.sum(_metricas)),
+            _percentCalc(_metricas[2], _.sum(_metricas)),
+          ],
+          quantidade: _metricas,
+        },
+      ];
+    },
+    [dados]
+  );
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -774,19 +784,74 @@ export default function DashboardDiagnosticaView() {
 
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="Desempenho Geral"
+                    title="Desempenho Geral - SEMED"
                     chartSeries={desempenhoChartSeries('geral')}
                   />
                 </Grid>
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="Desempenho Língua Portuguesa"
+                    title="Desempenho Língua Portuguesa - SEMED"
                     chartSeries={desempenhoChartSeries('lingua_portuguesa')}
                   />
                 </Grid>
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="Desempenho Matemática"
+                    title="Desempenho Matemática - SEMED"
+                    chartSeries={desempenhoChartSeries('matematica')}
+                  />
+                </Grid>
+
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Geral - 1º Ano"
+                    chartSeries={desempenhoChartSeries('geral')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Língua Portuguesa - 1º Ano"
+                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Matemática - 1º Ano"
+                    chartSeries={desempenhoChartSeries('matematica')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Geral - 2º Ano"
+                    chartSeries={desempenhoChartSeries('geral')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Língua Portuguesa - 2º Ano"
+                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Matemática - 2º Ano"
+                    chartSeries={desempenhoChartSeries('matematica')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Geral - 3º Ano"
+                    chartSeries={desempenhoChartSeries('geral')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Língua Portuguesa - 3º Ano"
+                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                  />
+                </Grid>
+                <Grid xs={12} lg={4}>
+                  <DesempenhoComponent
+                    title="Desempenho Matemática - 3º Ano"
                     chartSeries={desempenhoChartSeries('matematica')}
                   />
                 </Grid>

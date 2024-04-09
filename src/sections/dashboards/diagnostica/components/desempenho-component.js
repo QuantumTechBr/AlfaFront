@@ -111,7 +111,7 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
             type="bar"
             series={chartSeries}
             options={chartOptions}
-            height={450}
+            height={250}
           />
         </Grid>
       </Grid>
