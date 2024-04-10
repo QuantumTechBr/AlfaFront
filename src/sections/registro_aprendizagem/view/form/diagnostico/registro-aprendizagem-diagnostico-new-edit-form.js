@@ -106,7 +106,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       let mediaMAT = 0;
       let mediaFINAL = 0;
       const dataR = data.registros[itemList.id].r;
+      // console.log(dataR)
       for (let index = 0; index < 20; index++) {
+        // console.log(dataR[index])
         if (index < 10) {
           if (dataR != undefined) {
             mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
@@ -129,10 +131,22 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           }
         }
       }
-      mediaLP = (mediaLP * 10) / 11;
-      mediaMAT = (mediaMAT * 10) / 11;
-      mediaFINAL = (mediaFINAL * 10) / 22;
-      
+
+
+      if (turma?.ano_escolar == '1') {
+        mediaLP = (mediaLP * 100) / 11;
+        mediaMAT = (mediaMAT * 100) / 11;
+        mediaFINAL = (mediaFINAL * 100) / 22;
+      }else if (turma?.ano_escolar == '2') {
+        mediaLP = (mediaLP * 100) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 100) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 100) / 24; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+      }else if (turma?.ano_escolar == '3') {
+        mediaLP = (mediaLP * 100) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 100) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 100) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+      }
+     
 
       if (itemList.id_registro) {
         const registroAprendizagem = {
@@ -141,9 +155,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP.toFixed(1),
-          media_matematica: mediaMAT.toFixed(1),
-          media_final: mediaFINAL.toFixed(1),
+          media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
           avaliacao_id: itemList.id_registro,
         }
@@ -155,9 +169,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP.toFixed(1),
-          media_matematica: mediaMAT.toFixed(1),
-          media_final: mediaFINAL.toFixed(1),
+          media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
         }
         registrosAprendizagem.push(registroAprendizagem);

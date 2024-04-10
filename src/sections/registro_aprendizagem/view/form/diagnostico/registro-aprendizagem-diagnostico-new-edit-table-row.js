@@ -149,9 +149,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }else if (anoEscolar == '2') {
       media = (media * 10) / 12.00;
     }else if (anoEscolar == '3') {
-      media = (media * 10) / 13.00;
+      // console.log((media * 10) / 13.00)
+      media = (media * 10) / 13.00; 
     }
-    return media;
+    media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
+    return media ;
   }
 
   const nivelEscritaLP = () => {
@@ -190,6 +193,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }else if (anoEscolar == '3') {
       media = (media * 10) / 13.00;
     }
+
+    media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
     return media;
   }
    
@@ -229,6 +235,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }else if (anoEscolar == '3') {
       media = (media * 10) / 26.00;
     }
+
+    media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
     return media;
   }
    
@@ -309,7 +318,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         {preenche_R()}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaLP().toFixed(1)}  
+          {
+          Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -321,7 +332,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaMAT().toFixed(1)}  
+        {
+        Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+        }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -333,7 +346,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaFinal().toFixed(1)}  
+          {
+          Math.trunc(mediaFinal()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
