@@ -219,6 +219,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
                         row={row}
                         habilidades={habilidades}
                         periodo={periodo}
+                        turma={turma}
                         />
                         ))}
 

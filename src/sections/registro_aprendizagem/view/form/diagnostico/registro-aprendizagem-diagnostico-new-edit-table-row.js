@@ -20,15 +20,15 @@ import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow }) {
+export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow, turma }) {
   const { id, nome, aluno, mapHabilidades, frequencia, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
-  
-
   const [mapResultados, setMapResultados] = useState([]);
   const { control, getValues } = useFormContext();
   const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
+
+  const anoEscolar = turma?.ano_escolar;
 
   const getMapResultados = useCallback(async () => {
     const mp = await mapResultadosAlunoTurmaInicial({
@@ -122,7 +122,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                         {r}
                     </MenuItem>
                 ))}
-                {(index == 9 || index == 19) && 
+                { 
+                  (((index == 9 || index == 19) && anoEscolar == '1' ) ||
+                  ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
+                  ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
+                  && 
                 <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
                   {2}
                 </MenuItem>}
@@ -137,12 +141,20 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     let media = 0;
     
     for (let index = 0; index < 10; index++) {
-      // console.log(getValues('registros['+id+'].r['+index+']'))
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
 
     }
-    media = (media * 10) / 11.00;
-    return media;
+    if (anoEscolar == '1') {
+      media = (media * 10) / 11.00;
+    }else if (anoEscolar == '2') {
+      media = (media * 10) / 12.00;
+    }else if (anoEscolar == '3') {
+      // console.log((media * 10) / 13.00)
+      media = (media * 10) / 13.00; 
+    }
+    // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
+    return media ;
   }
 
   const nivelEscritaLP = () => {
@@ -174,7 +186,16 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 10; index < 20; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10) / 11.00;
+    if (anoEscolar == '1') {
+      media = (media * 10) / 11.00;
+    }else if (anoEscolar == '2') {
+      media = (media * 10) / 12.00;
+    }else if (anoEscolar == '3') {
+      media = (media * 10) / 13.00;
+    }
+
+    // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
     return media;
   }
    
@@ -207,7 +228,16 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     for (let index = 0; index < 20; index++) {
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
-    media = (media * 10) / 22;
+    if (anoEscolar == '1') {
+      media = (media * 10) / 22.00;
+    }else if (anoEscolar == '2') {
+      media = (media * 10) / 24.00;
+    }else if (anoEscolar == '3') {
+      media = (media * 10) / 26.00;
+    }
+
+    // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
+
     return media;
   }
    
@@ -288,7 +318,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         {preenche_R()}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaLP().toFixed(1)}  
+          {
+         mediaLP().toFixed(1) // Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -300,7 +332,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaMAT().toFixed(1)}  
+        {
+          mediaMAT().toFixed(1)
+        // Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+        }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -312,7 +347,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {mediaFinal().toFixed(1)}  
+          {
+            mediaFinal().toFixed(1)
+          // Math.trunc(mediaFinal()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          }  
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -330,4 +368,5 @@ RegistroAprendizagemDiagnosticoNewEditTableRow.propTypes = {
   onSelectRow: PropTypes.func,
   row: PropTypes.object,
   selected: PropTypes.bool,
+  turma: PropTypes.object,
 };
