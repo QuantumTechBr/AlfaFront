@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // import sortBy from 'lodash/sortby';
 
@@ -17,7 +17,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import Table from '@mui/material/Table';
 import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
+import Autocomplete from '@mui/material/Autocomplete';
 
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import {
@@ -39,10 +39,13 @@ import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/comp
 import Scrollbar from 'src/components/scrollbar';
 import AlunoEscolaTableRow from './components/aluno-escola-table-row';
 import LoadingBox from 'src/components/helpers/loading-box';
-import alunosMethods from './../aluno/aluno-repository';
+import alunoMethods from './../aluno/aluno-repository';
 import escolaMethods from './escola-repository';
 import Typography from '@mui/material/Typography';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import IconButton from '@mui/material/IconButton';
+import SearchIcon from '@mui/icons-material/Search';
+import InputAdornment from '@mui/material/InputAdornment';
 
 // ----------------------------------------------------------------------
 
@@ -64,15 +67,19 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const table = useTable();
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [allAlunos, setAllAlunos] = useState();
+  const [alunos, setAlunos] = useState([]);
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
+  const [buscaAlu, setBuscaAlu] = useState('');
+  const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
   // const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
 
+ 
+
   const getAllAlunos = useCallback((pesquisa) => {
-    alunosMethods
+    alunoMethods
       .getAllAlunos({offset: 0, limit: 10, pesquisa: pesquisa})
       .then((response) => {
-        console.log(response)
         const _allAlunos = response.data.results;
         
         // _allAlunos = sortBy(_allAlunos, (ae) => {
@@ -94,10 +101,29 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       });
   }, [escola, table]);
 
+  const getAluno = (pesquisa = '') => {
+    alunoMethods.getAlunoDiretor({ offset: 0, limit: 10, pesquisa: pesquisa }).then(response => {
+      const auto_complete_aluno = []
+      response.data.results.map((aluno) => {
+        const al = {
+          label: aluno.nome,
+          id: aluno.id,
+        }
+        auto_complete_aluno.push(al)
+      });
+      setAlunos(auto_complete_aluno);
+      setAllAlunos(response.data.results);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de alunos');
+    });
+  }
+
   const methods = useForm({});
 
   const {
     reset,
+    control,
+    setValue,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -105,7 +131,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   useEffect(() => {
     if (open) {
       setAllAlunos();
-      getAllAlunos(escola.id);
+      // getAllAlunos(escola.id);
       buscaAnosLetivos().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
       });
@@ -155,6 +181,17 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const isLoading = allAlunos === undefined || allAlunos === null;
 
+  const handleAlunos = (newInputValue) => {
+    let novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
+    if (novoAlunos.length == alunosSelecionados.length) {
+      console.log(allAlunos)
+      novoAlunos.push(allAlunos.filter((al) => al?.id == newInputValue?.id)[0]);
+    }
+    setAlunosSelecionados(novoAlunos);
+    console.log(alunosSelecionados)
+    setValue("alunos", newInputValue)
+  }
+
   return (
     <Dialog
       fullWidth
@@ -175,26 +212,50 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
             <DialogTitle>Definir Estudantes da Escola: {escola.nome}</DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-              <Box direction="row" alignItems="center" display="flex">
 
-              <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:search-fill" sx={{ height: '100%' }}/>}
-              sx={{ height: '100%' }}
-              onClick={() => {
-                getAllAlunos(searchAlunosInput)
-              }}
+              <Controller
+                name="alunos"
+                control={control}
+                render={({ field: { onChange, value } }) => (
+                  <Autocomplete
+                    onChange={(event, newInputValue) => handleAlunos(newInputValue)}
+                    value={buscaAlu}
+                    options={alunos}
+                    noOptionsText="Nenhum aluno encontrado"
+                    filterOptions={(x) => x}
+                    sx={{
+                      mt: 1, mb: 1
+                    }}
+                    onInputChange={(event, newInputValue) => {
+                      setBuscaAlu(newInputValue);
+                    }}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Nome/Matrícula"
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
+                                onClick={() => {
+                                  getAluno(buscaAlu)
+                                }
+                                }
+                              >
+                                <SearchIcon />
+                              </IconButton>
+                            </InputAdornment>
+                          ),
+                        }}
+
+                      />
+
+                      
+                    )}
+                  />
+                )}
               />
-              <TextField
-                value={searchAlunosInput}
-                onChange={onSearchAlunos}
-                placeholder="Procure pelo nome ou matrícula..."
-                sx={{ mb: 1, width: { xs: '100%', sm: '100%' } }}
-                />
-              
-              </Box>
-           
-         
 
               <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
                 <Table size="small" sx={{ width: '100%' }}>
@@ -206,7 +267,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                     numSelected={table.selected.length}
                   />
                   <TableBody>
-                    {allAlunos?.map((row) => (
+                    {alunosSelecionados?.map((row) => (
                       <AlunoEscolaTableRow
                         key={`AlunoEscolaTableRow_${row.id}`}
                         row={row}

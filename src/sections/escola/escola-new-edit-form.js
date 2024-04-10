@@ -155,7 +155,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
               </RHFSelect>
               <RHFTextField name="cidade" label="Cidade" disabled={true} />
 
-              {/* {currentEscola && 
+              {currentEscola && 
               (<Button
                 variant="contained"
                 onClick={modalAlunoEscola.onTrue}
@@ -165,9 +165,9 @@ export default function EscolaNewEditForm({ currentEscola }) {
                   mb: 3,
                 }}
               >
-                Definir Estudantes da Escola // MODAL SERÁ REFORMULADO
+                Definir Estudantes da Escola
               </Button>)
-              } */}
+              }
             </Box>
 
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
@@ -179,7 +179,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
         </Grid>
       </Grid>
     </FormProvider>
-    {/* <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} /> */}
+    <AlunoEscolaForm escola={currentEscola} open={modalAlunoEscola.value} onClose={modalAlunoEscola.onFalse} />
     </>
   );
 }

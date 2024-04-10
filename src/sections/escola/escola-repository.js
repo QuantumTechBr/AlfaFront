@@ -8,6 +8,8 @@ export const updateEscolaById = (id, payload) => axios.patch(endpoints.escola.up
 export const deleteEscolaById = id => axios.delete(endpoints.escola.delete.concat(id));
 export const getEscolaById = id => axios.get(endpoints.escola.get_by_id.concat(id));
 export const getAlunosByEscolaId = id => axios.get(endpoints.escola.get_by_id.concat(id)+"/alunos");
+export const updateAlunosByEscolaId = id => axios.post(endpoints.escola.get_by_id.concat(id)+"/alunos", payload);
+export const deleteAlunosByEscolaId = (escolaId, alunoEscolaId) => axios.delete(endpoints.escola.get_by_id.concat(id)+`/alunos/${alunoEscolaId}`);
 
 const escolaMethods = {
     insertEscola,

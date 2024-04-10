@@ -30,23 +30,23 @@ export default function AlunoEscolaTableRow({
 
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
-  let _aluno = allAlunos.filter((aluno) => aluno.id == id);
-  _aluno = _aluno.length > 0 ? _aluno[0] : null;
-  const outrasEscolas =
-    _aluno == null ? [] : _aluno.alunoEscolas.filter((ae) => ae.escola != currentEscola.id);
+  // let _aluno = allAlunos.filter((aluno) => aluno.id == id);
+  // _aluno = _aluno.length > 0 ? _aluno[0] : null;
+  // const outrasEscolas =
+  //   _aluno == null ? [] : _aluno.alunoEscolas.filter((ae) => ae.escola != currentEscola.id);
 
-  const emOutraEscola = outrasEscolas.length > 0;
-  selected = emOutraEscola ? false : selected;
+  // const emOutraEscola = outrasEscolas.length > 0;
+  // selected = emOutraEscola ? false : selected;
 
   return (
     <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
+        {/* <TableCell padding="checkbox">
           <Checkbox
             {...(emOutraEscola ? { disabled: 'disabled' } : null)}
             checked={selected}
             onClick={onSelectRow}
           />
-        </TableCell>
+        </TableCell> */}
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
