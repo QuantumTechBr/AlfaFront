@@ -11,11 +11,17 @@ import {
   Typography,
   Container,
   Card,
+  CardHeader,
+  TableHead,
   TableRow,
   TableCell,
-  CardHeader,
+  IconButton,
+  Collapse,
 } from '@mui/material';
 import Box from '@mui/material/Box';
+
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
@@ -176,6 +182,13 @@ export default function DashboardDiagnosticaView() {
           });
 
           result.grid_ddz = _sorted;
+
+          result.grid_ddz = result.grid_ddz.map((item) => {
+            return {
+              ...item,
+              escolas: result.grid_escolas.filter((_escola) => _escola.zona_id == item.zona_id),
+            };
+          });
           // END adequação dos dados
 
           setDados((prevState) => ({
@@ -267,6 +280,7 @@ export default function DashboardDiagnosticaView() {
           { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
         ]
       : [
+          { id: 'collapse', label: '', notsortable: true },
           { id: 'ddz', label: 'DDZ', notsortable: true },
           { id: 'escolas', label: 'Escolas', width: 110, notsortable: true },
           { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
@@ -319,121 +333,116 @@ export default function DashboardDiagnosticaView() {
     if (isEscolaFiltered) {
       // FILTRADO POR ZONA
       const porTurma = dados.grid_turmas.map((item) => {
-        const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
-        let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-        let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+        const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
+        let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+        let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-        const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
-        let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-        let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+        const _frequenciaSaida = getFrequenciasAssociative(item.qtd_alunos_saida);
+        let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+        let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
 
-        const _totalPresentes =
-          _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-        const _totalAusentes =
-          _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+        const _totalPresente = _saidaPresente > 0 ? _saidaPresente : _entradaPresente;
+        const _totalAusente = _saidaAusente > 0 ? _saidaAusente : _entradaAusente;
 
         return {
           name: `${item.turma_ano_escolar}º ${item.turma_nome}`,
-          data: { _totalAusentes, _totalPresentes },
+          data: { totalAusente: _totalAusente, totalPresente: _totalPresente },
         };
       });
 
       series.push({
         name: 'Ausentes',
         data: porTurma.map((pz) =>
-          _percentCalc(pz.data._totalAusentes, pz.data._totalAusentes + pz.data._totalPresentes)
+          _percentCalc(pz.data.totalAusente, pz.data.totalAusente + pz.data.totalPresente)
         ),
-        quantidade: porTurma.map((pz) => pz.data._totalAusentes),
+        quantidade: porTurma.map((pz) => pz.data.totalAusente),
       });
 
       series.push({
         name: 'Presentes',
         data: porTurma.map((pz) =>
-          _percentCalc(pz.data._totalPresentes, pz.data._totalAusentes + pz.data._totalPresentes)
+          _percentCalc(pz.data.totalPresente, pz.data.totalAusente + pz.data.totalPresente)
         ),
-        quantidade: porTurma.map((pz) => pz.data._totalPresentes),
+        quantidade: porTurma.map((pz) => pz.data.totalPresente),
       });
     } else if (isZonaFiltered) {
       // FILTRADO POR ZONA
       const porEscola = dados.grid_escolas.map((item) => {
-        let _totalEntradaPresentes = 0;
-        let _totalEntradaAusentes = 0;
+        let _totalEntradaPresente = 0;
+        let _totalEntradaAusente = 0;
 
-        let _totalSaidaPresentes = 0;
-        let _totalSaidaAusentes = 0;
+        let _totalSaidaPresente = 0;
+        let _totalSaidaAusente = 0;
 
         _.forEach(item.turmas, (_turma) => {
-          const _frequenciaTotalEntrada = getFrequenciaTotal(_turma.qtd_alunos_entrada);
-          _totalEntradaPresentes += _frequenciaTotalEntrada['Presente'] ?? 0;
-          _totalEntradaAusentes += _frequenciaTotalEntrada['Ausente'] ?? 0;
+          const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+          _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+          _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
 
-          const _frequenciaTotalSaida = getFrequenciaTotal(_turma.qtd_alunos_saida);
-          _totalSaidaPresentes += _frequenciaTotalSaida['Presente'] ?? 0;
-          _totalSaidaAusentes += _frequenciaTotalSaida['Ausente'] ?? 0;
+          const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+          _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+          _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
         });
 
-        const _totalPresentes =
-          _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-        const _totalAusentes =
-          _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+        const _totalPresente =
+          _totalSaidaPresente > 0 ? _totalSaidaPresente : _totalEntradaPresente;
+        const _totalAusente = _totalSaidaAusente > 0 ? _totalSaidaAusente : _totalEntradaAusente;
 
         return {
           name: item.escola_nome,
-          data: { _totalAusentes, _totalPresentes },
+          data: { totalAusente: _totalAusente, totalPresente: _totalPresente },
         };
       });
 
       series.push({
         name: 'Ausentes',
         data: porEscola.map((pe) =>
-          _percentCalc(pe.data._totalAusentes, pe.data._totalAusentes + pe.data._totalPresentes)
+          _percentCalc(pe.data.totalAusente, pe.data.totalAusente + pe.data.totalPresente)
         ),
-        quantidade: porEscola.map((pe) => pe.data._totalAusentes),
+        quantidade: porEscola.map((pe) => pe.data.totalAusente),
       });
 
       series.push({
         name: 'Presentes',
         data: porEscola.map((pe) =>
-          _percentCalc(pe.data._totalPresentes, pe.data._totalAusentes + pe.data._totalPresentes)
+          _percentCalc(pe.data.totalPresente, pe.data.totalAusente + pe.data.totalPresente)
         ),
-        quantidade: porEscola.map((pe) => pe.data._totalPresentes),
+        quantidade: porEscola.map((pe) => pe.data.totalPresente),
       });
     } else {
       // SEM FILTROS
       const porZona = dados.grid_ddz.map((item) => {
-        const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
-        let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-        let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+        const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
+        let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+        let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-        const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
-        let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-        let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+        const _frequenciaSaida = getFrequenciasAssociative(item.qtd_alunos_saida);
+        let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+        let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
 
-        const _totalPresentes =
-          _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-        const _totalAusentes =
-          _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+        const _totalPresente = _saidaPresente > 0 ? _saidaPresente : _entradaPresente;
+        const _totalAusente = _saidaAusente > 0 ? _saidaAusente : _entradaAusente;
 
         return {
           name: item.zona_nome,
-          data: { _totalAusentes, _totalPresentes },
+          data: { totalPresente: _totalPresente, totalAusente: _totalAusente },
         };
       });
 
       series.push({
         name: 'Ausentes',
         data: porZona.map((pz) =>
-          _percentCalc(pz.data._totalAusentes, pz.data._totalAusentes + pz.data._totalPresentes)
+          _percentCalc(pz.data.totalAusente, pz.data.totalAusente + pz.data.totalPresente)
         ),
-        quantidade: porZona.map((pz) => pz.data._totalAusentes),
+        quantidade: porZona.map((pz) => pz.data.totalAusente),
       });
 
       series.push({
         name: 'Presentes',
         data: porZona.map((pz) =>
-          _percentCalc(pz.data._totalPresentes, pz.data._totalAusentes + pz.data._totalPresentes)
+          _percentCalc(pz.data.totalPresente, pz.data.totalAusente + pz.data.totalPresente)
         ),
-        quantidade: porZona.map((pz) => pz.data._totalPresentes),
+        quantidade: porZona.map((pz) => pz.data.totalPresente),
       });
     }
     return series;
@@ -480,26 +489,26 @@ export default function DashboardDiagnosticaView() {
 
     // SEM FILTROS
     const porZona = dados.grid_ddz.map((item) => {
-      const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
-      let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-      let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+      const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
+      let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+      let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-      const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
-      let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-      let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+      const _frequenciaSaida = getFrequenciasAssociative(item.qtd_alunos_saida);
+      let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+      let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
 
       return {
         name: item.zona_nome,
         data: {
-          presentes: { _totalEntradaPresentes, _totalSaidaPresentes },
-          ausentes: { _totalEntradaAusentes, _totalSaidaAusentes },
+          entrada: { presente: _entradaPresente, ausente: _entradaAusente },
+          saida: { presente: _saidaPresente, ausente: _saidaAusente },
         },
       };
     });
 
     const _entrada = [
-      porZona.reduce((total, pz) => (total += pz.data.presentes._totalEntradaPresentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalEntradaAusentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.entrada.presentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.entrada.ausentes), 0),
     ];
 
     series.push({
@@ -512,8 +521,8 @@ export default function DashboardDiagnosticaView() {
     });
 
     const _saida = [
-      porZona.reduce((total, pz) => (total += pz.data.presentes._totalSaidaPresentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalSaidaAusentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.saida.presentes), 0),
+      porZona.reduce((total, pz) => (total += pz.data.saida.ausentes), 0),
     ];
     series.push({
       name: 'Avaliação Saída',
@@ -541,44 +550,52 @@ export default function DashboardDiagnosticaView() {
   const participacaoChartSeries = useCallback(() => {
     const series = [];
 
-    // SEM FILTROS
-    const porZona = dados.grid_ddz.map((item) => {
-      const _frequenciaTotalEntrada = getFrequenciaTotal(item.qtd_alunos_entrada);
-      let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-      let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+    const metricasPorAno = [1, 2, 3].map((_anoEscolar) => {
+      const _turmasDoAnoEscolar = dados.grid_turmas.filter(
+        (_turma) => _turma.turma_ano_escolar == _anoEscolar
+      );
 
-      const _frequenciaTotalSaida = getFrequenciaTotal(item.qtd_alunos_saida);
-      let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-      let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+      let _totalEntradaPresente = 0;
+      let _totalEntradaAusente = 0;
+
+      let _totalSaidaPresente = 0;
+      let _totalSaidaAusente = 0;
+
+      _turmasDoAnoEscolar.forEach((_turma) => {
+        const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+        _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+        _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+
+        const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+        _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+        _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+      });
 
       return {
-        name: item.zona_nome,
-        data: {
-          presentes: { _totalEntradaPresentes, _totalSaidaPresentes },
-          ausentes: { _totalEntradaAusentes, _totalSaidaAusentes },
-        },
+        totalEntradaPresente: _totalEntradaPresente,
+        totalEntradaAusente: _totalEntradaAusente,
+        totalSaidaPresente: _totalSaidaPresente,
+        totalSaidaAusente: _totalSaidaAusente,
       };
     });
 
-    const _entrada = [
-      porZona.reduce((total, pz) => (total += pz.data.presentes._totalEntradaPresentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalEntradaAusentes), 0),
-    ];
-
     series.push({
       name: 'Avaliação Entrada',
-      data: [_percentCalc(_entrada[0], _entrada[0] + _entrada[1])],
-      quantidade: [_entrada[0]],
+      data: metricasPorAno.map((item) =>
+        _percentCalc(
+          item.totalEntradaPresente,
+          item.totalEntradaPresente + item.totalEntradaAusente
+        )
+      ),
+      quantidade: metricasPorAno.map((item) => item.totalEntradaPresente),
     });
 
-    const _saida = [
-      porZona.reduce((total, pz) => (total += pz.data.presentes._totalSaidaPresentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.ausentes._totalSaidaAusentes), 0),
-    ];
     series.push({
       name: 'Avaliação Saída',
-      data: [_percentCalc(_saida[0], _saida[0] + _saida[1])],
-      quantidade: [_saida[0]],
+      data: metricasPorAno.map((item) =>
+        _percentCalc(item.totalSaidaPresente, item.totalSaidaPresente + item.totalSaidaAusente)
+      ),
+      quantidade: metricasPorAno.map((item) => item.totalSaidaPresente),
     });
 
     return series;
@@ -587,7 +604,7 @@ export default function DashboardDiagnosticaView() {
   const participacaoChartOptions = useCallback(() => {
     let options = {
       xaxis: {
-        categories: ['Presentes'],
+        categories: [1, 2, 3].map((_anoEscolar) => `${_anoEscolar}º Ano`),
         labels: {
           // show: false,
         },
@@ -857,14 +874,14 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                <Grid xs={12} lg={7}>
+                <Grid xs={12} lg={4}>
                   <ParticipacaoSemedChart
                     title="Participação SEMED"
                     chartSeries={participacaoSemedChartSeries()}
                     options={participacaoSemedChartOptions()}
                   />
                 </Grid>
-                <Grid xs={12} lg={5}>
+                <Grid xs={12} lg={8}>
                   <ParticipacaoChart
                     title="Participação"
                     chartSeries={participacaoChartSeries()}
@@ -872,7 +889,7 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                {/* Desempenho */}
+                {/* Desempenho GERAL */}
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Desempenho Geral - SEMED"
@@ -892,7 +909,7 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                {/* Desempenho 1º ano */}
+                {/* Desempenho por Ano Escolar */}
 
                 {[1, 2, 3].map((_anoEscolar) => {
                   const _desempenhoGeralChartSeries = desempenhoChartSeries('geral', _anoEscolar);
@@ -900,12 +917,19 @@ export default function DashboardDiagnosticaView() {
                     _.sum(_desempenhoGeralChartSeries[0].quantidade) == 0 &&
                     _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0
                   )
-                    return <></>;
+                    return (
+                      <Grid
+                        key={`desempenho_anoescolar_${_anoEscolar}`}
+                        container
+                        spacing={3}
+                        width="100%"
+                      ></Grid>
+                    );
 
                   return (
                     <Grid
-                      container
                       key={`desempenho_anoescolar_${_anoEscolar}`}
+                      container
                       spacing={3}
                       width="100%"
                     >
@@ -1073,7 +1097,7 @@ function applyTableFilter({ isZonaFiltered, isEscolaFiltered, inputData, compara
 
 // ----------------------------------------------------------------------
 
-const getFrequenciaTotal = (lista = {}) => {
+const getFrequenciasAssociative = (lista = {}) => {
   const totais = {};
 
   _.forEach(lista.frequencias, (frequencia, keyN) => {
@@ -1097,63 +1121,101 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 function RowZona(props) {
   const { row, filterOnClick } = props;
 
-  const _frequenciaTotalEntrada = getFrequenciaTotal(row.qtd_alunos_entrada);
-  let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-  let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+  const [open, setOpen] = useState(false);
 
-  const _frequenciaTotalSaida = getFrequenciaTotal(row.qtd_alunos_saida);
-  let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-  let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+  const _frequenciaEntrada = getFrequenciasAssociative(row.qtd_alunos_entrada);
+  let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+  let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+  const _frequenciaSaida = getFrequenciasAssociative(row.qtd_alunos_saida);
+  let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+  let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
+
+  const _totalPresente = _saidaPresente > 0 ? _saidaPresente : _entradaPresente;
+  const _totalAusente = _saidaAusente > 0 ? _saidaAusente : _entradaAusente;
 
   return (
-    <StyledTableRow
-      key={`tableStyledRowDash_${row.key}`}
-      sx={{ '& > *': { borderBottom: 'unset' } }}
-    >
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona_nome}</TableCell>
-      <TableCell>{row.qtd_escolas ?? 0}</TableCell>
-      <TableCell>{row.qtd_turmas ?? 0}</TableCell>
-      <TableCell>{row.qtd_alunos ?? 0}</TableCell>
-      <TableCell>{_totalPresentes ?? 0}</TableCell>
-      <TableCell>{_totalAusentes ?? 0}</TableCell>
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-        <Button
-          color="primary"
-          variant="contained"
-          size="small"
-          onClick={() => filterOnClick(row.zona_id)}
-        >
-          Ver escolas
-        </Button>
-      </TableCell>
-    </StyledTableRow>
+    <>
+      <StyledTableRow
+        key={`tableStyledRowDash_${row.key}`}
+        sx={{ '& > *': { borderBottom: 'unset', backgroundColor: open ? `#00000020` : null } }}
+      >
+        <TableCell>
+          <IconButton aria-label="expand row" size="small" onClick={() => setOpen(!open)}>
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona_nome}</TableCell>
+        <TableCell>{row.qtd_escolas ?? 0}</TableCell>
+        <TableCell>{row.qtd_turmas ?? 0}</TableCell>
+        <TableCell>{row.qtd_alunos ?? 0}</TableCell>
+        <TableCell>{_totalPresente ?? 0}</TableCell>
+        <TableCell>{_totalAusente ?? 0}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Button
+            color="primary"
+            variant="contained"
+            size="small"
+            onClick={() => filterOnClick(row.zona_id)}
+          >
+            Ver escolas
+          </Button>
+        </TableCell>
+      </StyledTableRow>
+
+      <TableRow>
+        <TableCell sx={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
+          <Collapse in={open} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1, border: '1px solid #00000080' }}>
+              <Table size="small" aria-label="Turmas" width="100%">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Escola</TableCell>
+                    <TableCell>Estudandes</TableCell>
+                    <TableCell>Turmas</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {row.escolas.map((registro) => (
+                    <StyledTableRow key={registro.escola_id}>
+                      <TableCell component="th" scope="row">
+                        {registro.escola_nome}
+                      </TableCell>
+                      <TableCell width="110">{registro.qtd_alunos}</TableCell>
+                      <TableCell width="110">{registro.qtd_turmas}</TableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+    </>
   );
 }
 
 function RowEscola(props) {
   const { row, filterOnClick } = props;
 
-  let _totalEntradaPresentes = 0;
-  let _totalEntradaAusentes = 0;
+  let _totalEntradaPresente = 0;
+  let _totalEntradaAusente = 0;
 
-  let _totalSaidaPresentes = 0;
-  let _totalSaidaAusentes = 0;
+  let _totalSaidaPresente = 0;
+  let _totalSaidaAusente = 0;
 
   _.forEach(row.turmas, (_turma) => {
-    const _frequenciaTotalEntrada = getFrequenciaTotal(_turma.qtd_alunos_entrada);
-    _totalEntradaPresentes += _frequenciaTotalEntrada['Presente'] ?? 0;
-    _totalEntradaAusentes += _frequenciaTotalEntrada['Ausente'] ?? 0;
+    const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+    _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+    _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
 
-    const _frequenciaTotalSaida = getFrequenciaTotal(_turma.qtd_alunos_saida);
-    _totalSaidaPresentes += _frequenciaTotalSaida['Presente'] ?? 0;
-    _totalSaidaAusentes += _frequenciaTotalSaida['Ausente'] ?? 0;
+    const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+    _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+    _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
   });
 
-  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+  const _totalPresente = _totalSaidaPresente > 0 ? _totalSaidaPresente : _totalEntradaPresente;
+  const _totalAusente = _totalSaidaAusente > 0 ? _totalSaidaAusente : _totalEntradaAusente;
 
   return (
     <StyledTableRow
@@ -1163,8 +1225,8 @@ function RowEscola(props) {
       <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
       <TableCell>{row.qtd_turmas ?? 0}</TableCell>
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
-      <TableCell>{_totalPresentes ?? 0}</TableCell>
-      <TableCell>{_totalAusentes ?? 0}</TableCell>
+      <TableCell>{_totalPresente ?? 0}</TableCell>
+      <TableCell>{_totalAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"
@@ -1182,16 +1244,16 @@ function RowEscola(props) {
 function RowTurma(props) {
   const { row } = props;
 
-  const _frequenciaTotalEntrada = getFrequenciaTotal(row.qtd_alunos_entrada);
-  let _totalEntradaPresentes = _frequenciaTotalEntrada['Presente'] ?? 0;
-  let _totalEntradaAusentes = _frequenciaTotalEntrada['Ausente'] ?? 0;
+  const _frequenciaEntrada = getFrequenciasAssociative(row.qtd_alunos_entrada);
+  let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+  let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-  const _frequenciaTotalSaida = getFrequenciaTotal(row.qtd_alunos_saida);
-  let _totalSaidaPresentes = _frequenciaTotalSaida['Presente'] ?? 0;
-  let _totalSaidaAusentes = _frequenciaTotalSaida['Ausente'] ?? 0;
+  const _frequenciaSaida = getFrequenciasAssociative(row.qtd_alunos_saida);
+  let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+  let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
 
-  const _totalPresentes = _totalSaidaPresentes > 0 ? _totalSaidaPresentes : _totalEntradaPresentes;
-  const _totalAusentes = _totalSaidaAusentes > 0 ? _totalSaidaAusentes : _totalEntradaAusentes;
+  const _totalPresente = _saidaPresente > 0 ? _saidaPresente : _entradaPresente;
+  const _totalAusente = _saidaAusente > 0 ? _saidaAusente : _entradaAusente;
 
   return (
     <StyledTableRow
@@ -1203,8 +1265,8 @@ function RowTurma(props) {
         {row.turma_ano_escolar}º {row.turma_nome}
       </TableCell>
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
-      <TableCell>{_totalPresentes ?? 0}</TableCell>
-      <TableCell>{_totalAusentes ?? 0}</TableCell>
+      <TableCell>{_totalPresente ?? 0}</TableCell>
+      <TableCell>{_totalAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           component={RouterLink}
