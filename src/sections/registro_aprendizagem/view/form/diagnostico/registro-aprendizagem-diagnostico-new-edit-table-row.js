@@ -122,9 +122,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                         {r}
                     </MenuItem>
                 ))}
-                { //AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
+                { 
                   (((index == 9 || index == 19) && anoEscolar == '1' ) ||
-                  ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||
+                  ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                   ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
                   && 
                 <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
