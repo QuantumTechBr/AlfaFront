@@ -134,17 +134,17 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
 
 
       if (turma?.ano_escolar == '1') {
-        mediaLP = (mediaLP * 100) / 11;
-        mediaMAT = (mediaMAT * 100) / 11;
-        mediaFINAL = (mediaFINAL * 100) / 22;
+        mediaLP = (mediaLP * 10) / 11;
+        mediaMAT = (mediaMAT * 10) / 11;
+        mediaFINAL = (mediaFINAL * 10) / 22;
       }else if (turma?.ano_escolar == '2') {
-        mediaLP = (mediaLP * 100) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
-        mediaMAT = (mediaMAT * 100) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
-        mediaFINAL = (mediaFINAL * 100) / 24; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaLP = (mediaLP * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 10) / 24; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
       }else if (turma?.ano_escolar == '3') {
-        mediaLP = (mediaLP * 100) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
-        mediaMAT = (mediaMAT * 100) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
-        mediaFINAL = (mediaFINAL * 100) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaLP = (mediaLP * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 10) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
       }
      
 
@@ -155,9 +155,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_lingua_portuguesa: mediaLP.toFixed(1),
+          media_matematica: mediaMAT.toFixed(1),
+          media_final: mediaFINAL.toFixed(1),
+          // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
           avaliacao_id: itemList.id_registro,
         }
@@ -169,9 +172,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           periodo: periodo,
           aluno_turma_id: itemList.id,
           frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          media_lingua_portuguesa: mediaLP.toFixed(1),
+          media_matematica: mediaMAT.toFixed(1),
+          media_final: mediaFINAL.toFixed(1),
+          // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+          // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
         }
         registrosAprendizagem.push(registroAprendizagem);
