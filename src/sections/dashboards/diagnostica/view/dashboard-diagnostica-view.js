@@ -94,6 +94,7 @@ export default function DashboardDiagnosticaView() {
     escola: [],
     turma: [],
     anoEscolar: [],
+    // tipo: '-',
     pne: '-',
     pneItem: '-',
   });
@@ -155,40 +156,83 @@ export default function DashboardDiagnosticaView() {
           const result = Object.assign({}, response.data);
 
           // BEGIN adequação dos dados
+
+          // CRIAÇÃO DO GRID DE ESCOLAS
+          result.grid_escolas = [];
+
           let _grid_escolas = Object.assign(
             {},
             _(result.grid_turmas)
               .groupBy((item) => item.escola_id)
               .value()
           );
-          result.grid_escolas = [];
 
           _(_grid_escolas).forEach((turmasEscola, escola_id) => {
-            result.grid_escolas.push({
+            // frequencias
+            let _totalEntradaPresente = 0;
+            let _totalEntradaAusente = 0;
+
+            let _totalSaidaPresente = 0;
+            let _totalSaidaAusente = 0;
+
+            _.forEach(turmasEscola, (_turma) => {
+              const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+              _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+              _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+
+              const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+              _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+              _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+
+              if (_frequenciaSaida['Presente'] ?? 0 == 2) {
+                console.log('para');
+              }
+            });
+
+            const _qtd_alunos_entrada_saida = {
+              qtd_alunos_entrada: {
+                frequencias: ['Presente', 'Ausente'],
+                total: [_totalEntradaPresente, _totalEntradaAusente],
+              },
+              qtd_alunos_saida: {
+                frequencias: ['Presente', 'Ausente'],
+                total: [_totalSaidaPresente, _totalSaidaAusente],
+              },
+            };
+
+            const _toPush = {
               zona_id: _.first(turmasEscola).zona_id,
               zona_nome: _.first(turmasEscola).zona_nome,
               escola_id: _.first(turmasEscola).escola_id,
               escola_nome: _.first(turmasEscola).escola_nome,
               qtd_turmas: turmasEscola.length,
               qtd_alunos: _.sumBy(turmasEscola, (_turma) => _turma.qtd_alunos),
+              ..._qtd_alunos_entrada_saida,
               turmas: turmasEscola,
-            });
+            };
+
+            result.grid_escolas.push(_toPush);
           });
 
-          const _sorted = result.grid_ddz.sort((a, b) => {
+          // ORDEM DA LISTA DE ESCOLAS
+          result.grid_escolas = _.sortBy(result.grid_escolas, (e) => e.escola_nome);
+
+          // ORDEM DA LISTA DE DDZS
+          const _sortedZonas = result.grid_ddz.sort((a, b) => {
             const na = preDefinedZonaOrder[a.zona_nome] ?? 0;
             const nb = preDefinedZonaOrder[b.zona_nome] ?? 0;
             return na - nb;
           });
+          result.grid_ddz = _sortedZonas;
 
-          result.grid_ddz = _sorted;
-
+          // ACRESCENTA À LISTA DE ESCOLAS DA DDZ
           result.grid_ddz = result.grid_ddz.map((item) => {
             return {
               ...item,
               escolas: result.grid_escolas.filter((_escola) => _escola.zona_id == item.zona_id),
             };
           });
+
           // END adequação dos dados
 
           setDados((prevState) => ({
@@ -262,6 +306,7 @@ export default function DashboardDiagnosticaView() {
       escola: [],
       turma: [],
       anoEscolar: [],
+      // tipo: '-',
       pne: '-',
       pneItem: '-',
     });
@@ -280,7 +325,7 @@ export default function DashboardDiagnosticaView() {
           { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
         ]
       : [
-          { id: 'collapse', label: '', notsortable: true },
+          { id: 'collapse', label: '', notsortable: true, width: 30 },
           { id: 'ddz', label: 'DDZ', notsortable: true },
           { id: 'escolas', label: 'Escolas', width: 110, notsortable: true },
           { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
@@ -293,11 +338,20 @@ export default function DashboardDiagnosticaView() {
 
   const defaultTableFilters = { campo: '' };
 
-  const table = useTable({ defaultRowsPerPage: 15 });
+  const table = useTable({ defaultRowsPerPage: 25 });
 
   const [tableFilters, setTableFilters] = useState(defaultTableFilters);
 
   const debouncedGridFilter = useDebounce(tableFilters, 380);
+
+  const [tableRowsExpanded, setTableRowsExpanded] = useState(0);
+
+  const onSetOpen = (open) => {
+    setTableRowsExpanded((prevState) => {
+      const _calculated = open ? prevState + 1 : prevState - 1;
+      return _calculated < 0 ? 0 : _calculated;
+    });
+  };
 
   const dataFiltered = applyTableFilter({
     isZonaFiltered: isZonaFiltered,
@@ -806,15 +860,7 @@ export default function DashboardDiagnosticaView() {
                     title="Estudantes Presentes"
                     subtitle="Entrada"
                     total={dados.total_alunos_presentes.entrada ?? 0}
-                    icon={
-                      <Iconify
-                        width={ICON_SIZE}
-                        icon="bi:people-fill"
-                        sx={{
-                          color: theme.palette['primary'].main,
-                        }}
-                      />
-                    }
+                    
                   />
                 </Grid>
                 <Grid xs={12} md={4} lg={2}>
@@ -822,15 +868,7 @@ export default function DashboardDiagnosticaView() {
                     title="Estudantes Presentes"
                     subtitle="Saída"
                     total={dados.total_alunos_presentes.saida ?? 0}
-                    icon={
-                      <Iconify
-                        width={ICON_SIZE}
-                        icon="bi:people-fill"
-                        sx={{
-                          color: theme.palette['primary'].main,
-                        }}
-                      />
-                    }
+                    
                   />
                 </Grid>
                 <Grid xs={12} md={4} lg={2}>
@@ -838,15 +876,7 @@ export default function DashboardDiagnosticaView() {
                     title="Estudantes Ausentes"
                     subtitle="Entrada"
                     total={dados.total_alunos_ausentes.entrada ?? 0}
-                    icon={
-                      <Iconify
-                        width={ICON_SIZE}
-                        icon="bi:people-fill"
-                        sx={{
-                          color: theme.palette['primary'].main,
-                        }}
-                      />
-                    }
+                    
                   />
                 </Grid>
                 <Grid xs={12} md={4} lg={2}>
@@ -854,15 +884,7 @@ export default function DashboardDiagnosticaView() {
                     title="Estudantes Ausentes"
                     subtitle="Saída"
                     total={dados.total_alunos_ausentes.saida ?? 0}
-                    icon={
-                      <Iconify
-                        width={ICON_SIZE}
-                        icon="bi:people-fill"
-                        sx={{
-                          color: theme.palette['primary'].main,
-                        }}
-                      />
-                    }
+                    
                   />
                 </Grid>
 
@@ -969,9 +991,12 @@ export default function DashboardDiagnosticaView() {
                           70 +
                           (dataFiltered.length == 0
                             ? 350
-                            : (dataFiltered.length < table.rowsPerPage
-                                ? dataFiltered.length
-                                : table.rowsPerPage) * 43),
+                            : dataFiltered.length *
+                                (!isEscolaFiltered && !isZonaFiltered ? 47 : 43) +
+                              tableRowsExpanded * 300),
+                        // : (dataFiltered.length < table.rowsPerPage
+                        //     ? dataFiltered.length
+                        //     : table.rowsPerPage) * 43),
                       }}
                     >
                       <Scrollbar>
@@ -996,6 +1021,7 @@ export default function DashboardDiagnosticaView() {
                                 row={{ ...row, key: key }}
                                 isZonaFiltered={isZonaFiltered}
                                 isEscolaFiltered={isEscolaFiltered}
+                                onSetOpen={(open) => onSetOpen(open)}
                                 filterOnClick={(id) => {
                                   if (isEscolaFiltered) {
                                     return false;
@@ -1119,9 +1145,13 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 function RowZona(props) {
-  const { row, filterOnClick } = props;
+  const { row, filterOnClick, onSetOpen } = props;
 
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    onSetOpen(open);
+  }, [open]);
 
   const _frequenciaEntrada = getFrequenciasAssociative(row.qtd_alunos_entrada);
   let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
@@ -1171,8 +1201,12 @@ function RowZona(props) {
                 <TableHead>
                   <TableRow>
                     <TableCell>Escola</TableCell>
-                    <TableCell>Estudandes</TableCell>
                     <TableCell>Turmas</TableCell>
+                    <TableCell>Estudandes</TableCell>
+                    <TableCell>Entrada Presentes</TableCell>
+                    <TableCell>Entrada Ausentes</TableCell>
+                    <TableCell>Saída Presentes</TableCell>
+                    <TableCell>Saída Ausentes</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1181,8 +1215,12 @@ function RowZona(props) {
                       <TableCell component="th" scope="row">
                         {registro.escola_nome}
                       </TableCell>
-                      <TableCell width="110">{registro.qtd_alunos}</TableCell>
                       <TableCell width="110">{registro.qtd_turmas}</TableCell>
+                      <TableCell width="110">{registro.qtd_alunos}</TableCell>
+                      <TableCell width="110">{registro.qtd_alunos_entrada.total[0]}</TableCell>
+                      <TableCell width="110">{registro.qtd_alunos_entrada.total[1]}</TableCell>
+                      <TableCell width="110">{registro.qtd_alunos_saida.total[0]}</TableCell>
+                      <TableCell width="110">{registro.qtd_alunos_saida.total[1]}</TableCell>
                     </StyledTableRow>
                   ))}
                 </TableBody>
@@ -1283,7 +1321,7 @@ function RowTurma(props) {
 }
 
 function Row(props) {
-  const { row, isZonaFiltered, isEscolaFiltered, filterOnClick } = props;
+  const { row, isZonaFiltered, isEscolaFiltered, filterOnClick, onSetOpen } = props;
 
   if (isEscolaFiltered) {
     return (
@@ -1297,6 +1335,12 @@ function Row(props) {
   } else if (isZonaFiltered) {
     return <RowEscola row={{ ...row }} filterOnClick={(id) => filterOnClick(id)} />;
   } else {
-    return <RowZona row={{ ...row }} filterOnClick={(id) => filterOnClick(id)} />;
+    return (
+      <RowZona
+        row={{ ...row }}
+        onSetOpen={(open) => onSetOpen(open)}
+        filterOnClick={(id) => filterOnClick(id)}
+      />
+    );
   }
 }

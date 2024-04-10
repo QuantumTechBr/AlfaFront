@@ -58,6 +58,11 @@ export default function DashboardDiagnosticaTableToolbar({
     (event) => onFilters('anoEscolar', event.target.value),
     [onFilters]
   );
+  
+  // const handleFilterTipo = useCallback(
+  //   (event) => onFilters('tipo', event.target.value),
+  //   [onFilters]
+  // );
 
   const handleFilterPne = useCallback((event) => onFilters('pne', event.target.value), [onFilters]);
   const handleFilterPneItem = useCallback(
@@ -186,6 +191,33 @@ export default function DashboardDiagnosticaTableToolbar({
           </FormControl>
         </Grid>
       )}
+
+      {/* <Grid xs={6} md="auto">
+        <FormControl sx={{ width: { xs: '100%', md: 180 } }}>
+          <InputLabel size="small">Tipo</InputLabel>
+          <Select
+            size="small"
+            value={filters.tipo}
+            onChange={handleFilterTipo}
+            input={<OutlinedInput fullWidth label="Tipo" />}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            <MenuItem key="tipoOption_unset" value="-">
+              Entrada e saída
+            </MenuItem>
+            <MenuItem key="tipoOption_entrada" value="entrada">
+              Somente Entrada
+            </MenuItem>
+            <MenuItem key="tipoOption_comTipo" value="saída">
+              Somente saída
+            </MenuItem>
+          </Select>
+        </FormControl>
+      </Grid> */}
 
       <Grid xs={6} md="auto">
         <FormControl sx={{ width: { xs: '100%', md: 180 } }}>
