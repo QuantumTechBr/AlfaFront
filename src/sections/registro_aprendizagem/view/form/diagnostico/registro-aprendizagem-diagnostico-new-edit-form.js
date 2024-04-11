@@ -117,7 +117,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
         // console.log(dataR[index])
         if (index < 10) {
           if (dataR != undefined) {
-            if (data.registros[itemList.id].r[index] != "") {
+            if (data.registros[itemList.id].r[index] !== "") {
               pt = true;
             }
             mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
@@ -130,7 +130,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           } 
         } else {
           if (dataR != undefined) {
-            if (data.registros[itemList.id].r[index] != "") {
+            if (data.registros[itemList.id].r[index] !== "") {
               mat = true;
             }
             mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
