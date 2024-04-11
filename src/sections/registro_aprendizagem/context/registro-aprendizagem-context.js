@@ -104,7 +104,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
 
   const mapResultadosAlunoTurmaInicial = async ({ alunoTurmaId }) => {
-    const resultados = await buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo({alunoTurmaId: alunoTurmaId, periodo: 'Inicial'});
+    const resultados = await buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo({alunoTurmaId: alunoTurmaId, periodo: 'Entrada'});
     const mR = [];
     if (resultados.length > 0) {
       for (let index = 0; index < resultados[0].habilidades_registro_aprendizagem.length; index++) {

@@ -80,6 +80,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     console.log(data)
     const registrosAprendizagem = [];
     alunosTurma.forEach((itemList) => {
+      let freqBool = false;
+      if (data.registros[itemList.id].frequencia != undefined || data.registros[itemList.id].frequencia != '') {
+        freqBool = true;
+      }
       // const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
       // const habilidadesRegistroAprendizagem = [];
       // for (const item in dataHabilidades) {
@@ -105,12 +109,17 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       let mediaLP = 0;
       let mediaMAT = 0;
       let mediaFINAL = 0;
+      let pt = false;
+      let mat = false;
       const dataR = data.registros[itemList.id].r;
       // console.log(dataR)
       for (let index = 0; index < 20; index++) {
         // console.log(dataR[index])
         if (index < 10) {
           if (dataR != undefined) {
+            if (data.registros[itemList.id].r[index] != "") {
+              pt = true;
+            }
             mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             const habRegAp = {
@@ -121,6 +130,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           } 
         } else {
           if (dataR != undefined) {
+            if (data.registros[itemList.id].r[index] != "") {
+              mat = true;
+            }
             mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             const habRegAp = {
@@ -147,41 +159,42 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
         mediaFINAL = (mediaFINAL * 10) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
       }
      
-
-      if (itemList.id_registro) {
-        const registroAprendizagem = {
-          nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-          tipo: 'Diagnóstico',
-          periodo: periodo,
-          aluno_turma_id: itemList.id,
-          frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP.toFixed(1),
-          media_matematica: mediaMAT.toFixed(1),
-          media_final: mediaFINAL.toFixed(1),
-          // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
-          avaliacao_id: itemList.id_registro,
+      if (freqBool || pt || mat) {
+        if (itemList.id_registro) {
+          const registroAprendizagem = {
+            nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+            tipo: 'Diagnóstico',
+            periodo: periodo,
+            aluno_turma_id: itemList.id,
+            frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : "",
+            media_matematica: mat ? mediaMAT.toFixed(1) : "",
+            media_final: pt || mat ? mediaFINAL.toFixed(1) : "",
+            // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+            avaliacao_id: itemList.id_registro,
+          }
+          registrosAprendizagem.push(registroAprendizagem);
+        } else {
+          const registroAprendizagem = {
+            nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+            tipo: 'Diagnóstico',
+            periodo: periodo,
+            aluno_turma_id: itemList.id,
+            frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : "",
+            media_matematica: mat ? mediaMAT.toFixed(1) : "",
+            media_final: pt || mat ? mediaFINAL.toFixed(1) : "",
+            // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+          }
+          registrosAprendizagem.push(registroAprendizagem);
         }
-        registrosAprendizagem.push(registroAprendizagem);
-      } else {
-        const registroAprendizagem = {
-          nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-          tipo: 'Diagnóstico',
-          periodo: periodo,
-          aluno_turma_id: itemList.id,
-          frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-          media_lingua_portuguesa: mediaLP.toFixed(1),
-          media_matematica: mediaMAT.toFixed(1),
-          media_final: mediaFINAL.toFixed(1),
-          // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
-        }
-        registrosAprendizagem.push(registroAprendizagem);
-      }
+      } 
     });
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {

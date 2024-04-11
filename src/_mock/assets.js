@@ -251,7 +251,7 @@ export const _habilidades = [
   { value: 'H4', label: 'H4' },
 ];
 
-export const _periodos = ['Inicial', 'Final'];
+export const _periodos = ['Entrada', 'Saída'];
 
 export const _anos = [2024, 2023, 2022];
 
@@ -337,8 +337,8 @@ const RegistroAprendizagemTipos = {
   fases: 'Fases',
 };
 const RegistroAprendizagemDiagnosticoTipos = {
-  inicial: 'Inicial',
-  final: 'Final',
+  inicial: 'Entrada',
+  final: 'Saída',
 };
 
 export const RegistroAprendizagemFasesCRUD = {
