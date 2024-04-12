@@ -167,9 +167,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
             periodo: periodo,
             aluno_turma_id: itemList.id,
             frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : "",
-            media_matematica: mat ? mediaMAT.toFixed(1) : "",
-            media_final: pt || mat ? mediaFINAL.toFixed(1) : "",
+            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : null,
+            media_matematica: mat ? mediaMAT.toFixed(1) : null,
+            media_final: pt || mat ? mediaFINAL.toFixed(1) : null,
             // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
@@ -184,9 +184,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
             periodo: periodo,
             aluno_turma_id: itemList.id,
             frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : "",
-            media_matematica: mat ? mediaMAT.toFixed(1) : "",
-            media_final: pt || mat ? mediaFINAL.toFixed(1) : "",
+            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : null,
+            media_matematica: mat ? mediaMAT.toFixed(1) : null,
+            media_final: pt || mat ? mediaFINAL.toFixed(1) : null,
             // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA

@@ -31,7 +31,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const values = watch();
 
-  const freqCheck = values.registros[id].frequencia;
+  const freqCheck = values.registros[id]?.frequencia;
 
   const anoEscolar = turma?.ano_escolar;
 
