@@ -55,7 +55,7 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'periodo', label: 'Período', width: 105 },
+  { id: 'periodo', label: 'Perfil', width: 105 },
   { id: 'escola_nome', label: 'Escola' },
   { id: 'atualizado_por', label: 'Atualizado Por' },
   { id: '', width: 72 },
@@ -158,7 +158,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
       const _newList = [];
 
-      // INICIAL E FINAL
+      // ENTRADA E SAÍDA
       await registroAprendizagemMethods
         .getListIdTurmaRegistroAprendizagemDiagnostico(_filtersToSend)
         .then((response) => {
@@ -181,7 +181,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           }
         })
         .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico Inicial');
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico de Entrada');
           console.error(error);
         });
       buscando.onFalse();

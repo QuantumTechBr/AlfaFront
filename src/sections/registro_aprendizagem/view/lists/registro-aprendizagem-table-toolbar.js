@@ -225,13 +225,13 @@ export default function RegistroAprendizagemTableToolbar({
               width: { xs: 1, md: 120 },
             }}
           >
-            <InputLabel>Período</InputLabel>
+            <InputLabel>Perfil</InputLabel>
 
             <Select
               multiple
               value={filters.periodo}
               onChange={handleFilterPeriodo}
-              input={<OutlinedInput label="Período" />}
+              input={<OutlinedInput label="Perfil" />}
               renderValue={(selected) => selected.map((item) => `${item}`).join(', ')}
               MenuProps={{
                 PaperProps: {

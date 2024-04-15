@@ -23,6 +23,7 @@ import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/
 import { useCallback } from 'react';
 import Iconify from 'src/components/iconify';
 
+
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres }) {
@@ -166,7 +167,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
             </TableCell>
           );
         })}
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 250 }}>
           <RHFTextField 
           name={'registros[' + aluno_turma_id + '].leitura'} 
           disabled={true} 
@@ -174,7 +175,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
           value={RegistroAprendizagemFasesLeitura[resultado] ?? ''}
           />
         </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 120 }}>
           <RHFTextField 
           name={'registros[' + aluno_turma_id + '].escrita'}
           label="" 
@@ -182,7 +183,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
           value={RegistroAprendizagemFasesEscrita[resultado] ?? ''}
           />
         </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 150 }}>
           <RHFTextField disabled={desabilita.value} name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>
       </TableRow>
