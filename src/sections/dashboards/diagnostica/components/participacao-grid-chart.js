@@ -5,13 +5,18 @@ import _ from 'lodash';
 
 // @mui
 import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
+import { Grid } from '@mui/material';
+import MenuItem from '@mui/material/MenuItem';
+import ButtonBase from '@mui/material/ButtonBase';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
-import { Grid } from '@mui/material';
 import Scrollbar from 'src/components/scrollbar';
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import Iconify from 'src/components/iconify';
 
 import '../../components/style.css';
 
@@ -19,21 +24,29 @@ import '../../components/style.css';
 
 export default function ParticipacaoGridChart({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
+  const [seriesTipo, setSeriesTipo] = useState('Entrada');
+
+  const getChartSeries = (_tipo) => {
+    const _t = _tipo ?? seriesTipo;
+    const _retorno = chartSeries.find((item) => item.tipo === _t);
+    return _retorno ?? [];
+  };
+
   const colors = ['#134EB4', '#009a50'];
   const _columnWith = options.plotOptions.bar.columnWidth;
 
   const chartOptions = useChart({
     colors: colors,
-    title: {
-      text: title,
-      offsetX: 13,
-      style: {
-        fontSize: '18px',
-        fontWeight: 'bold',
-        fontFamily: theme.typography.fontFamily,
-        color: 'inherit',
-      },
-    },
+    // title: {
+    //   text: title,
+    //   offsetX: 13,
+    //   style: {
+    //     fontSize: '18px',
+    //     fontWeight: 'bold',
+    //     fontFamily: theme.typography.fontFamily,
+    //     color: 'inherit',
+    //   },
+    // },
     chart: {
       toolbar: { show: true },
       stacked: true,
@@ -116,29 +129,83 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     }
   }, []);
 
-  const _widthPorQuantidade = Number.isInteger(_columnWith) ? chartSeries.length * _columnWith : 0;
+  const _widthPorQuantidade = Number.isInteger(_columnWith)
+    ? getChartSeries().length * _columnWith
+    : 0;
+
+  const popover = usePopover();
+
+  const handleChangeTipo = useCallback(
+    (newValue) => {
+      popover.onClose();
+      setSeriesTipo(newValue);
+    },
+    [popover]
+  );
 
   return (
-    <Card {...other}>
-      {/* <CardHeader title={title} sx={{ mb: 3 }}></CardHeader> */}
+    <>
+      <Card {...other}>
+        <CardHeader
+          title={title}
+          action={
+            <ButtonBase
+              onClick={popover.onOpen}
+              sx={{
+                pl: 1,
+                py: 0.5,
+                pr: 0.5,
+                borderRadius: 1,
+                typography: 'subtitle2',
+                bgcolor: 'background.neutral',
+              }}
+            >
+              {seriesTipo}
 
-      <Grid container justifyContent="space-around">
-        <Grid item xs={12} sx={{ mt: 3 }}>
-          <Box ref={boxRef}>
-            <Scrollbar sx={{ overflowY: 'hidden' }}>
-              <Chart
-                dir="ltr"
-                type="bar"
-                series={chartSeries}
-                options={chartOptions}
-                height={450}
-                width={_.max([boxWidth, _widthPorQuantidade])}
+              <Iconify
+                width={16}
+                icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+                sx={{ ml: 0.5 }}
               />
-            </Scrollbar>
-          </Box>
+            </ButtonBase>
+          }
+        />
+
+        <Grid container justifyContent="space-around">
+          <Grid item xs={12} sx={{ mt: 3 }}>
+            <Box ref={boxRef}>
+              <Scrollbar sx={{ overflowY: 'hidden' }}>
+                <Chart
+                  dir="ltr"
+                  type="bar"
+                  series={getChartSeries()}
+                  options={chartOptions}
+                  height={450}
+                  width={_.max([boxWidth, _widthPorQuantidade])}
+                />
+              </Scrollbar>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-    </Card>
+      </Card>
+
+      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
+        <MenuItem
+          key={'MenuItem-Entrada'}
+          selected={'Entrada' === seriesTipo}
+          onClick={() => handleChangeTipo('Entrada')}
+        >
+          Entrada
+        </MenuItem>
+        <MenuItem
+          key={'MenuItem-Saida'}
+          selected={'Saida' === seriesTipo}
+          onClick={() => handleChangeTipo('Saida')}
+        >
+          Saída
+        </MenuItem>
+      </CustomPopover>
+    </>
   );
 }
 
