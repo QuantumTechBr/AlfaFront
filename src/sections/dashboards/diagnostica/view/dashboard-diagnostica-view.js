@@ -1250,7 +1250,7 @@ const getFrequenciasAssociative = (lista = {}) => {
   const totais = {};
 
   _.forEach(lista.frequencias, (frequencia, keyN) => {
-    if (!totais.hasOwnProperty(frequencia)) {
+    if (Object.prototype.hasOwnProperty.call(totais, frequencia)) {
       Object.assign(totais, { [`${frequencia}`]: 0 });
     }
     totais[`${frequencia}`] += lista.total[keyN];

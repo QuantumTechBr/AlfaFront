@@ -191,14 +191,14 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
         <MenuItem
-          key={'MenuItem-Entrada'}
+          key="MenuItem-Entrada"
           selected={'Entrada' === seriesTipo}
           onClick={() => handleChangeTipo('Entrada')}
         >
           Entrada
         </MenuItem>
         <MenuItem
-          key={'MenuItem-Saida'}
+          key="MenuItem-Saida"
           selected={'Saida' === seriesTipo}
           onClick={() => handleChangeTipo('Saida')}
         >
