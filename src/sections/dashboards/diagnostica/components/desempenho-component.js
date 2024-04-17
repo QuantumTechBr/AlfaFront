@@ -60,7 +60,7 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
         borderWidth: 1,
         opacity: 0,
         dropShadow: {
-          enabled: false,
+          enabled: true,
         },
       },
       formatter: (value, opts) => {
