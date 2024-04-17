@@ -428,7 +428,7 @@ export default function DashboardTurmaView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (Turma)</Typography>
+            <Typography variant="h3">Dashboard: Fase (Turma)</Typography>
           </Grid>
 
           {permissaoCadastrar && (

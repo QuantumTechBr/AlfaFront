@@ -59,7 +59,7 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
-import { anos_metas } from 'src/_mock/assets';
+import { anos_metas, preDefinedZonaOrder } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -95,17 +95,6 @@ export default function DashboardRedeView() {
     },
     [turmas]
   );
-
-  //
-  const preDefinedOrder = {
-    'SUL': 0,
-    'OESTE': 1,
-    'NORTE': 2,
-    'CENTRO-SUL': 3,
-    'LESTE I': 4,
-    'LESTE II': 5,
-    'RURAL': 6,
-  };
 
   const preencheGraficos = useCallback(
     async (_filters) => {
@@ -163,9 +152,9 @@ export default function DashboardRedeView() {
             };
           });
 
-          const _sorted = result.sort((a,b) => {
-            const na = preDefinedOrder[a.zona_nome] ?? 0;
-            const nb = preDefinedOrder[b.zona_nome] ?? 0;
+          const _sorted = result.sort((a, b) => {
+            const na = preDefinedZonaOrder[a.zona_nome] ?? 0;
+            const nb = preDefinedZonaOrder[b.zona_nome] ?? 0;
             return na - nb;
           });
 
@@ -228,7 +217,7 @@ export default function DashboardRedeView() {
   // TABLE GRID
   const TABLE_HEAD = [
     { id: 'ddz', label: 'DDZ', notsortable: true },
-    { id: 'escolae', label: 'Escolas', notsortable: true },
+    { id: 'escolas', label: 'Escolas', notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
     { id: 'avaliados', label: 'Avaliados', width: 110, notsortable: true },
@@ -321,7 +310,7 @@ export default function DashboardRedeView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (Rede)</Typography>
+            <Typography variant="h3">Dashboard: Fase (Rede)</Typography>
           </Grid>
         </Stack>
 

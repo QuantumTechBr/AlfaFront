@@ -11,9 +11,9 @@ import {
   Typography,
   Container,
   Card,
+  CardHeader,
   TableRow,
   TableCell,
-  CardHeader,
   Box,
   TableHead,
 } from '@mui/material';
@@ -334,7 +334,7 @@ export default function DashboardDDZView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (DDZ)</Typography>
+            <Typography variant="h3">Dashboard: Fase (DDZ)</Typography>
           </Grid>
         </Stack>
 

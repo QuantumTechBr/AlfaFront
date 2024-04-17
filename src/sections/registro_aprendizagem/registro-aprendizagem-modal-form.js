@@ -206,7 +206,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
             {isTipoDiagnostico && escola && selectTurma()}
 
             {isTipoDiagnostico && escola && turma && (
-              <RHFSelect name="periodo" label="Período">
+              <RHFSelect name="periodo" label="Perfil">
                 {_periodos.map((_periodo) => (
                   <MenuItem key={_periodo} value={_periodo}>
                     {_periodo}

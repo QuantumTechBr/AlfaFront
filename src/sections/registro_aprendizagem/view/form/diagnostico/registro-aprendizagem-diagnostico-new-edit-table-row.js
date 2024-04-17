@@ -25,8 +25,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
   const [mapResultados, setMapResultados] = useState([]);
-  const { control, getValues } = useFormContext();
+  const { control, getValues, watch, setValue } = useFormContext();
   const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
+  const desabilitaResposta = useBoolean(false);
+
+  const values = watch();
+
+  const freqCheck = values.registros[id]?.frequencia;
 
   const anoEscolar = turma?.ano_escolar;
 
@@ -41,7 +46,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     let mds = []
     for (let index = 0; index < 20; index++) {
       if (getValues('registros['+id+'].r['+index+']') === '') {
-        console.log(getValues('registros['+id+'].r['+index+']'))
         mds[index] = false;
       } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
         mds[index] = true
@@ -54,7 +58,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const preparacaoInicial = useCallback(async () => {
     disableSelect();
-    if (periodo == 'Final') {
+    if (periodo == 'Saída') {
       getMapResultados();
     }
   }, [periodo, getMapResultados]);
@@ -112,13 +116,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       retorno.push(
         <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect 
-              disabled={mapDesabilitarSelect[index]} 
+              disabled={mapDesabilitarSelect[index] || desabilitaResposta.value} 
               name={'registros['+id+'].r['+index+']'}  
               label="">
                 {r_options.map((r) => (
                   <MenuItem 
                   disabled={disableMenuItem(r, index)} 
-                  key={id + '_r_' + index} value={r} sx={{ height: '34px' }}>
+                  key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
                         {r}
                     </MenuItem>
                 ))}
@@ -127,7 +131,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                   ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                   ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
                   && 
-                <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
+                <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
                   {2}
                 </MenuItem>}
               </RHFSelect>
@@ -138,9 +142,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }
 
   const mediaLP = () => {
+    let pt = false
     let media = 0;
     
     for (let index = 0; index < 10; index++) {
+      if (getValues('registros['+id+'].r['+index+']') !== "") {
+        pt = true;
+      }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
 
     }
@@ -149,12 +157,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }else if (anoEscolar == '2') {
       media = (media * 10) / 12.00;
     }else if (anoEscolar == '3') {
-      // console.log((media * 10) / 13.00)
       media = (media * 10) / 13.00; 
     }
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
 
-    return media ;
+    if (pt) {
+      return media;
+    } else{
+      return '-'
+    }
   }
 
   const nivelEscritaLP = () => {
@@ -182,8 +193,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }
    
   const mediaMAT = () => {
+    let mat = false;
     let media = 0;
     for (let index = 10; index < 20; index++) {
+      if (getValues('registros['+id+'].r['+index+']') !== "") {
+        mat = true;
+      }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
     if (anoEscolar == '1') {
@@ -195,8 +210,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
 
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
-
-    return media;
+    if (mat) {
+      return media;
+    } else{
+      return '-'
+    }
   }
    
   const nivelResProb = () => {
@@ -224,8 +242,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }
    
   const mediaFinal = () => {
+    let pt_mat = false;
     let media = 0;
     for (let index = 0; index < 20; index++) {
+      if (getValues('registros['+id+'].r['+index+']') !== "") {
+        pt_mat = true;
+      }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
     if (anoEscolar == '1') {
@@ -238,7 +260,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
 
-    return media;
+    if (pt_mat) {
+      return media;
+    } else{
+      return '-'
+    }
   }
    
   const nivelFinal = () => {
@@ -252,6 +278,18 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       return '-';
     }
   }
+
+  useEffect(() => {
+    if (freqCheck == 'Ausente') {
+      for (let index = 0; index < 20; index++) {
+        setValue('registros['+id+'].r['+index+']', "")
+      }
+      desabilitaResposta.onTrue()
+    } 
+    else {
+      desabilitaResposta.onFalse()
+    }
+  }, [freqCheck]);
   
   return (
     <TableRow hover selected={selected}>
@@ -282,11 +320,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
             <RHFSelect key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
-                <MenuItem key={id + 'freq'} value='' sx={{ height: '34px' }}>
+                <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
                   
                 </MenuItem>
               {frequencia_options.map((freq) => (
-                <MenuItem key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
+                <MenuItem 
+                disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia) )}
+                key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
                   {freq}
                 </MenuItem>
               ))}
@@ -319,7 +359,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {
-         mediaLP().toFixed(1) // Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            mediaLP() == '-' ? mediaLP() : mediaLP().toFixed(1)
+         // Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           }  
         </TableCell>
 
@@ -333,7 +374,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
-          mediaMAT().toFixed(1)
+          mediaMAT() == '-' ? mediaMAT() : mediaMAT().toFixed(1)
         // Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
         }  
         </TableCell>
@@ -348,7 +389,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           {
-            mediaFinal().toFixed(1)
+            mediaFinal() == '-' ? mediaFinal() : mediaFinal().toFixed(1)
           // Math.trunc(mediaFinal()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
           }  
         </TableCell>

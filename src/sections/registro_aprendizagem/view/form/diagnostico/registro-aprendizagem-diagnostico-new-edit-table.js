@@ -100,7 +100,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   }, []);
 
   useEffect(() => {
-    console.log(habilidades)
     const cabecalho = [
         { id: 'matricula', label: 'Matrícula', width: 150 },
         { id: 'nome', label: 'Nome', width: 150 },
