@@ -60,6 +60,7 @@ export default function ParticipacaoSemedChart({ title, chartSeries = [], option
           enabled: false,
         },
       },
+      dropShadow: { enabled: true },
       formatter: (value, opts) => {
         return `${value}%`;
       },

@@ -78,6 +78,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
         dropShadow: {
           enabled: false,
         },
+        dropShadow: { enabled: true },
       },
       formatter: (value, opts) => {
         return `${value}%`;
