@@ -60,6 +60,7 @@ export default function ParticipacaoChart({ title, chartSeries = [], options, ..
           enabled: false,
         },
       },
+      dropShadow: { enabled: true },
       formatter: (value, opts) => {
         return `${value}%`;
       },

@@ -1056,21 +1056,11 @@ export default function DashboardDiagnosticaView() {
                     _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0
                   )
                     return (
-                      <Grid
-                        key={`desempenho_anoescolar_${_anoEscolar}`}
-                        container
-                        spacing={3}
-                        width="100%"
-                      ></Grid>
+                      <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container></Grid>
                     );
 
                   return (
-                    <Grid
-                      key={`desempenho_anoescolar_${_anoEscolar}`}
-                      container
-                      spacing={3}
-                      width="100%"
-                    >
+                    <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container>
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`Desempenho Geral - ${_anoEscolar}º Ano`}
