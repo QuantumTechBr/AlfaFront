@@ -72,7 +72,7 @@ import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
 import DesempenhoComponent from '../components/desempenho-component';
 
-// import mockData from '../mock.json';
+import mockData from '../mock.json';
 
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
@@ -139,6 +139,7 @@ export default function DashboardDiagnosticaView() {
     }
 
     // CRIAÇÃO DO GRID DE ESCOLAS
+
     result.grid_escolas = [];
 
     let _grid_escolas = Object.assign(
@@ -248,16 +249,16 @@ export default function DashboardDiagnosticaView() {
             : [`["${_filtersToSearch.pneItem}"]`],
       };
 
-      // if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-      //   prepareData(mockData);
-      // } else {
-      await Promise.all([
-        dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
-          const result = Object.assign({}, response.data);
-          prepareData(result);
-        }),
-      ]);
-      // }
+      if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+        prepareData(mockData);
+      } else {
+        await Promise.all([
+          dashboardsMethods.getDashboardAvaliacaoDiagnostico(fullFilters).then((response) => {
+            const result = Object.assign({}, response.data);
+            prepareData(result);
+          }),
+        ]);
+      }
 
       isGettingGraphics.onFalse();
     },
@@ -393,9 +394,13 @@ export default function DashboardDiagnosticaView() {
     [table]
   );
 
-  const _percentCalc = (valor1, valor2) => {
-    const _calculed = Math.floor(((valor1 ?? 0) / (valor2 ?? 0)) * 100);
-    return !Number.isNaN(_calculed) && Number.isFinite(_calculed) ? _calculed : 0;
+  const _percentCalc = (valor1, valor2, fixNumberTo) => {
+    const _calculed = ((valor1 ?? 0) / (valor2 ?? 0)) * 100;
+    return !Number.isNaN(_calculed) && Number.isFinite(_calculed)
+      ? fixNumberTo
+        ? _calculed.toFixed(2)
+        : Math.floor(_calculed)
+      : 0;
   };
 
   // GRÁFICOS
@@ -403,8 +408,9 @@ export default function DashboardDiagnosticaView() {
   // GRÁFICO 1
   const participacaoGridChartSeries = useCallback(() => {
     const series = [];
+
+    // FILTRO POR ESCOLAS
     if (isEscolaFiltered) {
-      // FILTRADO POR ZONA
       const porTurma = dados.grid_turmas.map((item) => {
         const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
         let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
@@ -472,8 +478,11 @@ export default function DashboardDiagnosticaView() {
         ),
         quantidade: porTurma.map((pz) => pz.data.totalSaidaAusente),
       });
-    } else if (isZonaFiltered) {
-      // FILTRADO POR ZONA
+      return series;
+    }
+
+    // FILTRO POR ZONAS
+    if (isZonaFiltered) {
       const porEscola = dados.grid_escolas.map((item) => {
         let _totalEntradaPresente = 0;
         let _totalEntradaAusente = 0;
@@ -549,76 +558,83 @@ export default function DashboardDiagnosticaView() {
         ),
         quantidade: porEscola.map((pe) => pe.data.totalSaidaAusente),
       });
-    } else {
-      // SEM FILTROS
-      const porZona = dados.grid_ddz.map((item) => {
-        const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
-        let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
-        let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
 
-        const _frequenciaSaida = getFrequenciasAssociative(item.qtd_alunos_saida);
-        let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
-        let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
-
-        return {
-          name: item.zona_nome,
-          data: {
-            totalEntradaPresente: _entradaPresente,
-            totalEntradaAusente: _entradaAusente,
-            totalSaidaPresente: _saidaPresente,
-            totalSaidaAusente: _saidaAusente,
-          },
-        };
-      });
-
-      series.push({
-        tipo: 'Entrada',
-        name: 'Presentes',
-        data: porZona.map((pz) =>
-          _percentCalc(
-            pz.data.totalEntradaPresente,
-            pz.data.totalEntradaAusente + pz.data.totalEntradaPresente
-          )
-        ),
-        quantidade: porZona.map((pz) => pz.data.totalEntradaPresente),
-      });
-
-      series.push({
-        tipo: 'Entrada',
-        name: 'Ausentes',
-        data: porZona.map((pz) =>
-          _percentCalc(
-            pz.data.totalEntradaAusente,
-            pz.data.totalEntradaAusente + pz.data.totalEntradaPresente
-          )
-        ),
-        quantidade: porZona.map((pz) => pz.data.totalEntradaAusente),
-      });
-
-      series.push({
-        tipo: 'Saída',
-        name: 'Presentes',
-        data: porZona.map((pz) =>
-          _percentCalc(
-            pz.data.totalSaidaPresente,
-            pz.data.totalSaidaAusente + pz.data.totalSaidaPresente
-          )
-        ),
-        quantidade: porZona.map((pz) => pz.data.totalSaidaPresente),
-      });
-
-      series.push({
-        tipo: 'Saída',
-        name: 'Ausentes',
-        data: porZona.map((pz) =>
-          _percentCalc(
-            pz.data.totalSaidaAusente,
-            pz.data.totalSaidaAusente + pz.data.totalSaidaPresente
-          )
-        ),
-        quantidade: porZona.map((pz) => pz.data.totalSaidaAusente),
-      });
+      return series;
     }
+
+    // SEM FILTROS
+    const porZona = dados.grid_ddz.map((item) => {
+      const _frequenciaEntrada = getFrequenciasAssociative(item.qtd_alunos_entrada);
+      let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+      let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
+
+      const _frequenciaSaida = getFrequenciasAssociative(item.qtd_alunos_saida);
+      let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+      let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
+
+      return {
+        name: item.zona_nome,
+        data: {
+          totalEntradaPresente: _entradaPresente,
+          totalEntradaAusente: _entradaAusente,
+          totalSaidaPresente: _saidaPresente,
+          totalSaidaAusente: _saidaAusente,
+        },
+      };
+    });
+
+    series.push({
+      tipo: 'Entrada',
+      name: 'Presentes',
+      data: porZona.map((pz) =>
+        _percentCalc(
+          pz.data.totalEntradaPresente,
+          pz.data.totalEntradaPresente + pz.data.totalEntradaAusente,
+          2
+        )
+      ),
+      quantidade: porZona.map((pz) => pz.data.totalEntradaPresente),
+    });
+
+    series.push({
+      tipo: 'Entrada',
+      name: 'Ausentes',
+      data: porZona.map((pz) =>
+        _percentCalc(
+          pz.data.totalEntradaAusente,
+          pz.data.totalEntradaPresente + pz.data.totalEntradaAusente,
+          2
+        )
+      ),
+      quantidade: porZona.map((pz) => pz.data.totalEntradaAusente),
+    });
+
+    series.push({
+      tipo: 'Saída',
+      name: 'Presentes',
+      data: porZona.map((pz) =>
+        _percentCalc(
+          pz.data.totalSaidaPresente,
+          pz.data.totalSaidaPresente + pz.data.totalSaidaAusente,
+          2
+        )
+      ),
+      quantidade: porZona.map((pz) => pz.data.totalSaidaPresente),
+    });
+
+    series.push({
+      tipo: 'Saída',
+      name: 'Ausentes',
+      data: porZona.map((pz) =>
+        _percentCalc(
+          pz.data.totalSaidaAusente,
+          pz.data.totalSaidaPresente + pz.data.totalSaidaAusente,
+          2
+        )
+      ),
+      quantidade: porZona.map((pz) => pz.data.totalSaidaAusente),
+    });
+
     return series;
   }, [dados, isZonaFiltered, isEscolaFiltered]);
 
@@ -674,8 +690,8 @@ export default function DashboardDiagnosticaView() {
       return {
         name: item.zona_nome,
         data: {
-          entrada: { presente: _entradaPresente, ausente: _entradaAusente },
-          saida: { presente: _saidaPresente, ausente: _saidaAusente },
+          entrada: { presentes: _entradaPresente, ausentes: _entradaAusente },
+          saida: { presentes: _saidaPresente, ausentes: _saidaAusente },
         },
       };
     });
@@ -799,32 +815,14 @@ export default function DashboardDiagnosticaView() {
         );
 
         _metricas.entrada = [
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N1),
-            0
-          ),
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N2),
-            0
-          ),
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].entrada.N3),
-            0
-          ),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N1),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N2),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N3),
         ];
         _metricas.saida = [
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].saida.N1),
-            0
-          ),
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].saida.N2),
-            0
-          ),
-          _turmasNoAnoEscolar.reduce(
-            (total, _turma) => (total += _turma.desempenho[metrica].saida.N3),
-            0
-          ),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N1),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N2),
+          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N3),
         ];
       } else {
         const porZona = dados.grid_ddz.map((item) => {
@@ -835,34 +833,29 @@ export default function DashboardDiagnosticaView() {
         });
 
         _metricas.entrada = [
-          porZona.reduce((total, pz) => (total += pz.data.entrada.N1), 0),
-          porZona.reduce((total, pz) => (total += pz.data.entrada.N2), 0),
-          porZona.reduce((total, pz) => (total += pz.data.entrada.N3), 0),
+          _.sumBy(porZona, (z) => z.data.entrada.N1),
+          _.sumBy(porZona, (z) => z.data.entrada.N2),
+          _.sumBy(porZona, (z) => z.data.entrada.N3),
         ];
         _metricas.saida = [
-          porZona.reduce((total, pz) => (total += pz.data.saida.N1), 0),
-          porZona.reduce((total, pz) => (total += pz.data.saida.N2), 0),
-          porZona.reduce((total, pz) => (total += pz.data.saida.N3), 0),
+          _.sumBy(porZona, (z) => z.data.saida.N1),
+          _.sumBy(porZona, (z) => z.data.saida.N2),
+          _.sumBy(porZona, (z) => z.data.saida.N3),
         ];
       }
+
+      const somaEntrada = _.sum(_metricas.entrada);
+      const somaSaida = _.sum(_metricas.saida);
 
       const _series = [
         {
           name: 'Entrada',
-          data: [
-            _percentCalc(_metricas.entrada[0], _metricas.entrada[0] + _metricas.saida[0]),
-            _percentCalc(_metricas.entrada[1], _metricas.entrada[1] + _metricas.saida[1]),
-            _percentCalc(_metricas.entrada[2], _metricas.entrada[2] + _metricas.saida[2]),
-          ],
+          data: _metricas.entrada.map((v) => _percentCalc(v, somaEntrada, 2)),
           quantidade: _metricas.entrada,
         },
         {
           name: 'Saída',
-          data: [
-            _percentCalc(_metricas.saida[0], _metricas.entrada[0] + _metricas.saida[0]),
-            _percentCalc(_metricas.saida[1], _metricas.entrada[1] + _metricas.saida[1]),
-            _percentCalc(_metricas.saida[2], _metricas.entrada[2] + _metricas.saida[2]),
-          ],
+          data: _metricas.saida.map((v) => _percentCalc(v, somaSaida, 2)),
           quantidade: _metricas.saida,
         },
       ];
@@ -1250,7 +1243,7 @@ const getFrequenciasAssociative = (lista = {}) => {
   const totais = {};
 
   _.forEach(lista.frequencias, (frequencia, keyN) => {
-    if (Object.prototype.hasOwnProperty.call(totais, frequencia)) {
+    if (!_.has(totais, frequencia)) {
       Object.assign(totais, { [`${frequencia}`]: 0 });
     }
     totais[`${frequencia}`] += lista.total[keyN];

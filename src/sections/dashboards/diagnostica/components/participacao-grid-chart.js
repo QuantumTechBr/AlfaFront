@@ -28,7 +28,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
 
   const getChartSeries = (_tipo) => {
     const _t = _tipo ?? seriesTipo;
-    const _retorno = chartSeries.find((item) => item.tipo === _t);
+    const _retorno = chartSeries.filter((item) => item.tipo === _t);
     return _retorno ?? [];
   };
 
