@@ -380,7 +380,7 @@ export default function DashboardEscolaView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard (Escola)</Typography>
+            <Typography variant="h3">Dashboard: Fase (Escola)</Typography>
           </Grid>
         </Stack>
 
