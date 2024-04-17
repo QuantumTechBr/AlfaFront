@@ -947,7 +947,7 @@ export default function DashboardDiagnosticaView() {
 
             {!!isGettingGraphics.value && (
               <Grid flexGrow={1} flexBasis={0} sx={{ mt: 2 }} display="flex">
-                <LoadingBox />
+                <LoadingBox texto="Carregando, isto pode demorar alguns segundos..." />
               </Grid>
             )}
 
