@@ -4,7 +4,7 @@ import { DashboardRedeView } from "src/sections/dashboards/rede/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Rede',
+  title: 'Dashboard: Fase (Rede)',
 };
 
 export default function DashboardRedePage() {
