@@ -46,7 +46,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     let mds = []
     for (let index = 0; index < 20; index++) {
       if (getValues('registros['+id+'].r['+index+']') === '') {
-        console.log(getValues('registros['+id+'].r['+index+']'))
         mds[index] = false;
       } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
         mds[index] = true
@@ -123,7 +122,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                 {r_options.map((r) => (
                   <MenuItem 
                   disabled={disableMenuItem(r, index)} 
-                  key={id + '_r_' + index} value={r} sx={{ height: '34px' }}>
+                  key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
                         {r}
                     </MenuItem>
                 ))}
@@ -132,7 +131,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
                   ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                   ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
                   && 
-                <MenuItem key={id + '_r_' + index+1} value={2} sx={{ height: '34px' }}>
+                <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
                   {2}
                 </MenuItem>}
               </RHFSelect>
@@ -158,7 +157,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }else if (anoEscolar == '2') {
       media = (media * 10) / 12.00;
     }else if (anoEscolar == '3') {
-      // console.log((media * 10) / 13.00)
       media = (media * 10) / 13.00; 
     }
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
@@ -322,11 +320,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
             <RHFSelect key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
-                <MenuItem key={id + 'freq'} value='' sx={{ height: '34px' }}>
+                <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
                   
                 </MenuItem>
               {frequencia_options.map((freq) => (
-                <MenuItem key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
+                <MenuItem 
+                disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia) )}
+                key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
                   {freq}
                 </MenuItem>
               ))}

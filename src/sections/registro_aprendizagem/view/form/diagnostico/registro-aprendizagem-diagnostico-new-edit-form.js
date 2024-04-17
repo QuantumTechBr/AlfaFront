@@ -77,11 +77,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
     const registrosAprendizagem = [];
     alunosTurma.forEach((itemList) => {
+      let frequencia = data.registros[itemList.id].frequencia
       let freqBool = false;
-      if (data.registros[itemList.id].frequencia != undefined || data.registros[itemList.id].frequencia != '') {
+      if (frequencia != undefined && frequencia != '') {
         freqBool = true;
       }
       // const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
@@ -112,9 +112,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       let pt = false;
       let mat = false;
       const dataR = data.registros[itemList.id].r;
-      // console.log(dataR)
       for (let index = 0; index < 20; index++) {
-        // console.log(dataR[index])
         if (index < 10) {
           if (dataR != undefined) {
             if (data.registros[itemList.id].r[index] !== "") {
