@@ -46,6 +46,9 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import InputAdornment from '@mui/material/InputAdornment';
+import Label from 'src/components/label';
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 
@@ -143,10 +146,10 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   }, []);
 
   const TABLE_HEAD = [
-    { id: '', width: 5 },
     { id: 'nome', label: 'Estudante', width: 2 },
     { id: 'matricula', label: 'Matrícula', width: 3 },
-    { id: 'data_nascimento', label: 'Data de Nascimento', width: 2 },
+    { id: 'adicionar', label: 'Adicionar', width: 2 },
+    { id: 'remover', label: 'Remover', width: 2 },
   ];
 
   // const dataFiltered = applyFilter({
@@ -192,6 +195,23 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     setValue("alunos", newInputValue)
   }
 
+  const handleAdicionarAluno = useCallback(
+    (aluno) => {
+      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id
+      const alunoEscola = { aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }
+      escolaMethods.updateAlunosByEscolaId(escola?.id, alunoEscola)
+    },
+    [escola, anosLetivos]
+  );
+
+  const handleRemoverAluno = useCallback(
+    (aluno) => {
+      const alunoEscolaId = aluno?.alunoEscolas?.filter((ae) => ae?.escola == escola?.id)[0]?.id;
+      escolaMethods.deleteAlunosByEscolaId(escola?.id, alunoEscolaId)
+    },
+    [escola]
+  );
+
   return (
     <Dialog
       fullWidth
@@ -209,7 +229,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
             </Box>
         ) : ( */}
           <>
-            <DialogTitle>Definir Estudantes da Escola: {escola.nome}</DialogTitle>
+            <DialogTitle>Definir Estudantes da Escola: {escola?.nome}</DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
@@ -236,7 +256,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                         InputProps={{
                           ...params.InputProps,
                           startAdornment: (
-                            <InputAdornment position="start">
+                            <InputAdornment position="end">
                               <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
                                 onClick={() => {
                                   getAluno(buscaAlu)
@@ -275,6 +295,8 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                         currentEscola={escola}
                         selected={table.selected.includes(row.id)}
                         onSelectRow={() => table.onSelectRow(row.id)}
+                        onAdicionarAluno={() => handleAdicionarAluno(row)}
+                        onRemoverAluno={() => handleRemoverAluno(row)}
                       />
                     ))}
 
@@ -282,9 +304,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                   </TableBody>
                 </Table>
               </Scrollbar>
-              <Box sx={{ mt: 2 }}>
+              {/* <Box sx={{ mt: 2 }}>
                 <Typography variant="subtitle2">{table.selected.length} selecionados</Typography>
-              </Box>
+              </Box> */}
             </DialogContent>
           </>
         {/* )} */}
@@ -294,14 +316,14 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
             Cancelar
           </Button>
 
-          <LoadingButton
+          {/* <LoadingButton
             disabled={isLoading}
             type="submit"
             variant="contained"
             loading={isSubmitting}
           >
             Definir
-          </LoadingButton>
+          </LoadingButton> */}
         </DialogActions>
       </FormProvider>
     </Dialog>
