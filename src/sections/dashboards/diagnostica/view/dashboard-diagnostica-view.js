@@ -1123,6 +1123,9 @@ export default function DashboardDiagnosticaView() {
                   <DesempenhoComponent
                     title="SEMED"
                     chartSeries={desempenhoChartSeries('geral')}
+                    options={{
+                      legend: { show: true, showForSingleSeries: true, position: 'bottom' },
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
                 </Grid>
@@ -1130,6 +1133,9 @@ export default function DashboardDiagnosticaView() {
                   <DesempenhoComponent
                     title="Língua Portuguesa - SEMED"
                     chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                    options={{
+                      legend: { show: true, showForSingleSeries: true, position: 'bottom' },
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
                 </Grid>
@@ -1137,6 +1143,9 @@ export default function DashboardDiagnosticaView() {
                   <DesempenhoComponent
                     title="Matemática - SEMED"
                     chartSeries={desempenhoChartSeries('matematica')}
+                    options={{
+                      legend: { show: true, showForSingleSeries: true, position: 'bottom' },
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
                 </Grid>

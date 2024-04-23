@@ -109,6 +109,7 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
     },
 
     yaxis: [{ show: true, min: 0, max: 100, decimalsInFloat: 0 }],
+    ...options,
   });
 
   return (
