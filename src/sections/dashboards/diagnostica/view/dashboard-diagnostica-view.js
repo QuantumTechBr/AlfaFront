@@ -259,7 +259,7 @@ export default function DashboardDiagnosticaView() {
         await Promise.all([
           dashboardsMethods.getDashboardAvaliacaoDiagnosticoRede(fullFilters).then((response) => {
             const result = Object.assign({}, response.data);
-            result.grid_turmas = mockData.grid_turmas; // TODO REMOVER DEPOIS DO NILSON RETORNAS DADOS DOS ANOS ESCOLARES
+            result.grid_turmas = mockData.grid_turmas; // TODO REMOVER DEPOIS DO NILSON RETORNAR DADOS DOS ANOS ESCOLARES
             prepareData(result);
           }),
         ]);
@@ -912,7 +912,7 @@ export default function DashboardDiagnosticaView() {
 
       const somaEntrada = _.sum(_metricas.entrada);
       let somaSaida = 0;
-      if (!!_metricas.saida) {
+      if (_metricas.saida) {
         somaSaida = _.sum(_metricas.saida);
       }
 
