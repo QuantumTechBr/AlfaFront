@@ -20,6 +20,7 @@ import Iconify from 'src/components/iconify';
 
 import '../../components/style.css';
 import { fNumber } from 'src/utils/format-number';
+import { height } from '@mui/system';
 
 // ----------------------------------------------------------------------
 
@@ -69,6 +70,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
         borderRadius: 11,
         borderRadiusApplication: 'end', // around
         borderRadiusWhenStacked: 'last', // last
+        ...options.plotOptions.bar,
       },
     },
     stroke: {
@@ -127,20 +129,33 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       },
     },
 
-    yaxis: [{ show: false, min: 0, max: 100, decimalsInFloat: 0 }],
+    yaxis: [{ show: options.plotOptions.bar.horizontal, min: 0, max: 100, decimalsInFloat: 0 }],
   });
 
   // DIMENSÕES
-  const [boxWidth, setWidth] = useState(null);
+  const [boxWidth, setBoxWidth] = useState(null);
+  const [boxHeight, setBoxHeight] = useState(null);
   const boxRef = useCallback((node) => {
     if (node !== null) {
-      setWidth(node.getBoundingClientRect().width);
+      setBoxWidth(node.getBoundingClientRect().width);
+      setBoxHeight(node.getBoundingClientRect().height);
     }
   }, []);
 
-  const _widthPorQuantidade = Number.isInteger(_columnWith)
-    ? getChartSeries().length * _columnWith
-    : 0;
+  const _series = getChartSeries();
+
+  const _widthPorQuantidade = useMemo(
+    () => (Number.isInteger(_columnWith) ? _series.length * _columnWith : 0),
+    [_series]
+  );
+
+  const _heightPorQuantidade = useMemo(() => {
+    return (
+      (_.maxBy(_series, (item) => {
+        return item.data.length;
+      }).data.length ?? 0) * 45
+    );
+  }, [_series]);
 
   const popover = usePopover();
 
@@ -180,22 +195,43 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
           }
         />
 
-        <Grid container justifyContent="space-around">
-          <Grid item xs={12} sx={{ mt: 3 }}>
-            <Box ref={boxRef}>
-              <Scrollbar sx={{ overflowY: 'hidden' }}>
-                <Chart
-                  dir="ltr"
-                  type="bar"
-                  series={getChartSeries()}
-                  options={chartOptions}
-                  height={450}
-                  width={_.max([boxWidth, _widthPorQuantidade])}
-                />
-              </Scrollbar>
-            </Box>
+        {!options.plotOptions.bar.horizontal && (
+          <Grid container justifyContent="space-around">
+            <Grid item xs={12} sx={{ mt: 3 }}>
+              <Box ref={boxRef}>
+                <Scrollbar sx={{ overflowY: 'hidden' }}>
+                  <Chart
+                    dir="ltr"
+                    type="bar"
+                    series={_series}
+                    options={chartOptions}
+                    height={450}
+                    width={_.max([boxWidth, _widthPorQuantidade])}
+                  />
+                </Scrollbar>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
+
+        {options.plotOptions.bar.horizontal && (
+          <Grid
+            item
+            xs={12}
+            sx={{ mt: 3, ...(options.plotOptions.bar.horizontal ? { height: 450 } : {}) }}
+          >
+            <Scrollbar>
+              <Chart
+                dir="ltr"
+                type="bar"
+                series={_series}
+                options={chartOptions}
+                height={_.max([450, _heightPorQuantidade])}
+                width="100%"
+              />
+            </Scrollbar>
+          </Grid>
+        )}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>

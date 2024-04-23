@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import _ from 'lodash';
 
 // @mui
@@ -109,8 +109,8 @@ export default function DashboardDiagnosticaView() {
 
   const [dados, setDados] = useState({
     total_alunos: null,
-    total_alunos_presentes: null,
-    total_alunos_ausentes: null,
+    total_alunos_presentes: { entrada: 0, saida: 0 },
+    total_alunos_ausentes: { entrada: 0, saida: 0 },
     //
     grid_ddz: [],
     grid_escolas: [],
@@ -344,30 +344,38 @@ export default function DashboardDiagnosticaView() {
   };
 
   // TABLE GRID
-  const TABLE_HEAD = [
-    ...(isEscolaFiltered
-      ? [
-          { id: 'escolas', label: 'Escolas', notsortable: true },
-          { id: 'turma', label: 'Turma', notsortable: true },
-        ]
-      : isZonaFiltered
-      ? [
-          { id: 'escolas', label: 'Escolas', notsortable: true },
-          { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
-        ]
-      : [
-          { id: 'collapse', label: '', notsortable: true, width: 30 },
-          { id: 'ddz', label: 'DDZ', notsortable: true },
-          { id: 'escolas', label: 'Escolas', width: 110, notsortable: true },
-          { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
-        ]),
-    { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
-    { id: 'entrada_presentes', label: 'Entrada Presentes', width: 110, notsortable: true },
-    { id: 'entrada_ausentes', label: 'Entrada Ausentes', width: 110, notsortable: true },
-    { id: 'saida_presentes', label: 'Saída Presentes', width: 110, notsortable: true },
-    { id: 'saida_ausentes', label: 'Saída Ausentes', width: 110, notsortable: true },
-    { id: '', width: 88, notsortable: true },
-  ];
+  const TABLE_HEAD = useMemo(
+    () => [
+      ...(isEscolaFiltered
+        ? [
+            { id: 'escolas', label: 'Escolas', notsortable: true },
+            { id: 'turma', label: 'Turma', notsortable: true },
+          ]
+        : isZonaFiltered
+        ? [
+            { id: 'escolas', label: 'Escolas', notsortable: true },
+            { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+          ]
+        : [
+            // use with RowZonaDetailed
+            // { id: 'collapse', label: '', notsortable: true, width: 30 },
+            { id: 'ddz', label: 'DDZ', notsortable: true },
+            { id: 'escolas', label: 'Escolas', width: 110, notsortable: true },
+            { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
+          ]),
+      { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
+      { id: 'entrada_presentes', label: 'Entrada Presentes', width: 110, notsortable: true },
+      { id: 'entrada_ausentes', label: 'Entrada Ausentes', width: 110, notsortable: true },
+      ...(dados.total_alunos_presentes.saida ?? 0 > 0
+        ? [{ id: 'saida_presentes', label: 'Saída Presentes', width: 110, notsortable: true }]
+        : []),
+      ...(dados.total_alunos_ausentes.saida ?? 0 > 0
+        ? [{ id: 'saida_ausentes', label: 'Saída Ausentes', width: 110, notsortable: true }]
+        : []),
+      { id: '', width: 88, notsortable: true },
+    ],
+    [dados]
+  );
 
   const defaultTableFilters = { campo: '' };
 
@@ -417,6 +425,40 @@ export default function DashboardDiagnosticaView() {
   };
 
   // GRÁFICOS
+
+  const auxilarEscolaPorZonaParticipacao = (grid_escolas) => {
+    return grid_escolas.map((item) => {
+      let _entradaPresente = 0;
+      let _entradaAusente = 0;
+
+      let _saidaPresente = 0;
+      let _saidaAusente = 0;
+
+      _.forEach(item.turmas, (_turma) => {
+        const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+        _entradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+        _entradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+
+        const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+        _saidaPresente += _frequenciaSaida['Presente'] ?? 0;
+        _saidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+      });
+
+      const _isToList =
+        _entradaPresente + _entradaAusente > 0 || _saidaPresente + _saidaAusente > 0;
+
+      return {
+        name: item.escola_nome,
+        data: {
+          totalEntradaPresente: _entradaPresente,
+          totalEntradaAusente: _entradaAusente,
+          totalSaidaPresente: _saidaPresente,
+          totalSaidaAusente: _saidaAusente,
+        },
+        isToList: _isToList,
+      };
+    });
+  };
 
   // GRÁFICO 1
   const participacaoGridChartSeries = useCallback(() => {
@@ -500,33 +542,14 @@ export default function DashboardDiagnosticaView() {
 
     // FILTRO POR ZONAS
     if (isZonaFiltered) {
-      const porEscola = dados.grid_escolas.map((item) => {
-        let _entradaPresente = 0;
-        let _entradaAusente = 0;
+      const porEscola = auxilarEscolaPorZonaParticipacao(dados.grid_escolas).filter(
+        (pe) => pe.isToList
+      );
 
-        let _saidaPresente = 0;
-        let _saidaAusente = 0;
-
-        _.forEach(item.turmas, (_turma) => {
-          const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
-          _entradaPresente += _frequenciaEntrada['Presente'] ?? 0;
-          _entradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
-
-          const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
-          _saidaPresente += _frequenciaSaida['Presente'] ?? 0;
-          _saidaAusente += _frequenciaSaida['Ausente'] ?? 0;
-        });
-
-        return {
-          name: item.escola_nome,
-          data: {
-            totalEntradaPresente: _entradaPresente,
-            totalEntradaAusente: _entradaAusente,
-            totalSaidaPresente: _saidaPresente,
-            totalSaidaAusente: _saidaAusente,
-          },
-        };
-      });
+      // _.forEach(_porEscola, (pe) => {
+      //   // if(pe.isToList)
+      //   porEscola.push(pe);
+      // });
 
       series.push({
         tipo: 'Entrada',
@@ -668,9 +691,9 @@ export default function DashboardDiagnosticaView() {
     if (isEscolaFiltered) {
       options = {
         ...options,
-        plotOptions: { bar: { columnWidth: 60 } },
+        plotOptions: { bar: { columnWidth: 60, horizontal: true, barHeight: '80%' } },
         xaxis: {
-          labels: { show: true },
+          labels: { show: false },
           categories: dados.grid_turmas.map(
             (item) => `${item.turma_ano_escolar}º ${item.turma_nome}`
           ),
@@ -679,10 +702,17 @@ export default function DashboardDiagnosticaView() {
     } else if (isZonaFiltered) {
       options = {
         ...options,
-        plotOptions: { bar: { columnWidth: 100 } },
+        plotOptions: {
+          bar: {
+            horizontal: true,
+            barHeight: '80%',
+          },
+        },
         xaxis: {
-          labels: { show: true, trim: true },
-          categories: dados.grid_escolas.map((item) => item.escola_nome),
+          labels: { show: false, trim: true },
+          categories: auxilarEscolaPorZonaParticipacao(dados.grid_escolas)
+            .filter((pe) => pe.isToList)
+            .map((i) => i.name),
         },
       };
     } else {
@@ -945,9 +975,9 @@ export default function DashboardDiagnosticaView() {
               }}
               alignItems="center"
               sx={{
-                position: { md: 'sticky' },
-                top: { md: 64 },
-                zIndex: { md: 1101 },
+                position: { lg: 'sticky' },
+                top: { lg: 64 },
+                zIndex: { lg: 1101 },
 
                 ...bgBlur({
                   color: theme.palette.background.default,
@@ -1120,15 +1150,12 @@ export default function DashboardDiagnosticaView() {
                     (_.sum(_desempenhoGeralChartSeries[0].quantidade) == 0 &&
                       _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0)
                   )
-                    return <></>;
+                    return (
+                      <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container></Grid>
+                    );
 
                   return (
-                    <Grid
-                      xs={12}
-                      key={`desempenho_anoescolar_${_anoEscolar}`}
-                      container
-                      sx={{ position: 'relative' }}
-                    >
+                    <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container>
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`${_anoEscolar}º Ano`}
@@ -1321,7 +1348,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-function RowZona(props) {
+function RowZonaDetailed(props) {
   const { row, filterOnClick, onSetOpen } = props;
 
   const [open, setOpen] = useState(false);
@@ -1355,8 +1382,8 @@ function RowZona(props) {
         <TableCell>{row.qtd_alunos ?? 0}</TableCell>
         <TableCell>{_entradaPresente ?? 0}</TableCell>
         <TableCell>{_entradaAusente ?? 0}</TableCell>
-        <TableCell>{_saidaPresente ?? 0}</TableCell>
-        <TableCell>{_saidaAusente ?? 0}</TableCell>
+        {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
+        {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
             color="primary"
@@ -1408,6 +1435,44 @@ function RowZona(props) {
         </TableCell>
       </TableRow>
     </>
+  );
+}
+
+function RowZona(props) {
+  const { row, filterOnClick, onSetOpen } = props;
+
+  const _frequenciaEntrada = getFrequenciasAssociative(row.qtd_alunos_entrada);
+  let _entradaPresente = _frequenciaEntrada['Presente'] ?? 0;
+  let _entradaAusente = _frequenciaEntrada['Ausente'] ?? 0;
+
+  const _frequenciaSaida = getFrequenciasAssociative(row.qtd_alunos_saida);
+  let _saidaPresente = _frequenciaSaida['Presente'] ?? 0;
+  let _saidaAusente = _frequenciaSaida['Ausente'] ?? 0;
+
+  return (
+    <StyledTableRow
+      key={`tableStyledRowDash_${row.key}`}
+      sx={{ '& > *': { borderBottom: 'unset' } }}
+    >
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.zona_nome}</TableCell>
+      <TableCell>{row.qtd_escolas ?? 0}</TableCell>
+      <TableCell>{row.qtd_turmas ?? 0}</TableCell>
+      <TableCell>{row.qtd_alunos ?? 0}</TableCell>
+      <TableCell>{_entradaPresente ?? 0}</TableCell>
+      <TableCell>{_entradaAusente ?? 0}</TableCell>
+      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
+      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <Button
+          color="primary"
+          variant="contained"
+          size="small"
+          onClick={() => filterOnClick(row.zona_id)}
+        >
+          Ver escolas
+        </Button>
+      </TableCell>
+    </StyledTableRow>
   );
 }
 

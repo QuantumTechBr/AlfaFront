@@ -57,7 +57,3 @@ function result(format, key = '.00') {
   return isInteger ? format.replace(key, '') : format;
 }
 
-export function fNumberBR(number) {
-  // numeral.locale('pt-br');
-  return numeral(number).format();
-}

@@ -482,15 +482,15 @@ export const habilidades_3ano = [
 export const niveis_desempenho = {
   N1: {
     description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      'Nível 1',
   },
   N2: {
     description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      'Nível 2',
   },
   N3: {
     description:
-      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+      'Nível 3',
   },
 };
 

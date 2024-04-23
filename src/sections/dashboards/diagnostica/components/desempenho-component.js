@@ -44,14 +44,9 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
         enabled: true,
         formatter: (val, opts) => {
           let description = niveis_desempenho[val].description;
-          return `${val}<br>${description}`;
+          return description;
         },
-        offsetY: 35,
-        // formatter: undefined,
-        // style: {
-        //   fontSize: 0,
-        //   fontFamily: 0,
-        // },
+        offsetY: 0,
       },
     },
 
