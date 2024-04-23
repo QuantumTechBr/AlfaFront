@@ -12,6 +12,7 @@ import Chart, { useChart } from 'src/components/chart';
 import { CardHeader, Grid } from '@mui/material';
 
 import '../../components/style.css';
+import { fNumber } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ export default function ParticipacaoSemedChart({ title, chartSeries = [], option
       intersect: false,
       y: {
         formatter: (value, opts) => {
-          return `${opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]}`;
+          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
         },
       },
     },
@@ -92,14 +93,15 @@ export default function ParticipacaoSemedChart({ title, chartSeries = [], option
 
     legend: {
       show: true,
+      showForSingleSeries: true,
       position: 'bottom',
-      formatter: (seriesName) => `% ${seriesName}`,
+      // formatter: (seriesName) => `% ${seriesName}`,
       itemMargin: {
         vertical: 30,
       },
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: true, min: 0, max: 100, decimalsInFloat: 0 }],
   });
 
   return (

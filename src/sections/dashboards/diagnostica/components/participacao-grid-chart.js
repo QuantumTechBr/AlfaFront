@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 import _ from 'lodash';
 
@@ -19,6 +19,8 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import Iconify from 'src/components/iconify';
 
 import '../../components/style.css';
+import { fNumber } from 'src/utils/format-number';
+import { height } from '@mui/system';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +33,13 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     const _retorno = chartSeries.filter((item) => item.tipo === _t);
     return _retorno ?? [];
   };
+
+  const memoizedValues = useMemo(
+    () => ({
+      hasSaida: chartSeries.filter((_item) => _item.tipo == 'Saída').length > 0,
+    }),
+    [chartSeries]
+  );
 
   const colors = ['#134EB4', '#009a50'];
   const _columnWith = options.plotOptions.bar.columnWidth;
@@ -58,9 +67,10 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     plotOptions: {
       bar: {
         columnWidth: _columnWith,
-        borderRadius: 0,
+        borderRadius: 11,
         borderRadiusApplication: 'end', // around
         borderRadiusWhenStacked: 'last', // last
+        ...options.plotOptions.bar,
       },
     },
     stroke: {
@@ -91,7 +101,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       intersect: false,
       y: {
         formatter: (value, opts) => {
-          return `${opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]}`;
+          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
         },
       },
     },
@@ -113,26 +123,39 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       show: true,
       position: 'bottom',
       // offsetX: 25,
-      formatter: (seriesName) => `% ${seriesName}`,
+      // formatter: (seriesName) => `% ${seriesName}`,
       itemMargin: {
         vertical: 30,
       },
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: options.plotOptions.bar.horizontal, min: 0, max: 100, decimalsInFloat: 0 }],
   });
 
   // DIMENSÕES
-  const [boxWidth, setWidth] = useState(null);
+  const [boxWidth, setBoxWidth] = useState(null);
+  const [boxHeight, setBoxHeight] = useState(null);
   const boxRef = useCallback((node) => {
     if (node !== null) {
-      setWidth(node.getBoundingClientRect().width);
+      setBoxWidth(node.getBoundingClientRect().width);
+      setBoxHeight(node.getBoundingClientRect().height);
     }
   }, []);
 
-  const _widthPorQuantidade = Number.isInteger(_columnWith)
-    ? getChartSeries().length * _columnWith
-    : 0;
+  const _series = getChartSeries();
+
+  const _widthPorQuantidade = useMemo(
+    () => (Number.isInteger(_columnWith) ? _series.length * _columnWith : 0),
+    [_series]
+  );
+
+  const _heightPorQuantidade = useMemo(() => {
+    return (
+      (_.maxBy(_series, (item) => {
+        return item.data.length;
+      }).data.length ?? 0) * 45
+    );
+  }, [_series]);
 
   const popover = usePopover();
 
@@ -172,22 +195,43 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
           }
         />
 
-        <Grid container justifyContent="space-around">
-          <Grid item xs={12} sx={{ mt: 3 }}>
-            <Box ref={boxRef}>
-              <Scrollbar sx={{ overflowY: 'hidden' }}>
-                <Chart
-                  dir="ltr"
-                  type="bar"
-                  series={getChartSeries()}
-                  options={chartOptions}
-                  height={450}
-                  width={_.max([boxWidth, _widthPorQuantidade])}
-                />
-              </Scrollbar>
-            </Box>
+        {!options.plotOptions.bar.horizontal && (
+          <Grid container justifyContent="space-around">
+            <Grid item xs={12} sx={{ mt: 3 }}>
+              <Box ref={boxRef}>
+                <Scrollbar sx={{ overflowY: 'hidden' }}>
+                  <Chart
+                    dir="ltr"
+                    type="bar"
+                    series={_series}
+                    options={chartOptions}
+                    height={450}
+                    width={_.max([boxWidth, _widthPorQuantidade])}
+                  />
+                </Scrollbar>
+              </Box>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
+
+        {options.plotOptions.bar.horizontal && (
+          <Grid
+            item
+            xs={12}
+            sx={{ mt: 3, ...(options.plotOptions.bar.horizontal ? { height: 450 } : {}) }}
+          >
+            <Scrollbar>
+              <Chart
+                dir="ltr"
+                type="bar"
+                series={_series}
+                options={chartOptions}
+                height={_.max([450, _heightPorQuantidade])}
+                width="100%"
+              />
+            </Scrollbar>
+          </Grid>
+        )}
       </Card>
 
       <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
@@ -198,13 +242,16 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
         >
           Entrada
         </MenuItem>
-        <MenuItem
-          key="MenuItem-Saida"
-          selected={'Saida' === seriesTipo}
-          onClick={() => handleChangeTipo('Saida')}
-        >
-          Saída
-        </MenuItem>
+
+        {memoizedValues.hasSaida && (
+          <MenuItem
+            key="MenuItem-Saida"
+            selected={'Saida' === seriesTipo}
+            onClick={() => handleChangeTipo('Saida')}
+          >
+            Saída
+          </MenuItem>
+        )}
       </CustomPopover>
     </>
   );

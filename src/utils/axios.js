@@ -97,6 +97,7 @@ export const endpoints = {
   },
   dashboard: {
     avaliacao_componente: '/api/v1/dashboards/avaliacao-componente',
+    avaliacao_diagnostico_rede: '/api/v1/dashboards/avaliacao-diagnosticos-rede',
     avaliacao_diagnostico: '/api/v1/dashboards/avaliacao-diagnosticos',
     desempenho_alunos: '/api/v1/dashboards/desempenho-alunos',
     indice_fases: '/api/v1/dashboards/indice-fases',
