@@ -346,7 +346,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         alunos: currentPlano.aplicacao?.alunos ? handleAlunosEdit(currentPlano.aplicacao?.alunos) : [],
       };
       if (currentPlano.aplicacao.turmas) {
-        let etInicial = escolas?.filter((escola) => escola.id == currentPlano.aplicacao?.turmas[0].escola_id)
+        let etInicial = escolas?.filter((escola) => escola?.id == currentPlano?.aplicacao?.turmas[0]?.escola_id)
         setEscolaTurma(etInicial[0]?.id)
       }
       setAplicacaoDefault(novoFiltros);
