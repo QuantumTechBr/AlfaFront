@@ -170,7 +170,7 @@ export default function DashboardDiagnosticaView() {
         _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
 
         if (_frequenciaSaida['Presente'] ?? 0 == 2) {
-          console.log('para');
+          console.log('STOP');
         }
       });
 
@@ -259,7 +259,7 @@ export default function DashboardDiagnosticaView() {
         await Promise.all([
           dashboardsMethods.getDashboardAvaliacaoDiagnosticoRede(fullFilters).then((response) => {
             const result = Object.assign({}, response.data);
-            result.grid_turmas = [];
+            result.grid_turmas = mockData.grid_turmas; // TODO REMOVER DEPOIS DO NILSON RETORNAS DADOS DOS ANOS ESCOLARES
             prepareData(result);
           }),
         ]);
