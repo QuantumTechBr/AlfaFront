@@ -238,7 +238,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       show: false,
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: true, min: 0, max: 100, decimalsInFloat: 0 }],
 
     tooltip: {
       enabled: false,

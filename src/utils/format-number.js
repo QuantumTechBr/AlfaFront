@@ -1,5 +1,26 @@
 import numeral from 'numeral';
 
+numeral.register('locale', 'pt-br', {
+  delimiters: {
+    thousands: '.',
+    decimal: ',',
+  },
+  abbreviations: {
+    thousand: 'mil',
+    million: 'milhões',
+    billion: 'b',
+    trillion: 't',
+  },
+  ordinal: function (number) {
+    return 'º';
+  },
+  currency: {
+    symbol: 'R$',
+  },
+});
+
+numeral.locale('pt-br');
+
 // ----------------------------------------------------------------------
 
 export function fNumber(number) {
@@ -34,4 +55,9 @@ function result(format, key = '.00') {
   const isInteger = format.includes(key);
 
   return isInteger ? format.replace(key, '') : format;
+}
+
+export function fNumberBR(number) {
+  // numeral.locale('pt-br');
+  return numeral(number).format();
 }

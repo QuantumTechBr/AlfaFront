@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 
 import _ from 'lodash';
 
@@ -19,6 +19,7 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import Iconify from 'src/components/iconify';
 
 import '../../components/style.css';
+import { fNumber } from 'src/utils/format-number';
 
 // ----------------------------------------------------------------------
 
@@ -31,6 +32,13 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     const _retorno = chartSeries.filter((item) => item.tipo === _t);
     return _retorno ?? [];
   };
+
+  const memoizedValues = useMemo(
+    () => ({
+      hasSaida: chartSeries.filter((_item) => _item.tipo == 'Saída').length > 0,
+    }),
+    [chartSeries]
+  );
 
   const colors = ['#134EB4', '#009a50'];
   const _columnWith = options.plotOptions.bar.columnWidth;
@@ -58,7 +66,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     plotOptions: {
       bar: {
         columnWidth: _columnWith,
-        borderRadius: 0,
+        borderRadius: 11,
         borderRadiusApplication: 'end', // around
         borderRadiusWhenStacked: 'last', // last
       },
@@ -91,7 +99,7 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       intersect: false,
       y: {
         formatter: (value, opts) => {
-          return `${opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]}`;
+          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
         },
       },
     },
@@ -113,13 +121,13 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       show: true,
       position: 'bottom',
       // offsetX: 25,
-      formatter: (seriesName) => `% ${seriesName}`,
+      // formatter: (seriesName) => `% ${seriesName}`,
       itemMargin: {
         vertical: 30,
       },
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: false, min: 0, max: 100, decimalsInFloat: 0 }],
   });
 
   // DIMENSÕES
@@ -198,13 +206,16 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
         >
           Entrada
         </MenuItem>
-        <MenuItem
-          key="MenuItem-Saida"
-          selected={'Saida' === seriesTipo}
-          onClick={() => handleChangeTipo('Saida')}
-        >
-          Saída
-        </MenuItem>
+
+        {memoizedValues.hasSaida && (
+          <MenuItem
+            key="MenuItem-Saida"
+            selected={'Saida' === seriesTipo}
+            onClick={() => handleChangeTipo('Saida')}
+          >
+            Saída
+          </MenuItem>
+        )}
       </CustomPopover>
     </>
   );
