@@ -1195,12 +1195,12 @@ export default function DashboardDiagnosticaView() {
                           70 +
                           (dataFiltered.length == 0
                             ? 350
-                            : dataFiltered.length *
-                                (!isEscolaFiltered && !isZonaFiltered ? 47 : 43) +
-                              tableRowsExpanded * 300),
-                        // : (dataFiltered.length < table.rowsPerPage
-                        //     ? dataFiltered.length
-                        //     : table.rowsPerPage) * 43),
+                            : (dataFiltered.length < table.rowsPerPage
+                                ? dataFiltered.length
+                                : table.rowsPerPage) * 43),
+                        // : dataFiltered.length *
+                        //     (!isEscolaFiltered && !isZonaFiltered ? 47 : 43) +
+                        //   tableRowsExpanded * 300),
                       }}
                     >
                       <Scrollbar>
@@ -1479,20 +1479,20 @@ function RowZona(props) {
 function RowEscola(props) {
   const { row, filterOnClick } = props;
 
-  let _totalEntradaPresente = 0;
-  let _totalEntradaAusente = 0;
+  let _entradaPresente = 0;
+  let _entradaAusente = 0;
 
-  let _totalSaidaPresente = 0;
-  let _totalSaidaAusente = 0;
+  let _saidaPresente = 0;
+  let _saidaAusente = 0;
 
   _.forEach(row.turmas, (_turma) => {
     const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
-    _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
-    _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+    _entradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+    _entradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
 
     const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
-    _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
-    _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+    _saidaPresente += _frequenciaSaida['Presente'] ?? 0;
+    _saidaAusente += _frequenciaSaida['Ausente'] ?? 0;
   });
 
   return (
@@ -1503,10 +1503,10 @@ function RowEscola(props) {
       <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
       <TableCell>{row.qtd_turmas ?? 0}</TableCell>
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
-      <TableCell>{_totalEntradaPresente ?? 0}</TableCell>
-      <TableCell>{_totalEntradaAusente ?? 0}</TableCell>
-      <TableCell>{_totalSaidaPresente ?? 0}</TableCell>
-      <TableCell>{_totalSaidaAusente ?? 0}</TableCell>
+      <TableCell>{_entradaPresente ?? 0}</TableCell>
+      <TableCell>{_entradaAusente ?? 0}</TableCell>
+      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
+      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"
@@ -1544,8 +1544,8 @@ function RowTurma(props) {
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
       <TableCell>{_entradaPresente ?? 0}</TableCell>
       <TableCell>{_entradaAusente ?? 0}</TableCell>
-      <TableCell>{_saidaPresente ?? 0}</TableCell>
-      <TableCell>{_saidaAusente ?? 0}</TableCell>
+      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
+      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           component={RouterLink}
