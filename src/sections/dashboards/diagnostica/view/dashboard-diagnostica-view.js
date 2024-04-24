@@ -939,6 +939,7 @@ export default function DashboardDiagnosticaView() {
           name: 'Entrada',
           data: _metricas.entrada.map((v) => _percentCalc(v, somaEntrada, 1)),
           quantidade: _metricas.entrada,
+          total: somaEntrada,
         };
       }
 
@@ -947,6 +948,7 @@ export default function DashboardDiagnosticaView() {
           name: 'Saída',
           data: _metricas.saida.map((v) => _percentCalc(v, somaSaida, 1)),
           quantidade: _metricas.saida,
+          total: somaSaida,
         };
       }
 

@@ -86,7 +86,9 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
       intersect: false,
       y: {
         formatter: (value, opts) => {
-          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
+          let _di = opts.dataPointIndex;
+          let _dados = opts.w.config.series[opts.seriesIndex];
+          return `${fNumber(_dados.quantidade[_di])} de ${fNumber(_dados.total)}`;
         },
       },
     },
