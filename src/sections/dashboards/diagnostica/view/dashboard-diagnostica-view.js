@@ -749,33 +749,35 @@ export default function DashboardDiagnosticaView() {
       };
     });
 
-    const _entrada = [
-      porZona.reduce((total, pz) => (total += pz.data.entrada.presentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.entrada.ausentes), 0),
-    ];
+    const _entrada = {
+      presentes: porZona.reduce((total, pz) => (total += pz.data.entrada.presentes), 0),
+      ausentes: porZona.reduce((total, pz) => (total += pz.data.entrada.ausentes), 0),
+    };
 
     _series.push({
       name: 'Entrada',
       data: [
-        _percentCalc(_entrada[0], _entrada[0] + _entrada[1]),
-        _percentCalc(_entrada[1], _entrada[0] + _entrada[1]),
+        _percentCalc(_entrada.presentes, _entrada.presentes + _entrada.ausentes),
+        _percentCalc(_entrada.ausentes, _entrada.presentes + _entrada.ausentes),
       ],
-      quantidade: [_entrada[0], _entrada[1]],
+      quantidade: [_entrada.presentes, _entrada.ausentes],
+      total: _entrada.presentes + _entrada.ausentes,
     });
 
-    const _saida = [
-      porZona.reduce((total, pz) => (total += pz.data.saida.presentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.saida.ausentes), 0),
-    ];
+    const _saida = {
+      presentes: porZona.reduce((total, pz) => (total += pz.data.saida.presentes), 0),
+      ausentes: porZona.reduce((total, pz) => (total += pz.data.saida.ausentes), 0),
+    };
 
     if (_.sum(_saida) > 0) {
       _series.push({
         name: 'Saída',
         data: [
-          _percentCalc(_saida[0], _saida[0] + _saida[1]),
-          _percentCalc(_saida[1], _saida[0] + _saida[1]),
+          _percentCalc(_saida.presentes, _saida.presentes + _saida.ausentes),
+          _percentCalc(_saida.ausentes, _saida.presentes + _saida.ausentes),
         ],
-        quantidade: [_saida[0], _saida[1]],
+        quantidade: [_saida.presentes, _saida.ausentes],
+        total: _saida.presentes + _saida.ausentes,
       });
     }
 
@@ -819,15 +821,15 @@ export default function DashboardDiagnosticaView() {
         });
       } else {
         // SEM FILTRO - REDE
-        _totalEntradaPresente = dados.desempenho_por_ano.entrada[_anoEscolar].quantidade;
+        _totalEntradaPresente = dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0;
         _totalEntradaAusente =
-          dados.desempenho_por_ano.entrada[_anoEscolar].total -
-          dados.desempenho_por_ano.entrada[_anoEscolar].quantidade;
+          (dados.desempenho_por_ano.entrada[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0);
 
-        _totalSaidaPresente = dados.desempenho_por_ano.saida[_anoEscolar].quantidade;
+        _totalSaidaPresente = dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0;
         _totalSaidaAusente =
-          dados.desempenho_por_ano.saida[_anoEscolar].total -
-          dados.desempenho_por_ano.saida[_anoEscolar].quantidade;
+          (dados.desempenho_por_ano.saida[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0);
       }
 
       return {
@@ -843,19 +845,22 @@ export default function DashboardDiagnosticaView() {
       data: metricasPorAno.map((item) =>
         _percentCalc(
           item.totalEntradaPresente,
-          item.totalEntradaPresente + item.totalEntradaAusente
+          item.totalEntradaPresente + item.totalEntradaAusente,
+          1
         )
       ),
       quantidade: metricasPorAno.map((item) => item.totalEntradaPresente),
+      total: metricasPorAno.map((item) => item.totalEntradaPresente + item.totalEntradaAusente),
     });
 
     if (_.sum(metricasPorAno.map((item) => item.totalSaidaPresente)) > 0) {
       series.push({
         name: 'Saída',
         data: metricasPorAno.map((item) =>
-          _percentCalc(item.totalSaidaPresente, item.totalSaidaPresente + item.totalSaidaAusente)
+          _percentCalc(item.totalSaidaPresente, item.totalSaidaPresente + item.totalSaidaAusente, 1)
         ),
         quantidade: metricasPorAno.map((item) => item.totalSaidaPresente),
+        total: metricasPorAno.map((item) => item.totalSaidaPresente + item.totalSaidaAusente),
       });
     }
 
