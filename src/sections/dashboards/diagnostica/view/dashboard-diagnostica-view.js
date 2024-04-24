@@ -932,22 +932,22 @@ export default function DashboardDiagnosticaView() {
         somaSaida = _.sum(_metricas.saida);
       }
 
-      const _series = [];
+      const _series = {};
 
       if (_.sum(_metricas.entrada) > 0) {
-        _series.push({
+        _series['entrada'] = {
           name: 'Entrada',
           data: _metricas.entrada.map((v) => _percentCalc(v, somaEntrada, 1)),
           quantidade: _metricas.entrada,
-        });
+        };
       }
 
       if (somaSaida > 0) {
-        _series.push({
+        _series['saida'] = {
           name: 'Saída',
           data: _metricas.saida.map((v) => _percentCalc(v, somaSaida, 1)),
           quantidade: _metricas.saida,
-        });
+        };
       }
 
       return _series;
@@ -1138,7 +1138,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="SEMED"
-                    chartSeries={desempenhoChartSeries('geral')}
+                    chartSeries={Object.values(desempenhoChartSeries('geral'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1148,7 +1148,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Língua Portuguesa - SEMED"
-                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                    chartSeries={Object.values(desempenhoChartSeries('lingua_portuguesa'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1158,7 +1158,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Matemática - SEMED"
-                    chartSeries={desempenhoChartSeries('matematica')}
+                    chartSeries={Object.values(desempenhoChartSeries('matematica'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1171,9 +1171,9 @@ export default function DashboardDiagnosticaView() {
                 {[1, 2, 3].map((_anoEscolar) => {
                   const _desempenhoGeralChartSeries = desempenhoChartSeries('geral', _anoEscolar);
                   if (
-                    _desempenhoGeralChartSeries.length == 0 ||
-                    (_.sum(_desempenhoGeralChartSeries[0].quantidade) == 0 &&
-                      _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0)
+                    Object.values(_desempenhoGeralChartSeries).length == 0 ||
+                    (_.sum(_desempenhoGeralChartSeries.entrada?.quantidade ?? 0) == 0 &&
+                      _.sum(_desempenhoGeralChartSeries.saida?.quantidade ?? 0) == 0)
                   )
                     return (
                       <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container></Grid>
@@ -1191,14 +1191,18 @@ export default function DashboardDiagnosticaView() {
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`Língua Portuguesa - ${_anoEscolar}º Ano`}
-                          chartSeries={desempenhoChartSeries('lingua_portuguesa', _anoEscolar)}
+                          chartSeries={Object.values(
+                            desempenhoChartSeries('lingua_portuguesa', _anoEscolar)
+                          )}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`Matemática - ${_anoEscolar}º Ano`}
-                          chartSeries={desempenhoChartSeries('matematica', _anoEscolar)}
+                          chartSeries={Object.values(
+                            desempenhoChartSeries('matematica', _anoEscolar)
+                          )}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
