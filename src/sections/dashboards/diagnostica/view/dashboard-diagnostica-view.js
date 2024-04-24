@@ -75,8 +75,6 @@ import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
 import DesempenhoComponent from '../components/desempenho-component';
 
-import mockData from '../mock.json';
-
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
 
@@ -111,6 +109,11 @@ export default function DashboardDiagnosticaView() {
     total_alunos: null,
     total_alunos_presentes: { entrada: 0, saida: 0 },
     total_alunos_ausentes: { entrada: 0, saida: 0 },
+    //
+    desempenho_por_ano: {
+      entrada: { 1: 0, 2: 0, 3: 0 },
+      saida: { 1: 0, 2: 0, 3: 0 },
+    },
     //
     grid_ddz: [],
     grid_escolas: [],
@@ -168,10 +171,6 @@ export default function DashboardDiagnosticaView() {
         const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
         _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
         _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
-
-        if (_frequenciaSaida['Presente'] ?? 0 == 2) {
-          console.log('STOP');
-        }
       });
 
       const _qtd_alunos_entrada_saida = {
@@ -259,7 +258,6 @@ export default function DashboardDiagnosticaView() {
         await Promise.all([
           dashboardsMethods.getDashboardAvaliacaoDiagnosticoRede(fullFilters).then((response) => {
             const result = Object.assign({}, response.data);
-            result.grid_turmas = mockData.grid_turmas; // TODO REMOVER DEPOIS DO NILSON RETORNAR DADOS DOS ANOS ESCOLARES
             prepareData(result);
           }),
         ]);
@@ -799,25 +797,38 @@ export default function DashboardDiagnosticaView() {
     const series = [];
 
     const metricasPorAno = [1, 2, 3].map((_anoEscolar) => {
-      const _turmasDoAnoEscolar = dados.grid_turmas.filter(
-        (_turma) => _turma.turma_ano_escolar == _anoEscolar
-      );
-
       let _totalEntradaPresente = 0;
       let _totalEntradaAusente = 0;
 
       let _totalSaidaPresente = 0;
       let _totalSaidaAusente = 0;
 
-      _turmasDoAnoEscolar.forEach((_turma) => {
-        const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
-        _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
-        _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+      if (isEscolaFiltered || isZonaFiltered) {
+        const _turmasDoAnoEscolar = dados.grid_turmas.filter(
+          (_turma) => _turma.turma_ano_escolar == _anoEscolar
+        );
 
-        const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
-        _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
-        _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
-      });
+        _turmasDoAnoEscolar.forEach((_turma) => {
+          const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+          _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+          _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+
+          const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+          _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+          _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+        });
+      } else {
+        // SEM FILTRO - REDE
+        _totalEntradaPresente = dados.desempenho_por_ano.entrada[_anoEscolar].quantidade;
+        _totalEntradaAusente =
+          dados.desempenho_por_ano.entrada[_anoEscolar].total -
+          dados.desempenho_por_ano.entrada[_anoEscolar].quantidade;
+
+        _totalSaidaPresente = dados.desempenho_por_ano.saida[_anoEscolar].quantidade;
+        _totalSaidaAusente =
+          dados.desempenho_por_ano.saida[_anoEscolar].total -
+          dados.desempenho_por_ano.saida[_anoEscolar].quantidade;
+      }
 
       return {
         totalEntradaPresente: _totalEntradaPresente,
