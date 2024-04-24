@@ -1186,7 +1186,7 @@ export default function DashboardDiagnosticaView() {
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`${_anoEscolar}º Ano`}
-                          chartSeries={_desempenhoGeralChartSeries}
+                          chartSeries={Object.values(_desempenhoGeralChartSeries)}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
