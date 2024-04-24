@@ -479,6 +479,21 @@ export const habilidades_3ano = [
   },
 ];
 
+export const niveis_desempenho = {
+  N1: {
+    description:
+      'Nível 1',
+  },
+  N2: {
+    description:
+      'Nível 2',
+  },
+  N3: {
+    description:
+      'Nível 3',
+  },
+};
+
 export const _turnos = ['matutino', 'vespertino', 'noturno', 'integral'];
 
 export const preDefinedZonaOrder = {

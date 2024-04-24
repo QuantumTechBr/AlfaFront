@@ -12,12 +12,15 @@ import Chart, { useChart } from 'src/components/chart';
 import { CardHeader, Grid } from '@mui/material';
 
 import '../../components/style.css';
+import { fNumber } from 'src/utils/format-number';
+
+import { niveis_desempenho } from 'src/_mock/assets';
 
 // ----------------------------------------------------------------------
 
 export default function DesempenhoComponent({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
-  const colors = ['#d11400', '#134EB4', '#009a50'];
+  const colors = ['#134EB4', '#009a50', '#0DACEB'];
 
   const chartOptions = useChart({
     colors: colors,
@@ -37,6 +40,14 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
 
     xaxis: {
       categories: ['N1', 'N2', 'N3'],
+      tooltip: {
+        enabled: true,
+        formatter: (val, opts) => {
+          let description = niveis_desempenho[val].description;
+          return description;
+        },
+        offsetY: 0,
+      },
     },
 
     plotOptions: {
@@ -75,7 +86,7 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
       intersect: false,
       y: {
         formatter: (value, opts) => {
-          return `${opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]}`;
+          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
         },
       },
     },
@@ -97,7 +108,8 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
       show: false,
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: true, min: 0, max: 100, decimalsInFloat: 0 }],
+    ...options,
   });
 
   return (
