@@ -75,8 +75,6 @@ import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
 import DesempenhoComponent from '../components/desempenho-component';
 
-import mockData from '../mock.json';
-
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
 
@@ -111,6 +109,11 @@ export default function DashboardDiagnosticaView() {
     total_alunos: null,
     total_alunos_presentes: { entrada: 0, saida: 0 },
     total_alunos_ausentes: { entrada: 0, saida: 0 },
+    //
+    desempenho_por_ano: {
+      entrada: { 1: 0, 2: 0, 3: 0 },
+      saida: { 1: 0, 2: 0, 3: 0 },
+    },
     //
     grid_ddz: [],
     grid_escolas: [],
@@ -168,10 +171,6 @@ export default function DashboardDiagnosticaView() {
         const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
         _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
         _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
-
-        if (_frequenciaSaida['Presente'] ?? 0 == 2) {
-          console.log('STOP');
-        }
       });
 
       const _qtd_alunos_entrada_saida = {
@@ -259,7 +258,6 @@ export default function DashboardDiagnosticaView() {
         await Promise.all([
           dashboardsMethods.getDashboardAvaliacaoDiagnosticoRede(fullFilters).then((response) => {
             const result = Object.assign({}, response.data);
-            result.grid_turmas = mockData.grid_turmas; // TODO REMOVER DEPOIS DO NILSON RETORNAR DADOS DOS ANOS ESCOLARES
             prepareData(result);
           }),
         ]);
@@ -751,33 +749,35 @@ export default function DashboardDiagnosticaView() {
       };
     });
 
-    const _entrada = [
-      porZona.reduce((total, pz) => (total += pz.data.entrada.presentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.entrada.ausentes), 0),
-    ];
+    const _entrada = {
+      presentes: porZona.reduce((total, pz) => (total += pz.data.entrada.presentes), 0),
+      ausentes: porZona.reduce((total, pz) => (total += pz.data.entrada.ausentes), 0),
+    };
 
     _series.push({
       name: 'Entrada',
       data: [
-        _percentCalc(_entrada[0], _entrada[0] + _entrada[1]),
-        _percentCalc(_entrada[1], _entrada[0] + _entrada[1]),
+        _percentCalc(_entrada.presentes, _entrada.presentes + _entrada.ausentes),
+        _percentCalc(_entrada.ausentes, _entrada.presentes + _entrada.ausentes),
       ],
-      quantidade: [_entrada[0], _entrada[1]],
+      quantidade: [_entrada.presentes, _entrada.ausentes],
+      total: _entrada.presentes + _entrada.ausentes,
     });
 
-    const _saida = [
-      porZona.reduce((total, pz) => (total += pz.data.saida.presentes), 0),
-      porZona.reduce((total, pz) => (total += pz.data.saida.ausentes), 0),
-    ];
+    const _saida = {
+      presentes: porZona.reduce((total, pz) => (total += pz.data.saida.presentes), 0),
+      ausentes: porZona.reduce((total, pz) => (total += pz.data.saida.ausentes), 0),
+    };
 
     if (_.sum(_saida) > 0) {
       _series.push({
         name: 'Saída',
         data: [
-          _percentCalc(_saida[0], _saida[0] + _saida[1]),
-          _percentCalc(_saida[1], _saida[0] + _saida[1]),
+          _percentCalc(_saida.presentes, _saida.presentes + _saida.ausentes),
+          _percentCalc(_saida.ausentes, _saida.presentes + _saida.ausentes),
         ],
-        quantidade: [_saida[0], _saida[1]],
+        quantidade: [_saida.presentes, _saida.ausentes],
+        total: _saida.presentes + _saida.ausentes,
       });
     }
 
@@ -799,25 +799,38 @@ export default function DashboardDiagnosticaView() {
     const series = [];
 
     const metricasPorAno = [1, 2, 3].map((_anoEscolar) => {
-      const _turmasDoAnoEscolar = dados.grid_turmas.filter(
-        (_turma) => _turma.turma_ano_escolar == _anoEscolar
-      );
-
       let _totalEntradaPresente = 0;
       let _totalEntradaAusente = 0;
 
       let _totalSaidaPresente = 0;
       let _totalSaidaAusente = 0;
 
-      _turmasDoAnoEscolar.forEach((_turma) => {
-        const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
-        _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
-        _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+      if (isEscolaFiltered || isZonaFiltered) {
+        const _turmasDoAnoEscolar = dados.grid_turmas.filter(
+          (_turma) => _turma.turma_ano_escolar == _anoEscolar
+        );
 
-        const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
-        _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
-        _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
-      });
+        _turmasDoAnoEscolar.forEach((_turma) => {
+          const _frequenciaEntrada = getFrequenciasAssociative(_turma.qtd_alunos_entrada);
+          _totalEntradaPresente += _frequenciaEntrada['Presente'] ?? 0;
+          _totalEntradaAusente += _frequenciaEntrada['Ausente'] ?? 0;
+
+          const _frequenciaSaida = getFrequenciasAssociative(_turma.qtd_alunos_saida);
+          _totalSaidaPresente += _frequenciaSaida['Presente'] ?? 0;
+          _totalSaidaAusente += _frequenciaSaida['Ausente'] ?? 0;
+        });
+      } else {
+        // SEM FILTRO - REDE
+        _totalEntradaPresente = dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0;
+        _totalEntradaAusente =
+          (dados.desempenho_por_ano.entrada[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0);
+
+        _totalSaidaPresente = dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0;
+        _totalSaidaAusente =
+          (dados.desempenho_por_ano.saida[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0);
+      }
 
       return {
         totalEntradaPresente: _totalEntradaPresente,
@@ -832,19 +845,22 @@ export default function DashboardDiagnosticaView() {
       data: metricasPorAno.map((item) =>
         _percentCalc(
           item.totalEntradaPresente,
-          item.totalEntradaPresente + item.totalEntradaAusente
+          item.totalEntradaPresente + item.totalEntradaAusente,
+          1
         )
       ),
       quantidade: metricasPorAno.map((item) => item.totalEntradaPresente),
+      total: metricasPorAno.map((item) => item.totalEntradaPresente + item.totalEntradaAusente),
     });
 
     if (_.sum(metricasPorAno.map((item) => item.totalSaidaPresente)) > 0) {
       series.push({
         name: 'Saída',
         data: metricasPorAno.map((item) =>
-          _percentCalc(item.totalSaidaPresente, item.totalSaidaPresente + item.totalSaidaAusente)
+          _percentCalc(item.totalSaidaPresente, item.totalSaidaPresente + item.totalSaidaAusente, 1)
         ),
         quantidade: metricasPorAno.map((item) => item.totalSaidaPresente),
+        total: metricasPorAno.map((item) => item.totalSaidaPresente + item.totalSaidaAusente),
       });
     }
 
@@ -916,22 +932,24 @@ export default function DashboardDiagnosticaView() {
         somaSaida = _.sum(_metricas.saida);
       }
 
-      const _series = [];
+      const _series = {};
 
       if (_.sum(_metricas.entrada) > 0) {
-        _series.push({
+        _series['entrada'] = {
           name: 'Entrada',
           data: _metricas.entrada.map((v) => _percentCalc(v, somaEntrada, 1)),
           quantidade: _metricas.entrada,
-        });
+          total: somaEntrada,
+        };
       }
 
       if (somaSaida > 0) {
-        _series.push({
+        _series['saida'] = {
           name: 'Saída',
           data: _metricas.saida.map((v) => _percentCalc(v, somaSaida, 1)),
           quantidade: _metricas.saida,
-        });
+          total: somaSaida,
+        };
       }
 
       return _series;
@@ -1122,7 +1140,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="SEMED"
-                    chartSeries={desempenhoChartSeries('geral')}
+                    chartSeries={Object.values(desempenhoChartSeries('geral'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1132,7 +1150,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Língua Portuguesa - SEMED"
-                    chartSeries={desempenhoChartSeries('lingua_portuguesa')}
+                    chartSeries={Object.values(desempenhoChartSeries('lingua_portuguesa'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1142,7 +1160,7 @@ export default function DashboardDiagnosticaView() {
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title="Matemática - SEMED"
-                    chartSeries={desempenhoChartSeries('matematica')}
+                    chartSeries={Object.values(desempenhoChartSeries('matematica'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
@@ -1155,9 +1173,9 @@ export default function DashboardDiagnosticaView() {
                 {[1, 2, 3].map((_anoEscolar) => {
                   const _desempenhoGeralChartSeries = desempenhoChartSeries('geral', _anoEscolar);
                   if (
-                    _desempenhoGeralChartSeries.length == 0 ||
-                    (_.sum(_desempenhoGeralChartSeries[0].quantidade) == 0 &&
-                      _.sum(_desempenhoGeralChartSeries[1].quantidade) == 0)
+                    Object.values(_desempenhoGeralChartSeries).length == 0 ||
+                    (_.sum(_desempenhoGeralChartSeries.entrada?.quantidade ?? 0) == 0 &&
+                      _.sum(_desempenhoGeralChartSeries.saida?.quantidade ?? 0) == 0)
                   )
                     return (
                       <Grid xs={12} key={`desempenho_anoescolar_${_anoEscolar}`} container></Grid>
@@ -1168,21 +1186,25 @@ export default function DashboardDiagnosticaView() {
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`${_anoEscolar}º Ano`}
-                          chartSeries={_desempenhoGeralChartSeries}
+                          chartSeries={Object.values(_desempenhoGeralChartSeries)}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`Língua Portuguesa - ${_anoEscolar}º Ano`}
-                          chartSeries={desempenhoChartSeries('lingua_portuguesa', _anoEscolar)}
+                          chartSeries={Object.values(
+                            desempenhoChartSeries('lingua_portuguesa', _anoEscolar)
+                          )}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
                       <Grid xs={12} lg={4}>
                         <DesempenhoComponent
                           title={`Matemática - ${_anoEscolar}º Ano`}
-                          chartSeries={desempenhoChartSeries('matematica', _anoEscolar)}
+                          chartSeries={Object.values(
+                            desempenhoChartSeries('matematica', _anoEscolar)
+                          )}
                           sx={{ overflow: 'visible' }}
                         />
                       </Grid>
