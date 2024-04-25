@@ -994,7 +994,7 @@ export default function DashboardDiagnosticaView() {
               alignItems="center"
               sx={{
                 position: { lg: 'sticky' },
-                top: { lg: 64 },
+                top: { lg:  window.screen.width > 1740 ? 0 : 64 },
                 zIndex: { lg: 1101 },
 
                 ...bgBlur({
