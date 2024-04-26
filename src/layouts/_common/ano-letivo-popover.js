@@ -111,14 +111,14 @@ export default function AnoLetivoPopover({ sx }) {
           <Dialog open={dialogCarregandoInformacoes.value} disableEscapeKeyDown={true}>
             <Box p={5}>
               <LoadingBox
-                texto="Carregando informações de turmas e bimestres"
+                texto="Carregando de turmas e bimestres"
                 sx={{
                   height: 50,
                   textAlign: 'center',
                 }}
               />
               <Typography textAlign="center" variant="body2" fontWeight="bold" mt={2}>
-                então aplique os filtros da sua pesquisa novamente
+                então aplique novamente os filtros da sua pesquisa
               </Typography>
             </Box>
           </Dialog>
