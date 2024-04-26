@@ -34,13 +34,13 @@ export default function AnoLetivoPopover({ sx }) {
   const preparacaoInicialRunned = useBoolean(false);
 
   const popover = usePopover();
-  const dialogAtualizandoInformacoes = useBoolean();
+  const dialogCarregandoInformacoes = useBoolean();
 
   const handleChangeAnoLetivo = useCallback(
     (newValue) => {
       changeAnoLetivo(newValue);
 
-      dialogAtualizandoInformacoes.onTrue();
+      dialogCarregandoInformacoes.onTrue();
       popover.onClose();
 
       const promiseList = [
@@ -53,8 +53,9 @@ export default function AnoLetivoPopover({ sx }) {
           }),
       ];
 
-      Promise.all([setTimeout(() => {}, 500), ...promiseList]).then(() => {
-        dialogAtualizandoInformacoes.onFalse();
+      // AGUARDE MINIMO DE 4s PARA VISUALIZAÇÃO DAS MENSAGENS
+      Promise.all([_.delay(() => {}, 4000), ...promiseList]).then(() => {
+        dialogCarregandoInformacoes.onFalse();
       });
     },
     [anosLetivos, popover]
@@ -112,15 +113,18 @@ export default function AnoLetivoPopover({ sx }) {
             ))}
           </CustomPopover>
 
-          <Dialog open={dialogAtualizandoInformacoes.value} disableEscapeKeyDown={true}>
+          <Dialog open={dialogCarregandoInformacoes.value} disableEscapeKeyDown={true}>
             <Box p={5}>
               <LoadingBox
-                texto="Atualizando informações"
+                texto="Carregando informações de escolas, turmas e bimestres"
                 sx={{
                   height: 50,
                   textAlign: 'center',
                 }}
-              ></LoadingBox>
+              />
+              <Typography textAlign="center" variant="body2" fontWeight="bold" mt={2}>
+                então aplique os filtros da sua pesquisa novamente
+              </Typography>
             </Box>
           </Dialog>
         </Box>
