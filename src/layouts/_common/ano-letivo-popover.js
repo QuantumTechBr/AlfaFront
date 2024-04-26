@@ -112,7 +112,7 @@ export default function AnoLetivoPopover({ sx }) {
           <Dialog open={dialogCarregandoInformacoes.value} disableEscapeKeyDown={true}>
             <Box p={5}>
               <LoadingBox
-                texto="Carregando de turmas e bimestres"
+                texto="Carregando turmas e bimestres"
                 sx={{
                   height: 50,
                   textAlign: 'center',
