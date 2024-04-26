@@ -8,29 +8,54 @@ import { useBoolean } from 'src/hooks/use-boolean';
 
 // @mui
 import MenuItem from '@mui/material/MenuItem';
+import { Box, Dialog, Button, Typography } from '@mui/material';
+
 // context
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
-import { Box, Button, Typography } from '@mui/material';
+import LoadingBox from 'src/components/helpers/loading-box';
 
 // ----------------------------------------------------------------------
 
 export default function AnoLetivoPopover({ sx }) {
-  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo, changeAnoLetivo } =
+  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo, localStorageAnoLetivo, changeAnoLetivo } =
     useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
+
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
 
   const popover = usePopover();
+  const dialogAtualizandoInformacoes = useBoolean();
 
   const handleChangeAnoLetivo = useCallback(
     (newValue) => {
       changeAnoLetivo(newValue);
-      // TODO MODAL DE ALERTA PARA REAPLICAR FILTROS
+
+      dialogAtualizandoInformacoes.onTrue();
       popover.onClose();
+
+      const promiseList = [
+        buscaEscolas({ force: true })
+          .then(async () => {
+            await buscaTurmas({ force: true });
+          })
+          .then(async () => {
+            await buscaBimestres({ force: true });
+          }),
+      ];
+
+      Promise.all([setTimeout(() => {}, 500), ...promiseList]).then(() => {
+        dialogAtualizandoInformacoes.onFalse();
+      });
     },
     [anosLetivos, popover]
   );
@@ -40,8 +65,8 @@ export default function AnoLetivoPopover({ sx }) {
       preparacaoInicialRunned.onTrue();
       Promise.all([
         buscaAnosLetivos().then((_anosLetivos) => {
-          if (!systemAnoLetivo || systemAnoLetivo == '') {
-            changeAnoLetivo(_.first(_anosLetivos).ano);
+          if (!localStorageAnoLetivo) {
+            changeAnoLetivo(_.first(_anosLetivos));
           }
         }),
       ]).then(() => {
@@ -78,14 +103,26 @@ export default function AnoLetivoPopover({ sx }) {
             {anosLetivos.map((option) => (
               <MenuItem
                 key={option.id}
-                selected={option.ano === systemAnoLetivo.ano}
-                onClick={() => handleChangeAnoLetivo(option.ano)}
+                selected={option.ano === (systemAnoLetivo?.ano ?? '')}
+                onClick={() => handleChangeAnoLetivo(option)}
                 sx={{ textAlign: 'center' }}
               >
                 <Typography width="100%">{option.ano}</Typography>
               </MenuItem>
             ))}
           </CustomPopover>
+
+          <Dialog open={dialogAtualizandoInformacoes.value} disableEscapeKeyDown={true}>
+            <Box p={5}>
+              <LoadingBox
+                texto="Atualizando informações"
+                sx={{
+                  height: 50,
+                  textAlign: 'center',
+                }}
+              ></LoadingBox>
+            </Box>
+          </Dialog>
         </Box>
       )}
     </>

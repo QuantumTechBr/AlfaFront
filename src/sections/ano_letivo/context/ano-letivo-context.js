@@ -1,6 +1,7 @@
 import { createContext, useState, useCallback } from 'react';
 import anoLetivoMethods from '../ano-letivo-repository';
 import { useLocalStorage } from 'src/hooks/use-local-storage';
+import _ from 'lodash';
 
 export const AnosLetivosContext = createContext();
 
@@ -30,13 +31,17 @@ export const AnosLetivosProvider = ({ children }) => {
 
   //
   const STORAGE_KEY = 'anoLetivo';
-  const [localStorageAnoLetivo, _setLocalStorateAnoLetivo] = useLocalStorage(STORAGE_KEY, '');
+  const [localStorageAnoLetivo, _setLocalStorateAnoLetivo] = useLocalStorage(STORAGE_KEY, {});
 
-  const systemAnoLetivo = anosLetivos.find((item) => item.ano == localStorageAnoLetivo);
+  const systemAnoLetivo =
+    anosLetivos.find((item) => item.ano == (localStorageAnoLetivo?.ano ?? '')) ||
+    _.first(anosLetivos);
 
   const changeAnoLetivo = useCallback(
     (newValue) => {
-      _setLocalStorateAnoLetivo(newValue);
+      if (newValue) {
+        _setLocalStorateAnoLetivo(newValue);
+      }
     },
     [anosLetivos]
   );
