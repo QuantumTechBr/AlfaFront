@@ -20,6 +20,7 @@ import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { later } from 'src/utils/functions';
 
 // ----------------------------------------------------------------------
 
@@ -49,7 +50,7 @@ export default function AnoLetivoPopover({ sx }) {
       ];
 
       // AGUARDE MINIMO DE 6s PARA VISUALIZAÇÃO DAS MENSAGENS
-      Promise.all([_.delay(() => {}, 6000), ...promiseList]).then(() => {
+      Promise.all([later(6000), ...promiseList]).then(() => {
         dialogCarregandoInformacoes.onFalse();
       });
     },

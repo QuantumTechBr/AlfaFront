@@ -47,3 +47,7 @@ export function saveCSVFile(filename, data) {
 export const relativePercentageDifference = (a, b) => 
   Math.abs( ( ( a - b ) / ( ( a + b ) / 2 ) ) * 100 );
 export const percentageChange = (a, b) => ( b / a * 100 ) - 100;
+
+export function later(delay, value) {
+  return new Promise(resolve => setTimeout(resolve, delay, value));
+}
