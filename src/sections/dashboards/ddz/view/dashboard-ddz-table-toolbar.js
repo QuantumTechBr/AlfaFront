@@ -21,16 +21,10 @@ import { necessidades_especiais } from 'src/_mock';
 export default function DashboardDDZTableToolbar({
   filters,
   onFilters,
-  anoLetivoOptions,
   ddzOptions,
   anoEscolarOptions,
 }) {
   const { user } = useContext(AuthContext);
-
-  const handleFilterAnoLetivo = useCallback(
-    (event) => onFilters('anoLetivo', event.target.value),
-    [onFilters]
-  );
 
   const handleFilterZona = useCallback(
     (event) => {
@@ -55,31 +49,6 @@ export default function DashboardDDZTableToolbar({
 
   return (
     <Grid container spacing={2}>
-      {anoLetivoOptions && anoLetivoOptions.length > 0 && (
-        <Grid xs={6} md="auto">
-          <FormControl sx={{ width: { xs: '100%', md: 120 } }}>
-            <InputLabel size="small">Ano Letivo</InputLabel>
-
-            <Select
-              size="small"
-              value={filters.anoLetivo}
-              onChange={handleFilterAnoLetivo}
-              input={<OutlinedInput fullWidth label="Ano Letivo" />}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {anoLetivoOptions.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  {option.ano}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Grid>
-      )}
       {ddzOptions && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 140 } }}>
@@ -205,7 +174,6 @@ export default function DashboardDDZTableToolbar({
 DashboardDDZTableToolbar.propTypes = {
   filters: PropTypes.object,
   onFilters: PropTypes.func,
-  anoLetivoOptions: PropTypes.array,
   ddzOptions: PropTypes.array,
   anoEscolarOptions: PropTypes.array,
 };

@@ -59,7 +59,7 @@ export default function DashboardTurmaView() {
   const initialTurma = searchParams.get('turma');
 
   const { user } = useContext(AuthContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
@@ -76,7 +76,6 @@ export default function DashboardTurmaView() {
   const [zonaFiltro, setZonaFiltro] = useState([]);
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
     zona: zonaFiltro,
     escola: [],
     turma: [],
@@ -175,9 +174,7 @@ export default function DashboardTurmaView() {
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const payloadFilters = {
-        ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
-        ],
+        ano_letivo: [systemAnoLetivo.id],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _filtersToSearch.turma.map((item) => item.id),
@@ -291,7 +288,6 @@ export default function DashboardTurmaView() {
 
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
         zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
         escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
         turma: _turma.length > 0 ? _turma : turmas.length == 1 ? turmas : [],
@@ -313,7 +309,6 @@ export default function DashboardTurmaView() {
     }
     setZonaFiltro(_zonaFiltro);
     setFilters({
-      anoLetivo: '',
       zona: _zonaFiltro,
       escola: [],
       turma: [],
@@ -329,7 +324,6 @@ export default function DashboardTurmaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
@@ -473,7 +467,6 @@ export default function DashboardTurmaView() {
                 <DashboardTurmaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
-                  anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
                   escolaOptions={_escolasFiltered || escolas}
                   anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>

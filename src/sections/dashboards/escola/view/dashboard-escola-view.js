@@ -74,7 +74,7 @@ export default function DashboardEscolaView() {
   const initialEscola = searchParams.get('escola');
 
   const { user } = useContext(AuthContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [_escolasFiltered, setEscolasFiltered] = useState([]);
@@ -87,7 +87,6 @@ export default function DashboardEscolaView() {
   const [escolaFiltro, setEscolaFiltro] = useState([]);
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
     zona: [],
     escola: [],
     turma: [],
@@ -117,9 +116,7 @@ export default function DashboardEscolaView() {
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
-        ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
-        ],
+        ano_letivo: [systemAnoLetivo.id],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _.flatten(
@@ -243,7 +240,6 @@ export default function DashboardEscolaView() {
         ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -279,7 +275,6 @@ export default function DashboardEscolaView() {
 
   const filtroReset = () => {
     setFilters({
-      anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
       turma: [],
@@ -411,7 +406,6 @@ export default function DashboardEscolaView() {
                 <DashboardEscolaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
-                  anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
                   escolaOptions={_escolasFiltered || escolas}
                   anoEscolarOptions={[1, 2, 3]}

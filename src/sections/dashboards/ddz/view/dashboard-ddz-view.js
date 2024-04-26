@@ -80,7 +80,7 @@ export default function DashboardDDZView() {
   const initialZona = searchParams.get('zona');
 
   const { user } = useContext(AuthContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
@@ -90,7 +90,6 @@ export default function DashboardDDZView() {
   const [zonaFiltro, setZonaFiltro] = useState('');
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
     zona: zonaFiltro,
     anoEscolar: [],
     pne: '-',
@@ -118,9 +117,7 @@ export default function DashboardDDZView() {
       const _filtersToSearch = _filters ?? filters;
       isGettingGraphics.onTrue();
       const fullFilters = {
-        ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
-        ],
+        ano_letivo: [systemAnoLetivo.id],
         ddz: [_filtersToSearch.zona?.id],
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
@@ -233,7 +230,6 @@ export default function DashboardDDZView() {
       const _filters = {
         ...filters,
         zona: _zonaFiltro,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);
@@ -365,7 +361,6 @@ export default function DashboardDDZView() {
                 <DashboardDDZTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
-                  anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
                   anoEscolarOptions={[1, 2, 3]}
                 />

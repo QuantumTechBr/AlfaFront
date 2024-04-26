@@ -67,7 +67,7 @@ export default function DashboardRedeView() {
   const theme = useTheme();
   const settings = useSettingsContext();
 
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, systemAnoLetivo } = useContext(AnosLetivosContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
 
   const contextReady = useBoolean(false);
@@ -75,7 +75,6 @@ export default function DashboardRedeView() {
   const isGettingGraphics = useBoolean(true);
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
     turma: [],
     anoEscolar: [],
     pne: '-',
@@ -104,10 +103,7 @@ export default function DashboardRedeView() {
 
       isGettingGraphics.onTrue();
       const fullFilters = {
-        ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos))
-            ?.id,
-        ],
+        ano_letivo: [systemAnoLetivo.id],
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
             return getTurmasPorAnoEscolar(aE);
@@ -202,7 +198,6 @@ export default function DashboardRedeView() {
     if (contextReady.value) {
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);
@@ -341,7 +336,6 @@ export default function DashboardRedeView() {
                 <DashboardRedeTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
-                  anoLetivoOptions={anosLetivos}
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>
