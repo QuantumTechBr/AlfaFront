@@ -26,7 +26,6 @@ import LoadingBox from 'src/components/helpers/loading-box';
 export default function AnoLetivoPopover({ sx }) {
   const { anosLetivos, buscaAnosLetivos, systemAnoLetivo, localStorageAnoLetivo, changeAnoLetivo } =
     useContext(AnosLetivosContext);
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
 
@@ -44,13 +43,9 @@ export default function AnoLetivoPopover({ sx }) {
       popover.onClose();
 
       const promiseList = [
-        buscaEscolas({ force: true })
-          .then(async () => {
-            await buscaTurmas({ force: true });
-          })
-          .then(async () => {
-            await buscaBimestres({ force: true });
-          }),
+        buscaTurmas({ force: true }).then(async () => {
+          await buscaBimestres({ force: true });
+        }),
       ];
 
       // AGUARDE MINIMO DE 4s PARA VISUALIZAÇÃO DAS MENSAGENS
@@ -116,7 +111,7 @@ export default function AnoLetivoPopover({ sx }) {
           <Dialog open={dialogCarregandoInformacoes.value} disableEscapeKeyDown={true}>
             <Box p={5}>
               <LoadingBox
-                texto="Carregando informações de escolas, turmas e bimestres"
+                texto="Carregando informações de turmas e bimestres"
                 sx={{
                   height: 50,
                   textAlign: 'center',
