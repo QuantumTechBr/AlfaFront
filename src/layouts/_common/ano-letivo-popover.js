@@ -68,7 +68,7 @@ export default function AnoLetivoPopover({ sx }) {
               }),
             }}
           >
-            {systemAnoLetivo || '-'}
+            {systemAnoLetivo?.ano || '-'}
           </Button>
 
           <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 160 }}>
@@ -78,7 +78,7 @@ export default function AnoLetivoPopover({ sx }) {
             {anosLetivos.map((option) => (
               <MenuItem
                 key={option.id}
-                selected={option.ano === systemAnoLetivo}
+                selected={option.ano === systemAnoLetivo.ano}
                 onClick={() => handleChangeAnoLetivo(option.ano)}
                 sx={{ textAlign: 'center' }}
               >

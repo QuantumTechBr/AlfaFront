@@ -30,18 +30,26 @@ export const AnosLetivosProvider = ({ children }) => {
 
   //
   const STORAGE_KEY = 'anoLetivo';
-  const [systemAnoLetivo, _setAnoLetivo] = useLocalStorage(STORAGE_KEY, '');
+  const [localStorageAnoLetivo, _setLocalStorateAnoLetivo] = useLocalStorage(STORAGE_KEY, '');
+
+  const systemAnoLetivo = anosLetivos.find((item) => item.ano == localStorageAnoLetivo);
 
   const changeAnoLetivo = useCallback(
     (newValue) => {
-      _setAnoLetivo(newValue);
+      _setLocalStorateAnoLetivo(newValue);
     },
     [anosLetivos]
   );
 
   return (
     <AnosLetivosContext.Provider
-      value={{ anosLetivos, buscaAnosLetivos, systemAnoLetivo, changeAnoLetivo }}
+      value={{
+        anosLetivos,
+        buscaAnosLetivos,
+        localStorageAnoLetivo,
+        systemAnoLetivo,
+        changeAnoLetivo,
+      }}
     >
       {children}
     </AnosLetivosContext.Provider>
