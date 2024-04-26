@@ -48,8 +48,8 @@ export default function AnoLetivoPopover({ sx }) {
         }),
       ];
 
-      // AGUARDE MINIMO DE 4s PARA VISUALIZAÇÃO DAS MENSAGENS
-      Promise.all([_.delay(() => {}, 4000), ...promiseList]).then(() => {
+      // AGUARDE MINIMO DE 6s PARA VISUALIZAÇÃO DAS MENSAGENS
+      Promise.all([_.delay(() => {}, 6000), ...promiseList]).then(() => {
         dialogCarregandoInformacoes.onFalse();
       });
     },
