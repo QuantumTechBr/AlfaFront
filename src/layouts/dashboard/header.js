@@ -17,13 +17,7 @@ import { useSettingsContext } from 'src/components/settings';
 import { useAuthContext } from 'src/auth/hooks';
 //
 import { HEADER, NAV } from '../config-layout';
-import {
-  Searchbar,
-  AccountPopover,
-  SettingsButton,
-  LanguagePopover,
-  NotificationsPopover,
-} from '../_common';
+import { AccountPopover, AnoLetivoPopover } from '../_common';
 import { Box, Typography } from '@mui/material';
 
 // ----------------------------------------------------------------------
@@ -69,11 +63,7 @@ export default function Header({ onOpenNav }) {
         justifyContent="flex-end"
         spacing={{ xs: 0.5, sm: 1 }}
       >
-        {/* <LanguagePopover /> */}
-
-        {/* <NotificationsPopover /> */}
-
-        {/* <SettingsButton /> */}
+        <AnoLetivoPopover sx={{ marginRight: 2 }} />
 
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
