@@ -198,7 +198,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const handleAdicionarAluno = useCallback(
     (aluno) => {
       const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id
-      const alunoEscola = { aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }
+      const alunoEscola = [{ aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }]
       escolaMethods.updateAlunosByEscolaId(escola?.id, alunoEscola)
     },
     [escola, anosLetivos]
