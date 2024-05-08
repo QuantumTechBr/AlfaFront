@@ -319,7 +319,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-            <RHFSelect key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
+            <RHFSelect disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
                 <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
                   
                 </MenuItem>

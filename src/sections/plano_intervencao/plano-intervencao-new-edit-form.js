@@ -335,7 +335,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }
 
   useEffect(() => {
-    if (currentPlano.aplicacao) {
+    if (currentPlano?.aplicacao) {
       const novoFiltros = {
         ano: '',
         fase: '',

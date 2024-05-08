@@ -54,7 +54,6 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
-  { id: 'alunos', label: 'Estudantes', width: 80 },
   { id: 'bimestre', label: 'Bimestre', width: 80 },
   { id: 'escola', label: 'Escola' },
   { id: 'atualizado_por', label: 'Atualizado Por' },
