@@ -219,10 +219,7 @@ export default function DashboardDiagnosticaView() {
 
     // END adequação dos dados
 
-    setDados((prevState) => ({
-      ...prevState,
-      ...result,
-    }));
+    setDados(result);
   };
 
   const preencheGraficos = useCallback(
@@ -806,7 +803,7 @@ export default function DashboardDiagnosticaView() {
       let _totalSaidaAusente = 0;
 
       if (isEscolaFiltered || isZonaFiltered) {
-        const _turmasDoAnoEscolar = dados.grid_turmas.filter(
+        const _turmasDoAnoEscolar = (dados.grid_turmas ?? []).filter(
           (_turma) => _turma.turma_ano_escolar == _anoEscolar
         );
 
@@ -821,15 +818,15 @@ export default function DashboardDiagnosticaView() {
         });
       } else {
         // SEM FILTRO - REDE
-        _totalEntradaPresente = dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0;
+        _totalEntradaPresente = dados.desempenho_por_ano?.entrada[_anoEscolar]?.quantidade ?? 0;
         _totalEntradaAusente =
-          (dados.desempenho_por_ano.entrada[_anoEscolar]?.total ?? 0) -
-          (dados.desempenho_por_ano.entrada[_anoEscolar]?.quantidade ?? 0);
+          (dados.desempenho_por_ano?.entrada[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano?.entrada[_anoEscolar]?.quantidade ?? 0);
 
-        _totalSaidaPresente = dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0;
+        _totalSaidaPresente = dados.desempenho_por_ano?.saida[_anoEscolar]?.quantidade ?? 0;
         _totalSaidaAusente =
-          (dados.desempenho_por_ano.saida[_anoEscolar]?.total ?? 0) -
-          (dados.desempenho_por_ano.saida[_anoEscolar]?.quantidade ?? 0);
+          (dados.desempenho_por_ano?.saida[_anoEscolar]?.total ?? 0) -
+          (dados.desempenho_por_ano?.saida[_anoEscolar]?.quantidade ?? 0);
       }
 
       return {
@@ -886,43 +883,92 @@ export default function DashboardDiagnosticaView() {
       let _metricas = {};
 
       if (_anoEscolar) {
-        const _turmasNoAnoEscolar = dados.grid_turmas.filter(
-          (_turma) => _turma.turma_ano_escolar == _anoEscolar
-        );
+        if (!dados.grid_turmas) {
+          const _turmasNoAnoEscolar = dados.grid_ddz.filter(
+            (_turma) => _turma.turma_ano_escolar == _anoEscolar
+          );
 
-        _metricas.entrada = [
-          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N1),
-          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N2),
-          _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N3),
-        ];
-
-        if (_turmasNoAnoEscolar.filter((t) => !!t.desempenho[metrica].saida).length > 0) {
-          _metricas.saida = [
-            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N1),
-            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N2),
-            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N3),
+          _metricas.entrada = [
+            _.sumBy(dados.grid_ddz, (t) => t.desempenho[metrica].entrada.N1[_anoEscolar]),
+            _.sumBy(dados.grid_ddz, (t) => t.desempenho[metrica].entrada.N2[_anoEscolar]),
+            _.sumBy(dados.grid_ddz, (t) => t.desempenho[metrica].entrada.N3[_anoEscolar]),
           ];
+
+          const _metricasSaida = [
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N1[_anoEscolar]),
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N2[_anoEscolar]),
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N3[_anoEscolar]),
+          ];
+
+          if (_.sum(_metricasSaida) > 0) {
+            _metricas.saida = _metricasSaida;
+          }
+        } else {
+          const _turmasNoAnoEscolar = dados.grid_turmas.filter(
+            (_turma) => _turma.turma_ano_escolar == _anoEscolar
+          );
+
+          _metricas.entrada = [
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N1),
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N2),
+            _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].entrada.N3),
+          ];
+
+          if (_turmasNoAnoEscolar.filter((t) => !!t.desempenho[metrica].saida).length > 0) {
+            _metricas.saida = [
+              _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N1),
+              _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N2),
+              _.sumBy(_turmasNoAnoEscolar, (t) => t.desempenho[metrica].saida.N3),
+            ];
+          }
         }
       } else {
-        const porZona = dados.grid_ddz.map((item) => {
-          return {
-            name: item.zona_nome,
-            data: item.desempenho[metrica],
-          };
-        });
+        if (!dados.grid_turmas) {
+          const porZona = dados.grid_ddz.map((item) => {
+            return {
+              name: item.zona_nome,
+              data: item.desempenho[metrica],
+            };
+          });
 
-        _metricas.entrada = [
-          _.sumBy(porZona, (z) => z.data.entrada.N1),
-          _.sumBy(porZona, (z) => z.data.entrada.N2),
-          _.sumBy(porZona, (z) => z.data.entrada.N3),
-        ];
+          _metricas.entrada = [
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.entrada.N1))),
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.entrada.N2))),
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.entrada.N3))),
+          ];
 
-        if (porZona.filter((z) => !!z.data.saida).length > 0) {
-          _metricas.saida = [
+          const _metricasSaida = [
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.saida.N1))),
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.saida.N2))),
+            _.sumBy(porZona, (z) => _.sum(Object.values(z.data.saida.N3))),
+          ];
+
+          if (_.sum(_metricasSaida) > 0) {
+            _metricas.saida = _metricasSaida;
+          }
+        } else {
+          const porZona = dados.grid_ddz.map((item) => {
+            return {
+              name: item.zona_nome,
+              data: item.desempenho[metrica],
+            };
+          });
+
+          _metricas.entrada = [
+            _.sumBy(porZona, (z) => z.data.entrada.N1),
+            _.sumBy(porZona, (z) => z.data.entrada.N2),
+            _.sumBy(porZona, (z) => z.data.entrada.N3),
+          ];
+
+          const _metricasSaida = [
             _.sumBy(porZona, (z) => z.data.saida.N1),
             _.sumBy(porZona, (z) => z.data.saida.N2),
             _.sumBy(porZona, (z) => z.data.saida.N3),
           ];
+
+          if (_.sum(_metricasSaida) > 0) {
+            _metricas.saida = _metricasSaida;
+          }
         }
       }
 
@@ -994,7 +1040,7 @@ export default function DashboardDiagnosticaView() {
               alignItems="center"
               sx={{
                 position: { lg: 'sticky' },
-                top: { lg: 64 },
+                top: { lg: window.screen.width > 1740 ? 0 : 64 },
                 zIndex: { lg: 1101 },
 
                 ...bgBlur({
