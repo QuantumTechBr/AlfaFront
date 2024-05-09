@@ -46,7 +46,7 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell>
+        {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>{alunos}</TableCell> */}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{bimestre.ordinal}&ordm;</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por ? atualizado_por : ''}</TableCell>
