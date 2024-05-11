@@ -109,6 +109,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       let mediaLP = 0;
       let mediaMAT = 0;
       let mediaFINAL = 0;
+      let ptMedBool = true;
+      let matMedBool = true;
       let pt = false;
       let mat = false;
       const dataR = data.registros[itemList.id].r;
@@ -117,6 +119,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           if (dataR != undefined) {
             if (data.registros[itemList.id].r[index] !== "") {
               pt = true;
+            } else {
+              ptMedBool = false;
             }
             mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
@@ -130,6 +134,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           if (dataR != undefined) {
             if (data.registros[itemList.id].r[index] !== "") {
               mat = true;
+            } else {
+              matMedBool = false;
             }
             mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
             mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
@@ -165,9 +171,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
             periodo: periodo,
             aluno_turma_id: itemList.id,
             frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : null,
-            media_matematica: mat ? mediaMAT.toFixed(1) : null,
-            media_final: pt || mat ? mediaFINAL.toFixed(1) : null,
+            media_lingua_portuguesa: ptMedBool ? mediaLP.toFixed(1) : null,
+            media_matematica: matMedBool ? mediaMAT.toFixed(1) : null,
+            media_final: ptMedBool && matMedBool ? mediaFINAL.toFixed(1) : null,
             // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
@@ -182,9 +188,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
             periodo: periodo,
             aluno_turma_id: itemList.id,
             frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
-            media_lingua_portuguesa: pt ? mediaLP.toFixed(1) : null,
-            media_matematica: mat ? mediaMAT.toFixed(1) : null,
-            media_final: pt || mat ? mediaFINAL.toFixed(1) : null,
+            media_lingua_portuguesa: ptMedBool ? mediaLP.toFixed(1) : null,
+            media_matematica: matMedBool ? mediaMAT.toFixed(1) : null,
+            media_final: ptMedBool && matMedBool ? mediaFINAL.toFixed(1) : null,
             // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
             // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
