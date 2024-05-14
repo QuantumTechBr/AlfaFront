@@ -1,5 +1,14 @@
 module.exports = {
+  output: 'standalone',
+  reactStrictMode: false,
   trailingSlash: true,
+  swcMinify: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
   modularizeImports: {
     '@mui/material': {
       transform: '@mui/material/{{member}}',
@@ -14,5 +23,5 @@ module.exports = {
       use: ['@svgr/webpack'],
     });
     return config;
-  },
+  }
 };

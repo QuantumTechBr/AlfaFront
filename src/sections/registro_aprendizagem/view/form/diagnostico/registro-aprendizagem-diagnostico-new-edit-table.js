@@ -1,8 +1,8 @@
 'use client';
-
+import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -12,7 +12,7 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 // _mock
-import { promo_options } from 'src/_mock';
+import { frequencia_options } from 'src/_mock';
 // components
 import Scrollbar from 'src/components/scrollbar';
 import { useSettingsContext } from 'src/components/settings';
@@ -33,23 +33,53 @@ import { Box } from '@mui/material';
 import RegistroAprendizagemDiagnosticoNewEditTableFiltersResult from './registro-aprendizagem-diagnostico-new-edit-table-filters-result';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { useContext } from 'react';
+import Typography from '@mui/material/Typography';
+
+
 // ----------------------------------------------------------------------
 export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
-  const defaultFilters = {
-    nome: '',
-    promo_ano_anterior: [],
-  };
-  console.log(habilidades)
+  const defaultFilters = useMemo(() => {
+    return {
+      nome: '',
+      frequencia: [],
+    }
+  }, []);
+
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
 
-  const labelHabilidade = (habilidade) => {
-    const { nome, descricao } = habilidade;
+  const labelHabilidade = (hab, i) => {
+    const list_retorno = [];
+    list_retorno.push(`- ${hab[0].nome}: `);
+    list_retorno.push(` ${hab[0].descricao}\n`);
+    list_retorno.push(`- ${hab[1].nome}: `);
+    list_retorno.push(` ${hab[1].descricao} `);
+    // const nome_1 = habilidades[0].nome;
+    // const descricao_1 = habilidades[0].descricao;
+    // const nome_2 = habilidades[1].nome;
+    // const descricao_2 = habilidades[1].descricao;
+    // ''.concat(...list_retorno)]
+    <br></br>
     return (
         <Box>
-          {nome}
-          <Tooltip title={descricao}>
+          {`R${i}`}
+          <Tooltip 
+          title={
+            // ''.concat(...list_retorno)
+            <React.Fragment>
+            <Typography color="inherit">Tooltip with HTML</Typography>
+            <em>"And here's"</em> <b>'some'</b> <u>'amazing content'</u>.' '
+            "It's very engaging. Right?"
+            </React.Fragment>
+          }
+          >
           <InfoIcon 
               sx={{
                 fontSize: 'large',
@@ -61,16 +91,33 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   };
 
   useEffect(() => {
-    let cabecalho = [
+    buscaAnosLetivos().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+    });
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+  }, []);
+
+  useEffect(() => {
+    const cabecalho = [
+        { id: 'matricula', label: 'Matrícula', width: 150 },
         { id: 'nome', label: 'Nome', width: 150 },
-        { id: 'promo_ano_anterior', label: 'Promoção no ano anterior', width: 200 },
+        { id: 'frequencia', label: 'Frequência', width: 200 },
     ];
-    for (var i = 0; i < habilidades.length; i++) {
-      cabecalho.push({ id: habilidades[i].id, label: labelHabilidade(habilidades[i]), width: 120 });
+    for (var i = 1; i < 21; i++) {
+      cabecalho.push({ id: `R${i}`, label: habilidades.length > 0 ? labelHabilidade(habilidades, i) : `R${i}`, width: 50 });
     }
+    cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
+    cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 200, minWidth: 200 });
+    cabecalho.push({ id: 'nvLP', label: 'NÍVEL_LP', width: 50 });
+    cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
+    cabecalho.push({ id: 'nvResolucao', label: 'Nível Resolução de problemas - MAT (resultado do item 20)', width: 200, minWidth: 200 });
+    cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
+    cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
+    cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
-    const tableData = (alunosTurma == undefined) ? [] : alunosTurma;
-    setTableData(tableData);
+    setTableData((alunosTurma == undefined) ? [] : alunosTurma);
  
     
   }, [habilidades, alunosTurma]);
@@ -111,18 +158,19 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
 
   const handleResetFilters = useCallback(() => {
     setFilters(defaultFilters);
-  }, []);
+  }, [defaultFilters]);
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
 
         <Card>
 
           <RegistroAprendizagemDiagnosticoNewEditTableToolbar
             filters={filters}
             onFilters={handleFilters}
-            promoOptions={promo_options}
+            anoLetivoOptions={anosLetivos}
+            escolaOptions={escolas}
+            freqOptions={frequencia_options}
             turma={turma}
             handleTurma={handleTurma}
           />
@@ -132,7 +180,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
               filters={filters}
               onFilters={handleFilters}
               onResetFilters={handleResetFilters}
-              promoOptions={promo_options}
+              freqOptions={frequencia_options}
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
@@ -170,6 +218,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
                         row={row}
                         habilidades={habilidades}
                         periodo={periodo}
+                        turma={turma}
                         />
                         ))}
 
@@ -188,16 +237,15 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
             count={dataFiltered.length}
             page={table.page}
             rowsPerPage={table.rowsPerPage}
+            rowsPerPageOptions={[5, 15, 25]}
             onPageChange={table.onChangePage}
             onRowsPerPageChange={table.onChangeRowsPerPage}
             //
-            dense={table.dense}
-            onChangeDense={table.onChangeDense}
+            // dense={table.dense}
+            // onChangeDense={table.onChangeDense}
           />
         </Card>
       </Container>
-
-    </>
   );
 }
 
@@ -213,7 +261,7 @@ RegistroAprendizagemDiagnosticoNewEditTable.propTypes = {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, promo_ano_anterior } = filters;
+  const { nome, frequencia } = filters;
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -226,18 +274,18 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (alunosTurma) => alunosTurma.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (alunosTurma) => alunosTurma.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1 || alunosTurma.aluno.matricula.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
-  if (promo_ano_anterior.length) {
+  if (frequencia.length) {
     inputData = inputData.filter((alunosTurma) => {
-      if (promo_ano_anterior.includes('')) {
-        if (alunosTurma.promo_ano_anterior == undefined) {
+      if (frequencia.includes('')) {
+        if (alunosTurma.frequencia == undefined) {
           return alunosTurma
         }
       } 
-      return promo_ano_anterior.includes(alunosTurma.promo_ano_anterior);
+      return frequencia.includes(alunosTurma.frequencia);
     }
     )
   }

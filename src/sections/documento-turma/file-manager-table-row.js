@@ -5,7 +5,6 @@ import { useState, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Divider from '@mui/material/Divider';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
@@ -15,13 +14,11 @@ import ListItemText from '@mui/material/ListItemText';
 import { alpha, useTheme } from '@mui/material/styles';
 import TableRow, { tableRowClasses } from '@mui/material/TableRow';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
-import AvatarGroup, { avatarGroupClasses } from '@mui/material/AvatarGroup';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useDoubleClick } from 'src/hooks/use-double-click';
 import { useCopyToClipboard } from 'src/hooks/use-copy-to-clipboard';
 // utils
-import { fData } from 'src/utils/format-number';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -30,7 +27,6 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 import FileThumbnail from 'src/components/file-thumbnail';
 //
 import FileManagerShareDialog from './file-manager-share-dialog';
-import FileManagerFileDetails from './file-manager-file-details';
 
 
 // ----------------------------------------------------------------------
@@ -38,13 +34,13 @@ import FileManagerFileDetails from './file-manager-file-details';
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
   const theme = useTheme();
 
-  const { ano, arquivo, criado_por, updated_at, created_at, destino, id, nomeArquivo, tamanho } = row;
+  const { arquivo, updated_at, nomeArquivo, tamanho } = row;
 
-  const regex = /[^/\\&\?]+\.\w{3,4}(?=([\?&].*$|$))/;
+  const regex = /[^/\\&\\?]+\.\w{3,4}(?=([\\?&].*$|$))/;
   const nome = nomeArquivo ? nomeArquivo : arquivo.match(regex) ? arquivo.match(regex)[0] : 'arquivo';
   const type = nome ? `${nome.split('.').pop()}` : ''
 
-  let tamanhoString = tamanho ? String(tamanho) : '0';
+  const tamanhoString = tamanho ? String(tamanho) : '0';
 
   const { enqueueSnackbar } = useSnackbar();
 

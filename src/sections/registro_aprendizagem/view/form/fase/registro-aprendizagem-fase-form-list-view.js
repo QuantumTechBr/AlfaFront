@@ -1,7 +1,6 @@
 'use client';
 
-import { isEqual, last } from 'lodash';
-
+import { last } from 'lodash';
 import { useEffect, useState, useCallback } from 'react';
 
 // @mui
@@ -9,12 +8,9 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
-import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 
 // routes
@@ -26,16 +22,17 @@ import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
+
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 // components
-import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
-import { ConfirmDialog } from 'src/components/custom-dialog';
 import { useSettingsContext } from 'src/components/settings';
-import { useSnackbar } from 'src/components/snackbar';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
+import { useSnackbar } from 'src/components/snackbar';
 
 import FormProvider from 'src/components/hook-form';
 
@@ -51,7 +48,6 @@ import {
 //
 import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-form-table-row';
 import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
-import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -68,31 +64,56 @@ const TABLE_HEAD = [
   { id: 'observacao', label: 'Observação' },
 ];
 
-const defaultFilters = {};
+const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pesquisa: '' };
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
+  const settings = useSettingsContext();
   const router = useRouter();
+  const table = useTable();
   const { enqueueSnackbar } = useSnackbar();
-  const prep = useBoolean(false);
-  const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
-  const { bimestres, buscaBimestres } = useContext(BimestresContext);
-  const { limparMapCache } = useContext(RegistroAprendizagemContext);
-  const [tableData, setTableData] = useState([]);
+
+  const [filters, setFilters] = useState(defaultFilters);
+
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
 
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
+  const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
+  const { limparMapCache } = useContext(RegistroAprendizagemContext);
+
+  const contextReady = useBoolean(false);
+
+  const [tableData, setTableData] = useState([]);
+  const tabelaPreparada = useBoolean(false);
+  const buscando = useBoolean(false);
+
   const initialFormValues = {
+    anoLetivo: '',
+    escola: '',
     turma: '',
     bimestre: '',
     registros: [],
   };
 
-  const table = useTable();
-  const settings = useSettingsContext();
+  const methods = useForm({
+    // resolver: yupResolver(NewUserSchema),
+    defaultValues: initialFormValues,
+  });
 
-  const [filters, setFilters] = useState(defaultFilters);
+  const {
+    watch,
+    getValues,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = methods;
+
+  // watch(): checkbox da tabela acionam atualização de tela
+  watch();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -100,124 +121,112 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     filters,
   });
 
-  const denseHeight = table.dense ? 52 : 72;
-
-  const canReset = !isEqual(defaultFilters, filters);
-
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
-
-  // TODO CRIAR FUNCAO UNICA PARA RECRIAR TODOS OS FILTROS
+  const notFound = !dataFiltered.length || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (nome, value) => {
+    (name, value) => {
       table.onResetPage();
+      const _filters = {};
+      _filters[name] = value;
+
+      if (['escola'].includes(name) && value != '') {
+        setValue('turma', '');
+        _filters.turma = '';
+      }
+
+      if (['anoLetivo', 'escola'].includes(name)) {
+        setValue(name, value);
+        setTableData([]);
+      } else if (['turma', 'bimestre'].includes(name)) {
+        setValue(name, value);
+        getRegistros();
+      }
+
       setFilters((prevState) => ({
         ...prevState,
-        [nome]: value,
+        ..._filters,
       }));
     },
     [table]
   );
 
-  const handleResetFilters = useCallback(() => {
-    setFilters(defaultFilters);
-  }, []);
+  const getRegistros = async () => {
+    const _turma = getValues('turma');
+    const _bimestre = getValues('bimestre');
 
-  const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
-    defaultValues: initialFormValues,
-  });
+    if (_turma && _bimestre) {
+      tabelaPreparada.onFalse();
+      setTableData([]);
+      buscando.onTrue();
+      setWarningMsg('');
+      setErrorMsg('');
 
-  const {
-    register,
-    reset,
-    resetField,
-    watch,
-    control,
-    setValue,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = methods;
-
-  const formValues = watch();
-  const { turma, bimestre } = formValues;
-
-  const getRegistros = async (turmaToGetRegistros, bimestreToGetRegistros) => {
-    turmaToGetRegistros ??= turma;
-    bimestreToGetRegistros ??= bimestre;
-
-    if (!!turmaToGetRegistros && !!bimestreToGetRegistros) {
-      setTableData([]); // AJUSTE PARA QUE A TABELA REECBA NOVOS DADOS E SEJA RECONSTRUÍDA
-
-      let registrosDaTurmaBimestre =
-        await registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
-          turmaId: turmaToGetRegistros.id,
-          bimestreId: bimestreToGetRegistros.id,
-        }).catch((error) => {
+      const registrosDaTurmaBimestre = await registroAprendizagemMethods
+        .getAllRegistrosAprendizagemFase({
+          turmaId: _turma.id,
+          bimestreId: _bimestre.id,
+        })
+        .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
-          prep.onTrue();
         });
-      await buscaTurmaPorId({ id: turmaToGetRegistros.id }).then((_turma) => {
-        // resetField('registros');
-        let _newRegistros = [];
-        _turma.turmas_alunos.forEach((alunoTurmaItem) => {
-          const registroEncontrado = last(
-            registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
-          );
+      await buscaTurmaPorId({ id: _turma.id })
+        .then((__turma) => {
+          const _newRegistros = [];
+          __turma.turmas_alunos.forEach((alunoTurmaItem) => {
+            const registroEncontrado = last(
+              registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
+            );
 
-          _newRegistros[alunoTurmaItem.id] = {
-            aluno_nome: alunoTurmaItem.aluno.nome,
-            ...(registroEncontrado?.id !== undefined ? {avalicao_id: registroEncontrado?.id } : null),
-            aluno_turma_id: alunoTurmaItem.id,
-            resultado: registroEncontrado?.resultado ?? '',
-            observacao: registroEncontrado?.observacao ?? '',
-          };
+            _newRegistros[alunoTurmaItem.id] = {
+              aluno_nome: alunoTurmaItem.aluno.nome,
+              ...(registroEncontrado?.id !== undefined
+                ? { avalicao_id: registroEncontrado?.id }
+                : null),
+              aluno_turma_id: alunoTurmaItem.id,
+              resultado: registroEncontrado?.resultado ?? '',
+              observacao: registroEncontrado?.observacao ?? '',
+            };
+          });
+          setValue('registros', _newRegistros);
+          setTableData(__turma.turmas_alunos);
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de turma');
         });
-        setValue('registros', _newRegistros);
-
-        setTableData(_turma.turmas_alunos);
-        prep.onTrue();
-      }).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turma');
-        prep.onTrue();
-      });
     }
+    tabelaPreparada.onTrue();
+    buscando.onFalse();
   };
 
-  useEffect(() => {
-    const subscription = watch((values, { name, type }) => {
-      if (type == 'change' && ['turma', 'bimestre'].includes(name)) {
-        getRegistros(values.turma, values.bimestre);
-        prep.onFalse();
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [turmas, bimestres, watch, getRegistros]);
-
   const onSubmit = handleSubmit(async (data) => {
+    const _turma = getValues('turma');
+    const _bimestre = getValues('bimestre');
+
     const retornoPadrao = {
-      nome: `Avaliação de Fase ${turma.ano_escolar}º ${turma.nome} - ${bimestre.ordinal}º Bimestre ${turma.ano.ano}`,
-      bimestre_id: bimestre.id,
+      nome: `Acompanhamento de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${
+        _bimestre.ordinal
+      }º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
+      bimestre_id: _bimestre.id,
       tipo: 'Fase',
     };
 
     const mapaResultados = Object.values(data.registros).map((formItem) => {
-      if (formItem.observacao.length > 0 ) {
+      if (formItem.observacao.length > 0) {
         if (formItem.resultado == '') {
-          formItem.resultado = 'Não Avaliado'  
-        } 
+          formItem.resultado = 'Não Avaliado';
+        }
       } else {
         if (formItem.resultado == '') {
-          return
+          return;
         }
       }
-      let item = { ...retornoPadrao, ...formItem };
+      const item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
       return item;
     });
-    const toSend = mapaResultados.filter(Boolean)
+    const toSend = mapaResultados.filter(Boolean);
+    console.log(toSend);
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemFase(toSend).catch((error) => {
         throw error;
@@ -226,99 +235,134 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       enqueueSnackbar('Atualizado com sucesso!');
       router.push(paths.dashboard.registro_aprendizagem.root_fase);
     } catch (error) {
-      setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro');
+      setErrorMsg(
+        'Erro de comunicação com a API de registro aprendizagem fase no momento de salvar o registro'
+      );
     }
   });
 
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaTurmas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de turmas');
+      }),
+      buscaBimestres().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de bimestres');
+      }),
+    ]).finally(() => {
+      contextReady.onTrue();
+    });
+  }, [buscaTurmas, buscaBimestres, turmaInicial, bimestreInicial, setValue]);
+
   useEffect(() => {
-    prep.onFalse();
-    buscaBimestres().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de bimestres');
-      prep.onTrue();
-    });
-    buscaTurmas().then((_turmas) => {
-      if (!!turmaInicial) {
-        if (!!_turmas) {
-          const _turmaComplete = _turmas.filter((t) => t.id == turmaInicial);
-          if (_turmaComplete && !!_turmaComplete.length) {
-            setValue('turma', _turmaComplete[0]); // FORM INPUT
-            turmaInicial = _turmaComplete[0];
-          }
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    if (contextReady.value) {
+      let _turmaInicialFull;
+
+      const _filters = {};
+
+      if (turmaInicial) {
+        const _turmaComplete = turmas.find((t) => t.id == turmaInicial);
+        if (_turmaComplete) {
+          setValue(
+            'anoLetivo',
+            anosLetivos.find((a) => a.id == _turmaComplete.ano_id)
+          );
+          _filters.anoLetivo = anosLetivos.find((a) => a.id == _turmaComplete.ano_id);
+
+          setValue(
+            'escola',
+            escolas.find((e) => e.id == _turmaComplete.escola_id)
+          );
+          _filters.escola = escolas.find((e) => e.id == _turmaComplete.escola_id);
+
+          setValue('turma', _turmaComplete); // FORM INPUT
+          _turmaInicialFull = _turmaComplete;
+
+          _filters.turma = turmas.find((t) => t.id == _turmaComplete.id);
         }
       }
 
-      if (!!bimestreInicial) {
-        if (!!bimestres) {
-          const _bimestreComplete = bimestres.filter((t) => t.id == bimestreInicial);
-          if (_bimestreComplete && !!_bimestreComplete.length) {
-            setValue('bimestre', _bimestreComplete[0]); // FORM INPUT
-            bimestreInicial = _bimestreComplete[0];
-          }
+      let _bimestreInicialFull;
+      if (bimestreInicial) {
+        const _bimestreComplete = bimestres.find((b) => b.id == bimestreInicial);
+        if (_bimestreComplete) {
+          setValue('bimestre', _bimestreComplete); // FORM INPUT
+          _bimestreInicialFull = _bimestreComplete;
+          _filters.bimestre = bimestres.find((b) => b.id == _bimestreComplete.id);
         }
       }
 
-      if (!!turmaInicial && !!bimestreInicial) getRegistros(turmaInicial, bimestreInicial);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de turmas');
-      prep.onTrue();
-    });
-  }, [turmas, buscaTurmas, turmaInicial, bimestres, buscaBimestres, bimestreInicial, setValue]);
+      setFilters((prevState) => ({
+        ...prevState,
+        ..._filters,
+      }));
+
+      if (_turmaInicialFull && _bimestreInicialFull) {
+        getRegistros();
+      }
+    }
+  }, [contextReady.value]);
 
   return (
-    <>
-      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <CustomBreadcrumbs
-          heading="Criação/Edição Avaliação de Fase do Desenvolvimento da Leitura e da Escrita"
-          links={[
-            {
-              name: 'Dashboard',
-              href: paths.dashboard.root,
-            },
-            {
-              name: 'Avaliações de Fase',
-              href: paths.dashboard.registro_aprendizagem.root_fase,
-            },
-            { name: 'Avaliação de Fase' },
-          ]}
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        />
+    <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
+      <CustomBreadcrumbs
+        heading="Criação/Edição Acompanhamento de Fase do Desenvolvimento da Leitura e da Escrita"
+        links={[
+          {
+            name: 'Dashboard',
+            href: paths.dashboard.root,
+          },
+          {
+            name: 'Acompanhamentos de Fase',
+            href: paths.dashboard.registro_aprendizagem.root_fase,
+          },
+          { name: 'Acompanhamento de Fase' },
+        ]}
+        sx={{
+          mb: { xs: 3, md: 5 },
+        }}
+      />
 
+      {!contextReady.value ? (
+        <LoadingBox texto="Buscando registros" />
+      ) : (
         <FormProvider methods={methods} onSubmit={onSubmit}>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+
           <Card>
             <RegistroAprendizagemFaseFormTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              turmaOptions={turmas}
+              anoLetivoOptions={anosLetivos}
+              escolaOptions={escolas}
+              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id)}
               bimestreOptions={bimestres}
+              showSearch={tableData.length > 0}
             />
 
-            {canReset && (
-              <RegistroAprendizagemFaseFormTableFiltersResult
-                filters={filters}
-                onFilters={handleFilters}
-                onResetFilters={handleResetFilters}
-                results={dataFiltered.length}
-                sx={{ p: 2.5, pt: 0 }}
-              />
-            )}
+            <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+              <Scrollbar>
+                {(!contextReady.value || buscando.value) && <LoadingBox />}
 
-              <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-                <Scrollbar>
-                {!prep.value ? (
-                  <LoadingBox />
-                ) : (
-                  <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                {contextReady.value && tabelaPreparada.value && (
+                  <Table size="small" sx={{ minWidth: 960 }}>
                     <TableHeadCustom
                       order={table.order}
                       orderBy={table.orderBy}
                       headLabel={TABLE_HEAD}
                       onSort={table.onSort}
                     />
-                    
 
                     <TableBody>
                       {dataFiltered.map((row, index) => {
@@ -332,15 +376,16 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                       })}
 
                       <TableEmptyRows
-                        height={denseHeight}
+                        height={52}
                         emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                       />
 
                       <TableNoData notFound={notFound} />
                     </TableBody>
-                  </Table> )}
-                </Scrollbar>
-              </TableContainer>                  
+                  </Table>
+                )}
+              </Scrollbar>
+            </TableContainer>
 
             <TablePaginationCustom
               hidden
@@ -349,7 +394,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               rowsPerPage={table.rowsPerPage}
               onPageChange={table.onChangePage}
               onRowsPerPageChange={table.onChangeRowsPerPage}
-              dense={false}
+              dense={true}
             />
           </Card>
 
@@ -361,15 +406,18 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             </Grid>
           </Stack>
         </FormProvider>
-      </Container>
-    </>
+      )}
+    </Container>
   );
 }
 
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome } = filters;
+  const { pesquisa } = filters;
+
+  if (!inputData) return [];
+
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
   stabilizedThis.sort((a, b) => {
@@ -380,10 +428,10 @@ function applyFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (nome) {
-    inputData = inputData.filter(
-      (item) => item.aluno.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
-    );
+  const _pesquisa = pesquisa.trim().toLowerCase();
+
+  if (_pesquisa.length) {
+    inputData = inputData.filter((item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0);
   }
 
   return inputData;

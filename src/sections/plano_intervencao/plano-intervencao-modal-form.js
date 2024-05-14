@@ -99,9 +99,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   useEffect(() => {
     habilidadeMethods.getAllHabilidades().then((retorno) => {
-      let hab1ano = [];
-      let hab2ano = [];
-      let hab3ano = [];
+      const hab1ano = [];
+      const hab2ano = [];
+      const hab3ano = [];
       retorno.data.map((habilidade) => {
         if (habilidade.ano_escolar == 1) {
           hab1ano.push(habilidade);
@@ -161,7 +161,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -174,7 +174,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
     formState: { isSubmitting },
   } = methods;
 
-  //useEffect(() => {
+  // useEffect(() => {
   //  const subscription = watch((values, { name, type }) => {
   //    if (type == 'change' && name == 'ano') {
   //      setFilters(filtros)
@@ -182,7 +182,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
   //  });
   //
   //  return () => subscription.unsubscribe();
-  //}, [setFilters, watch]);
+  // }, [setFilters, watch]);
 
   const values = watch();
 
@@ -190,8 +190,8 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
 
   const selecionado = useBoolean(false);
 
-  const podeBuscar = (habilidades, fase) => {
-    if (fase != '' || habilidades.length > 0) {
+  const podeBuscar = (_habilidades, _fase) => {
+    if (_fase != '' || _habilidades.length > 0) {
       return true
     }
     return false
@@ -267,7 +267,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
         table.setSelected(inputValue);
       }
     },
-    [table.selected]
+    [table]
   );
 
   const renderizaTabela = () => {
@@ -332,7 +332,7 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
       }}
     >
       <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Registro de Avaliação</DialogTitle>
+        <DialogTitle>Registro de Acompanhamento</DialogTitle>
 
         <IconButton
           aria-label="close"
@@ -361,9 +361,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             flexShrink: 0,
             sx: { maxWidth: 120 },
           }}>
-              {anos_options.map((ano) => (
-                <MenuItem key={ano} value={ano}>
-                  {ano}º
+              {anos_options.map((_ano) => (
+                <MenuItem key={_ano} value={_ano}>
+                  {_ano}º
                 </MenuItem>
               ))}
             </RHFSelect>
@@ -399,9 +399,9 @@ export default function NovoPlanoIntervencaoForm({ open, onClose }) {
             </FormControl>
 
             <RHFSelect name="fase" label="Fase">
-                {fases_options.map((fase) => (
-                  <MenuItem key={fase} value={fase} sx={{ height: '34px' }}>
-                    {fase}
+                {fases_options.map((_fase) => (
+                  <MenuItem key={_fase} value={_fase} sx={{ height: '34px' }}>
+                    {_fase}
                   </MenuItem>
                 ))}
               </RHFSelect>

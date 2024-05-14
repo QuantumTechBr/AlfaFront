@@ -22,7 +22,6 @@ import {
   AccountPopover,
   SettingsButton,
   LanguagePopover,
-  ContactsPopover,
   NotificationsPopover,
 } from '../_common';
 import { Box, Typography } from '@mui/material';
@@ -73,8 +72,6 @@ export default function Header({ onOpenNav }) {
         {/* <LanguagePopover /> */}
 
         {/* <NotificationsPopover /> */}
-
-        {/* <ContactsPopover /> */}
 
         {/* <SettingsButton /> */}
 

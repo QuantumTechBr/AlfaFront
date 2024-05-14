@@ -15,6 +15,7 @@ export default function TurmaTableFiltersResult({
   filters,
   onFilters,
   escolaOptions,
+  ddzsOptions,
   onResetFilters,
   //
   results,
@@ -29,6 +30,14 @@ export default function TurmaTableFiltersResult({
   escolaOptions.map((escola) => {
     if(filters.escola?.includes(escola.id)) {
       escolasSelecionadas.push(escola)
+    }
+  })
+
+  const ddzsSelecionadas = [];
+
+  ddzsOptions.map((ddz) => {
+    if(filters.ddz?.includes(ddz.id)) {
+      ddzsSelecionadas.push(ddz)
     }
   })
 
@@ -59,7 +68,7 @@ export default function TurmaTableFiltersResult({
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
         {filters.status !== 'all' && (
           <Block label="Status:">
-            <Chip size="small" label={filters.status} onDelete={handleRemoveStatus} />
+            <Chip size="small" label={filters.status == "true" ? "Ativo" : "Inativo"} onDelete={handleRemoveStatus} />
           </Block>
         )}
 
@@ -71,8 +80,8 @@ export default function TurmaTableFiltersResult({
 
         {!!filters.ddz.length && (
           <Block label="DDZ:">
-            {filters.ddz.map((item) => (
-              <Chip key={item} label={item} size="small" onDelete={() => handleRemoveDdz(item)} />
+            {ddzsSelecionadas.map((item) => (
+              <Chip key={item.id} label={item.nome} size="small" onDelete={() => handleRemoveDdz(item.id)} />
             ))}
           </Block>
         )}

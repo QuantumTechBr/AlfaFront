@@ -72,10 +72,7 @@ export default function IndiceAlfabetizacaoComponent({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val) {
-        return fPercent(val.toFixed(2));
-        // return fPercent(Math.floor(val));
-      },
+      formatter: (val) => fPercent(val.toFixed(2)),
       dropShadow: { enabled: false },
     },
 
@@ -92,11 +89,6 @@ export default function IndiceAlfabetizacaoComponent({
       },
     },
     tooltip: { enabled: false },
-    // stroke: {
-    //   show: true,
-    //   width: 0,
-    //   colors: ['transparent'],
-    // },
     fill: {
       type: 'gradient',
       gradient: {
@@ -117,7 +109,7 @@ export default function IndiceAlfabetizacaoComponent({
     <Card {...other} sx={{ pt: 3, pb: 2 }}>
       <Chart
         dir="ltr"
-        width={'100%'}
+        width="100%"
         type="donut"
         series={chartSeries}
         options={chartOptions}
@@ -125,7 +117,7 @@ export default function IndiceAlfabetizacaoComponent({
         sx={{ mb: 1 }}
       />
 
-      <Stack direction="row" justifyContent={'space-evenly'}>
+      <Stack paddingX={{xs:4, md: 1 }} spacing={{xs:0, md: 1 }} direction={{xs:"column", md:"row"}} justifyContent="space-evenly">
         {getLegend()}
       </Stack>
     </Card>

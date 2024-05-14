@@ -26,6 +26,8 @@ export default function AlunoTableToolbar({
   turmaOptions,
   faseOptions,
 }) {
+  const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
+  
   const popover = usePopover();
 
   const handleFilterNome = useCallback(
@@ -82,7 +84,7 @@ export default function AlunoTableToolbar({
   const renderValueTurma = (selected) =>
     selected
       .map((turmaId) => {
-        let turma = turmaOptions.find((option) => option.id == turmaId);
+        const turma = turmaOptions.find((option) => option.id == turmaId);
         return turma?.ano_escolar.concat('º ', turma?.nome);
       })
       .join(', ');
@@ -106,36 +108,10 @@ export default function AlunoTableToolbar({
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          width: '100%',
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Nome..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <TextField
-            fullWidth
-            value={filters.matricula}
-            onChange={handleFilterMatricula}
-            placeholder="Matrícula..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-
           <FormControl
             sx={{
               flexShrink: 0,
@@ -169,38 +145,47 @@ export default function AlunoTableToolbar({
             </Select>
           </FormControl>
 
-          <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 100 },
-            }}
-          >
-            <InputLabel>Turma</InputLabel>
-
-            <Select
-              multiple
-              value={filters.turma}
-              onChange={handleFilterTurma}
-              input={<OutlinedInput label="Turma" />}
-              renderValue={renderValueTurma}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
+          {filters.escola.length > 0 && (
+            <FormControl
+              sx={{
+                flexShrink: 0,
+                width: { xs: 1, md: 100 },
               }}
             >
-              {turmaOptions?.map((turma) => (
-                <MenuItem key={turma.id} value={turma.id}>
-                  <Checkbox disableRipple size="small" checked={filters.turma.includes(turma.id)} />
-                  {turma.ano_escolar}º {turma.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+              <InputLabel>Turma</InputLabel>
+
+              <Select
+                multiple
+                value={filters.turma}
+                onChange={handleFilterTurma}
+                input={<OutlinedInput label="Turma" />}
+                renderValue={renderValueTurma}
+                MenuProps={{
+                  PaperProps: {
+                    sx: { maxHeight: 240 },
+                  },
+                }}
+              >
+                {turmaOptions?.map((option) => (
+                  <MenuItem key={option.id} value={option.id}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.turma.includes(option.id)}
+                    />
+                    {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
+                      filters.escola.length != 1 ? ` (${getEscola(option.escola_id)?.nome})` : ''
+                    } `}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 100 },
+              width: { xs: 1, md: 160 },
             }}
           >
             <InputLabel>Fase</InputLabel>
@@ -226,6 +211,33 @@ export default function AlunoTableToolbar({
             </Select>
           </FormControl>
 
+          <TextField
+            fullWidth
+            value={filters.nome}
+            onChange={handleFilterNome}
+            placeholder="Nome..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+          <TextField
+            fullWidth
+            value={filters.matricula}
+            onChange={handleFilterMatricula}
+            placeholder="Matrícula..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
@@ -249,8 +261,8 @@ export default function AlunoTableToolbar({
 
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             alunoMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Estudantes', csvFile.data);
             });

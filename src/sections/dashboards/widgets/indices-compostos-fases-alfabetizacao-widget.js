@@ -16,7 +16,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
   total_avaliados,
 }) {
   let titulo_completo = ano_escolar;
-  if (!!ano_escolar) {
+  if (ano_escolar) {
     titulo_completo += `º ano`;
   } else {
     titulo_completo = 'Geral';
@@ -26,7 +26,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
 
   return (
     <Box width="100%" mb={2}>
-      <Stack direction="row">
+      <Stack direction={{xs: 'column', md: "row"}}>
         <Grid xs={12} lg={7} xl={8}>
           <IndiceFasesComponent
             key={`indice_fases_component_${slugify(title_indice_fases)}`}

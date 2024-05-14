@@ -97,6 +97,7 @@ export const endpoints = {
   },
   dashboard: {
     avaliacao_componente: '/api/v1/dashboards/avaliacao-componente',
+    avaliacao_diagnostico_rede: '/api/v1/dashboards/avaliacao-diagnosticos-rede',
     avaliacao_diagnostico: '/api/v1/dashboards/avaliacao-diagnosticos',
     desempenho_alunos: '/api/v1/dashboards/desempenho-alunos',
     indice_fases: '/api/v1/dashboards/indice-fases',
@@ -107,6 +108,7 @@ export const endpoints = {
     grid_rede:  '/api/v1/dashboards/grid-rede',
     grid_escolas:  '/api/v1/dashboards/grid-escolas',
     grid_professores:  '/api/v1/dashboards/grid-professores',
+    grid_turmas:  '/api/v1/dashboards/grid-turmas',
   },
   disciplina: {
     list: '/api/v1/disciplinas/',
@@ -250,21 +252,5 @@ export const endpoints = {
     get_by_id: '/api/v1/profissionais/',
     update: '/api/v1/profissionais/',
     delete: '/api/v1/profissionais/',
-  },
-  /*mail: {
-    list: '/api/mail/list',
-    details: '/api/mail/details',
-    labels: '/api/mail/labels',
-  },
-  post: {
-    list: '/api/post/list',
-    details: '/api/post/details',
-    latest: '/api/post/latest',
-    search: '/api/post/search',
-  },
-  product: {
-    list: '/api/product/list',
-    details: '/api/product/details',
-    search: '/api/product/search',
-  },*/
+  }
 };

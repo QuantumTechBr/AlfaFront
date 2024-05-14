@@ -4,7 +4,7 @@ import { DashboardDDZView } from "src/sections/dashboards/ddz/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: DDZ',
+  title: 'Dashboard: Fase (DDZ)',
 };
 
 export default function DashboardDDZPage() {

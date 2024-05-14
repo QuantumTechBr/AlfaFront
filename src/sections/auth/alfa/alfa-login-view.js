@@ -82,7 +82,7 @@ export default function AlfaLoginView() {
 
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
-      data.tentativas++;
+      data.tentativas += 1;
 
       if (data.tentativas > 2){
         setErrorMsg(typeof error === 'string' ? error : 'Login ou Senha incorretos. "Clique em Esqueceu a senha?" para recuperar.');
@@ -169,10 +169,6 @@ export default function AlfaLoginView() {
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {renderHead}
-
-      {/*<Alert severity="info" sx={{ mb: 3 }}>
-        Use email : <strong>demo@minimals.cc</strong> / password :<strong> demo1234</strong>
-      </Alert>*/}
 
       {renderForm}
     </FormProvider>

@@ -4,7 +4,7 @@ import { DashboardEscolaView } from "src/sections/dashboards/escola/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Escola',
+  title: 'Dashboard: Fase (Escola)',
 };
 
 export default function DashboardEscolaPage() {

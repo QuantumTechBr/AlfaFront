@@ -17,8 +17,7 @@ export function slugify(input) {
 }
 
 export function randomColor() {
-  let corAleatoria = '#' + Math.floor(Math.random() * 16777215).toString(16);
-  // console.log(corAleatoria);
+  const corAleatoria = '#' + Math.floor(Math.random() * 16777215).toString(16);
   return corAleatoria;
 }
 

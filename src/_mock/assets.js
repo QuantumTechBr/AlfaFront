@@ -239,9 +239,9 @@ export const _phoneNumbers = [
 // ----------------------------------------------------------------------
 
 export const _tiposAvaliacao = [
-  'Avaliação de Fase',
-  // 'Avaliação de Componente Curricular',
-  'Avaliação Diagnóstica',
+  'Acompanhamento de Fase',
+  // 'Acompanhamento de Componente Curricular',
+  'Acompanhamento Diagnóstico',
 ];
 
 export const _habilidades = [
@@ -251,13 +251,7 @@ export const _habilidades = [
   { value: 'H4', label: 'H4' },
 ];
 
-export const _periodos = ['Inicial', 'Final'];
-
-export const _roles = [
-  'Diretor',
-  /*'Acessor DDZ',
-  'Professor',*/
-];
+export const _periodos = ['Entrada', 'Saída'];
 
 export const _anos = [2024, 2023, 2022];
 
@@ -265,82 +259,260 @@ export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografi
 
 export const habilidades_options = ['', 'D', 'DP', 'ND'];
 
-export const promo_options = ['Rendimento Escolar', 'Dispositivo Legal'];
+export const r_options = ['', 'NR', 0, 1];
+
+export const frequencia_options = [
+  'Presente',
+  'Ausente',
+  'Transferido(a)',
+  'Presente mas não respondeu o teste',
+  'Aluno Novo',
+];
 
 export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 export const permissao_values = {
-  'PROFESSOR' : 1,
-  'DIRETOR' : 2,
-  'ASSESSOR DE GESTÃO' : 3,
-  'ASSESSOR DDZ' : 4,
-  'COORDENADOR DE GESTÃO' : 5,
-  'ADMIN' : 6,
-  'SUPERADMIN' : 7,
-}
+  PROFESSOR: 1,
+  DIRETOR: 2,
+  'ASSESSOR DE GESTÃO': 3,
+  'ASSESSOR DDZ': 4,
+  'COORDENADOR DE GESTÃO': 5,
+  ADMIN: 6,
+  SUPERADMIN: 7,
+};
 
 export const anos_options = ['1', '2', '3'];
 
-export const anos_metas = {'1': 95, '2': 100, '3': 100 };
+export const anos_metas = { 1: 95, 2: 100, 3: 100 };
 
-export const anos_fase_adequada = {'1': 'Alfabética Parcial', '2': 'Alfabética Completa', '3': 'Alfabética Consolidada' };
+export const anos_fase_adequada = {
+  1: 'Alfabética Parcial',
+  2: 'Alfabética Completa',
+  3: 'Alfabética Consolidada',
+};
 
-export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos']
+export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos'];
 
-export const fases_options = ['', 'Pré Alfabética', 'Alfabética Parcial', 'Alfabética Completa', 'Alfabética Consolidada'];
+export const fases_options = [
+  '',
+  'Pré Alfabética',
+  'Alfabética Parcial',
+  'Alfabética Completa',
+  'Alfabética Consolidada',
+];
+
+export const necessidades_especiais = [
+  'BAIXA VISAO',
+  'CEGUEIRA',
+  'DEFICIENCIA AUDITIVA',
+  'DEFICIENCIA LOCOMOTORA',
+  'AUTISMO',
+  'ALTAS HABILIDADES/SUPERDOTACAO',
+  'AUTISMO INFANTIL',
+  'DEFICIENCIA FISICA',
+  'DEFICIENCIA INTELECTUAL',
+  'DEFICIENCIAS MULTIPLAS',
+  'SINDROME DE ASPERGER',
+];
 
 export const habilidades_1ano = [
-  {id: '33d4467f-c3a0-cf32-69dc-b98eb5e857bc', descricao: 'H1 - Respeita e expressa sentimentos e emoções.' },
-  {id: '035e3ecf-f7c1-37f3-3f92-45dff7678dbd', descricao: 'H2 - Atua em grupo e demonstra interesse em construir novas relações, respeitando a diversidade e solidarizando-se com os outros' },
-  {id: 'b175f2f4-a4be-105a-1b95-5a62e005ed16', descricao: 'H3 - Conhece e respeita regras de convívio social, manifestando respeito pelo outro.' },
-  {id: '281f7e3d-db14-77a7-de65-dd4d9aa0cb65', descricao: 'H4 - Reconhece a importância de ações e situações do cotidiano que contribuem para o cuidado de sua saúde e a manutenção de ambientes saudáveis.' },
-  {id: 'd7ce0b41-6347-3866-ed3d-0519a3306729', descricao: 'H5 - Apresenta autonomia nas práticas de higiene, de alimentação, de vestir-se e no cuidado com seu bem-estar, valorizando o próprio corpo.' },
-  {id: '9ca6e920-6bdd-741a-3706-fdc5bc1ba8bf', descricao: 'H6 - Utiliza o corpo intencionalmente (com criatividade, controle e adequação) como instrumento de interação com o outro e com o meio.' },
-  {id: "ec7df0d5-669b-8359-6ea8-47f6f1157b34", descricao: 'H7 - Coordena suas habilidades manuais.' },
-  {id: '0f141725-9319-bb3f-e51c-9020e023c4d1', descricao: 'H8 - Expressa ideias, desejos e sentimentos em distintas situações de interação, por diferentes meios.'},
-  {id: '29c85f27-b455-f593-800b-9acaaf4d952f', descricao: 'H9 - Argumenta e relata fatos oralmente, em sequência temporal e causal, organizando e adequando sua fala ao contexto em que é produzida.' },
-  {id: '1aa665ba-dde0-ec42-0b19-5fbb1a8c48c4', descricao: 'H10 - Ouve, compreende, conta, reconta e cria narrativas.' },
-  {id: 'bc897254-812a-0080-b7bf-6eb50527aafd', descricao: 'H11 - Conhece diferentes gêneros e portadores textuais, demonstrando compreensão da função social da escrita e reconhecendo a leitura como fonte de prazer e informação.' },
-  {id: '6a14fb6b-9101-9775-e66e-cfab1445042e', descricao: 'H12 - Discrimina os diferentes tipos de sons e ritmos e interage com a música, percebendo-a como forma de expressão individual e coletiva.'},
-  {id: '527e73cb-3276-533e-d61c-b20f969903e6', descricao: 'H13 - Expressa-se por meio das artes visuais, utilizando diferentes materiais.' },
-  {id: 'bbe1afd0-1c62-0288-7d30-962e53648a8f', descricao: 'H14 - Relacionar-se com o outro empregando gestos, palavras, brincadeiras, jogos, imitações, observações e expressão corporal.' },
-  {id: 'dac5ca6f-d180-d713-6e98-f03df10226e4', descricao: 'H15 - Identificar, nomear adequadamente e compara as propriedades dos objetos, estabelecendo relações entre eles' },
-  {id: '495cc29d-fe71-8a0a-6bfa-a1e72de06970', descricao: 'H16 - Interage com o meio ambiente e com fenômenos naturais ou artificiais, demonstrando curiosidade e cuidado com relação a eles' },
-  {id: '19df21e0-0c1f-7cc6-14dc-75a469f2e44e', descricao: 'H17 - Utiliza vocabulário relativo às noções de grandeza (maior, menor, igual etc.), espaço (dentro e fora) e medidas (comprido, curto, grosso, fino) como meio de comunicação de suas experiências' },
-  {id: '192d652e-9368-ac9f-ba26-00f87450dcde', descricao: 'H18 - Utiliza unidades de medida (dia e noite; dias, semanas, meses e ano) e noções de tempo (presente, passado e futuro, antes, agora e depois), para responder a necessidades e questões do cotidiano'},
+  {
+    id: '33d4467f-c3a0-cf32-69dc-b98eb5e857bc',
+    descricao: 'H1 - Respeita e expressa sentimentos e emoções.',
+  },
+  {
+    id: '035e3ecf-f7c1-37f3-3f92-45dff7678dbd',
+    descricao:
+      'H2 - Atua em grupo e demonstra interesse em construir novas relações, respeitando a diversidade e solidarizando-se com os outros',
+  },
+  {
+    id: 'b175f2f4-a4be-105a-1b95-5a62e005ed16',
+    descricao:
+      'H3 - Conhece e respeita regras de convívio social, manifestando respeito pelo outro.',
+  },
+  {
+    id: '281f7e3d-db14-77a7-de65-dd4d9aa0cb65',
+    descricao:
+      'H4 - Reconhece a importância de ações e situações do cotidiano que contribuem para o cuidado de sua saúde e a manutenção de ambientes saudáveis.',
+  },
+  {
+    id: 'd7ce0b41-6347-3866-ed3d-0519a3306729',
+    descricao:
+      'H5 - Apresenta autonomia nas práticas de higiene, de alimentação, de vestir-se e no cuidado com seu bem-estar, valorizando o próprio corpo.',
+  },
+  {
+    id: '9ca6e920-6bdd-741a-3706-fdc5bc1ba8bf',
+    descricao:
+      'H6 - Utiliza o corpo intencionalmente (com criatividade, controle e adequação) como instrumento de interação com o outro e com o meio.',
+  },
+  {
+    id: 'ec7df0d5-669b-8359-6ea8-47f6f1157b34',
+    descricao: 'H7 - Coordena suas habilidades manuais.',
+  },
+  {
+    id: '0f141725-9319-bb3f-e51c-9020e023c4d1',
+    descricao:
+      'H8 - Expressa ideias, desejos e sentimentos em distintas situações de interação, por diferentes meios.',
+  },
+  {
+    id: '29c85f27-b455-f593-800b-9acaaf4d952f',
+    descricao:
+      'H9 - Argumenta e relata fatos oralmente, em sequência temporal e causal, organizando e adequando sua fala ao contexto em que é produzida.',
+  },
+  {
+    id: '1aa665ba-dde0-ec42-0b19-5fbb1a8c48c4',
+    descricao: 'H10 - Ouve, compreende, conta, reconta e cria narrativas.',
+  },
+  {
+    id: 'bc897254-812a-0080-b7bf-6eb50527aafd',
+    descricao:
+      'H11 - Conhece diferentes gêneros e portadores textuais, demonstrando compreensão da função social da escrita e reconhecendo a leitura como fonte de prazer e informação.',
+  },
+  {
+    id: '6a14fb6b-9101-9775-e66e-cfab1445042e',
+    descricao:
+      'H12 - Discrimina os diferentes tipos de sons e ritmos e interage com a música, percebendo-a como forma de expressão individual e coletiva.',
+  },
+  {
+    id: '527e73cb-3276-533e-d61c-b20f969903e6',
+    descricao: 'H13 - Expressa-se por meio das artes visuais, utilizando diferentes materiais.',
+  },
+  {
+    id: 'bbe1afd0-1c62-0288-7d30-962e53648a8f',
+    descricao:
+      'H14 - Relacionar-se com o outro empregando gestos, palavras, brincadeiras, jogos, imitações, observações e expressão corporal.',
+  },
+  {
+    id: 'dac5ca6f-d180-d713-6e98-f03df10226e4',
+    descricao:
+      'H15 - Identificar, nomear adequadamente e compara as propriedades dos objetos, estabelecendo relações entre eles',
+  },
+  {
+    id: '495cc29d-fe71-8a0a-6bfa-a1e72de06970',
+    descricao:
+      'H16 - Interage com o meio ambiente e com fenômenos naturais ou artificiais, demonstrando curiosidade e cuidado com relação a eles',
+  },
+  {
+    id: '19df21e0-0c1f-7cc6-14dc-75a469f2e44e',
+    descricao:
+      'H17 - Utiliza vocabulário relativo às noções de grandeza (maior, menor, igual etc.), espaço (dentro e fora) e medidas (comprido, curto, grosso, fino) como meio de comunicação de suas experiências',
+  },
+  {
+    id: '192d652e-9368-ac9f-ba26-00f87450dcde',
+    descricao:
+      'H18 - Utiliza unidades de medida (dia e noite; dias, semanas, meses e ano) e noções de tempo (presente, passado e futuro, antes, agora e depois), para responder a necessidades e questões do cotidiano',
+  },
 ];
 
 export const habilidades_2ano = [
-  {id: 'c5f69e39-be03-6079-9a7c-c0eb75fededb', descricao: 'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF01LP04, EF01LP14, EF12LP10)' },
-  {id: '705ba427-d594-7dd5-b046-382dad3c6ed1', descricao: 'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF01LP11)' },
-  {id: '145ad4e1-d176-074a-ba04-abc5cbbf5e36', descricao: 'H3 - Conhece o alfabeto (EF01LP10)' },
-  {id: '2de8ffa2-bdd7-3aed-1684-171779d27367', descricao: 'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF01LP12)' },
-  {id: "f5074a28-282b-d9ef-748b-73a4c1965abb", descricao: 'H5 - Domina as relações entre grafemas e fonemas (EF01LP05, EF01LP06, EF01LP07, EF01LP08)' },
-  {id: '09788836-32a7-9a70-3edd-b20acbd05c02', descricao: 'H6 - Sabe decodificar palavras e textos escritos(EF01LP08)' },
-  {id: '2f09568b-1e1b-aaf3-d8a7-5f86f0442b0e', descricao: 'H7 - Sabe ler, reconhecendo globalmente as palavras (EF01LP09)' },
-  {id: '232dd40e-b0c4-981c-404a-f17ade570194', descricao: 'H8 - Amplia a sacada do olhar para porções maiores de t…leitura(fatiamento)(EF01LP12, EF01LP03, EF15LP01)' },
+  {
+    id: 'c5f69e39-be03-6079-9a7c-c0eb75fededb',
+    descricao:
+      'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF01LP04, EF01LP14, EF12LP10)',
+  },
+  {
+    id: '705ba427-d594-7dd5-b046-382dad3c6ed1',
+    descricao:
+      'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF01LP11)',
+  },
+  { id: '145ad4e1-d176-074a-ba04-abc5cbbf5e36', descricao: 'H3 - Conhece o alfabeto (EF01LP10)' },
+  {
+    id: '2de8ffa2-bdd7-3aed-1684-171779d27367',
+    descricao: 'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF01LP12)',
+  },
+  {
+    id: 'f5074a28-282b-d9ef-748b-73a4c1965abb',
+    descricao:
+      'H5 - Domina as relações entre grafemas e fonemas (EF01LP05, EF01LP06, EF01LP07, EF01LP08)',
+  },
+  {
+    id: '09788836-32a7-9a70-3edd-b20acbd05c02',
+    descricao: 'H6 - Sabe decodificar palavras e textos escritos(EF01LP08)',
+  },
+  {
+    id: '2f09568b-1e1b-aaf3-d8a7-5f86f0442b0e',
+    descricao: 'H7 - Sabe ler, reconhecendo globalmente as palavras (EF01LP09)',
+  },
+  {
+    id: '232dd40e-b0c4-981c-404a-f17ade570194',
+    descricao:
+      'H8 - Amplia a sacada do olhar para porções maiores de t…leitura(fatiamento)(EF01LP12, EF01LP03, EF15LP01)',
+  },
 ];
 
 export const habilidades_3ano = [
-  {id: 'd6f06ee1-11e0-511e-10e2-8510051a9950', descricao: 'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF02LP09, EF12LP10)' },
-  {id: '741e8a80-6aa2-c687-87d6-fc51dcbb397f', descricao: 'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF02LP07)' },
-  {id: '12380f1d-c492-5f8d-bc0b-8d159f92f966', descricao: 'H3 - Conhece o alfabeto (EF02LP06, EF02LP01, EF02LP04)' },
-  {id: 'ea477eea-83d9-5234-827a-ee55d4198a1f', descricao: 'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF02LP18, EF15LP18)' },
-  {id: '67cc18a8-bd4c-1040-3c94-069bad399f6d', descricao: 'H5 - Domina as relações entre grafemas e fonemas (EF02LP02, EF02LP03)' },
-  {id: '87ef7dc9-f29a-2fd4-8256-3f8ac3369ba2', descricao: 'H6 - Sabe decodificar palavras e textos escritos(EF12LP01, EF15LP06)' },
-  {id: '56f66cd4-47ca-4453-93be-bc7bbfa403da', descricao: 'H7 - Sabe ler, reconhecendo globalmente as palavras (EF12LP08)' },
-  {id: '9115650a-753f-12e0-ab9f-4428f409737f', descricao: 'H8 - Amplia a sacada do olhar para porções maiores de texto que meras palavras, desenvolvendo assim fluência e rapidez de leitura(fatiamento)(EF02LP26)' },
+  {
+    id: 'd6f06ee1-11e0-511e-10e2-8510051a9950',
+    descricao:
+      'H1 - Compreende diferença entre escrita e outras formas gráficas (outros sistemas de representação)- (EF02LP09, EF12LP10)',
+  },
+  {
+    id: '741e8a80-6aa2-c687-87d6-fc51dcbb397f',
+    descricao:
+      'H2 - Domina as conversações gráficas (letras maiúsculas e minúsculas, cursiva e script)-(EF02LP07)',
+  },
+  {
+    id: '12380f1d-c492-5f8d-bc0b-8d159f92f966',
+    descricao: 'H3 - Conhece o alfabeto (EF02LP06, EF02LP01, EF02LP04)',
+  },
+  {
+    id: 'ea477eea-83d9-5234-827a-ee55d4198a1f',
+    descricao:
+      'H4 - Compreende a natureza alfabética do nosso sistema de escrita(EF02LP18, EF15LP18)',
+  },
+  {
+    id: '67cc18a8-bd4c-1040-3c94-069bad399f6d',
+    descricao: 'H5 - Domina as relações entre grafemas e fonemas (EF02LP02, EF02LP03)',
+  },
+  {
+    id: '87ef7dc9-f29a-2fd4-8256-3f8ac3369ba2',
+    descricao: 'H6 - Sabe decodificar palavras e textos escritos(EF12LP01, EF15LP06)',
+  },
+  {
+    id: '56f66cd4-47ca-4453-93be-bc7bbfa403da',
+    descricao: 'H7 - Sabe ler, reconhecendo globalmente as palavras (EF12LP08)',
+  },
+  {
+    id: '9115650a-753f-12e0-ab9f-4428f409737f',
+    descricao:
+      'H8 - Amplia a sacada do olhar para porções maiores de texto que meras palavras, desenvolvendo assim fluência e rapidez de leitura(fatiamento)(EF02LP26)',
+  },
 ];
 
-export const _turnos = ['matutino', 'vespertino', 'noturno'];
+export const niveis_desempenho = {
+  N1: {
+    description:
+      'Nível 1',
+  },
+  N2: {
+    description:
+      'Nível 2',
+  },
+  N3: {
+    description:
+      'Nível 3',
+  },
+};
+
+export const _turnos = ['matutino', 'vespertino', 'noturno', 'integral'];
+
+export const preDefinedZonaOrder = {
+  SUL: 0,
+  OESTE: 1,
+  NORTE: 2,
+  'CENTRO-SUL': 3,
+  'LESTE I': 4,
+  'LESTE II': 5,
+  RURAL: 6,
+};
 
 const RegistroAprendizagemTipos = {
   diagnostico: 'Diagnóstica',
   fases: 'Fases',
 };
 const RegistroAprendizagemDiagnosticoTipos = {
-  inicial: 'Inicial',
-  final: 'Final',
+  inicial: 'Entrada',
+  final: 'Saída',
 };
 
 export const RegistroAprendizagemFasesCRUD = {
@@ -511,7 +683,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
   {
     id: '2',
@@ -521,7 +693,7 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
   {
     id: '3',
@@ -531,10 +703,9 @@ export const _alunos = [
     data_nascimento: Date(),
     created_at: Date(),
     updated_at: Date(),
-    deleted_at: Date()
+    deleted_at: Date(),
   },
-]
-
+];
 
 export const _registrosAprendizagemComponente = [
   {
@@ -552,7 +723,6 @@ export const _registrosAprendizagemComponente = [
     tipo: RegistroAprendizagemDiagnosticoTipos.inicial,
   },
 ];
-
 
 export const _ddzs = ['DDZ I (Sul) ZONA SUL', 'DDZ I (Sul) ZONA CENTRO-SUL'];
 

@@ -40,12 +40,11 @@ import turmaMethods from './turma-repository';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const TABLE_HEAD = [
-  { id: '', width: 5 },
+  { id: 'checkbox', width: 5 },
   { id: 'nome', label: 'Nome', width: 200 },
   { id: 'email', label: 'E-Mail', width: 300 },
   { id: 'funcao', label: 'Função', width: 200 },
   { id: 'status', label: 'Status', width: 200 },
-  { id: '', width: 88 },
 ];
 
 export default function ProfessorTurmaForm({ turma, open, onClose }) {
@@ -55,21 +54,17 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [currentProfessoresEscola, setCurrentProfessoresEscola] = useState(null);
 
-  const getProfessoresEscola = (id) => {
+  const getProfessoresEscola = useCallback((id) => {
     profissionalMethods
       .getProfessoresByEscolaId({ escolaId: id })
       .then((professores) => {
-        let professoresEscola = professores.data;
-        let professorTurma = professoresEscola.filter((professor) => professor?.turma[0]?.id === turma.id)
-        if (professorTurma.length > 0) {
-          table.setSelected(professorTurma[0].id);
-        }
+        const professoresEscola = professores.data;
         setCurrentProfessoresEscola(professoresEscola);
       })
       .catch((error) => {
         setErrorMsg('Erro de comunicação com a API de profissionais');
       });
-  };
+  }, [table]);
 
   const methods = useForm({});
 
@@ -83,6 +78,9 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
     if (open) {
       setCurrentProfessoresEscola(null);
       getProfessoresEscola(turma.escola.id);
+      if (turma?.professor_turma.length > 0) {
+        table.setSelected(turma?.professor_turma[0]?.usuario?.id)
+      }
     }
   }, [open]);
 
@@ -126,7 +124,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
         table.setSelected(inputValue);
       }
     },
-    [table.selected]
+    [table]
   );
 
   const isLoading = currentProfessoresEscola === undefined || currentProfessoresEscola === null;
@@ -144,14 +142,11 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       <FormProvider methods={methods} onSubmit={onSubmit}>
       <DialogTitle>Definir Professor: {turma?.escola?.nome} {turma?.ano_escolar}º {turma?.nome}</DialogTitle>
       {isLoading ? (
-          <>
-            <Box sx={{ pt: 2 }}>
+          <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-          </>
         ) : (
-          <>
-        <DialogContent>
+          <DialogContent>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <br></br>
           <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
@@ -167,7 +162,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
                     {dataFiltered.map((row) => {
                       return(
                       <ProfessorTurmaTableRow
-                        key={row.id}
+                        key={`ProfessorTurmaTableRow_${row.id}`}
                         row={row}
                         currentTurma={turma}
                         selected={table.selected.includes(row.id)}
@@ -185,12 +180,11 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
                 <Typography variant="subtitle2">{table.selected.length > 0 ? 1 : 0} selecionado</Typography>
               </Box>
         </DialogContent>
-        </>
         )}
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
-            Cancel
+            Cancelar
           </Button>
 
           <LoadingButton type="submit" variant="contained" loading={isSubmitting}>

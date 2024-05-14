@@ -29,7 +29,7 @@ export default function UserTableToolbar({
 }) {
   const popover = usePopover();
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
       onFilters('nome', event.target.value);
     },
@@ -92,6 +92,7 @@ export default function UserTableToolbar({
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          width: "100%"
         }}
       >
         <FormControl
@@ -185,8 +186,8 @@ export default function UserTableToolbar({
           <TextField
             fullWidth
             value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            onChange={handleFilterPesquisa}
+            placeholder="Pesquisar nome do usuário..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -219,8 +220,8 @@ export default function UserTableToolbar({
 
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             userMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Usuários', csvFile.data);
             });

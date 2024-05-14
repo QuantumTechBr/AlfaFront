@@ -53,6 +53,8 @@ export default function FileManagerView() {
 
   const confirm = useBoolean();
 
+  const preparado = useBoolean(false);
+
   const upload = useBoolean();
 
   const [view, setView] = useState('list');
@@ -83,19 +85,10 @@ export default function FileManagerView() {
   const canReset =
     !!filters.name || !!filters.type.length || (!!filters.startDate && !!filters.endDate);
 
-  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
 
-  useEffect(() => {
-    buscaDocumentos({force:true}).then(retorno => {
-      if (retorno.length == 0) {
-        setWarningMsg('A API retornou uma lista vazia de documentos');
-      }
-      setTableData(retorno);
-    });
-  }, []);
 
-  const buscaDocumentos = async ({ force = false } = {}) => {
+  const buscaDocumentos = useCallback(async ({ force = false } = {}) => {
     let returnData = documentos;
     if (force || documentos.length == 0) {
 
@@ -116,7 +109,18 @@ export default function FileManagerView() {
     }
 
     return returnData;
-  };
+  }, [documentos]);
+
+  
+  useEffect(() => {
+    buscaDocumentos({force:true}).then(retorno => {
+      if (retorno.length == 0) {
+        setWarningMsg('A API retornou uma lista vazia de documentos');
+      }
+      setTableData(retorno);
+      preparado.onTrue();
+    });
+  }, []);
 
   const handleChangeView = useCallback((event, newView) => {
     if (newView !== null) {
@@ -189,7 +193,7 @@ export default function FileManagerView() {
     }
     
     upload.onFalse();
-  }, [])
+  }, [buscaDocumentos])
 
   const renderFilters = (
     <Stack
@@ -233,6 +237,8 @@ export default function FileManagerView() {
     />
   );
 
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -261,7 +267,7 @@ export default function FileManagerView() {
           {canReset && renderResults}
         </Stack>
 
-        {notFound ? (
+        {!preparado.value ? (
                 <LoadingBox />
                 ) : (
           <>

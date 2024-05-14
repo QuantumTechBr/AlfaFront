@@ -2,20 +2,16 @@ import PropTypes from 'prop-types';
 import { useEffect, useCallback, useState } from 'react';
 // routes
 import { paths } from 'src/routes/paths';
-import { useRouter } from 'src/routes/hook';
+import { usePathname, useRouter, useSearchParams } from 'src/routes/hook';
 //
 import { useAuthContext } from '../hooks';
 
-import { setSession } from '../context/alfa/utils';
+import { clearSession, isValidToken, setHeaderSession } from '../context/alfa/utils';
 
 // ----------------------------------------------------------------------
 
 const loginPaths = {
   alfa: paths.auth.alfa.login,
-  jwt: paths.auth.jwt.login,
-  auth0: paths.auth.auth0.login,
-  amplify: paths.auth.amplify.login,
-  firebase: paths.auth.firebase.login,
 };
 
 // ----------------------------------------------------------------------
@@ -23,31 +19,37 @@ const loginPaths = {
 export default function AuthGuard({ children }) {
   const router = useRouter();
 
-  const { authenticated, method } = useAuthContext();
+  const { authenticated, method, logout  } = useAuthContext();
 
   const [checked, setChecked] = useState(false);
 
-  const check = useCallback(() => {
-
-    if (!authenticated) {
-      const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
-
-      const loginPath = loginPaths[method];
-
-      const href = `${loginPath}?${searchParams}`;
-
-      setSession(null, null);
-
-      router.replace(href);
-    } else {
+  const checkValidAuth = useCallback(() => {
+    if (isValidToken() && authenticated) {
+      setHeaderSession();
       setChecked(true);
+    } else {
+      logout();
+      clearSession();
+
+      const searchParams = new URLSearchParams({ returnTo: window.location.pathname }).toString();
+      const loginPath = loginPaths[method];
+      const href = `${loginPath}?${searchParams}`;
+      router.replace(href);
     }
-  }, [authenticated, method, router]);
+  }, [logout, authenticated, method, router]);
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const url = pathname + searchParams.toString();
+    // console.log(`url is : ${url}`);
+    if(authenticated) checkValidAuth();
+  }, [ pathname, searchParams, authenticated, checkValidAuth]);
 
   useEffect(() => {
-    check();
+    checkValidAuth();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [checkValidAuth]);
 
   if (!checked) {
     return null;

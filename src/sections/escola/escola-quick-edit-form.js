@@ -2,7 +2,10 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
 import { yupResolver } from '@hookform/resolvers/yup';
+import _ from 'lodash';
+
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
@@ -13,33 +16,42 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-// assets
-import { countries } from 'src/assets/data';
-import { _turnos, _anosSerie, USER_STATUS_OPTIONS } from 'src/_mock';
-// components
-import Iconify from 'src/components/iconify';
-import { useSnackbar } from 'src/components/snackbar';
-import FormProvider, { RHFSelect, RHFTextField, RHFAutocomplete } from 'src/components/hook-form';
+import LoadingBox from 'src/components/helpers/loading-box';
 
-import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+// components
+import { useSnackbar } from 'src/components/snackbar';
+import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
+
 import { ZonasContext } from '../zona/context/zona-context';
 import escolaMethods from './escola-repository';
 
 // ----------------------------------------------------------------------
 
-export default function EscolaQuickEditForm({ currentEscola, open, onClose }) {
+export default function EscolaQuickEditForm({ row, open, onClose, onSave }) {
+  const [currentEscola, setCurrentEscola] = useState();
+  const contextReady = useBoolean(false);
+
   const { enqueueSnackbar } = useSnackbar();
-  
 
   const [errorMsg, setErrorMsg] = useState('');
   const { zonas, buscaZonas } = useContext(ZonasContext);
 
   useEffect(() => {
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-  }, [])
+    contextReady.onFalse();
+    setErrorMsg('');
+    if (open) {
+      setCurrentEscola(row);
+      Promise.all([
+        buscaZonas().catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de zonas');
+        }),
+      ]).then(() => {
+        contextReady.onTrue();
+      });
+    }else{
+      setCurrentEscola(undefined);
+    }
+  }, [buscaZonas, open]);
 
   const NewEscolaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -77,20 +89,22 @@ export default function EscolaQuickEditForm({ currentEscola, open, onClose }) {
         aluno_escola: []
       }
 
-      await escolaMethods.updateEscolaById(currentEscola.id, novaEscola).catch((error) => {
+      const retornoPatch = await escolaMethods.updateEscolaById(currentEscola.id, novaEscola).catch((error) => {
         throw error;
       });
-      reset() 
-      onClose();
+      
       enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
+      onSave(retornoPatch.data);
+      reset();
     } catch (error) {
       setErrorMsg('Tentativa de atualização da Escola falhou');
       console.error(error);
     }
   });
 
-
+  useEffect(() => {
+    reset(defaultValues);
+  }, [currentEscola]);
 
   return (
     <Dialog
@@ -102,52 +116,57 @@ export default function EscolaQuickEditForm({ currentEscola, open, onClose }) {
         sx: { maxWidth: 720 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
-        <DialogTitle>Edição Rápida</DialogTitle>
-        <DialogContent>
-          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-          <br></br>
-          <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
-          <RHFTextField name="endereco" label="Endereço" sx={{ mb: 3 }}/>
+       {!contextReady.value && <LoadingBox texto='Carregando dependências' mt={4} />}
 
-            <Box
-              rowGap={3}
-              columnGap={2}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
+      {contextReady.value && (
+        <FormProvider methods={methods} onSubmit={onSubmit}>
+          <DialogTitle>Edição Rápida</DialogTitle>
+          <DialogContent>
+            {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+            <br></br>
+            <RHFTextField name="nome" label="Nome" sx={{ mb: 3 }}/>
+            <RHFTextField name="endereco" label="Endereço" sx={{ mb: 3 }}/>
 
-            >
-              <RHFSelect name="zona" label="DDZ">
-                {zonas.map((zona) => (
-                  <MenuItem key={zona.id} value={zona.id}>
-                    <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-              <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
+              <Box
+                rowGap={3}
+                columnGap={2}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
 
-          </Box>
-        </DialogContent>
+              >
+                <RHFSelect name="zona" label="DDZ">
+                  {zonas.map((zona) => (
+                    <MenuItem key={zona.id} value={zona.id}>
+                      <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+                    </MenuItem>
+                  ))}
+                </RHFSelect>
+                <RHFTextField name="cidade" label="Cidade" disabled={true} sx={{ mb: 3 }}/>
 
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+            </Box>
+          </DialogContent>
 
-          <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-            Atualizar
-          </LoadingButton>
-        </DialogActions>
-      </FormProvider>
+          <DialogActions>
+            <Button variant="outlined" onClick={onClose}>
+              Cancelar
+            </Button>
+
+            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              Atualizar
+            </LoadingButton>
+          </DialogActions>
+        </FormProvider>
+      )}
     </Dialog>
   );
 }
 
 EscolaQuickEditForm.propTypes = {
-  currentEscola: PropTypes.object,
+  row: PropTypes.object,
   onClose: PropTypes.func,
+  onSave: PropTypes.func,
   open: PropTypes.bool,
 };

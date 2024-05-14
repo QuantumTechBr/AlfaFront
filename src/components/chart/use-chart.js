@@ -189,20 +189,16 @@ export default function useChart(options) {
       },
     },
 
-    // Responsive
     responsive: [
       {
         // sm
         breakpoint: theme.breakpoints.values.sm,
         options: {
-          plotOptions: { bar: { columnWidth: '40%' } },
-        },
-      },
-      {
-        // md
-        breakpoint: theme.breakpoints.values.md,
-        options: {
-          plotOptions: { bar: { columnWidth: '32%' } },
+          title: {
+            style: {
+              fontSize: '16px',
+            },
+          },
         },
       },
     ],

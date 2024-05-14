@@ -11,7 +11,7 @@ import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider from 'src/components/hook-form';
-import { _habilidades, _roles, _ddzs, _escolas, habilidades_options } from 'src/_mock';
+import { _habilidades, habilidades_options } from 'src/_mock';
 import { useEffect, useState } from 'react';
 import RegistroAprendizagemDiagnosticoNewEditTable from './registro-aprendizagem-diagnostico-new-edit-table';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
@@ -42,7 +42,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   }
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -66,61 +66,139 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           habilidades_registro_aprendizagem: alunoTurma.mapHabilidades,
           id_aluno_turma: alunoTurma.id,
           promo_ano_anterior: alunoTurma.promo_ano_anterior,
+          frequencia: alunoTurma.frequencia,
+          r: alunoTurma.r,
         }       
       })
       setValue('registros', novosRegistros); 
     }
-  }, [alunosTurma, turma]);
+  }, [alunosTurma, setValue, turma]);
 
   const values = watch();
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data)
     const registrosAprendizagem = [];
     alunosTurma.forEach((itemList) => {
-      const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
-      const habilidadesRegistroAprendizagem = [];
-      for (let item in dataHabilidades) {
-        if (typeof (dataHabilidades[item]) == 'string') {
-          if (itemList.id_habilidades_registro_aprendizagem) {
-            let encontrada = itemList.id_habilidades_registro_aprendizagem[item];
-            const habilidadeRegistroAprendizagem = {
-              habilidade_id: item,
-              nota: dataHabilidades[item],
-              id: encontrada,
+      let frequencia = data.registros[itemList.id].frequencia
+      let freqBool = false;
+      if (frequencia != undefined && frequencia != '') {
+        freqBool = true;
+      }
+      // const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
+      // const habilidadesRegistroAprendizagem = [];
+      // for (const item in dataHabilidades) {
+      //   if (typeof (dataHabilidades[item]) == 'string') {
+      //     if (itemList.id_habilidades_registro_aprendizagem) {
+      //       const encontrada = itemList.id_habilidades_registro_aprendizagem[item];
+      //       const habilidadeRegistroAprendizagem = {
+      //         habilidade_id: item,
+      //         nota: dataHabilidades[item],
+      //         id: encontrada,
+      //       }
+      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+      //     } else {
+      //       const habilidadeRegistroAprendizagem = {
+      //         habilidade_id: item,
+      //         nota: dataHabilidades[item],
+      //       }
+      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+      //     }
+      //   }
+      // }
+      let habilidades_registro_aprendizagem = [];
+      let mediaLP = 0;
+      let mediaMAT = 0;
+      let mediaFINAL = 0;
+      let ptMedBool = true;
+      let matMedBool = true;
+      let pt = false;
+      let mat = false;
+      const dataR = data.registros[itemList.id].r;
+      for (let index = 0; index < 20; index++) {
+        if (index < 10) {
+          if (dataR != undefined) {
+            if (data.registros[itemList.id].r[index] !== "") {
+              pt = true;
+            } else {
+              ptMedBool = false;
             }
-            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
-          } else {
-            const habilidadeRegistroAprendizagem = {
-              habilidade_id: item,
-              nota: dataHabilidades[item],
+            mediaLP += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            const habRegAp = {
+              nota: data.registros[itemList.id].r[index],
+              numero_resposta: index + 1,
             }
-            habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
+            habilidades_registro_aprendizagem.push(habRegAp);
+          } 
+        } else {
+          if (dataR != undefined) {
+            if (data.registros[itemList.id].r[index] !== "") {
+              mat = true;
+            } else {
+              matMedBool = false;
+            }
+            mediaMAT += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            mediaFINAL += data.registros[itemList.id].r[index] == "" || data.registros[itemList.id].r[index] == 'NR' ? 0 : data.registros[itemList.id].r[index];
+            const habRegAp = {
+              nota: data.registros[itemList.id].r[index],
+              numero_resposta: index + 1,
+            }
+            habilidades_registro_aprendizagem.push(habRegAp);
           }
         }
       }
-      if (itemList.id_registro) {
-        const registroAprendizagem = {
-          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-          tipo: 'Diagnóstico',
-          periodo: periodo,
-          aluno_turma_id: itemList.id,
-          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
-          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
-          avaliacao_id: itemList.id_registro,
-        }
-        registrosAprendizagem.push(registroAprendizagem);
-      } else {
-        const registroAprendizagem = {
-          nome: `Avaliação de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
-          tipo: 'Diagnóstico',
-          periodo: periodo,
-          aluno_turma_id: itemList.id,
-          promo_ano_anterior: data.registros[itemList.id].promo_ano_anterior == undefined ? '' : data.registros[itemList.id].promo_ano_anterior,
-          habilidades_registro_aprendizagem: habilidadesRegistroAprendizagem,
-        }
-        registrosAprendizagem.push(registroAprendizagem);
+
+
+      if (turma?.ano_escolar == '1') {
+        mediaLP = (mediaLP * 10) / 11;
+        mediaMAT = (mediaMAT * 10) / 11;
+        mediaFINAL = (mediaFINAL * 10) / 22;
+      }else if (turma?.ano_escolar == '2') {
+        mediaLP = (mediaLP * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 10) / 24; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+      }else if (turma?.ano_escolar == '3') {
+        mediaLP = (mediaLP * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaMAT = (mediaMAT * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
+        mediaFINAL = (mediaFINAL * 10) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
       }
+     
+      if (freqBool || pt || mat) {
+        if (itemList.id_registro) {
+          const registroAprendizagem = {
+            nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+            tipo: 'Diagnóstico',
+            periodo: periodo,
+            aluno_turma_id: itemList.id,
+            frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+            media_lingua_portuguesa: ptMedBool ? mediaLP.toFixed(1) : null,
+            media_matematica: matMedBool ? mediaMAT.toFixed(1) : null,
+            media_final: ptMedBool && matMedBool ? mediaFINAL.toFixed(1) : null,
+            // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+            avaliacao_id: itemList.id_registro,
+          }
+          registrosAprendizagem.push(registroAprendizagem);
+        } else {
+          const registroAprendizagem = {
+            nome: `Acompanhamento de Diagnóstico - ${periodo} - Turma ${turma.ano_escolar}º ${turma.nome} - ${itemList.aluno.nome}`,
+            tipo: 'Diagnóstico',
+            periodo: periodo,
+            aluno_turma_id: itemList.id,
+            frequencia: data.registros[itemList.id].frequencia == undefined ? '' : data.registros[itemList.id].frequencia,
+            media_lingua_portuguesa: ptMedBool ? mediaLP.toFixed(1) : null,
+            media_matematica: matMedBool ? mediaMAT.toFixed(1) : null,
+            media_final: ptMedBool && matMedBool ? mediaFINAL.toFixed(1) : null,
+            // media_lingua_portuguesa: Math.trunc(mediaLP) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_matematica: Math.trunc(mediaMAT) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            // media_final: Math.trunc(mediaFINAL) / 10, // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+            habilidades_registro_aprendizagem: habilidades_registro_aprendizagem,
+          }
+          registrosAprendizagem.push(registroAprendizagem);
+        }
+      } 
     });
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
@@ -139,10 +217,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
-      <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
-        {habilidades_options.map((hab) => (
+      {/* <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
+        {habilidades_options.map((hab,index) => (
           hab === '' ? ('') :
           (<Label
+            key={index}
             variant="soft"
             color={(hab === 'D' && 'success') ||
               (hab === 'DP' && 'warning') ||
@@ -155,7 +234,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
             (hab === 'ND' && `${hab} = Não Domina`)}
           </Label>)
         ))}
-      </Stack>
+      </Stack> */}
       <Stack alignItems="flex-end" sx={{ mt: 3, mr: 3 }}>
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar

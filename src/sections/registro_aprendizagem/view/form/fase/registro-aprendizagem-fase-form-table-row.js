@@ -14,12 +14,15 @@ import { useFormContext, Controller } from 'react-hook-form';
 import { RegistroAprendizagemFasesCRUD, RegistroAprendizagemFasesEscrita } from 'src/_mock';
 import { RegistroAprendizagemFasesLeitura } from 'src/_mock';
 //
-import { FormControl, TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import { slugify } from 'src/utils/functions';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import { useCallback } from 'react';
+import Iconify from 'src/components/iconify';
+
 
 // ----------------------------------------------------------------------
 
@@ -29,15 +32,14 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const { user } = useContext(AuthContext);
   const desabilita = useBoolean(false);
   const { id: aluno_turma_id, aluno } = row;
-  const { control, getValues, setValue } = useFormContext();
-  let resultado = getValues('registros[' + aluno_turma_id + '].resultado');
-  let turmaId = getValues('turma.id')
-  let bimestreId = getValues('bimestre.id')
+  const { control, getValues } = useFormContext();
+  const resultado = getValues('registros[' + aluno_turma_id + '].resultado');
+  const turmaId = getValues('turma.id')
   const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
   const bimestreAnterior = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
   const [resultadoPrevio, setResultadoPrevio] = useState("")
 
-  const disableCheckbox = () => {
+  const disableCheckbox = useCallback(() => {
     if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
       return false
     }
@@ -46,9 +48,9 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     } else {
       return false;
     }
-  }
+  }, [getValues, user, aluno_turma_id]);
 
-  const preparacaoInicial = async () => {
+  const preparacaoInicial = useCallback(async () => {
     if (disableCheckbox()) {
       desabilita.onTrue()
     }
@@ -58,14 +60,14 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
         bimestreId: bimestreAnterior.id,
       });
     }
-  }
+  }, [disableCheckbox, desabilita, bimestreAnterior, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, turmaId]);
 
-  const ResultadoPrevio = async ({ alunoTurmaId }) => {
-    let rp = await melhorResultadoAlunoTurma({
+  const ResultadoPrevio = useCallback(async ({ alunoTurmaId }) => {
+    const rp = await melhorResultadoAlunoTurma({
       alunoTurmaId: alunoTurmaId,
     });
     setResultadoPrevio(rp)
-  }
+  }, [melhorResultadoAlunoTurma, setResultadoPrevio]);
 
   useEffect(() => {
     preparacaoInicial() 
@@ -74,7 +76,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   useEffect(() => {
     if (registroAprendizagemFase.length > 0) {
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
-        let registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
+        const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
             ResultadoPrevio({alunoTurmaId: aluno_turma_id});
@@ -87,7 +89,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       }    
       
     }
-  }, [registroAprendizagemFase]);
+  }, [ResultadoPrevio, aluno_turma_id, bimestreAnterior, registroAprendizagemFase, row.aluno.id, user?.permissao_usuario]);
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
@@ -112,13 +114,31 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     }
   }
 
-  return (
-    <>
-      <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
-          <Tooltip key={`tooltip_${aluno_turma_id}`} title={'Registro único da avaliação: ' + aluno_turma_id}>
-            <span>{row.aluno.nome}</span>
+  const nomeAluno = () => {
+    const necessidades_especiais = row.aluno.necessidades_especiais
+      ? JSON.parse(aluno.necessidades_especiais)
+      : '';
+    return (
+      <Box>
+        {row.aluno.nome}
+        {necessidades_especiais != '' && (
+          <Tooltip title={necessidades_especiais}>
+            <Iconify
+              icon="mdi:alphabet-n-circle-outline"
+              sx={{
+                ml: 1,
+              }}
+            />
           </Tooltip>
+        )}
+      </Box>
+    );
+  };
+
+  return (
+    <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
+          {nomeAluno()}
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].aluno_nome'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].id'} />
           <RHFTextField sx={{ display: 'none' }} name={'registros[' + aluno_turma_id + '].alunosTurmas_id'} />
@@ -147,27 +167,26 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
             </TableCell>
           );
         })}
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 250 }}>
           <RHFTextField 
           name={'registros[' + aluno_turma_id + '].leitura'} 
           disabled={true} 
           label="" 
-          value={RegistroAprendizagemFasesLeitura[resultado]}
+          value={RegistroAprendizagemFasesLeitura[resultado] ?? ''}
           />
         </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 120 }}>
           <RHFTextField 
           name={'registros[' + aluno_turma_id + '].escrita'}
           label="" 
           disabled={true} 
-          value={RegistroAprendizagemFasesEscrita[resultado]}
+          value={RegistroAprendizagemFasesEscrita[resultado] ?? ''}
           />
         </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 150 }}>
           <RHFTextField disabled={desabilita.value} name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>
       </TableRow>
-    </>
   );
 }
 

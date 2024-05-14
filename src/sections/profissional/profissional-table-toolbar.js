@@ -28,7 +28,7 @@ export default function ProfissionalTableToolbar({
 }) {
   const popover = usePopover();
 
-  const handleFilterNome = useCallback(
+  const handleFilterPesquisa = useCallback(
     (event) => {
       onFilters('nome', event.target.value);
     },
@@ -91,12 +91,13 @@ export default function ProfissionalTableToolbar({
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          width: "100%"
         }}
       >
         <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 200 },
           }}
         >
           <InputLabel>Função</InputLabel>
@@ -155,8 +156,8 @@ export default function ProfissionalTableToolbar({
           <TextField
             fullWidth
             value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            onChange={handleFilterPesquisa}
+            placeholder="Pesquisar nome do profissional..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -189,8 +190,8 @@ export default function ProfissionalTableToolbar({
 
         <MenuItem
           onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             profissionalMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Profissionais', csvFile.data);
             });

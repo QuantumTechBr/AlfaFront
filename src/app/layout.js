@@ -1,5 +1,7 @@
 import PropTypes from 'prop-types';
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 // i18n
 import 'src/locales/i18n';
 
@@ -36,14 +38,9 @@ import ProgressBar from 'src/components/progress-bar';
 import MotionLazy from 'src/components/animate/motion-lazy';
 import SnackbarProvider from 'src/components/snackbar/snackbar-provider';
 import { SettingsProvider, SettingsDrawer } from 'src/components/settings';
-// sections
-import { CheckoutProvider } from 'src/sections/checkout/context';
+
 // auth
 import { AuthProvider, AuthConsumer } from 'src/auth/context/alfa';
-//import { AuthProvider, AuthConsumer } from 'src/auth/context/jwt';
-// import { AuthProvider, AuthConsumer } from 'src/auth/context/auth0';
-// import { AuthProvider, AuthConsumer } from 'src/auth/context/amplify';
-// import { AuthProvider, AuthConsumer } from 'src/auth/context/firebase';
 
 // ----------------------------------------------------------------------
 
@@ -81,7 +78,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={primaryFont.className}>
+    <html lang="pt-br" className={primaryFont.className}>
       <body>
         <AuthProvider>
           <LocalizationProvider>
@@ -98,17 +95,17 @@ export default function RootLayout({ children }) {
               <ThemeProvider>
                 <MotionLazy>
                   <SnackbarProvider>
-                    <CheckoutProvider>
                       <SettingsDrawer />
                       <ProgressBar />
                       <AuthConsumer>{children}</AuthConsumer>
-                    </CheckoutProvider>
                   </SnackbarProvider>
                 </MotionLazy>
               </ThemeProvider>
             </SettingsProvider>
           </LocalizationProvider>
         </AuthProvider>
+        
+        <SpeedInsights />
       </body>
     </html>
   );

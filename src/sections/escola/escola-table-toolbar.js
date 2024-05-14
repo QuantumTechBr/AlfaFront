@@ -58,14 +58,13 @@ export default function EscolaTableToolbar({
         }}
         sx={{
           p: 2.5,
-          pr: { xs: 2.5, md: 1 },
         }}
       >
 
        <FormControl
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 100 },
+            width: { xs: 1, md: 280 },
           }}
         >
           <InputLabel>DDZ</InputLabel>
@@ -91,41 +90,14 @@ export default function EscolaTableToolbar({
           </Select>
             </FormControl>
 
-        {/* <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {escolaOptions?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
+       
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
             fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            placeholder="Filtrar por nome da escola..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

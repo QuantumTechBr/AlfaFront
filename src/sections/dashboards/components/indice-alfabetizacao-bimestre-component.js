@@ -20,14 +20,14 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   options,
   ...other
 }) {
-  let _percentCalc = (altabetizados, avaliados) => {
-    let _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
+  const _percentCalc = (altabetizados, avaliados) => {
+    const _calculed = Math.floor(((altabetizados ?? 0) / (avaliados ?? 0)) * 100);
     return !Number.isNaN(_calculed) ? _calculed : 0;
   };
 
   let _qtd_bimestres = 0;
   const dados = grid_ddz.map((item) => {
-    let _retorno = {
+    const _retorno = {
       zona_id: item.zona_id,
       zona_nome: item.zona_nome,
       qtd_avaliados: item.qtd_avaliados,
@@ -42,7 +42,7 @@ export default function IndiceAlfabetizacaoBimestreComponent({
   });
 
   const indice_geral = {
-    zona_nome: 'Geral',
+    zona_nome: 'GERAL',
     percent_alfabetizado: _.range(_qtd_bimestres).map((index) =>
       _percentCalc(
         _.sumBy(dados, (s) => s.qtd_alfabetizado[index]),
@@ -55,9 +55,9 @@ export default function IndiceAlfabetizacaoBimestreComponent({
     <Card {...other} sx={{ pb: 2 }}>
       <CardHeader title={title} sx={{ mb: 3 }}></CardHeader>
 
-      <Grid container justifyContent={'space-around'}>
+      <Grid container justifyContent="space-around">
         <IndiceAlfabetizacaoBimestreUnicoComponent
-          key={`indice_alfabetizacao_componente_unico_geral`}
+          key="indice_alfabetizacao_componente_unico_geral"
           dados={indice_geral}
         ></IndiceAlfabetizacaoBimestreUnicoComponent>
 
@@ -88,7 +88,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
   const colors = ['#d11400', '#134EB4', '#0DACEB', '#009a50'];
 
   const qtd_bimestres = dados.percent_alfabetizado.length;
-  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined);
+  const hasData = useCallback((bimestre) => dados.percent_alfabetizado[bimestre] !== undefined, [dados.percent_alfabetizado]);
 
   const chartSeries = [
     ...(hasData(0)
@@ -181,7 +181,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
         fontSize: '12px',
         colors: [..._.fill(_.range(qtd_bimestres - 1), '#FFF', 0, qtd_bimestres - 1), '#000'],
       },
-      formatter: function (value, opts) {
+      formatter: (value, opts) => {
         if (value === null || value == 0) return '';
         if (opts.seriesIndex <= qtd_bimestres - 1) {
           if (opts.dataPointIndex <= qtd_bimestres - 1) {
@@ -191,9 +191,9 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
 
         if (opts.seriesIndex == qtd_bimestres) {
           if (opts.dataPointIndex > 0) {
-            let _percents = opts.w.config.series[opts.seriesIndex].data;
-            let _percentPrev = _percents[opts.dataPointIndex - 1];
-            let _percent = value;
+            const _percents = opts.w.config.series[opts.seriesIndex].data;
+            const _percentPrev = _percents[opts.dataPointIndex - 1];
+            const _percent = value;
             let _difference = percentageChange(_percentPrev, _percent);
             if (_difference == 0 || _difference == Infinity) return '';
             _difference = _difference > 0 ? `+${Math.floor(_difference)}` : Math.ceil(_difference);
@@ -205,7 +205,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
     },
     stroke: {
       width: _.fill(_.range(qtd_bimestres + 1), 4, 0, qtd_bimestres + 1),
-      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha], // TODO USE LODASH FILL
+      colors: [..._.fill(_.range(qtd_bimestres), 'transparent', 0, qtd_bimestres - 1), colorLinha],
       curve: 'straight',
       lineCap: 'round',
     },
@@ -238,7 +238,7 @@ export function IndiceAlfabetizacaoBimestreUnicoComponent({ dados = {}, ...other
       show: false,
     },
 
-    yaxis: [{ show: true, min: 0, max: 100 }],
+    yaxis: [{ show: true, min: 0, max: 100, decimalsInFloat: 0 }],
 
     tooltip: {
       enabled: false,

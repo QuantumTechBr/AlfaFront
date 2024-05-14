@@ -3,6 +3,7 @@
 import axios, { endpoints } from 'src/utils/axios';
 
 export const getDashboardAvaliacaoComponente = payload => axios.post(endpoints.dashboard.avaliacao_componente, payload);
+export const getDashboardAvaliacaoDiagnosticoRede = payload => axios.post(endpoints.dashboard.avaliacao_diagnostico_rede, payload);
 export const getDashboardAvaliacaoDiagnostico = payload => axios.post(endpoints.dashboard.avaliacao_diagnostico, payload);
 export const getDashboardDesempenhoAlunos = payload => axios.post(endpoints.dashboard.desempenho_alunos, payload);
 export const getDashboardIndiceFases = payload => axios.post(endpoints.dashboard.indice_fases, payload);
@@ -13,10 +14,12 @@ export const getDashboardTotalUsuariosAtivos = payload => axios.post(endpoints.d
 export const getDashboardGridRede = payload => axios.post(endpoints.dashboard.grid_rede, payload);
 export const getDashboardGridEscolas = payload => axios.post(endpoints.dashboard.grid_escolas, payload);
 export const getDashboardGridProfessores = payload => axios.post(endpoints.dashboard.grid_professores, payload);
+export const getDashboardGridTurmas = payload => axios.post(endpoints.dashboard.grid_turmas, payload);
 
 //
 const dashboardsMethods = {
     getDashboardAvaliacaoComponente,
+    getDashboardAvaliacaoDiagnosticoRede,
     getDashboardAvaliacaoDiagnostico,
     getDashboardDesempenhoAlunos,
     getDashboardIndiceFases,
@@ -26,11 +29,8 @@ const dashboardsMethods = {
     getDashboardTotalUsuariosAtivos,
     getDashboardGridRede,
     getDashboardGridEscolas,
-    getDashboardGridProfessores
+    getDashboardGridProfessores,
+    getDashboardGridTurmas
 };
 
 export default dashboardsMethods;
-
-
-
-

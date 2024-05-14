@@ -4,12 +4,10 @@ import { useCallback } from 'react';
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
 import Checkbox from '@mui/material/Checkbox';
-import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
 // components
 import Iconify from 'src/components/iconify';
@@ -59,6 +57,11 @@ export default function TurmaTableToolbar({
       return escolaOptions.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
 
+  const renderValueZona = (selected) => 
+    selected.map((zonaId) => {
+      return ddzOptions.find((option) => option.id == zonaId)?.nome;
+    }).join(', ');
+
   return (
     <>
       <Stack
@@ -71,6 +74,7 @@ export default function TurmaTableToolbar({
         sx={{
           p: 2.5,
           pr: { xs: 2.5, md: 1 },
+          width: '100%'
         }}
       >
 
@@ -88,17 +92,17 @@ export default function TurmaTableToolbar({
             value={filters.ddz}
             onChange={handleFilterDdz}
             input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
+            renderValue={renderValueZona}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
               },
             }}
           >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
+            {ddzOptions?.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option.id)} />
+                {option.nome}
               </MenuItem>
             ))}
           </Select>
@@ -134,11 +138,11 @@ export default function TurmaTableToolbar({
         </FormControl>
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
+          {/* <TextField
             fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
-            placeholder="Pesquisar..."
+            placeholder="Pesquisar por nome da escola..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -146,7 +150,7 @@ export default function TurmaTableToolbar({
                 </InputAdornment>
               ),
             }}
-          />
+          /> */}
 
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -160,28 +164,10 @@ export default function TurmaTableToolbar({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        {/* <MenuItem
-          onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:printer-minimalistic-bold" />
-          Imprimir
-        </MenuItem>
-
         <MenuItem
           onClick={() => {
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:import-bold" />
-          Importar
-        </MenuItem> */}
-
-        <MenuItem
-          onClick={() => {
-            let exportFilters = { ...filters, export: 'csv' };
-            let query = new URLSearchParams(exportFilters).toString();
+            const exportFilters = { ...filters, export: 'csv' };
+            const query = new URLSearchParams(exportFilters).toString();
             turmaMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Turmas', csvFile.data);
             });

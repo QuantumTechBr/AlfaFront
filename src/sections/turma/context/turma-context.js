@@ -7,6 +7,27 @@ export const TurmasProvider = ({ children }) => {
   const [turmas, setTurmas] = useState([]);
   let _consultaAtual;
 
+  let mapCachePromises = new Map();
+
+  const buscaTurmasPaginado = async ({args={offset:0, limit:100, ddzs:'', escolas:'', nome:'', status:null}, clear=false} = {}) => {
+    
+    const key = JSON.stringify(args);
+
+    if (mapCachePromises.has(key)) {
+      return mapCachePromises.get(key);
+    }
+
+    const novaBusca = turmaMethods.getAllTurmasPaginado(args).then((response) => {
+      if (response.data == '' || response.data === undefined) response.data = [];
+      return response.data;
+    }).catch((erro) => {
+      throw erro;
+    })
+
+    mapCachePromises.set(key, novaBusca);
+    return novaBusca;
+  };
+
   const buscaTurmas = async ({ force = false } = {}) => {
     let returnData = turmas;
     if (force || turmas.length == 0) {
@@ -27,21 +48,14 @@ export const TurmasProvider = ({ children }) => {
     return returnData;
   };
 
-  const buscaTurmaPorId = async ({ id, force = false } = {}) => {
-    if (!force && turmas.length > 0) {
-      const turmaBuscada = turmas.find((turma) => turma.id == id);
-      if (turmaBuscada) {
-        return turmaBuscada;
-      }
-    }
+  const buscaTurmaPorId = async ({ id } = {}) => {
     return turmaMethods.getTurmaById(id).then((response) => {
       return response.data;
     });
-    return null;
   };
 
   return (
-    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId }}>
+    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId, buscaTurmasPaginado }}>
       {children}
     </TurmasContext.Provider>
   );

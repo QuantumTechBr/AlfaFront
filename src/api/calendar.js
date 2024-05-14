@@ -3,7 +3,7 @@ import useSWR, { mutate } from 'swr';
 // utils
 import { fetcher, endpoints } from 'src/utils/axios';
 import { CALENDAR_COLOR_OPTIONS } from 'src/_mock/_calendar';
-import calendarioMethods from 'src/sections/calendario/calendario-repository';
+import calendarioMethods from 'src/sections/calendar/calendar-repository';
 import { format } from 'date-fns';
 
 // ----------------------------------------------------------------------
@@ -44,9 +44,9 @@ export function useGetEvents() {
 }
 
 function convertToEvent(event) {
-  let data_inicio = new Date(event.data_inicio);
-  let data_final = new Date(event.data_final);
-  let itsAllDay = event.dia_todo ?? false;
+  const data_inicio = new Date(event.data_inicio);
+  const data_final = new Date(event.data_final);
+  const itsAllDay = event.dia_todo ?? false;
   return {
     id: event.id,
     title: event.titulo ?? '_titulo_',
@@ -73,7 +73,7 @@ export async function createEvent(eventData) {
     descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
-  let response = await calendarioMethods.insertCalendario(payload);
+  const response = await calendarioMethods.insertCalendario(payload);
 
   /**
    * Work in local

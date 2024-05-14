@@ -23,8 +23,25 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano_escolar, ano, nome, turno, turmas_alunos, periodo, escola, atualizado_por, created_at, updated_at, deleted_at } = row;
+export default function RegistroAprendizagemDiagnosticoTableRow({
+  row,
+  onDeleteRow,
+  onEditRow,
+}) {
+  const {
+    id,
+    ano_letivo,
+    ano_escolar,
+    ano,
+    nome,
+    turno,
+    periodo,
+    escola_nome,
+    atualizado_por,
+    created_at,
+    updated_at,
+    deleted_at,
+  } = row;
 
   const router = useRouter();
 
@@ -38,41 +55,28 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
     const dadosDiagnostico = {
       turma: id,
       periodo: periodo,
-    }
+    };
     sessionStorage.setItem('dadosDiagnosticoTurma', dadosDiagnostico.turma);
     sessionStorage.setItem('dadosDiagnosticoPeriodo', dadosDiagnostico.periodo);
     router.push(paths.dashboard.registro_aprendizagem.new_diagnostico);
-  }
+  };
 
   return (
     <>
-      <TableRow hover selected={selected} >
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
-
+      <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_letivo}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}°</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{turno}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turmas_alunos.length}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{periodo}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola_nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{atualizado_por}</TableCell>
-
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Editar" placement="top" arrow>
             <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={editarRegistros}>
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
-
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
@@ -100,8 +104,8 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Avaliação"
-        content="Tem certeza que deseja excluir a avaliação?"
+        title="Excluir Acompanhamento"
+        content="Tem certeza que deseja excluir o Acompanhamento?"
         action={
           <Button variant="contained" color="error" onClick={onDeleteRow}>
             Deletar
@@ -113,9 +117,7 @@ export default function RegistroAprendizagemDiagnosticoTableRow({ row, selected,
 }
 
 RegistroAprendizagemDiagnosticoTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

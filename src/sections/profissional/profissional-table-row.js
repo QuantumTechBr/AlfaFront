@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useMemo, useContext, useEffect, useState, useCallback } from 'react';
 // @mui
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
@@ -13,32 +14,41 @@ import Box from '@mui/material/Box';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
-import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { ZonasContext } from '../zona/context/zona-context';
 //
-import ProfissionalQuickEditForm from './profissional-quick-edit-form';
+import Typography from '@mui/material/Typography';
+// auth
+import { useAuthContext } from 'src/auth/hooks';
 
 
 // ----------------------------------------------------------------------
 
-export default function ProfissionalTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
+export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
+  // console.log(row)
+  const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const user = {
-    id: row.id,
-    nome: row.profissional,
-    email: row.email,
-    funcao: row.funcao.id,
-    escola: row.escola?.id,
-    zona: row.zona?.id,
-    turma: row.turma,
-    status: row.status
-  }
+  useEffect(() => {
+    buscaFuncoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de funções');
+    });
+    buscaEscolas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    });
+    buscaZonas().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de zonas');
+    });
 
-
-  const profissionalRender = profissional.toLowerCase();
+  }, [buscaFuncoes, buscaEscolas, buscaZonas]);
 
   const confirm = useBoolean();
 
@@ -47,41 +57,63 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
     confirm.onFalse();
   }
 
-  const quickEdit = useBoolean();
-
   const popover = usePopover();
 
-  let turmaRender = '';
-  turma?.map((item) => {
-    turmaRender += " Turma " + item.nome;
-  });
+  const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
+
+  const renderFuncao = () => {
+    for (let index = 0; index < funcoes.length; index++) {
+      if (funcoes[index]?.id == funcao) {
+        return funcoes[index].nome
+      }
+    }
+    return ''
+  }
+
+  const renderZona = () => {
+    for (let index = 0; index < zonas.length; index++) {
+      if (zonas[index]?.id == zona) {
+        return zonas[index].nome
+      }
+    }
+    return ''
+  }
+
+  const renderEscola = () => {
+    const list_retorno = []
+    for (let index = 0; index < escolas?.length; index++) {
+      for (let i = 0; i < escola?.length; i++) {
+        if (escolas[index]?.id == escola[i]) {
+          list_retorno.push(`- ${escolas[index].nome} `)
+        }
+      }
+    }
+    return(
+    <div>
+           {list_retorno.map((li, index) => (
+            <Typography key={index}>{li}<br></br></Typography>
+          ))}
+    </div>
+  )
+  }
+
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+      <TableRow hover>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcao.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{zona?.nome}</TableCell>
-
-        <Tooltip title={turmaRender} enterDelay={500} leaveDelay={200}>
-          <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.turma?.length > 0 ? 'SIM' : 'NÃO'}</TableCell>
-        </Tooltip>
-
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{renderFuncao()}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderEscola()}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderZona()}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.turma ? 'SIM' : 'NÃO'}</TableCell>
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Quick Edit" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
+          <Tooltip title="Edição Rápida" placement="top" arrow>
+          {checkPermissaoModulo('profissionais', 'editar') && 
+            <IconButton onClick={quickEdit}>
               <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            </IconButton>}
           </Tooltip>
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
@@ -90,7 +122,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         </TableCell>
       </TableRow>
 
-      <ProfissionalQuickEditForm currentUser={user} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -98,6 +129,18 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         arrow="right-top"
         sx={{ width: 140 }}
       >
+       {checkPermissaoModulo('profissionais', 'editar') && 
+        <MenuItem
+          onClick={() => {
+            onEditRow();
+            popover.onClose();
+          }}
+        >
+          <Iconify icon="solar:pen-bold" />
+          Editar
+        </MenuItem>}
+
+         {checkPermissaoModulo('profissionais', 'deletar') && 
         <MenuItem
           onClick={() => {
             confirm.onTrue();
@@ -107,17 +150,7 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
         >
           <Iconify icon="solar:trash-bin-trash-bold" />
           Deletar
-        </MenuItem>
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
+        </MenuItem> }
       </CustomPopover>
 
       <ConfirmDialog
@@ -138,7 +171,6 @@ export default function ProfissionalTableRow({ row, selected, onEditRow, onSelec
 ProfissionalTableRow.propTypes = {
   onDeleteRow: PropTypes.func,
   onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
+  quickEdit: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
 };

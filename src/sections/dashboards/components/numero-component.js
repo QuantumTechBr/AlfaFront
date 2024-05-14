@@ -8,14 +8,14 @@ import { useTheme } from '@mui/material/styles';
 
 // ----------------------------------------------------------------------
 
-export default function NumeroComponent({ title, total, icon, sx, ...other }) {
+export default function NumeroComponent({ title, subtitle, total, icon, sx, ...other }) {
   const theme = useTheme();
 
   return (
     <Card
-    direction="row"
-    sx={{
-        height:"100%",
+      direction="row"
+      sx={{
+        height: '100%',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -29,6 +29,11 @@ export default function NumeroComponent({ title, total, icon, sx, ...other }) {
       <Box>
         <Box sx={{ typography: 'h3', fontWeight: 600 }}>{fNumber(total)}</Box>
         <Box sx={{ color: 'text.primary', typography: 'h6', fontWeight: 700 }}>{title}</Box>
+        {subtitle && (
+          <Box sx={{ opacity: 0.6, color: 'text.grey', typography: 'body2', fontWeight: 500 }}>
+            {subtitle}
+          </Box>
+        )}
       </Box>
 
       <Box
@@ -47,6 +52,7 @@ export default function NumeroComponent({ title, total, icon, sx, ...other }) {
 
 NumeroComponent.propTypes = {
   title: PropTypes.string,
+  subtitle: PropTypes.string,
   total: PropTypes.number,
   icon: PropTypes.oneOfType([PropTypes.element, PropTypes.string]),
   sx: PropTypes.object,

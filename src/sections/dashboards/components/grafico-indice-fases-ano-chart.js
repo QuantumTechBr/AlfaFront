@@ -4,8 +4,7 @@ import { useCallback } from 'react';
 
 // @mui
 import { LinearProgress, Box, Stack, Typography, CardHeader } from '@mui/material';
-import { lighten, alpha, useTheme } from '@mui/material/styles';
-import { bgGradient } from 'src/theme/css';
+import { useTheme } from '@mui/material/styles';
 
 // components
 import Chart, { useChart } from 'src/components/chart';
@@ -56,7 +55,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val) {
+      formatter: (val) => {
         return `${val}%`;
       },
       dropShadow: {
@@ -85,8 +84,8 @@ export default function GraficoIndiceFaseAnoColunasChart({
         highlightDataSeries: true,
       },
       y: {
-        formatter: function (value, { _series, seriesIndex, dataPointIndex, w }) {
-          return series[dataPointIndex]?.value ?? '-';
+        formatter: (value, opts) => {
+          return series[opts.dataPointIndex]?.value ?? '-'; // TODO CHANGE TO opts SERIES opts.config.series
         },
         title: {
           formatter: (s) => 'Quantidade: ',
@@ -111,9 +110,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
           columnDelimiter: ',',
           headerCategory: 'category',
           headerValue: 'value',
-          dateFormatter(timestamp) {
-            return new Date(timestamp).toDateString();
-          },
+          dateFormatter: (timestamp) => new Date(timestamp).toDateString()
         },
         svg: {
           filename: undefined,
@@ -144,13 +141,11 @@ export default function GraficoIndiceFaseAnoColunasChart({
   });
 
   const totalFaseAdequada = useCallback((_faseListToSum = []) => {
-    let total = 0;
-    total = (chart.series ?? []).reduce(
+    return (chart.series ?? []).reduce(
       (acc, item) => acc + (_faseListToSum.includes(item.label) ? item.value : 0),
       0
     );
-    return total;
-  });
+  }, [chart.series]);
 
   const calculoFaseAdequada = useCallback(() => {
     const _faseAdequada = anos_fase_adequada[ano_escolar];
@@ -162,62 +157,60 @@ export default function GraficoIndiceFaseAnoColunasChart({
     _percentFaseAdequada = _percentFaseAdequada <= 100 ? _percentFaseAdequada : 100;
 
     return _percentFaseAdequada;
-  });
+  }, [ano_escolar, total_avaliados, totalFaseAdequada]);
 
   return (
-    <>
-      <Box {...other}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
-          {!!ano_escolar && (<Box sx={{ width: 260, mt: 2 }}>
-            <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
-              Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
-            </Typography>
-            <LinearProgress
-              value={calculoFaseAdequada()}
-              variant="determinate"
-              color="primary"
-              sx={{
-                height: 26,
-                borderRadius: 13,
-                // bgcolor: alpha(theme.palette.common.black, 0.08),
-                span: {
-                  borderRadius: '13px !important',
-                  // ...bgGradient({
-                  //   direction: 'to right',
-                  //   startColor: lighten(theme.palette.primary.main, 0.3),
-                  //   endColor: theme.palette.primary.light,
-                  // }),
-                  '&::before': {
-                    color: theme.palette.common.white,
-                    fontWeight: 700,
-                    content: `"${calculoFaseAdequada()}%"`,
-                    top: 2,
-                    display: 'block',
-                    right: 6,
-                    zIndex: 1,
-                    position: 'absolute',
-                  },
-                },
+    <Box {...other}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center">
+        <CardHeader title={title} sx={{ mb: 1 }}></CardHeader>
+        {!!ano_escolar && (<Box sx={{ width: 260, mt: 2, mr:{ xs: 2, md:0 } }}>
+          <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
+            Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
+          </Typography>
+          <LinearProgress
+            value={calculoFaseAdequada()}
+            variant="determinate"
+            color="primary"
+            sx={{
+              height: 26,
+              borderRadius: 13,
+              // bgcolor: alpha(theme.palette.common.black, 0.08),
+              span: {
+                borderRadius: '13px !important',
+                // ...bgGradient({
+                //   direction: 'to right',
+                //   startColor: lighten(theme.palette.primary.main, 0.3),
+                //   endColor: theme.palette.primary.light,
+                // }),
                 '&::before': {
-                  bgcolor: 'divider',
-                  opacity: 1,
+                  color: theme.palette.common.white,
+                  fontWeight: 700,
+                  content: `"${calculoFaseAdequada()}%"`,
+                  top: 2,
+                  display: 'block',
+                  right: 6,
+                  zIndex: 1,
+                  position: 'absolute',
                 },
-              }}
-            />
-          </Box>)}
-        </Stack>
+              },
+              '&::before': {
+                bgcolor: 'divider',
+                opacity: 1,
+              },
+            }}
+          />
+        </Box>)}
+      </Stack>
 
-        <Chart
-          dir="ltr"
-          width={'100%'}
-          type="bar"
-          series={chartSeries}
-          options={chartOptions}
-          height={height}
-        />
-      </Box>
-    </>
+      <Chart
+        dir="ltr"
+        width="100%"
+        type="bar"
+        series={chartSeries}
+        options={chartOptions}
+        height={height}
+      />
+    </Box>
   );
 }
 

@@ -1,17 +1,14 @@
-
 import { useContext } from 'react';
 import PropTypes from 'prop-types';
 // @mui
 import Button from '@mui/material/Button';
-import Avatar from '@mui/material/Avatar';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
 import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
-import ListItemText from '@mui/material/ListItemText';
-import Box from '@mui/material/Box';
+
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
@@ -20,54 +17,56 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
-import TurmaQuickEditForm from './turma-quick-edit-form';
-import { useRouter } from 'src/routes/hook';
-import { paths } from 'src/routes/paths';
-import { RouterLink } from 'src/routes/components';
-import { AuthContext } from 'src/auth/context/alfa';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
-export default function TurmaTableRow({ row, showEscola, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, nome, escola, ano_escolar, ano, turno, turmas_alunos, media, status, created_at, updated_at, deleted_at } = row;
+export default function TurmaTableRow({ row, showEscola, quickEdit, onEditRow, onDeleteRow }) {
+  const {
+    id,
+    nome,
+    escola,
+    ano_escolar,
+    ano,
+    turno,
+    turmas_alunos,
+    media,
+    status,
+    created_at,
+    updated_at,
+    deleted_at,
+  } = row;
 
-  // console.log(row)
-  
-  const { user } = useContext(AuthContext);
-  
+  const { checkPermissaoModulo, checkFuncao } = useAuthContext();
+
   const turnoRender = turno.toLowerCase();
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
-
-  const router = useRouter();
-
   const popover = usePopover();
 
+  const deleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  };
+
   const listarAlunosTurma = () => {
-    const turmaId = id
+    const turmaId = id;
     // sessionStorage.setItem('filtroTurmaId', turmaId);
     // router.push(paths.dashboard.aluno.list);
-  }
+  };
 
-  const checkProfessor = user?.funcao_usuario[0]?.funcao?.nome == 'PROFESSOR';
+  const isProfessor = checkFuncao('PROFESSOR');
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
+      <TableRow hover>
 
-        {showEscola && (<TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>)}
-
+        {showEscola && <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>}
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}° ano</TableCell>
-
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turnoRender}</TableCell>
-
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+          {turnoRender}
+        </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano.ano}</TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
@@ -96,20 +95,21 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
               'default'
             }
           >
-            {status === 'true' ?  'Ativo' : 'Inativo'}
+            {status === 'true' ? 'Ativo' : 'Inativo'}
           </Label>
         </TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          
-        {/*  TODO: trocar por teste de permissão */}
-          {!checkProfessor &&
-            <Tooltip title="Quick Edit" placement="top" arrow>
-              <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-                <Iconify icon="solar:pen-bold" />
-              </IconButton>
+          {/*  TODO: trocar por teste de permissão */}
+          {!isProfessor && (
+            <Tooltip title="Edição Rápida" placement="top" arrow>
+              {checkPermissaoModulo('turma', 'editar') && (
+                <IconButton onClick={quickEdit}>
+                  <Iconify icon="solar:pen-bold" />
+                </IconButton>
+              )}
             </Tooltip>
-          }
+          )}
 
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
@@ -117,16 +117,25 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         </TableCell>
       </TableRow>
 
-        <TurmaQuickEditForm currentTurma={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
-
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
         sx={{ width: 140 }}
       >
-      {/*  TODO: trocar por teste de permissão */}
-        {!checkProfessor &&
+        {/*  TODO: trocar por teste de permissão */}
+        {checkPermissaoModulo('turma', 'editar') && (
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Editar
+          </MenuItem>
+        )}
+        {!isProfessor && checkPermissaoModulo('turma', 'deletar') && (
           <MenuItem
             onClick={() => {
               confirm.onTrue();
@@ -137,17 +146,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
             <Iconify icon="solar:trash-bin-trash-bold" />
             Deletar
           </MenuItem>
-        }
-
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
+        )}
       </CustomPopover>
 
       <ConfirmDialog
@@ -156,7 +155,7 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
         title="Excluir Turma"
         content="Tem certeza que deseja excluir a turma?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -166,10 +165,9 @@ export default function TurmaTableRow({ row, showEscola, selected, onEditRow, on
 }
 
 TurmaTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
   showEscola: PropTypes.bool,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

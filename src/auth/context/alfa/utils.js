@@ -21,58 +21,51 @@ function jwtDecode(token) {
 
 // ----------------------------------------------------------------------
 
-export const isValidToken = (accessToken) => {
-  if (!accessToken) {
-    return false;
-  }
-
-  //const decoded = jwtDecode(accessToken);
-
-  const currentTime = Date.now() / 1000;
-
-  //return decoded.exp > currentTime;
-  return true;
+export const isValidToken = () => {
+  return localStorage.accessToken && new Date(localStorage.expirationDateToken) > new Date();
 };
 
 // ----------------------------------------------------------------------
 
-export const tokenExpired = (exp) => {
+export const setAlertTokenExpired = (expirationDate) => {
   // eslint-disable-next-line prefer-const
   let expiredTimer;
 
   const currentTime = Date.now();
 
+  const timeLeft = expirationDate - currentTime;
   // Test token expires after 10s
-  // const timeLeft = currentTime + 10000 - currentTime; // ~10s
-  const timeLeft = exp * 1000 - currentTime;
+  // timeLeft = currentTime + 10000 - currentTime; // ~10s
 
   clearTimeout(expiredTimer);
 
   expiredTimer = setTimeout(() => {
     alert('Token expired');
-
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('expirationDate');
-
+    clearSession();
     window.location.href = paths.auth.alfa.login;
   }, timeLeft);
 };
 
 // ----------------------------------------------------------------------
 
-export const setSession = (accessToken, expirationDate) => {
-  if (accessToken) {
-    sessionStorage.setItem('accessToken', accessToken);
-    sessionStorage.setItem('expirationDate', expirationDate);
-    
-    axios.defaults.headers.common.Authorization = `Token ${accessToken}`;
+export const clearSession = () => {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('expirationDateToken');
+  delete axios.defaults.headers.common.Authorization;
+};
 
-    // This function below will handle when token is expired
-    //const { exp } = jwtDecode(accessToken); // ~3 days by minimals server
-    
-    //tokenExpired(expirationDate);
+export const setSession = (accessToken, expirationDate) => {
+  if (accessToken && expirationDate > new Date()) {
+    localStorage.setItem('accessToken', accessToken);
+    localStorage.setItem('expirationDateToken', expirationDate);
+    setHeaderSession();
+    setAlertTokenExpired(expirationDate);
   } else {
-    sessionStorage.removeItem('accessToken');
-    delete axios.defaults.headers.common.Authorization;
+    clearSession();
   }
+};
+
+export const setHeaderSession = () => {
+  localStorage.setItem('accessToken', localStorage.accessToken);
+  axios.defaults.headers.common.Authorization = `Token ${localStorage.accessToken}`;
 };

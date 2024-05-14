@@ -85,7 +85,7 @@ export default function RegistroAprendizagemComponenteListView() {
     // });
     setRegistroAprendizagemList(_registrosAprendizagemComponente);
     setTableData(_registrosAprendizagemComponente);
-  }, []);
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
 
   const table = useTable();
 
@@ -146,7 +146,7 @@ export default function RegistroAprendizagemComponenteListView() {
         [nome]: value,
       }));
     },
-    [table]
+    [table, turmas]
   );
 
   const handleDeleteRow = useCallback(
@@ -192,8 +192,8 @@ export default function RegistroAprendizagemComponenteListView() {
             mb: { xs: 3, md: 5 },
           }}
         >
-          <Typography variant="h4">Avaliação por componente</Typography>
-          <Button
+          <Typography variant="h4">Acompanhamento por componente</Typography>
+          {/* <Button
             component={RouterLink}
             href={paths.dashboard.registro_aprendizagem.new_componente}
             variant="contained"
@@ -203,7 +203,7 @@ export default function RegistroAprendizagemComponenteListView() {
             }}
           >
             Adicionar
-          </Button>
+          </Button> */}
         </Stack>
 
         <Card>

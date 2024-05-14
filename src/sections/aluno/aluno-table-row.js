@@ -4,7 +4,6 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import TableRow from '@mui/material/TableRow';
-import Checkbox from '@mui/material/Checkbox';
 import TableCell from '@mui/material/TableCell';
 import IconButton from '@mui/material/IconButton';
 
@@ -16,69 +15,98 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 //
-import AlunoQuickEditForm from './aluno-quick-edit-form';
 import parse from 'date-fns/parse';
-
+import { useAuthContext } from 'src/auth/hooks';
+import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, onDeleteRow }) {
-  const { id, ano, turma, turno, escola, fase, nome, matricula, data_nascimento, created_at, updated_at, deleted_at } = row;
+export default function AlunoTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
+  const { checkPermissaoModulo } = useAuthContext();
+  const {
+    id,
+    necessidades_especiais,
+    turma_ano_escolar,
+    turma_nome,
+    turma_turno,
+    turma,
+    turno,
+    escola_nome,
+    resultado_fase,
+    nome,
+    matricula,
+    data_nascimento,
+    created_at,
+    updated_at,
+    deleted_at,
+  } = row;
 
-  let date = parse(data_nascimento, 'yyyy-MM-dd', new Date())
+  const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
   let ano_escolar = '';
 
-  if (ano === '') {
-    ano_escolar = ano;
+  if (turma_ano_escolar === '') {
+    ano_escolar = turma_ano_escolar;
   } else {
-    ano_escolar = ano.concat('º ');
+    ano_escolar = turma_ano_escolar ? turma_ano_escolar.concat('º ') : '';
   }
 
   const confirm = useBoolean();
-
-  const quickEdit = useBoolean();
-
   const popover = usePopover();
 
+  const deleteRow = () => {
+    onDeleteRow();
+    confirm.onFalse();
+  };
+
+  const nomeAluno = () => {
+    return (
+      <Box>
+        {nome}
+        {necessidades_especiais != '' && (
+          <Tooltip title={necessidades_especiais}>
+            <Iconify
+              icon="mdi:alphabet-n-circle-outline"
+              sx={{
+                ml: 1,
+              }}
+            />
+          </Tooltip>
+        )}
+      </Box>
+    );
+  };
 
   return (
     <>
-      <TableRow hover selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox checked={selected} onClick={onSelectRow} />
-        </TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
-
+      <TableRow hover>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nomeAluno()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_escolar}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma?.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{turno}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome}</TableCell>
-
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{fase}</TableCell>
-
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola_nome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {ano_escolar} {turma_nome}
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>
+          {turma_turno}
+        </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{resultado_fase}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{date.toLocaleDateString('pt-br')}</TableCell>
 
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
-            <IconButton color={quickEdit.value ? 'inherit' : 'default'} onClick={quickEdit.onTrue}>
-              <Iconify icon="solar:pen-bold" />
-            </IconButton>
+            {checkPermissaoModulo('aluno', 'editar') && (
+              <IconButton onClick={quickEdit}>
+                <Iconify icon="solar:pen-bold" />
+              </IconButton>
+            )}
           </Tooltip>
-
+          {checkPermissaoModulo('aluno', 'deletar') || checkPermissaoModulo('aluno', 'editar') && (
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
+          )}
         </TableCell>
       </TableRow>
-
-      <AlunoQuickEditForm currentAluno={row} open={quickEdit.value} onClose={quickEdit.onFalse} />
 
       <CustomPopover
         open={popover.open}
@@ -86,26 +114,30 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
-          onClick={() => {
-            confirm.onTrue();
-            popover.onClose();
-          }}
-          sx={{ color: 'error.main' }}
-        >
-          <Iconify icon="solar:trash-bin-trash-bold" />
-          Deletar
-        </MenuItem>
+        {checkPermissaoModulo('aluno', 'editar') && (
+          <MenuItem
+            onClick={() => {
+              onEditRow();
+              popover.onClose();
+            }}
+          >
+            <Iconify icon="solar:pen-bold" />
+            Editar
+          </MenuItem>
+        )}
 
-        <MenuItem
-          onClick={() => {
-            onEditRow();
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:pen-bold" />
-          Editar
-        </MenuItem>
+        {checkPermissaoModulo('aluno', 'deletar') && (
+          <MenuItem
+            onClick={() => {
+              confirm.onTrue();
+              popover.onClose();
+            }}
+            sx={{ color: 'error.main' }}
+          >
+            <Iconify icon="solar:trash-bin-trash-bold" />
+            Deletar
+          </MenuItem>
+        )}
       </CustomPopover>
 
       <ConfirmDialog
@@ -114,7 +146,7 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
         title="Excluir Estudante"
         content="Tem certeza que deseja excluir o estudante?"
         action={
-          <Button variant="contained" color="error" onClick={onDeleteRow}>
+          <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
           </Button>
         }
@@ -124,9 +156,8 @@ export default function AlunoTableRow({ row, selected, onEditRow, onSelectRow, o
 }
 
 AlunoTableRow.propTypes = {
-  onDeleteRow: PropTypes.func,
-  onEditRow: PropTypes.func,
-  onSelectRow: PropTypes.func,
   row: PropTypes.object,
-  selected: PropTypes.bool,
+  quickEdit: PropTypes.func,
+  onEditRow: PropTypes.func,
+  onDeleteRow: PropTypes.func,
 };

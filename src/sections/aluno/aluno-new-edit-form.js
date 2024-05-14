@@ -21,6 +21,7 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFTextField,
   RHFSelect,
+  RHFMultiSelect
 } from 'src/components/hook-form';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers';
@@ -34,6 +35,8 @@ import { AuthContext } from 'src/auth/context/alfa';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
+// _mock
+import { necessidades_especiais } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -45,12 +48,19 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
+  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
-  let escolasAssessor = escolas;
-  let alunoNascimento = new Date('01-01-2000');
-  if (currentAluno) {
-    alunoNascimento = parseISO(currentAluno.data_nascimento);
-  }
+
+  const necessidades_options = necessidades_especiais.map(ne => {
+    return {value: ne, label: ne}
+  })
+
+  const alunoNascimento = useMemo(() => {
+    if (currentAluno) {
+      return parseISO(currentAluno.data_nascimento);
+    }
+    return null;
+  }, [currentAluno]);
 
   const NewAlunoSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -65,8 +75,10 @@ export default function AlunoNewEditForm({ currentAluno }) {
       data_nascimento: alunoNascimento,
       escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
       turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
+      necessidades_especiais: currentAluno?.necessidades_especiais ? JSON.parse(currentAluno.necessidades_especiais): [],
+      laudo: currentAluno?.laudo_necessidade ? currentAluno?.laudo_necessidade : 'false'
     }),
-    [currentAluno]
+    [currentAluno, alunoNascimento]
   );
 
   const methods = useForm({
@@ -110,13 +122,16 @@ export default function AlunoNewEditForm({ currentAluno }) {
           }
         ]
       }
-      let nascimento = new Date(data.data_nascimento)
+      const nascimento = new Date(data.data_nascimento)
+      const necessidades_especiais_data = JSON.stringify(data.necessidades_especiais);
       const toSend = {
         nome: data.nome,
         matricula: data.matricula,
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
-        alunos_turmas: aluno_turmas
+        alunos_turmas: aluno_turmas,
+        necessidades_especiais: necessidades_especiais_data,
+        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo
       }
       if (currentAluno) {
         await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({force: true})).catch((error) => {
@@ -139,10 +154,12 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentAluno]);
+  }, [currentAluno, defaultValues, reset]);
 
   useEffect(()  => {
-    buscaEscolas().catch((error) => {
+    buscaEscolas().then(_escolas => {
+      setEscolasAssessor(_escolas)
+    }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {
@@ -151,14 +168,15 @@ export default function AlunoNewEditForm({ currentAluno }) {
     buscaAnosLetivos().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+
+  useEffect(()  => {
     if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
       setValue('escola', user.funcao_usuario[0].escola.id)  
     } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      escolasAssessor = escolas.filter((escola) => {
-        escola.zona.id == user.funcao_usuario[0].zona.id
-      })
+      setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
     } 
-  }, []);
+  }, [escolas, setValue, user.funcao_usuario]);
 
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -202,14 +220,35 @@ export default function AlunoNewEditForm({ currentAluno }) {
             <RHFSelect sx={{
               display: getValues('escola') ? "inherit" : "none"
               }} id={`turma_`+`${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                {turmas.filter((te) => (
-                  te.escola.id == getValues('escola')
-                ))
+                {turmas.filter((te) => te.escola_id == getValues('escola'))
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
                     {turma.ano_escolar}º {turma.nome}
                   </MenuItem>
                 ))}
+            </RHFSelect>  
+
+            <RHFMultiSelect 
+              name="necessidades_especiais" 
+              label="Necessidades Especiais" 
+              options={necessidades_options}
+            >
+              {necessidades_especiais.map((_ne) => (
+                <MenuItem key={_ne} value={_ne} sx={{ height: '34px' }}>
+                  {_ne}
+                </MenuItem>
+              ))}
+            </RHFMultiSelect>
+
+            <RHFSelect sx={{
+              display: getValues('necessidades_especiais') == '' ? "none" : "inherit"
+              }} id="laudo" disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
+                <MenuItem key='laudo_sim' value='true'>
+                  SIM
+                </MenuItem>
+                <MenuItem key='laudo_nao' value='false' selected>
+                  NÃO
+                </MenuItem>
             </RHFSelect>  
 
             </Box>

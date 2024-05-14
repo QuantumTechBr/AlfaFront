@@ -20,8 +20,6 @@ export default function GraficoHorizontalChart({
   const theme = useTheme();
   const { series, options } = chart;
 
-  if (series === undefined) return;
-
   const chartSeries = [
     {
       name: `Índice`,
@@ -67,14 +65,14 @@ export default function GraficoHorizontalChart({
 
     dataLabels: {
       enabled: true,
-      formatter: function (val, opt) {
-        const goals = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex].goals;
+      formatter: (value, opt) => {
+        const { goals } = opt.w.config.series[opt.seriesIndex].data[opt.dataPointIndex];
 
-        if (goals && goals.length) {
-          if (val == 0) return '';
-          return `${val ?? 0}% / ${goals[0]?.value ?? 0}%`;
+        if (goals && goals.length > 0) {
+          if (value == 0) return '';
+          return `${value ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
-        return `${val ?? 0}%`;
+        return `${value ?? 0}%`;
       },
       dropShadow: {
         enabled: true,
@@ -92,7 +90,7 @@ export default function GraficoHorizontalChart({
         highlightDataSeries: false,
       },
       y: {
-        formatter: function (value, opt) {
+        formatter: (value, opt) => {
           return value ?? series[opt.dataPointIndex]?.alfabetizados ?? '-';
         },
         title: {
@@ -139,21 +137,21 @@ export default function GraficoHorizontalChart({
     },
     ...options,
   });
+  
+  if (series === undefined) return;
 
   return (
-    <>
-      <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
-        <Scrollbar>
-          <Chart
-            width={'100%'}
-            type="bar"
-            series={chartSeries}
-            options={chartOptions}
-            height={((series.length * 41) + 94) - 15}
-          />
-        </Scrollbar>
-      </Card>
-    </>
+    <Card {...other} sx={{ pt: 3, pb: 2, px: 1, height: height }}>
+      <Scrollbar>
+        <Chart
+          width="100%"
+          type="bar"
+          series={chartSeries}
+          options={chartOptions}
+          height={series.length * 41 + 94 - 15}
+        />
+      </Scrollbar>
+    </Card>
   );
 }
 

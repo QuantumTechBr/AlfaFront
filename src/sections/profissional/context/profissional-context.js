@@ -37,12 +37,11 @@ export const ProfissionaisProvider = ({ children }) => {
     return profissionalMethods.getProfissionalById(id).then((response) => {
       return response.data;
     });
-    return null;
   };
 
   return (
-    <ProfissionaisContext.Provider value={{ profissionais, buscaProfissionais, buscaProfissionalPorId }}>
+    <ProfissionalContext.Provider value={{ profissionais, buscaProfissionais, buscaProfissionalPorId }}>
       {children}
-    </ProfissionaisContext.Provider>
+    </ProfissionalContext.Provider>
   );
 };

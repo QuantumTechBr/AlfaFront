@@ -4,15 +4,8 @@
     "browser": true,
     "es2021": true
   },
-  "plugins": [
-    "unused-imports",
-    "prettier"
-  ],
-  "extends": [
-    "airbnb",
-    "airbnb/hooks",
-    "prettier"
-  ],
+  "plugins": ["react", "react-hooks", "@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:react/recommended"],
   "parser": "@babel/eslint-parser",
   "parserOptions": {
     "ecmaVersion": "latest",
@@ -23,30 +16,104 @@
       "impliedStrict": true
     },
     "babelOptions": {
-      "presets": [
-        "@babel/preset-react"
-      ]
+      "presets": ["@babel/preset-react"]
     }
   },
   "settings": {
+    "react": {
+      "version": "detect"
+    },
     "import/resolver": {
       "alias": {
-        "map": [
-          [
-            "src",
-            "./src"
-          ]
-        ],
-        "extensions": [
-          ".js",
-          ".jsx",
-          ".json"
-        ]
+        "map": [["src", "./src"]],
+        "extensions": [".js", ".jsx", ".json"]
       }
     }
   },
   "rules": {
+    "@typescript-eslint/array-type": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/ban-tslint-comment": "off",
+    "@typescript-eslint/ban-types": "off",
+    "@typescript-eslint/class-literal-property-style": "off",
+    "@typescript-eslint/consistent-generic-constructors": "off",
+    "@typescript-eslint/consistent-indexed-object-style": "off",
+    "@typescript-eslint/consistent-type-definitions": "off",
+    "@typescript-eslint/no-empty-function": "off",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-shadow": "off",
+    "@typescript-eslint/no-empty-interface": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/prefer-for-of": "off",
+    "@typescript-eslint/prefer-function-type": "off",
+    "@typescript-eslint/no-this-alias": "off",
+    "@typescript-eslint/triple-slash-reference": "off",
+    "no-var": "off",
+    "prefer-rest-params": "off",
+    "prefer-spread": "off",
+    "import/no-named-as-default": 0,
+    "react/no-unescaped-entities": "off",
+    "react-hooks/rules-of-hooks": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "never" }],
+    "react/prop-types": "off",
+    "spaced-comment": [2, "always", { "exceptions": ["-"], "markers": ["/", "/-"] }],
+    // These off- or differently-configured rules work well for us.
+    "no-unused-expressions": "off",
+    "@typescript-eslint/no-unused-expressions": [
+      "error",
+      {
+        "allowShortCircuit": true,
+        "allowTernary": true,
+        "allowTaggedTemplates": true
+      }
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "off",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": true
+      }
+    ],
+    "no-useless-constructor": "off",
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/no-useless-constructor": "warn",
+    "@typescript-eslint/prefer-literal-enum-member": "error",
+    "prefer-const": [
+      "warn",
+      {
+        "destructuring": "any",
+        "ignoreReadBeforeAssign": false
+      }
+    ],
+    "no-restricted-syntax": [
+      "warn",
+      "FunctionExpression",
+      "WithStatement",
+      "BinaryExpression[operator='in']"
+    ],
+    "arrow-body-style": 0,
+    "@typescript-eslint/explicit-function-return-type": "off",
+    "no-plusplus": ["warn", { "allowForLoopAfterthoughts": true }],
+    "no-unsafe-optional-chaining": ["error", { "disallowArithmeticOperators": true }],
+    "no-shadow": [
+      "error",
+      {
+        "builtinGlobals": false,
+        "hoist": "functions",
+        "allow": ["*"],
+        "ignoreOnInitialization": true
+      }
+    ],
+    "no-implicit-coercion": ["error", { "string": false, "boolean": false, "number": false }],
+    "no-extra-boolean-cast": ["error", { "enforceForLogicalOperands": true }],
+    "eqeqeq": "off",
+    "react/display-name": "off",
     "no-alert": 0,
+    "no-undef": 0,
     "camelcase": 0,
     "no-console": 0,
     "no-param-reassign": 0,
@@ -86,12 +153,7 @@
         "allowAsProps": true
       }
     ],
-    "no-unused-vars": [
-      1,
-      {
-        "args": "none"
-      }
-    ],
+    "no-unused-vars": "off",
     "react/jsx-no-duplicate-props": [
       1,
       {

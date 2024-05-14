@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
 import InputLabel from '@mui/material/InputLabel';
@@ -14,35 +14,22 @@ import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import Switch from '@mui/material/Switch';
 import Grid from '@mui/material/Unstable_Grid2';
-import Typography from '@mui/material/Typography';
-import FormControlLabel from '@mui/material/FormControlLabel';
-// utils
-import { fData } from 'src/utils/format-number';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-// assets
-import { countries } from 'src/assets/data';
 // components
-import Label from 'src/components/label';
-import Iconify from 'src/components/iconify';
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSelect,
-  RHFSwitch,
   RHFTextField,
-  RHFUploadAvatar,
-  RHFAutocomplete,
 } from 'src/components/hook-form';
-import { _roles, USER_STATUS_OPTIONS, _ddzs } from 'src/_mock';
+import { USER_STATUS_OPTIONS } from 'src/_mock';
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
-import permissaoMethods from '../permissao/permissao-repository';
+import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 
 // ----------------------------------------------------------------------
@@ -56,13 +43,12 @@ export default function UserNewEditForm({ currentUser }) {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
-  const [permissoes, setPermissoes] = useState([]);
+  const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
 
-  const [velhasFuncoes , setVelhasFuncoes] = useState([]);
-
   const [errorMsg, setErrorMsg] = useState('');
+
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -74,29 +60,21 @@ export default function UserNewEditForm({ currentUser }) {
     buscaZonas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de zonas');
     });
-    
-    permissaoMethods.getAllPermissoes().then(permissoes => {
-      setPermissoes(permissoes.data);
-    }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissões');
-    })
-  }, []);
+    buscaPermissoes().catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de permissoes');
+    });
+  }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
-    let idsAC = [];
+    const idsAC = [];
     let idAG = '';
-    let velhasFunc = [];
-    funcoes.map((funcao) => {
-      if (funcao.nome == "ASSESSOR DDZ" || funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(funcao.id);
-        if (funcao.nome == "ASSESSOR DDZ") {velhasFunc.push(funcao)}
-      } else if (funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = funcao.id;
-      } else {
-        velhasFunc.push(funcao)
+    funcoes.map((_funcao) => {
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
+        idsAC.push(_funcao.id);
+      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
+        idAG = _funcao.id;
       }
     });
-    setVelhasFuncoes(velhasFunc);
     setIdsAssessorCoordenador(idsAC);
     setIdAssessorGestao(idAG);
   }, [funcoes]);
@@ -124,7 +102,7 @@ export default function UserNewEditForm({ currentUser }) {
   );
 
   const methods = useForm({
-    //resolver: yupResolver(NewUserSchema),
+    // resolver: yupResolver(NewUserSchema),
     defaultValues,
   });
 
@@ -141,6 +119,8 @@ export default function UserNewEditForm({ currentUser }) {
   } = methods;
 
   const values = watch();
+
+  const { funcao } = values;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
@@ -195,8 +175,8 @@ export default function UserNewEditForm({ currentUser }) {
           }];
         }
       }
-      const funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == funcao.nome)
+      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
+      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
@@ -213,10 +193,10 @@ export default function UserNewEditForm({ currentUser }) {
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
-      let arrayMsg = Object.values(error).map((msg) => {
-        return msg[0].charAt(0).toUpperCase() + msg[0]?.slice(1);
+      const arrayMsg = Object.values(error).map((msg) => {
+        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
       });
-      let mensagem = arrayMsg.join(' ');
+      const mensagem = arrayMsg.join(' ');
       currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
       console.error(error);
     }
@@ -224,7 +204,21 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(()  => {
     reset(defaultValues)
-  }, [currentUser]);
+    const escIds = [];
+    currentUser?.escola?.map((escolaId) => {
+      escIds.push(escolaId)
+    })
+    const novosFiltros = {
+      escolasAG: escIds
+    }
+    setFilters(novosFiltros);
+  }, [reset, currentUser?.escola, defaultValues]);
+  
+  useEffect(()  => {
+    setFilters(filtros);
+    setValue('escola', '');
+    setValue('zona', '');
+  }, [funcao, setValue]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -236,7 +230,7 @@ export default function UserNewEditForm({ currentUser }) {
     },
     [filters]
   );
-
+  
   const handleEscolasAG = useCallback(
     (event) => {
       handleFilters(
@@ -332,11 +326,11 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {velhasFuncoes.map((funcao) => 
-                  <MenuItem key={funcao.id} value={funcao.id} >
-                    {funcao.nome}
+                {funcoes.map((_funcao) => (
+                  <MenuItem key={_funcao.id} value={_funcao.id}>
+                    {_funcao.nome}
                   </MenuItem>
-                )}
+                ))}
               </RHFSelect>
 
               <RHFSelect name="status" label="Status">
