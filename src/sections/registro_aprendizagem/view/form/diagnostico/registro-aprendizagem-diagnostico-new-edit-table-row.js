@@ -141,13 +141,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     return retorno;
   }
 
-  const mediaLP = () => {
-    let pt = false
+  const mediaLP = useCallback(() => {
+    let pt = true;
     let media = 0;
     
     for (let index = 0; index < 10; index++) {
-      if (getValues('registros['+id+'].r['+index+']') !== "") {
-        pt = true;
+      if (getValues('registros['+id+'].r['+index+']') === "") {
+        pt = false;
       }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
 
@@ -166,7 +166,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     } else{
       return '-'
     }
-  }
+  }, [getValues])
 
   const nivelEscritaLP = () => {
     if (getValues('registros['+id+'].r[9]') == 2) {
@@ -192,12 +192,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
    
-  const mediaMAT = () => {
-    let mat = false;
+  const mediaMAT = useCallback(() => {
+    let mat = true;
     let media = 0;
     for (let index = 10; index < 20; index++) {
-      if (getValues('registros['+id+'].r['+index+']') !== "") {
-        mat = true;
+      if (getValues('registros['+id+'].r['+index+']') === "") {
+        mat = false;
       }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
@@ -215,7 +215,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     } else{
       return '-'
     }
-  }
+  }, [getValues])
    
   const nivelResProb = () => {
     if (getValues('registros['+id+'].r[19]') == 2) {
@@ -241,12 +241,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
    
-  const mediaFinal = () => {
-    let pt_mat = false;
+  const mediaFinal = useCallback(() => {
+    let pt_mat = true;
     let media = 0;
     for (let index = 0; index < 20; index++) {
-      if (getValues('registros['+id+'].r['+index+']') !== "") {
-        pt_mat = true;
+      if (getValues('registros['+id+'].r['+index+']') === "") {
+        pt_mat = false;
       }
       media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
     }
@@ -265,7 +265,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     } else{
       return '-'
     }
-  }
+  },  [getValues])
    
   const nivelFinal = () => {
     if (mediaFinal() <= 4) {
