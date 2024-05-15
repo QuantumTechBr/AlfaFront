@@ -73,8 +73,10 @@ export default function AlunoEscolaTableRow({
           <Tooltip title="Adicionar aluno a escola" placement="top" arrow>
               <IconButton onClick={() => {
               confirmAdicionar.onTrue();
-            }}>
-                <Iconify icon="material-symbols:person-add" color="green" />
+            }}
+            disabled={row?.alunoEscolas[0]?.escola == currentEscola.id ? true : false}
+            >
+                <Iconify icon="material-symbols:person-add" color={row?.alunoEscolas[0]?.escola == currentEscola.id ? "grey" : "green"} />
               </IconButton>
           </Tooltip>
         </TableCell>
@@ -82,8 +84,10 @@ export default function AlunoEscolaTableRow({
           <Tooltip title="Remover aluno a escola" placement="top" arrow>
               <IconButton onClick={() => {
               confirmRemover.onTrue();
-            }}>
-                <Iconify icon="material-symbols:person-cancel" color="red" />
+            }}
+            disabled={row?.alunoEscolas[0]?.escola == currentEscola.id ? false : true}
+            >
+                <Iconify icon="material-symbols:person-cancel" color={row?.alunoEscolas[0]?.escola == currentEscola.id ? "red" : "grey"} />
               </IconButton>
           </Tooltip>
         </TableCell>

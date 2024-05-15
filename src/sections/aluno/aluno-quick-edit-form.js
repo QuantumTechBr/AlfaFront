@@ -40,7 +40,6 @@ import _ from 'lodash';
 
 export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
   const [currentAluno, setCurrentAluno] = useState();
-
   const contextReady = useBoolean(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -61,10 +60,6 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
     contextReady.onFalse();
     setErrorMsg('');
     if (open) {
-      setCurrentAluno({
-        ...row,
-        data_nascimento: parseISO(row.data_nascimento),
-      });
       Promise.all([
         buscaEscolas()
           .then((_escolas) => setEscolasAssessor(_escolas))
@@ -79,6 +74,15 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
         }),
       ]).then(() => {
         contextReady.onTrue();
+        let escola_id = escolas.filter((escola) => escola.nome == row?.escola_nome)[0]?.id
+        // console.log(escolas.filter((escola) => escola.nome == row?.escola_nome))
+        let turma_escola = turmas.filter(turma => turma.escola_id == escola_id);
+        setCurrentAluno({
+          ...row,
+          data_nascimento: parseISO(row.data_nascimento),
+          escola: escola_id,
+          turma: turma_escola.filter((turma) => turma.nome == row?.turma_nome && turma.ano_escolar == row?.turma_ano_escolar && turma.turno == row?.turma_turno)[0]?.id,
+        });
       });
     }
   }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, open]);
@@ -100,8 +104,8 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: currentAluno?.data_nascimento || null,
-      escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
-      turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
+      escola: currentAluno?.escola ? currentAluno.escola : '',
+      turma: currentAluno?.turma ? currentAluno.turma : '',
     }),
     [currentAluno]
   );

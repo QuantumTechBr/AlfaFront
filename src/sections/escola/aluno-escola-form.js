@@ -177,7 +177,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       enqueueSnackbar('Atualizado com sucesso!');
       window.location.reload();
     } catch (error) {
-      setErrorMsg('Tentativa de atualização da turma falhou');
+      setErrorMsg('Tentativa de atualização da escola falhou');
       console.error(error);
     }
   });
@@ -187,19 +187,25 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const handleAlunos = (newInputValue) => {
     let novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
     if (novoAlunos.length == alunosSelecionados.length) {
-      console.log(allAlunos)
-      novoAlunos.push(allAlunos.filter((al) => al?.id == newInputValue?.id)[0]);
+      novoAlunos.push(allAlunos?.filter((al) => al?.id == newInputValue?.id)[0]);
     }
     setAlunosSelecionados(novoAlunos);
-    console.log(alunosSelecionados)
     setValue("alunos", newInputValue)
   }
 
   const handleAdicionarAluno = useCallback(
     (aluno) => {
-      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id
-      const alunoEscola = [{ aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }]
-      escolaMethods.updateAlunosByEscolaId(escola?.id, alunoEscola)
+      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id;
+      const alunoEscola = [{ aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }];
+      try {
+        escolaMethods.updateAlunosByEscolaId(escola?.id, alunoEscola);
+        enqueueSnackbar('Atualizado com sucesso!');
+        setAlunosSelecionados([]);
+        setAlunos([]);
+      } catch (error) {
+        setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+        console.error(error);
+      }
     },
     [escola, anosLetivos]
   );
@@ -207,7 +213,15 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const handleRemoverAluno = useCallback(
     (aluno) => {
       const alunoEscolaId = aluno?.alunoEscolas?.filter((ae) => ae?.escola == escola?.id)[0]?.id;
-      escolaMethods.deleteAlunosByEscolaId(escola?.id, alunoEscolaId)
+      try {
+        escolaMethods.deleteAlunosByEscolaId(escola?.id, alunoEscolaId);
+        enqueueSnackbar('Atualizado com sucesso!');
+        setAlunosSelecionados([]);
+        setAlunos([]);
+      } catch (error) {
+        setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+        console.error(error);
+      }
     },
     [escola]
   );
