@@ -100,7 +100,7 @@ export default function AlunoTableRow({ row, quickEdit, onEditRow, onDeleteRow }
               </IconButton>
             )}
           </Tooltip>
-          {checkPermissaoModulo('aluno', 'deletar') || checkPermissaoModulo('aluno', 'editar') && (
+          {(checkPermissaoModulo('aluno', 'deletar') || checkPermissaoModulo('aluno', 'editar')) && (
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
