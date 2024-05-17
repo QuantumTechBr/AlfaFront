@@ -102,8 +102,10 @@ export default function DashboardDiagnosticaView() {
     pneItem: '-',
   });
 
-  const isZonaFiltered = filters.zona && filters.zona != '';
-  const isEscolaFiltered = (filters.escola?.length ?? 0) > 0;
+  const [filtersApplied, setFiltersApplied] = useState({...filters});
+
+  const isZonaFiltered = !!filtersApplied.zona && filtersApplied.zona != '';
+  const isEscolaFiltered = (filtersApplied.escola?.length ?? 0) > 0;
 
   const [dados, setDados] = useState({
     total_alunos: null,
@@ -237,7 +239,7 @@ export default function DashboardDiagnosticaView() {
         ddz: _filtersToSearch.zona.id ? [_filtersToSearch.zona.id] : [],
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: _.flatten(
-          filters.anoEscolar.map((aE) => {
+          _filtersToSearch.anoEscolar.map((aE) => {
             return getTurmasPorAnoEscolar(aE);
           })
         ),
@@ -1003,6 +1005,8 @@ export default function DashboardDiagnosticaView() {
     [dados]
   );
 
+  const extraTitulo = filtersApplied.zona.nome ?? "SEMED";
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -1069,6 +1073,7 @@ export default function DashboardDiagnosticaView() {
                     },
                   }}
                   onClick={() => {
+                    setFiltersApplied(filters);
                     preencheGraficos();
                   }}
                 >
@@ -1165,7 +1170,7 @@ export default function DashboardDiagnosticaView() {
 
                 <Grid xs={12} lg={4}>
                   <ParticipacaoSemedChart
-                    title="Participação SEMED"
+                    title={`Participação ${extraTitulo}`}
                     chartSeries={participacaoSemedChartSeries()}
                     options={participacaoSemedChartOptions()}
                   />
@@ -1185,7 +1190,7 @@ export default function DashboardDiagnosticaView() {
                 {/* Desempenho GERAL */}
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="SEMED"
+                    title={extraTitulo}
                     chartSeries={Object.values(desempenhoChartSeries('geral'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
@@ -1195,7 +1200,7 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="Língua Portuguesa - SEMED"
+                    title={`Língua Portuguesa - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('lingua_portuguesa'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
@@ -1205,7 +1210,7 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
                 <Grid xs={12} lg={4}>
                   <DesempenhoComponent
-                    title="Matemática - SEMED"
+                    title={`Matemática - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('matematica'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
