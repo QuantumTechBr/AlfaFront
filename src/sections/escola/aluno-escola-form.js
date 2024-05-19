@@ -49,6 +49,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Label from 'src/components/label';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { CollectionsBookmarkOutlined } from '@mui/icons-material';
 
 // ----------------------------------------------------------------------
 
@@ -157,30 +158,30 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   //   query: debouncedSearchFilter,
   // });
 
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
-      await escolaMethods
-        .updateEscolaById(escola.id, {
-          alunoEscolas: table.selected.map((id) => {
-            return {
-              aluno_id: id,
-              ano_id: idAnoLetivoAtual,
-            };
-          }),
-        })
-        .catch((error) => {
-          throw error;
-        });
-      reset();
-      onClose();
-      enqueueSnackbar('Atualizado com sucesso!');
-      window.location.reload();
-    } catch (error) {
-      setErrorMsg('Tentativa de atualização da escola falhou');
-      console.error(error);
-    }
-  });
+  // const onSubmit = handleSubmit(async (data) => {
+  //   try {
+  //     const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
+  //     await escolaMethods
+  //       .updateEscolaById(escola.id, {
+  //         alunoEscolas: table.selected.map((id) => {
+  //           return {
+  //             aluno_id: id,
+  //             ano_id: idAnoLetivoAtual,
+  //           };
+  //         }),
+  //       })
+  //       .catch((error) => {
+  //         throw error;
+  //       });
+  //     reset();
+  //     onClose();
+  //     enqueueSnackbar('Atualizado com sucesso!');
+  //     // window.location.reload();
+  //   } catch (error) {
+  //     setErrorMsg('Tentativa de atualização da escola falhou');
+  //     console.error(error);
+  //   }
+  // });
 
   const isLoading = allAlunos === undefined || allAlunos === null;
 
@@ -236,7 +237,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
         sx: { maxWidth: 800 },
       }}
     >
-      <FormProvider methods={methods} onSubmit={onSubmit}>
+      <FormProvider methods={methods}>
         {/* {isLoading ? (
           <Box sx={{ pt: 2 }}>
               <LoadingBox />
@@ -252,7 +253,9 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <Autocomplete
-                    onChange={(event, newInputValue) => handleAlunos(newInputValue)}
+                    onChange={(event, newInputValue) => {
+                      handleAlunos(newInputValue)}
+                    }
                     value={buscaAlu}
                     options={alunos}
                     noOptionsText="Nenhum aluno encontrado"
@@ -261,7 +264,13 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                       mt: 1, mb: 1
                     }}
                     onInputChange={(event, newInputValue) => {
-                      setBuscaAlu(newInputValue);
+                        setBuscaAlu(newInputValue);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.code === "Enter") {
+                        e.preventDefault()
+                        getAluno(buscaAlu)
+                      }
                     }}
                     renderInput={(params) => (
                       <TextField
@@ -269,7 +278,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                         label="Nome/Matrícula"
                         InputProps={{
                           ...params.InputProps,
-                          startAdornment: (
+                          endAdornment: (
                             <InputAdornment position="end">
                               <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
                                 onClick={() => {
@@ -302,6 +311,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                   />
                   <TableBody>
                     {alunosSelecionados?.map((row) => (
+                      row &&
                       <AlunoEscolaTableRow
                         key={`AlunoEscolaTableRow_${row.id}`}
                         row={row}

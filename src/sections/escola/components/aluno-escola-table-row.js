@@ -31,8 +31,9 @@ export default function AlunoEscolaTableRow({
   onAdicionarAluno,
   onRemoverAluno,
 }) {
+  
   const { id, nome, data_nascimento, matricula, created_at, updated_at, deleted_at } = row;
-
+  console.log(row)
   const date = parse(data_nascimento, 'yyyy-MM-dd', new Date());
 
   const confirmAdicionar = useBoolean();
@@ -74,9 +75,9 @@ export default function AlunoEscolaTableRow({
               <IconButton onClick={() => {
               confirmAdicionar.onTrue();
             }}
-            disabled={row?.alunoEscolas[0]?.escola == currentEscola.id ? true : false}
+            disabled={row.alunoEscolas.length > 0 ? true : false}
             >
-                <Iconify icon="material-symbols:person-add" color={row?.alunoEscolas[0]?.escola == currentEscola.id ? "grey" : "green"} />
+                <Iconify icon="material-symbols:person-add" color={row.alunoEscolas.length > 0 ? "grey" : "green"} />
               </IconButton>
           </Tooltip>
         </TableCell>
