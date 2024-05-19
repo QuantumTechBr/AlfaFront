@@ -903,13 +903,19 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                         onInputChange={(event, newInputValue) => {
                           setBuscaPro(newInputValue);
                         }}
+                        onKeyDown={(e) => {
+                          if (e.code === "Enter") {
+                            e.preventDefault()
+                            getAllProfissionais(buscaPro)
+                          }
+                        }}
                         renderInput={(params) => (
                           <TextField
                             {...params}
                             label="Responsável"
                             InputProps={{
                               ...params.InputProps,
-                              startAdornment: (
+                              endAdornment: (
                                 <InputAdornment position="start">
                                   <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
                                     onClick={() => {

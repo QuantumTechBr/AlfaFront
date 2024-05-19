@@ -207,7 +207,7 @@ export default function RegistroAprendizagemComponenteListView() {
         </Stack>
 
         <Card>
-          <RegistroAprendizagemTableToolbar
+          {/* <RegistroAprendizagemTableToolbar
             filters={filters}
             onFilters={handleFilters}
             anoEscolarOptions={anosLetivos}
@@ -227,7 +227,7 @@ export default function RegistroAprendizagemComponenteListView() {
               results={dataFiltered.length}
               sx={{ p: 2.5, pt: 0 }}
             />
-          )}
+          )} */}
 
           <AppAvaliacaoComponente
             title="Gráfico por Componente"
