@@ -52,7 +52,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
-
+  const [ zonaCtrl, setZonaCtrl ] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -96,27 +96,6 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   }, [contextReady.value]);
 
   useEffect(() => {
-    if (currentUser) {
-      //
-      const escIds = [];
-      if (currentUser?.escola) {
-        const _escolasIds = escolas.map((item) => item.id);
-        (currentUser?.escola ?? []).map((escolaId) => {
-          if (escolaId) {
-            if (_escolasIds.includes(escolaId)) {
-              escIds.push(escolaId);
-            }
-          }
-        });
-      }
-      const novosFiltros = {
-        escolasAG: escIds,
-      };
-      setFilters(novosFiltros);
-    }
-  }, [currentUser]);
-
-  useEffect(() => {
     if (permissoes.length > 0) {
       liberaSalvar.onFalse();
     }
@@ -141,8 +120,8 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           : currentUser?.funcao
         : '',
       status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
-      zona: currentUser?.zona || '',
-      escola: currentUser?.escola || '',
+      zona: zonaCtrl,
+      escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
     }),
     [currentUser]
   );
@@ -173,16 +152,14 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
       };
 
       if (idsAssessorCoordenador.includes(data.funcao)) {
-        if (data.zona == '') {
+        if (zonaCtrl == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return;
         } else {
-          novoUsuario.funcao_usuario = [
-            {
-              funcao_id: data.funcao,
-              zona_id: data.zona,
-            },
-          ];
+          novoUsuario.funcao_usuario = [{
+            funcao_id: data.funcao,
+            zona_id: zonaCtrl,
+          }];
         }
       } else if (data.funcao == idAssessorGestao) {
         if (filters.escolasAG.length == 0) {
@@ -237,9 +214,22 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
     }
   });
 
-  useEffect(() => {
-    reset(defaultValues);
-  }, [currentUser]);
+  useEffect(()  => {
+    reset(defaultValues)
+    const escIds = [];
+    setZonaCtrl(currentUser?.zona);
+    if (currentUser?.escola) {
+      if (currentUser.escola[0]) {
+        currentUser.escola.map((escolaId) => {
+          escIds.push(escolaId)
+        })
+      }
+    }
+    const novosFiltros = {
+      escolasAG: escIds
+    }
+    setFilters(novosFiltros);
+  }, [currentUser, defaultValues, reset]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -262,6 +252,10 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
     [handleFilters]
   );
 
+  const handleZona = useCallback((event) => {
+    setZonaCtrl(event.target.value);
+  }, [setZonaCtrl] );
+
   const renderValueEscolasAG = (selected) =>
     selected
       .map((escolaId) => {
@@ -272,19 +266,33 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   const escolaOuZona = () => {
     if (idsAssessorCoordenador.includes(getValues('funcao'))) {
       return (
-        <RHFSelect
-          id={`zona_` + `${currentUser?.id}`}
-          disabled={getValues('funcao') == '' ? true : false}
-          name="zona"
-          label="DDZ"
-        >
-          {zonas.map((zona) => (
+        <FormControl
+          sx={{
+            flexShrink: 0,
+          }}
+        >      
+          <InputLabel>DDZ</InputLabel>
+          <Select
+            id={`zona_`+`${currentUser?.id}`}
+            name="zona"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={zonaCtrl}
+            onChange={handleZona}
+            label="DDZ"
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+             {zonas.map((zona) => (
             <MenuItem key={zona.id} value={zona.id}>
               <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
             </MenuItem>
           ))}
-        </RHFSelect>
-      );
+          </Select>
+        </FormControl>
+      )
     }
     if (getValues('funcao') == idAssessorGestao) {
       return (
@@ -296,7 +304,8 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
-            name="escola"
+            id={`escolas_`+`${currentUser?.id}`}
+            name="escolas"
             disabled={getValues('funcao') == '' ? true : false}
             value={filters.escolasAG}
             onChange={handleEscolasAG}

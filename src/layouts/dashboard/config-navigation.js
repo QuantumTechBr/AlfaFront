@@ -172,12 +172,22 @@ export function useNavData() {
             }
           );
         }
-
+        if (checkPermissaoModulo('dashboard', 'acesso')) {
         _items.push({
           title: t('home (dashboard)'),
           path: paths.dashboard.root,
           icon: ICONS.alfaHome,
-        });
+          children: [
+            {
+              title: t('Fase'),
+              path: paths.dashboard.root,
+            },
+            {
+              title: t('Diagnóstica'),
+              path: paths.dashboard.root_diagnostico,
+            },
+          ]
+        });}
         if (user?.permissao_usuario[0]?.nome == 'ADMIN') {
           _items.push({
             title: 'Gerenciamento de Usuários',
