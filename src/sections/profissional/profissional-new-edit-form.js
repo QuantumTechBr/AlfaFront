@@ -48,6 +48,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState('');
+  const [ zonaCtrl, setZonaCtrl ] = useState('');
 
   const [funcaoProfessor, setFuncaoProfessor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
@@ -99,8 +100,8 @@ export default function ProfissionalNewEditForm({ currentUser }) {
       senha: currentUser?.senha || '',
       funcao: currentUser?.funcao || '',
       status: (currentUser?.status ? "true" : "false") || '',
-      zona: currentUser?.zona || '',
-      escola: currentUser?.escola || '',
+      zona: zonaCtrl,
+      escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
     }),
     [currentUser]
   );
@@ -144,13 +145,13 @@ export default function ProfissionalNewEditForm({ currentUser }) {
         }
       }
       if (idsAssessorCoordenador.includes(data.funcao)) {
-        if (data.zona == '') {
+        if (zonaCtrl == '') {
           setErrorMsg('Voce deve selecionar uma zona');
           return
         } else {
           novoUsuario.funcao_usuario = [{
             funcao_id: data.funcao,
-            zona_id: data.zona,
+            zona_id: zonaCtrl,
           }];
         }
       } else if (data.funcao == idAssessorGestao) {
@@ -207,20 +208,25 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   useEffect(()  => {
     reset(defaultValues)
     const escIds = [];
-    currentUser?.escola?.map((escolaId) => {
-      escIds.push(escolaId)
-    })
+    setZonaCtrl(currentUser?.zona);
+    if (currentUser?.escola) {
+      if (currentUser.escola[0]) {
+        currentUser.escola.map((escolaId) => {
+          escIds.push(escolaId)
+        })
+      }
+    }
     const novosFiltros = {
       escolasAG: escIds
     }
     setFilters(novosFiltros);
   }, [currentUser, defaultValues, reset]);
   
-  useEffect(()  => {
-    setFilters(filtros);
-    setValue('escola', '');
-    setValue('zona', '');
-  }, [funcao, setValue]);
+  // useEffect(()  => {
+  //   setFilters(filtros);
+  //   setValue('escola', '');
+  //   setValue('zona', '');
+  // }, [funcao, setValue]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -243,22 +249,54 @@ export default function ProfissionalNewEditForm({ currentUser }) {
     [handleFilters]
   );
 
+  const handleZona = useCallback((event) => {
+    setZonaCtrl(event.target.value);
+  }, [setZonaCtrl] )
+
   const renderValueEscolasAG = (selected) => 
-    selected.map((escolaId) => {
-      return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
+    selected?.map((escolaId) => {
+        return escolas.find((option) => option.id == escolaId)?.nome;
+      }).join(', ');
 
   const escolaOuZona = () => {
     if (idsAssessorCoordenador.includes(getValues('funcao'))) {
       return (
-        <RHFSelect
-          id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="zona" label="DDZ">
-          {zonas.map((zona) => (
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+          }}
+        >      
+          <InputLabel>DDZ</InputLabel>
+          <Select
+            id={`zona_`+`${currentUser?.id}`}
+            name="zona"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={zonaCtrl}
+            onChange={handleZona}
+            label="DDZ"
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+             {zonas.map((zona) => (
             <MenuItem key={zona.id} value={zona.id}>
               <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
             </MenuItem>
           ))}
-        </RHFSelect>
+          </Select>
+        </FormControl>
+
+        // <RHFSelect
+        //   id={`zona_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} value={zonaCtrl} onChange={handleZona} label="DDZ">
+        //   {zonas.map((zona) => (
+        //     <MenuItem key={zona.id} value={zona.id}>
+        //       <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+        //     </MenuItem>
+        //   ))}
+        // </RHFSelect>
       )
     } 
     if ( getValues('funcao') == idAssessorGestao ) {
@@ -271,7 +309,8 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
-            name="escola"
+            id={`escolas_`+`${currentUser?.id}`}
+            name="escolas"
             disabled={getValues('funcao') == '' ? true : false}
             value={filters.escolasAG}
             onChange={handleEscolasAG}
