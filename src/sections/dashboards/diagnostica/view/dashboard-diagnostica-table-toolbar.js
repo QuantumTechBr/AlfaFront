@@ -137,6 +137,7 @@ export default function DashboardDiagnosticaTableToolbar({
               multiple
               value={filters.escola}
               onChange={handleFilterEscola}
+              // disabled={filters.zona ? false : true}
               input={<OutlinedInput fullWidth label="Escolas" />}
               renderValue={renderValueEscola}
               MenuProps={{
