@@ -29,7 +29,7 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
                 series: indice_alfabetizacao.map((ia) => {
                   return {
                     x: ia.title,
-                    y: ia.indice_alfabetizacao,
+                    y: ia.indice_alfabetizacao ?? null,
                     alfabetizados: ia.alfabetizados,
                   };
                 }),

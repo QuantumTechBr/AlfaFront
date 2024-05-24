@@ -26,7 +26,8 @@ import { height } from '@mui/system';
 
 export default function ParticipacaoGridChart({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
-  const [seriesTipo, setSeriesTipo] = useState('Entrada');
+  const [seriesTipo, setSeriesTipo] = useState('');
+  if(!seriesTipo) {setSeriesTipo('Entrada')}
 
   const getChartSeries = (_tipo) => {
     const _t = _tipo ?? seriesTipo;
@@ -99,9 +100,12 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
       enabled: true,
       shared: true,
       intersect: false,
+      
       y: {
         formatter: (value, opts) => {
-          return fNumber(opts.w.config.series[opts.seriesIndex].quantidade[opts.dataPointIndex]);
+          // console.log(seriesTipo);
+          // let seriesTeste = getChartSeries();
+          return _series[opts.seriesIndex].quantidade[opts.dataPointIndex]
         },
       },
     },
@@ -153,19 +157,16 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
     return (
       (_.maxBy(_series, (item) => {
         return item.data.length;
-      }).data.length ?? 0) * 45
+      })?.data.length ?? 0) * 45
     );
   }, [_series]);
 
   const popover = usePopover();
 
-  const handleChangeTipo = useCallback(
-    (newValue) => {
-      popover.onClose();
+  const handleChangeTipo = (newValue) => {
       setSeriesTipo(newValue);
-    },
-    [popover]
-  );
+      popover.onClose();
+    }
 
   return (
     <>
@@ -246,8 +247,8 @@ export default function ParticipacaoGridChart({ title, chartSeries = [], options
         {memoizedValues.hasSaida && (
           <MenuItem
             key="MenuItem-Saida"
-            selected={'Saida' === seriesTipo}
-            onClick={() => handleChangeTipo('Saida')}
+            selected={'Saída' === seriesTipo}
+            onClick={() => handleChangeTipo('Saída')}
           >
             Saída
           </MenuItem>
