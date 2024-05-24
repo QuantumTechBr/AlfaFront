@@ -288,7 +288,6 @@ export default function DashboardDiagnosticaView() {
           var escolasFiltered = escolas.filter((escola) => value.id == escola.zona.id);
           setEscolasFiltered(escolasFiltered);
         }
-
         _newFilters = { ...filters, ['escola']: [], [campo]: value };
         setFilters(_newFilters);
       } else {
@@ -1008,7 +1007,7 @@ export default function DashboardDiagnosticaView() {
     [dados]
   );
 
-  const extraTitulo = filtersApplied.zona.nome ?? "SEMED";
+  const extraTitulo = isEscolaFiltered ? "ESCOLAS" : filtersApplied.zona.nome ?? "SEMED";
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>

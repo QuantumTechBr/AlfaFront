@@ -72,7 +72,7 @@ export default function GraficoHorizontalChart({
           if (value == 0) return '';
           return `${value ?? 0}% / ${goals[0]?.value ?? 0}%`;
         }
-        return `${value ?? 0}%`;
+        return value ? `${value}%` : ' ';
       },
       dropShadow: {
         enabled: true,
