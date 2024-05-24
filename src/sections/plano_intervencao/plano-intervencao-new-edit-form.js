@@ -758,13 +758,19 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                 onInputChange={(event, newInputValue) => {
                   setBuscaAlu(newInputValue);
                 }}
+                onKeyDown={(e) => {
+                  if (e.code === "Enter") {
+                    e.preventDefault()
+                    getAluno(buscaAlu)
+                  }
+                }}
                 renderInput={(params) => (
                   <TextField
                     {...params}
                     label="Nome/Matrícula"
                     InputProps={{
                       ...params.InputProps,
-                      startAdornment: (
+                      endAdornment: (
                         <InputAdornment position="start">
                           <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
                             onClick={() => {

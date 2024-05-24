@@ -50,8 +50,11 @@ export default function PlanoIntervencaoEditView({ id }) {
     }
     if (hoje > date_inicio && hoje < date_termino) {
       return 'Em Andamento Dentro do Prazo';
+    } else if (hoje < date_inicio) {
+      return 'Criado';
     } else {
       return 'Em Andamento Fora do Prazo';
+
     }
   }
 

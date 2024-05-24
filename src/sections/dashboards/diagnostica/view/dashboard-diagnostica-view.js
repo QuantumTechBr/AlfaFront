@@ -121,7 +121,7 @@ export default function DashboardDiagnosticaView() {
     grid_escolas: [],
     grid_turmas: [],
   });
-
+  console.log(dados)
   const grid = isEscolaFiltered
     ? dados.grid_turmas
     : isZonaFiltered
@@ -136,8 +136,11 @@ export default function DashboardDiagnosticaView() {
   );
 
   const prepareData = (result) => {
+    if (!result || result.length == 0) {
+      return 
+    }
     // BEGIN adequação dos dados
-
+    result.grid_turmas = result.grid_turmas ? result.grid_turmas : [];
     // TODO REMOVE
     if ((typeof result.total_alunos).toLowerCase() != 'object') {
       result.total_alunos = {
@@ -1074,7 +1077,7 @@ export default function DashboardDiagnosticaView() {
                   }}
                   onClick={() => {
                     setFiltersApplied(filters);
-                    preencheGraficos();
+                    preencheGraficos(filters);
                   }}
                 >
                   Aplicar filtros
@@ -1316,12 +1319,14 @@ export default function DashboardDiagnosticaView() {
                                       'escola',
                                       _.filter(escolas, (_escola) => _escola.id == id)
                                     );
+                                    setFiltersApplied(_filters);
                                     preencheGraficos(_filters);
                                   } else {
                                     const _filters = handleFilters(
                                       'zona',
                                       _.find(zonas, (_zona) => _zona.id == id)
                                     );
+                                    setFiltersApplied(_filters);
                                     preencheGraficos(_filters);
                                   }
                                 }}
@@ -1337,7 +1342,7 @@ export default function DashboardDiagnosticaView() {
                           </TableBody>
                         </Table>
                       </Scrollbar>
-                    </TableContainer>
+                    </TableContainer> 
 
                     <TablePaginationCustom
                       count={dataFiltered.length}
@@ -1348,6 +1353,7 @@ export default function DashboardDiagnosticaView() {
                       onRowsPerPageChange={table.onChangeRowsPerPage}
                       dense={table.dense}
                     />
+                    
                   </Card>
                 </Grid>
               </Grid>
