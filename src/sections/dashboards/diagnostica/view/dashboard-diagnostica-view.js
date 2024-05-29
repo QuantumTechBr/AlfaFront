@@ -1547,8 +1547,8 @@ function RowZona(props) {
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
       <TableCell>{_entradaPresente ?? 0}</TableCell>
       <TableCell>{_entradaAusente ?? 0}</TableCell>
-      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
-      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
+      <TableCell>{_saidaPresente ?? 0}</TableCell>
+      <TableCell>{_saidaAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"
