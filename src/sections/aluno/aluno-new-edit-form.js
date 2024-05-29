@@ -223,7 +223,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
                 {turmas.filter((te) => te.escola_id == getValues('escola'))
                 .map((turma) => (
                   <MenuItem key={turma.id} value={turma.id}>
-                    {turma.ano_escolar}º {turma.nome}
+                    {turma.ano_escolar}º {turma.nome} ({turma.turno})
                   </MenuItem>
                 ))}
             </RHFSelect>  

@@ -37,7 +37,7 @@ export default function IndiceAlfabetizacaoBimestreComponent({
       ),
     };
 
-    _qtd_bimestres = item.qtd_alfabetizado.length;
+    _qtd_bimestres = Math.max(_qtd_bimestres, item.qtd_alfabetizado.length)
     return _retorno;
   });
 
