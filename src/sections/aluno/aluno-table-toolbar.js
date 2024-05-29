@@ -1,7 +1,9 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useState, Fragment } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import IconButton from '@mui/material/IconButton';
@@ -11,11 +13,13 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
+import CloseIcon from '@mui/icons-material/Close';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import alunoMethods from './aluno-repository';
 import { saveCSVFile } from 'src/utils/functions';
+
 
 // ----------------------------------------------------------------------
 
@@ -26,6 +30,10 @@ export default function AlunoTableToolbar({
   turmaOptions,
   faseOptions,
 }) {
+
+  const [openError, setOpenError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
   
   const popover = usePopover();
@@ -96,8 +104,50 @@ export default function AlunoTableToolbar({
       })
       .join(', ');
 
+  const handleClickError = () => {
+    setOpenError(true);
+  };
+
+  const handleCloseError = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenError(false);
+  };
+
+  const actionError = (
+    <Fragment>
+      <IconButton
+        size="small"
+        aria-label="close"
+        color="inherit"
+        onClick={handleCloseError}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Fragment>
+  );
+
   return (
     <>
+      <Snackbar
+        style={{top:'120px'}}
+        open={openError}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        autoHideDuration={6000}
+        onClose={handleCloseError}
+        action={actionError}
+      >
+        <Alert
+          onClose={handleCloseError}
+          severity="error"
+          variant="filled"
+          sx={{ width: '100%' }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
       <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
@@ -261,10 +311,20 @@ export default function AlunoTableToolbar({
 
         <MenuItem
           onClick={() => {
-            const exportFilters = { ...filters, export: 'csv' };
+            const exportFilters = { 
+              escolas: filters.escola, 
+              turmas: filters.turma,
+              fase: filters.fase, 
+              matricula : filters.matricula,
+              nome: filters.nome,
+              export: 'csv'
+            };
             const query = new URLSearchParams(exportFilters).toString();
             alunoMethods.exportFile(query).then((csvFile) => {
               saveCSVFile('Estudantes', csvFile.data);
+            }).catch(erro => {
+              setOpenError(true);
+              setErrorMessage(erro.detail);
             });
             popover.onClose();
             // window.open(alunoMethods.exportFile(query));
