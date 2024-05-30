@@ -292,12 +292,12 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
-        <IconButton onClick={popover.onOpen}>
+        {/* <IconButton onClick={popover.onOpen}>
           <Iconify icon="eva:more-vertical-fill" />
-        </IconButton>
+        </IconButton> */}
       </Stack>
 
-      <CustomPopover
+      {/* <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
@@ -335,7 +335,7 @@ export default function RegistroAprendizagemTableToolbar({
           <Iconify icon="solar:export-bold" />
           Exportar
         </MenuItem>
-      </CustomPopover>
+      </CustomPopover> */}
     </>
   );
 }

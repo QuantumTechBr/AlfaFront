@@ -164,6 +164,8 @@ export default function DashboardEscolaView() {
             };
           });
 
+          result.sort((a, b) => (b.alfabetizados ? b.alfabetizados/b.avaliados : 0) - (a.alfabetizados ? a.alfabetizados/a.avaliados : -1))
+          
           setDados((prevState) => ({
             ...prevState,
             total_alunos_avaliados: result.reduce((acc, i) => acc + (i.avaliados ?? 0), 0),
