@@ -152,10 +152,16 @@ export default function DashboardRedeView() {
             };
           });
 
+          // const _sorted = result.sort((a, b) => {
+          //   const na = preDefinedZonaOrder[a.zona_nome] ?? 0;
+          //   const nb = preDefinedZonaOrder[b.zona_nome] ?? 0;
+          //   return na - nb;
+          // });
+
           const _sorted = result.sort((a, b) => {
-            const na = preDefinedZonaOrder[a.zona_nome] ?? 0;
-            const nb = preDefinedZonaOrder[b.zona_nome] ?? 0;
-            return na - nb;
+            const na = a.alfabetizados ?? 0;
+            const nb = b.alfabetizados ?? 0;
+            return nb - na;
           });
 
           setDados((prevState) => ({

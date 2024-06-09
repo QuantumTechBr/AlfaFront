@@ -113,6 +113,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
           throw error;
         });
       }
+      buscaEscolas({ force: true });
       reset();
       enqueueSnackbar(currentEscola ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       router.push(paths.dashboard.escola.list);

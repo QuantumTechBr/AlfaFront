@@ -143,9 +143,13 @@ export default function DashboardDiagnosticaView() {
     result.grid_turmas = result.grid_turmas ? result.grid_turmas : [];
     // TODO REMOVE
     if ((typeof result.total_alunos).toLowerCase() != 'object') {
+      // result.total_alunos = {
+      //   entrada: result.total_alunos,
+      //   saida: result.total_alunos,
+      // };
       result.total_alunos = {
-        entrada: result.total_alunos,
-        saida: result.total_alunos,
+        entrada: result.total_alunos_presentes.entrada + result.total_alunos_ausentes.entrada,
+        saida: result.total_alunos_presentes.saida + result.total_alunos_ausentes.saida,
       };
     }
 
@@ -1547,8 +1551,8 @@ function RowZona(props) {
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
       <TableCell>{_entradaPresente ?? 0}</TableCell>
       <TableCell>{_entradaAusente ?? 0}</TableCell>
-      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
-      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
+      <TableCell>{_saidaPresente ?? 0}</TableCell>
+      <TableCell>{_saidaAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"

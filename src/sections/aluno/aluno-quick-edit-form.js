@@ -87,18 +87,7 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
     }
   }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, open]);
 
-  useEffect(() => {
-    if (contextReady.value) {
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
-        setValue('escola', user.funcao_usuario[0].escola.id);
-      } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        setEscolasAssessor(
-          escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
-        );
-      }
-    }
-  }, [contextReady.value]);
-
+  
   const defaultValues = useMemo(
     () => ({
       nome: currentAluno?.nome || '',
@@ -109,14 +98,15 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
     }),
     [currentAluno]
   );
-
+  
   const methods = useForm({
     resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
-
+  
   const {
     reset,
+    watch,
     handleSubmit,
     setValue,
     getValues,
@@ -124,6 +114,8 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
     control,
   } = methods;
 
+  const values = watch();
+  
   const onSubmit = handleSubmit(async (data) => {
     try {
       const anoLetivoAtual = anosLetivos.find((ano) => {
@@ -153,18 +145,18 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
         nome: data.nome,
         matricula: data.matricula,
         data_nascimento:
-          nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
+        nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
         alunos_turmas: aluno_turmas,
       };
-
+      
       const retornoPatch = await alunoMethods
-        .updateAlunoById(currentAluno.id, toSend)
-        .then(buscaTurmas({ force: true }))
-        .catch((error) => {
-          throw error;
-        });
-
+      .updateAlunoById(currentAluno.id, toSend)
+      .then(buscaTurmas({ force: true }))
+      .catch((error) => {
+        throw error;
+      });
+      
       enqueueSnackbar('Atualizado com sucesso!');
       onSave(retornoPatch.data);
       reset();
@@ -173,22 +165,34 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
       console.error(error);
     }
   });
-
+  
   useEffect(() => {
     if (currentAluno) {
       reset(defaultValues);
     }
   }, [currentAluno]);
+  
+  useEffect(() => {
+    if (contextReady.value) {
+      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+        setValue('escola', user.funcao_usuario[0].escola.id);
+      } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
+        setEscolasAssessor(
+          escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
+        );
+      }
+    }
+  }, [contextReady.value, escolas, setValue, user.funcao_usuario]);
 
   return (
     <Dialog
-      fullWidth
-      maxWidth={false}
-      open={open}
-      onClose={onClose}
-      PaperProps={{
-        sx: { maxWidth: 720 },
-      }}
+    fullWidth
+    maxWidth={false}
+    open={open}
+    onClose={onClose}
+    PaperProps={{
+      sx: { maxWidth: 720 },
+    }}
     >
       {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
