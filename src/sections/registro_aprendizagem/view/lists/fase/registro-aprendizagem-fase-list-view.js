@@ -181,12 +181,14 @@ export default function RegistroAprendizagemFaseListView() {
           setTableData([...prevList, ..._newList]);
           setCountAcompanhamentos(_turmasComRegistros.data.count);
           tabelaPreparada.onTrue();
+          buscando.onFalse();
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          buscando.onFalse();
         });
 
-      buscando.onFalse();
+      
     }
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
 
@@ -239,15 +241,21 @@ export default function RegistroAprendizagemFaseListView() {
           tipo: 'fase',
           turmaId: turmaId,
           bimestreId: bimestreId,
-        })
+        }).then(
+          contextReady.onFalse(),
+          buscando.onFalse(),
+          tabelaPreparada.onFalse(),
+          setTableData([]),
+          setTimeout(preparacaoInicial, 1000),
+        )
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
           throw error;
         });
-      table.onUpdatePageDeleteRow(dataInPage.length);
-      setTableData(remainingRows);
+      
+
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, preparacaoInicial]
   );
 
   const novaAvaliacao = useBoolean();

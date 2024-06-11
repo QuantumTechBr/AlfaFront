@@ -149,7 +149,7 @@ export default function TurmaListView() {
   );
 
   const contarTurmas = useCallback(
-    async (filtros = filters) => {
+    async (filtros = filters, clear=false) => {
       const offset = 0;
       const limit = 1;
       const { nome, escola, ddz, status } = filtros;
@@ -158,6 +158,7 @@ export default function TurmaListView() {
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
+        clear
       }).then(async (resultado) => {
         setCountAtivos(resultado.count);
         _countAll += resultado.count;
@@ -232,23 +233,24 @@ export default function TurmaListView() {
     [table, filters]
   );
 
-  const handleDeleteRow = useCallback(
-    (id) => {
+  const handleDeleteRow = useCallback (
+    async (id) => {
+      const row = tableData.filter((row) => row.id == id);
       const deleteRow = tableData.filter((row) => row.id !== id);
       turmaMethods
         .deleteTurmaById(id)
         .then((retorno) => {
-          setTableData(deleteRow);
-          // buscarTurmas({force: true});
+          // setTableData(deleteRow);
+          contarTurmas(filters, true);
+          buscarTurmas();
+          buscaTurmas({ force: true });
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de turmas no momento da exclusão da turma');
         });
 
       table.onUpdatePageDeleteRow(dataInPage.length);
-
-      // CONTEXT - ATUALIZA GERAL DO SISTEMA
-      buscaTurmas({ force: true });
+      
     },
     [dataInPage.length, table, tableData, buscarTurmas]
   );
