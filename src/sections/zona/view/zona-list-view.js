@@ -58,8 +58,9 @@ export default function ZonaListView() {
   const { buscaZonas } = useContext(ZonasContext);
   const [tableData, setTableData] = useState([]);
 
-  useEffect(() => {
-    buscaZonas({ force: true })
+  const preparacaoInicial = useCallback(async () => {
+    await Promise.all([
+      buscaZonas({ force: true })
       .then((_zonas) => {
         setTableData(_zonas);
       })
@@ -69,8 +70,13 @@ export default function ZonaListView() {
       })
       .finally(() => {
         preparado.onTrue();
-      });
-  }, []);
+      })
+      ])
+  }, [buscaZonas, preparado]);
+
+  useEffect(() => {
+    preparacaoInicial();
+  }, []); // CHAMADA UNICA AO ABRIR
 
   const table = useTable();
 
@@ -94,7 +100,9 @@ export default function ZonaListView() {
       zonaMethods
         .deleteZonaById(id)
         .then((retorno) => {
-          setTableData(deleteRow);
+          preparado.onFalse()
+          setTableData([]);
+          setTimeout(preparacaoInicial, 1000);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de zonas no momento da exclusão da zona');
@@ -103,7 +111,7 @@ export default function ZonaListView() {
       table.onUpdatePageDeleteRow(dataInPage.length);
 
       // CONTEXT - ATUALIZA GERAL DO SISTEMA
-      buscaZonas({ force: true });
+      // buscaZonas({ force: true });
     },
     [dataInPage.length, table, tableData]
   );

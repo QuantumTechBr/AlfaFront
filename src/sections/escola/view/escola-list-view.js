@@ -127,8 +127,9 @@ export default function EscolaListView() {
       escolaMethods
         .deleteEscolaById(id)
         .then((retorno) => {
-          setTableData(deleteRow);
-          buscaEscolas({ force: true });
+          preparado.onFalse()
+          setTableData([]);
+          setTimeout(preparacaoInicial, 1000);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de escolas no momento da exclusão da escola');
