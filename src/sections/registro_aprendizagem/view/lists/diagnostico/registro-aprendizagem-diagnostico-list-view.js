@@ -178,10 +178,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             setTableData([...prevList, ..._newList]);
             setCountAcompanhamentos(response.data.count);
             tabelaPreparada.onTrue();
+            buscando.onFalse()
           }
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico de Entrada');
+          buscando.onFalse()
           console.error(error);
         });
       buscando.onFalse();
@@ -238,18 +240,21 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const remainingRows = tableData.filter((row) => row.id !== id || row.periodo !== periodo);
       registroAprendizagemMethods
         .deleteRegistroAprendizagemByFilter({ tipo: 'diagnóstico', turmaId: id, periodo: periodo })
-        .then((retorno) => {
-          setTableData(remainingRows);
-        })
+        .then(
+          contextReady.onFalse(),
+          buscando.onFalse(),
+          tabelaPreparada.onFalse(),
+          setTableData([]),
+          setTimeout(preparacaoInicial, 1000),
+        )
         .catch((error) => {
           setErrorMsg(
             'Erro de comunicação com a API de registros aprendizagem no momento da exclusão do registro'
           );
         });
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, preparacaoInicial]
   );
 
   const novaAvaliacao = useBoolean();

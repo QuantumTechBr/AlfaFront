@@ -282,7 +282,9 @@ export default function UserListView() {
       userMethods
         .deleteUserById(id)
         .then((retorno) => {
-          setTableData(deleteRow);
+          preparado.onFalse();
+          setTableData([]);
+          setTimeout(preparacaoInicial, 1000);
         })
         .catch((error) => {
           setErrorMsg(
@@ -290,7 +292,7 @@ export default function UserListView() {
           );
         });
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
+      // table.onUpdatePageDeleteRow(dataInPage.length);
     },
     [dataInPage.length, table, tableData]
   );
