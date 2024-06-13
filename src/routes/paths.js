@@ -78,9 +78,6 @@ export const paths = {
       root_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase`,
       new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
       edit_fase: (turmaInicial, bimestreInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${turmaInicial}/${bimestreInicial}`,
-      root_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/list`,
-      new_componente: `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/new`,
-      edit_componente: (id) => `${ROOTS.DASHBOARD}/registro_aprendizagem/componente/${id}/edit`,
     },
     zona: {
       root: `${ROOTS.DASHBOARD}/zona/list`,

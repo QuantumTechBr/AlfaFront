@@ -23,8 +23,8 @@ export default function IndicesComponent({
   if (typeof ano_escolar === 'number') {
     titulo_completo += `º ano`;
   }
-  const title_indice_fases = `Índice de Fases - ${titulo_completo}`;
-  const title_indice_aprovacao = `Índice de alfabetização - ${titulo_completo}`;
+  const title_indice_fases = `Fases do Desenvolvimento da Leitura e da Escrita - ${titulo_completo}`;
+  const title_indice_aprovacao = `Índice de Alfabetização - ${titulo_completo}`;
 
   const total_estudantes = indice_fases.chart.series.reduce((total, item) => total + item.value, 0);
 

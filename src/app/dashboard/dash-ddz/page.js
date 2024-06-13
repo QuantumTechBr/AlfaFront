@@ -4,7 +4,7 @@ import { DashboardDDZView } from "src/sections/dashboards/ddz/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Fase (DDZ)',
+  title: 'Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (DDZ)',
 };
 
 export default function DashboardDDZPage() {

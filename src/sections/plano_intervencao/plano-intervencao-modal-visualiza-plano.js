@@ -198,7 +198,7 @@ export default function VisualizaPlanoIntervencao({ open, onClose, currentPlano 
                 }}
               >
                 <div>
-                  <Label>Ano Escolar</Label>
+                  <Label>Ano de Ensino</Label>
                   <Typography>{planoModal?.ano_escolar}</Typography>
                 </div>
                 <div>

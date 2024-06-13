@@ -112,7 +112,13 @@ export default function TurmaListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, ddz, status } = filtros;
+      const escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
+      const { nome, ddz, status } = filtros;
       let statusFilter = '';
 
       switch (status) {
@@ -122,6 +128,8 @@ export default function TurmaListView() {
         case 'true':
           statusFilter = 'True';
       }
+
+      console.log(escola)
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: statusFilter },
@@ -152,7 +160,13 @@ export default function TurmaListView() {
     async (filtros = filters, clear=false) => {
       const offset = 0;
       const limit = 1;
-      const { nome, escola, ddz, status } = filtros;
+      const escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
+      const { nome, ddz, status } = filtros;
 
       let _countAll = 0;
 
