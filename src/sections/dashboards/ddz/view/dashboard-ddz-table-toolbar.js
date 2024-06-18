@@ -110,13 +110,13 @@ export default function DashboardDDZTableToolbar({
       {anoEscolarOptions && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 120 } }}>
-            <InputLabel size="small">Ano Escolar</InputLabel>
+            <InputLabel size="small">Ano de Ensino</InputLabel>
             <Select
               size="small"
               multiple
               value={filters.anoEscolar}
               onChange={handleFilterAnoEscolar}
-              input={<OutlinedInput fullWidth label="Ano Escolar" />}
+              input={<OutlinedInput fullWidth label="Ano de Ensino" />}
               renderValue={(selected) =>
                 `${_.sortBy(selected, [(opt) => opt])
                   .map((value) => `${value}º`)
@@ -161,10 +161,10 @@ export default function DashboardDDZTableToolbar({
               Todos os estudantes
             </MenuItem>
             <MenuItem key="pneOption_semPne" value="false">
-              Sem necessidades especiais
+              Fora da Educação Especial
             </MenuItem>
             <MenuItem key="pneOption_comPne" value="true">
-              Com necessidades especiais
+              Público-alvo da Educação Especial
             </MenuItem>
           </Select>
         </FormControl>

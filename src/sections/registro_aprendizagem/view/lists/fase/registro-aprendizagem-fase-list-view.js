@@ -51,7 +51,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 const TABLE_HEAD = [
   { id: 'ano_letivo', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
+  { id: 'ano_escolar', label: 'Ano de Ensino', width: 75 },
   { id: 'turma', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'bimestre', label: 'Bimestre', width: 80 },

@@ -1225,7 +1225,7 @@ export default function DashboardDiagnosticaView() {
                   />
                 </Grid>
 
-                {/* Desempenho por Ano Escolar */}
+                {/* Desempenho por Ano de Ensino */}
 
                 {[1, 2, 3].map((_anoEscolar) => {
                   const _desempenhoGeralChartSeries = desempenhoChartSeries('geral', _anoEscolar);

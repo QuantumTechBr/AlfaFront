@@ -21,8 +21,8 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
   } else {
     titulo_completo = 'Geral';
   }
-  const title_indice_fases = `Índice de fases - ${titulo_completo}`;
-  const title_indice_alfabetizacao = `Índice de alfabetização - ${titulo_completo}`;
+  const title_indice_fases = `Fases do Desenvolvimento da Leitura e da Escrita - ${titulo_completo}`;
+  const title_indice_alfabetizacao = `Índice de Alfabetização - ${titulo_completo}`;
 
   return (
     <Box width="100%" mb={2}>

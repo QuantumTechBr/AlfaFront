@@ -60,7 +60,7 @@ const TABLE_HEAD = [
   { id: 'responsavel', label: 'Responsável pela ação', width: 300 },
   { id: 'data_inicio', label: 'Inicio previsto', width: 80 },
   { id: 'data_termino', label: 'Término previsto', width: 80 },
-  { id: 'ano_escolar', label: 'Ano Escolar', width: 80 },
+  { id: 'ano_escolar', label: 'Ano de Ensino', width: 80 },
   { id: 'aplicacao', label: 'Aplicação', width: 80 },
   { id: 'status', label: 'Status', width: 80 },
   { id: 'farol', label: 'Farol', width: 50 },

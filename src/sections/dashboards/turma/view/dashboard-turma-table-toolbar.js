@@ -269,10 +269,10 @@ export default function DashboardTurmaTableToolbar({
               Todos os estudantes
             </MenuItem>
             <MenuItem key="pneOption_semPne" value="false">
-              Sem necessidades especiais
+              Fora da Educação Especial 
             </MenuItem>
             <MenuItem key="pneOption_comPne" value="true">
-              Com necessidades especiais
+              Público-alvo da Educação Especial
             </MenuItem>
           </Select>
         </FormControl>

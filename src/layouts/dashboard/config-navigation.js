@@ -128,10 +128,6 @@ export function useNavData() {
               title: t('Fase'),
               path: paths.dashboard.registro_aprendizagem.root_fase,
             },
-            {
-              title: t('Componente'),
-              path: paths.dashboard.registro_aprendizagem.root_componente,
-            },
           ],
         },
 
@@ -248,10 +244,6 @@ export function useNavData() {
               {
                 title: t('Fase'),
                 path: paths.dashboard.registro_aprendizagem.root_fase,
-              },
-              {
-                title: t('Componente'),
-                path: paths.dashboard.registro_aprendizagem.root_componente,
               },
             ],
           });

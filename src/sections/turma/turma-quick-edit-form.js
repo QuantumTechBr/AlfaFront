@@ -150,7 +150,7 @@ export default function TurmaQuickEditForm({ row, open, onClose, onSave }) {
                 sm: 'repeat(2, 1fr)',
               }}
             >
-              <RHFSelect name="ano_escolar" label="Ano Escolar">
+              <RHFSelect name="ano_escolar" label="Ano de Ensino">
                 {_anosSerie.map((ano) => (
                   <MenuItem key={ano} value={ano}>
                     {ano}°
