@@ -492,7 +492,7 @@ export default function DashboardEscolaView() {
 
                 <Grid xs={12} md={4}>
                   <MetaComponent
-                    title="META"
+                    title="Meta"
                     subtitle="de Alfabetização da Unidade de Ensino"
                     meta={calculaMeta()}
                     alfabetizados={getTotalAlfabetizados()}
