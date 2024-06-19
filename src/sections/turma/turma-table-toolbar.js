@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -14,6 +14,8 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import turmaMethods from './turma-repository';
 import { saveCSVFile } from 'src/utils/functions';
+import Autocomplete from '@mui/material/Autocomplete';
+import { TextField } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +26,22 @@ export default function TurmaTableToolbar({
   escolaOptions,
 }) {
   const popover = usePopover();
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
+  const [escolasACTotal, setEscolasACTotal] = useState([]);
+
+  useEffect(() => {
+    const escolasAC = [];
+    escolaOptions.map((escola) => {
+      const ea = {
+        label: escola.nome,
+        id: escola.id,
+      }
+      escolasAC.push(ea)
+  })
+  setEscolasFiltered(escolasAC);
+  setEscolasACTotal(escolasAC);
+  }, [escolaOptions]);
+
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -43,14 +61,32 @@ export default function TurmaTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
+    (event, newValue) => {
       onFilters(
         'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        newValue,
       );
     },
     [onFilters]
   );
+
+  useEffect(() => { 
+    
+    if (filters.ddz.length > 0) {
+      const escAC = [];
+      const _escolasFiltered = escolaOptions.filter((escola) => filters.ddz.includes(escola.zona.id));
+      _escolasFiltered.map((escola) => {
+        const ea2 = {
+          label: escola.nome,
+          id: escola.id,
+        }
+        escAC.push(ea2)
+      })
+      setEscolasFiltered(escAC);
+    } else {
+      setEscolasFiltered(escolasACTotal);
+    }
+  }, [filters.ddz]);
 
   const renderValueEscola = (selected) => 
     selected.map((escolaId) => {
@@ -107,8 +143,26 @@ export default function TurmaTableToolbar({
             ))}
           </Select>
         </FormControl>
-
         <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 300 },
+          }}
+        >
+
+        <Autocomplete
+          multiple
+          disablePortal
+          id="escola"
+          options={escolasFiltered}
+          sx={{ width: 300 }}
+          renderInput={(params) => <TextField {...params} label="Escola" />}
+          value={filters.escola}
+          onChange={handleFilterEscola}
+        />
+        </FormControl>
+
+        {/* <FormControl
           sx={{
             flexShrink: 0,
             width: { xs: 1, md: 300 },
@@ -128,14 +182,15 @@ export default function TurmaTableToolbar({
               },
             }}
           >
-           {escolaOptions?.map((escola) => (
+           {escolasFiltered
+           .map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
                 <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
                 {escola.nome}
               </MenuItem>
             ))}
           </Select>
-        </FormControl>
+        </FormControl> */}
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           {/* <TextField

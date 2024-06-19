@@ -428,7 +428,7 @@ export default function DashboardTurmaView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fase (Turma)</Typography>
+            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Turma)</Typography>
           </Grid>
 
           {permissaoCadastrar && (
@@ -560,7 +560,7 @@ export default function DashboardTurmaView() {
                       variant="body2"
                       sx={{ padding: 4, height: '100%', display: 'flex' }}
                     >
-                      A meta é exibida apenas com único ano escolar (série) selecionado no filtro
+                      A meta é exibida apenas com único ano de ensino selecionado no filtro
                       Ano-Turma.
                     </Typography>
                   )}
@@ -568,9 +568,7 @@ export default function DashboardTurmaView() {
                     dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
                       <MetaComponent
                         title="Meta"
-                        subtitle={`sobre a meta de ${
-                          anos_metas[anoHasIndiceDeFases()]
-                        }% alfabetizados`}
+                        subtitle="de Alfabetização da Turma"
                         meta={anos_metas[anoHasIndiceDeFases()]}
                         alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}
                         total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
@@ -624,15 +622,6 @@ export default function DashboardTurmaView() {
                     sx={{ mr: 3, marginTop: 2 }}
                   >
                     Ir para Acompanhamento Diagnóstico
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="info"
-                    component={RouterLink}
-                    href={paths.dashboard.registro_aprendizagem.root_componente}
-                    sx={{ mr: 3, marginTop: 2 }}
-                  >
-                    Ir para Acompanhamento por Componente
                   </Button>
                 </Grid>
               </Grid>

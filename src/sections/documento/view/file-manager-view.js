@@ -147,9 +147,13 @@ export default function FileManagerView() {
       if (retorno.status == 204) {
 
         const remainingRows = tableData.filter((row) => row.id !== id);
-        setTableData(remainingRows);
-        
-        table.onUpdatePageDeleteRow(dataInPage.length);
+        //setTableData(remainingRows);
+        preparado.onFalse()
+        buscaDocumentos({force:true}).then(retorno => {
+          setTableData(retorno);
+          preparado.onTrue();
+        })
+        // table.onUpdatePageDeleteRow(dataInPage.length);
       } else {
         console.log("Response status: ", retorno.status);
         console.log("Erro: ", retorno.data);
@@ -171,6 +175,12 @@ export default function FileManagerView() {
         console.log("Response status: ", retorno.status);
         console.log("Erro: ", retorno.data);
         throw new Error("Erro ao deletar arquivo: " + row.arquivo);
+      } else {
+          preparado.onFalse()
+          buscaDocumentos({force:true}).then(retorno => {
+          setTableData(retorno);
+          preparado.onTrue();
+        })
       }
     });
     setTableData(remainingRows);

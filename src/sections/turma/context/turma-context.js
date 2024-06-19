@@ -10,6 +10,10 @@ export const TurmasProvider = ({ children }) => {
   let mapCachePromises = new Map();
 
   const buscaTurmasPaginado = async ({args={offset:0, limit:100, ddzs:'', escolas:'', nome:'', status:null}, clear=false} = {}) => {
+
+    if(clear) {
+      mapCachePromises = new Map();
+    }
     
     const key = JSON.stringify(args);
 

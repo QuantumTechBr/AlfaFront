@@ -52,7 +52,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 
 const TABLE_HEAD = [
   { id: 'ano_letivo', label: 'Ano Letivo', width: 75 },
-  { id: 'ano_escolar', label: 'Ano Escolar', width: 75 },
+  { id: 'ano_escolar', label: 'Ano de Ensino', width: 75 },
   { id: 'nome', label: 'Turma', width: 75 },
   { id: 'turno', label: 'Turno', width: 105 },
   { id: 'periodo', label: 'Perfil', width: 105 },
@@ -178,10 +178,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             setTableData([...prevList, ..._newList]);
             setCountAcompanhamentos(response.data.count);
             tabelaPreparada.onTrue();
+            buscando.onFalse()
           }
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico de Entrada');
+          buscando.onFalse()
           console.error(error);
         });
       buscando.onFalse();
@@ -238,18 +240,21 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const remainingRows = tableData.filter((row) => row.id !== id || row.periodo !== periodo);
       registroAprendizagemMethods
         .deleteRegistroAprendizagemByFilter({ tipo: 'diagnóstico', turmaId: id, periodo: periodo })
-        .then((retorno) => {
-          setTableData(remainingRows);
-        })
+        .then(
+          contextReady.onFalse(),
+          buscando.onFalse(),
+          tabelaPreparada.onFalse(),
+          setTableData([]),
+          setTimeout(preparacaoInicial, 1000),
+        )
         .catch((error) => {
           setErrorMsg(
             'Erro de comunicação com a API de registros aprendizagem no momento da exclusão do registro'
           );
         });
 
-      table.onUpdatePageDeleteRow(dataInPage.length);
     },
-    [dataInPage.length, table, tableData]
+    [dataInPage.length, table, tableData, preparacaoInicial]
   );
 
   const novaAvaliacao = useBoolean();

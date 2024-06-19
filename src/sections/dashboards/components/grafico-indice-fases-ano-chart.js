@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 
 // @mui
 import { LinearProgress, Box, Stack, Typography, CardHeader } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
 import { useTheme } from '@mui/material/styles';
 
 // components
@@ -167,6 +168,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
           <Typography fontSize={13} mb={0.2} fontWeight="700" sx={{ ml: 1 }}>
             Fase adequada: {anos_fase_adequada[`${ano_escolar}`] ?? '-'}
           </Typography>
+          <Tooltip title="Percentual de estudantes na fase adequada">
           <LinearProgress
             value={calculoFaseAdequada()}
             variant="determinate"
@@ -199,6 +201,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
               },
             }}
           />
+          </Tooltip>
         </Box>)}
       </Stack>
 

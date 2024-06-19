@@ -255,7 +255,7 @@ export const _periodos = ['Entrada', 'Saída'];
 
 export const _anos = [2024, 2023, 2022];
 
-export const _disciplinas = ['Português', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
+export const _disciplinas = ['Língua Portuguesa', 'Matemática', 'Ciências', 'Geografia', 'Historia'];
 
 export const habilidades_options = ['', 'D', 'DP', 'ND'];
 
@@ -302,17 +302,15 @@ export const fases_options = [
 ];
 
 export const necessidades_especiais = [
-  'BAIXA VISAO',
-  'CEGUEIRA',
-  'DEFICIENCIA AUDITIVA',
-  'DEFICIENCIA LOCOMOTORA',
-  'AUTISMO',
-  'ALTAS HABILIDADES/SUPERDOTACAO',
-  'AUTISMO INFANTIL',
-  'DEFICIENCIA FISICA',
-  'DEFICIENCIA INTELECTUAL',
-  'DEFICIENCIAS MULTIPLAS',
-  'SINDROME DE ASPERGER',
+  'Cegueira',
+  'Baixa Visão',
+  'Visão Monocular',
+  'Deficiência Auditiva',
+  'Deficiência Intelectual',
+  'Deficência Física',
+  'Deficiência Múltipla',
+  'Transtorno do Espectro Autista',
+  'Altas Habilidades ou Superdotação',
 ];
 
 export const habilidades_1ano = [

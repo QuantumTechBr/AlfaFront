@@ -382,7 +382,7 @@ export default function DashboardEscolaView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fase (Escola)</Typography>
+            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Escola)</Typography>
           </Grid>
         </Stack>
 
@@ -493,7 +493,7 @@ export default function DashboardEscolaView() {
                 <Grid xs={12} md={4}>
                   <MetaComponent
                     title="Meta"
-                    subtitle="entre a média das séries"
+                    subtitle="de Alfabetização da Unidade de Ensino"
                     meta={calculaMeta()}
                     alfabetizados={getTotalAlfabetizados()}
                     total={getTotalEstudandesAvaliados()}
@@ -517,7 +517,7 @@ export default function DashboardEscolaView() {
                   (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
                     <Grid xs={12}>
                       <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes - Índice de fases"
+                        title="Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"
                         subheader={dados.desempenho_alunos.subheader}
                         chart={dados.desempenho_alunos.chart}
                       />

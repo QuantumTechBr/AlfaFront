@@ -821,7 +821,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                   }}
                 >
 
-                  <RHFSelect name="ano_escolar" label="Ano Escolar">
+                  <RHFSelect name="ano_escolar" label="Ano de Ensino">
                     {anos_options.map((ano) => (
                       <MenuItem key={ano} value={ano}>
                         {ano}º

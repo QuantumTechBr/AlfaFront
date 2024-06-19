@@ -316,7 +316,7 @@ export default function DashboardRedeView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fase (Rede)</Typography>
+            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Rede)</Typography>
           </Grid>
         </Stack>
 
@@ -411,7 +411,7 @@ export default function DashboardRedeView() {
                 <Grid xs={12} md={4}>
                   <MetaComponent
                     title="Meta"
-                    subtitle="entre a média das séries"
+                    subtitle="de Alfabetização da Rede"
                     meta={calculaMeta()}
                     alfabetizados={getTotalAlfabetizados()}
                     total={getTotalEstudandesAvaliados()}
@@ -420,7 +420,7 @@ export default function DashboardRedeView() {
 
                 <Grid xs={12}>
                   <IndiceAlfabetizacaoBimestreComponent
-                    title="Índice de alfabetização - Bimestre"
+                    title="Índice de Alfabetização - Bimestre"
                     grid_ddz={dados.grid_ddz}
                   ></IndiceAlfabetizacaoBimestreComponent>
                 </Grid>
@@ -444,7 +444,7 @@ export default function DashboardRedeView() {
                   dados.desempenho_alunos.chart.series && (
                     <Grid xs={12}>
                       <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes - Índice de fases"
+                        title="Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"
                         subheader={dados.desempenho_alunos.subheader ?? ''}
                         chart={dados.desempenho_alunos.chart}
                       />

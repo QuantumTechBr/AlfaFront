@@ -92,16 +92,13 @@ export default function FileManagerNewFolderDialog({
           console.log("upload erro");
           throw erro;
         });
-        
+        onClose(response);
+        uploading.onFalse();
       })
 
     } catch (err) {
       console.log('Error uploading object', err);
-    } finally {
-      onClose(response);
-      uploading.onFalse();
-    }
-    
+    } 
   };
 
   const handleRemoveFile = (inputFile) => {

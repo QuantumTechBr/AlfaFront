@@ -191,8 +191,13 @@ export default function AlunoListView() {
       alunoMethods
         .deleteAlunoById(id)
         .then((retorno) => {
-          setTableData(deleteRow);
+          // setTableData(deleteRow);
           buscaTurmas({ force: true });
+          contextReady.onFalse();
+          // buscando.onFalse(),
+          // tabelaPreparada.onFalse(),
+          setTableData([]);
+          setTimeout(preparacaoInicial, 1000);
         })
         .catch((error) => {
           setErrorMsg(
@@ -200,8 +205,9 @@ export default function AlunoListView() {
           );
           console.log(error);
         });
-
-      table.onUpdatePageDeleteRow(dataInPage.length);
+      
+      // table.onUpdatePageDeleteRow(dataInPage.length);
+      // setCountAlunos(countAlunos - 1)
     },
     [dataInPage.length, table, tableData, buscaTurmas]
   );

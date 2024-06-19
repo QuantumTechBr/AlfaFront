@@ -14,8 +14,8 @@ export default function IndicesCompostosAlfabetizacaoGeralWidget({
   indice_alfabetizacao,
   indice_alfabetizacao_geral,
 }) {
-  const title_indice_alfabetizacao = `Índice de alfabetização ${title}`;
-  const title_indice_alfabetizacao_geral = `Índice de alfabetização geral`;
+  const title_indice_alfabetizacao = `Índice de Alfabetização ${title}`;
+  const title_indice_alfabetizacao_geral = `Índice de Alfabetização geral`;
 
   return (
     <Box width="100%" mb={0}>

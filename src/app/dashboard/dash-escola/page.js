@@ -4,7 +4,7 @@ import { DashboardEscolaView } from "src/sections/dashboards/escola/view";
 // ----------------------------------------------------------------------
 
 export const metadata = {
-  title: 'Dashboard: Fase (Escola)',
+  title: 'Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Escola)',
 };
 
 export default function DashboardEscolaPage() {
