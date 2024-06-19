@@ -567,7 +567,7 @@ export default function DashboardTurmaView() {
                   {countHasIndiceDeFases() == 1 &&
                     dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories && (
                       <MetaComponent
-                        title="META"
+                        title="Meta"
                         subtitle="de Alfabetização da Turma"
                         meta={anos_metas[anoHasIndiceDeFases()]}
                         alfabetizados={getAlfabetizadosAno(anoHasIndiceDeFases())}

@@ -410,7 +410,7 @@ export default function DashboardRedeView() {
 
                 <Grid xs={12} md={4}>
                   <MetaComponent
-                    title="META"
+                    title="Meta"
                     subtitle="de Alfabetização da Rede"
                     meta={calculaMeta()}
                     alfabetizados={getTotalAlfabetizados()}
