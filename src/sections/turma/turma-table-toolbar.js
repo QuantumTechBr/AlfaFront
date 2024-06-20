@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,31 +16,62 @@ import turmaMethods from './turma-repository';
 import { saveCSVFile } from 'src/utils/functions';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
-
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableToolbar({
   filters,
   onFilters,
   ddzOptions,
-  escolaOptions,
 }) {
   const popover = usePopover();
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
   const [escolasACTotal, setEscolasACTotal] = useState([]);
 
   useEffect(() => {
-    const escolasAC = [];
-    escolaOptions.map((escola) => {
-      const ea = {
-        label: escola.nome,
-        id: escola.id,
-      }
-      escolasAC.push(ea)
-  })
-  setEscolasFiltered(escolasAC);
-  setEscolasACTotal(escolasAC);
-  }, [escolaOptions]);
+    buscaEscolas().then((retorno) => {
+      const escolasAC = [];
+      retorno.map((escola) => {
+        const ea = {
+          label: escola.nome,
+          id: escola.id,
+        }
+        escolasAC.push(ea)
+      })
+      setEscolasFiltered(escolasAC);
+      setEscolasACTotal(escolasAC);
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de escolas');
+    })
+
+  }, []);
+
+  // useEffect(() => {
+  //   const escolasAC = [];
+  //   escolaOptions.map((escola) => {
+  //     const ea = {
+  //       label: escola.nome,
+  //       id: escola.id,
+  //     }
+  //     escolasAC.push(ea)
+  //   })
+  //   setEscolasFiltered(escolasAC);
+  //   setEscolasACTotal(escolasAC);
+  // }, [escolaOptions]);
+
+  // useEffect(() => {
+  //   const escolasAC = [];
+  //   escolaOptions.map((escola) => {
+  //     const ea = {
+  //       label: escola.nome,
+  //       id: escola.id,
+  //     }
+  //     escolasAC.push(ea)
+  //   })
+  //   setEscolasFiltered(escolasAC);
+  //   setEscolasACTotal(escolasAC);
+  // }, []);
 
 
   const handleFilterNome = useCallback(
@@ -70,11 +101,11 @@ export default function TurmaTableToolbar({
     [onFilters]
   );
 
-  useEffect(() => { 
-    
+  useEffect(() => {
+
     if (filters.ddz.length > 0) {
       const escAC = [];
-      const _escolasFiltered = escolaOptions.filter((escola) => filters.ddz.includes(escola.zona.id));
+      const _escolasFiltered = escolas.filter((escola) => filters.ddz.includes(escola.zona.id));
       _escolasFiltered.map((escola) => {
         const ea2 = {
           label: escola.nome,
@@ -88,12 +119,12 @@ export default function TurmaTableToolbar({
     }
   }, [filters.ddz]);
 
-  const renderValueEscola = (selected) => 
+  const renderValueEscola = (selected) =>
     selected.map((escolaId) => {
-      return escolaOptions.find((option) => option.id == escolaId)?.nome;
+      return escolas.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
 
-  const renderValueZona = (selected) => 
+  const renderValueZona = (selected) =>
     selected.map((zonaId) => {
       return ddzOptions.find((option) => option.id == zonaId)?.nome;
     }).join(', ');
@@ -150,16 +181,16 @@ export default function TurmaTableToolbar({
           }}
         >
 
-        <Autocomplete
-          multiple
-          disablePortal
-          id="escola"
-          options={escolasFiltered}
-          sx={{ width: 300 }}
-          renderInput={(params) => <TextField {...params} label="Escola" />}
-          value={filters.escola}
-          onChange={handleFilterEscola}
-        />
+          <Autocomplete
+            multiple
+            disablePortal
+            id="escola"
+            options={escolasFiltered}
+            sx={{ width: 300 }}
+            renderInput={(params) => <TextField {...params} label="Escola" />}
+            value={filters.escola}
+            onChange={handleFilterEscola}
+          />
         </FormControl>
 
         {/* <FormControl
@@ -242,5 +273,4 @@ TurmaTableToolbar.propTypes = {
   onFilters: PropTypes.func,
 
   ddzOptions: PropTypes.array,
-  escolaOptions: PropTypes.array,
 };

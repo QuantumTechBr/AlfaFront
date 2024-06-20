@@ -102,7 +102,7 @@ export default function DashboardDiagnosticaView() {
     pneItem: '-',
   });
 
-  const [filtersApplied, setFiltersApplied] = useState({...filters});
+  const [filtersApplied, setFiltersApplied] = useState({ ...filters });
 
   const isZonaFiltered = !!filtersApplied.zona && filtersApplied.zona != '';
   const isEscolaFiltered = (filtersApplied.escola?.length ?? 0) > 0;
@@ -125,8 +125,8 @@ export default function DashboardDiagnosticaView() {
   const grid = isEscolaFiltered
     ? dados.grid_turmas
     : isZonaFiltered
-    ? dados.grid_escolas
-    : dados.grid_ddz;
+      ? dados.grid_escolas
+      : dados.grid_ddz;
 
   const getTurmasPorAnoEscolar = useCallback(
     (anoEscolar) => {
@@ -137,7 +137,7 @@ export default function DashboardDiagnosticaView() {
 
   const prepareData = (result) => {
     if (!result || result.length == 0) {
-      return 
+      return
     }
     // BEGIN adequação dos dados
     result.grid_turmas = result.grid_turmas ? result.grid_turmas : [];
@@ -351,15 +351,15 @@ export default function DashboardDiagnosticaView() {
     () => [
       ...(isEscolaFiltered
         ? [
-            { id: 'escolas', label: 'Escolas', notsortable: true },
-            { id: 'turma', label: 'Turma', notsortable: true },
-          ]
+          { id: 'escolas', label: 'Escolas', notsortable: true },
+          { id: 'turma', label: 'Turma', notsortable: true },
+        ]
         : isZonaFiltered
-        ? [
+          ? [
             { id: 'escolas', label: 'Escolas', notsortable: true },
             { id: 'turmas', label: 'Turmas', width: 110, notsortable: true },
           ]
-        : [
+          : [
             // use with RowZonaDetailed
             // { id: 'collapse', label: '', notsortable: true, width: 30 },
             { id: 'ddz', label: 'DDZ', notsortable: true },
@@ -888,7 +888,9 @@ export default function DashboardDiagnosticaView() {
   // GRÁFICO 4
   const desempenhoChartSeries = useCallback(
     (metrica, _anoEscolar) => {
+      // console.log(dados)
       let _metricas = {};
+
 
       if (_anoEscolar) {
         if (!dados.grid_turmas) {
@@ -961,19 +963,36 @@ export default function DashboardDiagnosticaView() {
               data: item.desempenho[metrica],
             };
           });
+          console.log(porZona)
+          
+          let _metricasSaida = []
 
-          _metricas.entrada = [
-            _.sumBy(porZona, (z) => z.data.entrada.N1),
-            _.sumBy(porZona, (z) => z.data.entrada.N2),
-            _.sumBy(porZona, (z) => z.data.entrada.N3),
-          ];
+          if (typeof porZona[0].data.entrada.N1 === "object" ) {
+            _metricas.entrada = [
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N1))),
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N2))),
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N3))),
+            ];
+            _metricasSaida = [
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.saida.N1))),
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.saida.N2))),
+              _.sumBy(porZona, (z) => _.sum(_.values(z.data.saida.N3))),
+            ];
 
-          const _metricasSaida = [
-            _.sumBy(porZona, (z) => z.data.saida.N1),
-            _.sumBy(porZona, (z) => z.data.saida.N2),
-            _.sumBy(porZona, (z) => z.data.saida.N3),
-          ];
+          } else {
 
+            _metricas.entrada = [
+              _.sumBy(porZona, (z) => z.data.entrada.N1),
+              _.sumBy(porZona, (z) => z.data.entrada.N2),
+              _.sumBy(porZona, (z) => z.data.entrada.N3),
+            ];
+            _metricasSaida = [
+              _.sumBy(porZona, (z) => z.data.saida.N1),
+              _.sumBy(porZona, (z) => z.data.saida.N2),
+              _.sumBy(porZona, (z) => z.data.saida.N3),
+            ];
+          }
+          
           if (_.sum(_metricasSaida) > 0) {
             _metricas.saida = _metricasSaida;
           }
@@ -1137,34 +1156,34 @@ export default function DashboardDiagnosticaView() {
 
                 {(dados.total_alunos_presentes.saida > 0 ||
                   dados.total_alunos_ausentes.saida > 0) && (
-                  <Grid xs={12} container>
-                    <Grid xs={12} md={4} lg={4}>
-                      <NumeroComponent
-                        sx={{ py: 1 }}
-                        title="Estudantes"
-                        subtitle="Saída"
-                        total={dados.total_alunos.saida}
-                      />
-                    </Grid>
-                    <Grid xs={12} md={4} lg={4}>
-                      <NumeroComponent
-                        sx={{ py: 1 }}
-                        title="Estudantes Presentes"
-                        subtitle="Saída"
-                        total={dados.total_alunos_presentes.saida ?? 0}
-                      />
-                    </Grid>
+                    <Grid xs={12} container>
+                      <Grid xs={12} md={4} lg={4}>
+                        <NumeroComponent
+                          sx={{ py: 1 }}
+                          title="Estudantes"
+                          subtitle="Saída"
+                          total={dados.total_alunos.saida}
+                        />
+                      </Grid>
+                      <Grid xs={12} md={4} lg={4}>
+                        <NumeroComponent
+                          sx={{ py: 1 }}
+                          title="Estudantes Presentes"
+                          subtitle="Saída"
+                          total={dados.total_alunos_presentes.saida ?? 0}
+                        />
+                      </Grid>
 
-                    <Grid xs={12} md={4} lg={4}>
-                      <NumeroComponent
-                        sx={{ py: 1 }}
-                        title="Estudantes Ausentes"
-                        subtitle="Saída"
-                        total={dados.total_alunos_ausentes.saida ?? 0}
-                      />
+                      <Grid xs={12} md={4} lg={4}>
+                        <NumeroComponent
+                          sx={{ py: 1 }}
+                          title="Estudantes Ausentes"
+                          subtitle="Saída"
+                          total={dados.total_alunos_ausentes.saida ?? 0}
+                        />
+                      </Grid>
                     </Grid>
-                  </Grid>
-                )}
+                  )}
 
                 <Grid xs={12}>
                   <ParticipacaoGridChart
@@ -1284,8 +1303,8 @@ export default function DashboardDiagnosticaView() {
                           (dataFiltered.length == 0
                             ? 350
                             : (dataFiltered.length < table.rowsPerPage
-                                ? dataFiltered.length
-                                : table.rowsPerPage) * 43),
+                              ? dataFiltered.length
+                              : table.rowsPerPage) * 43),
                         // : dataFiltered.length *
                         //     (!isEscolaFiltered && !isZonaFiltered ? 47 : 43) +
                         //   tableRowsExpanded * 300),
@@ -1345,7 +1364,7 @@ export default function DashboardDiagnosticaView() {
                           </TableBody>
                         </Table>
                       </Scrollbar>
-                    </TableContainer> 
+                    </TableContainer>
 
                     <TablePaginationCustom
                       count={dataFiltered.length}
@@ -1356,7 +1375,7 @@ export default function DashboardDiagnosticaView() {
                       onRowsPerPageChange={table.onChangeRowsPerPage}
                       dense={table.dense}
                     />
-                    
+
                   </Card>
                 </Grid>
               </Grid>
