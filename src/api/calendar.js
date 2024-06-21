@@ -79,7 +79,7 @@ export async function createEvent(eventData) {
    * Work in local
    */
   mutate(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     (currentData) => {
       // console.table(currentData);
       const events = [...(currentData.events ?? currentData), convertToEvent(response.data)];
