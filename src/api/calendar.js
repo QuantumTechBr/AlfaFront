@@ -16,7 +16,7 @@ const options = {
 
 export function useGetEvents() {
   const { data, isLoading, error, isValidating } = useSWR(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     fetcher,
     options
   );
