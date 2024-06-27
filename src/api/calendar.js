@@ -16,7 +16,7 @@ const options = {
 
 export function useGetEvents() {
   const { data, isLoading, error, isValidating } = useSWR(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     fetcher,
     options
   );
@@ -79,7 +79,7 @@ export async function createEvent(eventData) {
    * Work in local
    */
   mutate(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     (currentData) => {
       // console.table(currentData);
       const events = [...(currentData.events ?? currentData), convertToEvent(response.data)];
