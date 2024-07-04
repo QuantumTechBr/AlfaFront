@@ -18,14 +18,11 @@ import { Upload } from 'src/components/upload';
 
 
 // utils
-import axios, { endpoints } from 'src/utils/axios';
 
 
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 
-
-import { AWS_S3 } from 'src/config-global';
 import { insertDocumento, getAllDocumentos } from './documento-repository';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
@@ -33,10 +30,8 @@ export default function FileManagerNewFolderDialog({
   title = 'Enviar arquivos',
   open,
   onClose,
-  //
   onCreate,
   onUpdate,
-  //
   folderName,
   onChangeFolderName,
   ...other
@@ -93,8 +88,8 @@ export default function FileManagerNewFolderDialog({
           throw erro;
         });
         onClose(response);
-        uploading.onFalse();
       })
+      uploading.onFalse();
 
     } catch (err) {
       console.log('Error uploading object', err);

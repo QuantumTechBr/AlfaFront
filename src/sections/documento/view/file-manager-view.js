@@ -141,10 +141,13 @@ export default function FileManagerView() {
 
   const handleDeleteItem = useCallback(
     async (id) => {
+      setErrorMsg('');
       const retorno = await documentoMethods.deleteDocumentoById(id).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento');
+        console.log("Erro: ", error.detail);
+        setErrorMsg('Erro de comunicação com a API de documentos no momento exclusão do documento: ', error.detail);
+        return;
       });
-      if (retorno.status == 204) {
+      if (retorno?.status == 204) {
 
         const remainingRows = tableData.filter((row) => row.id !== id);
         //setTableData(remainingRows);
@@ -155,10 +158,10 @@ export default function FileManagerView() {
         })
         // table.onUpdatePageDeleteRow(dataInPage.length);
       } else {
-        console.log("Response status: ", retorno.status);
-        console.log("Erro: ", retorno.data);
-        throw new Error("Erro ao deletar arquivo: " + row.arquivo);
+        console.log("Response status: ", retorno?.status);
+        console.log("Erro: ", retorno?.data);
       }
+      return confirm.onFalse();
     },
     [dataInPage.length, table, tableData]
   );
