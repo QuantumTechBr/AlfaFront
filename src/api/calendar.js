@@ -58,6 +58,7 @@ function convertToEvent(event) {
     // COLOR
     color: CALENDAR_COLOR_OPTIONS[0],
     textColor: CALENDAR_COLOR_OPTIONS[0],
+    criado_por: event.criado_por
   };
 }
 
@@ -106,16 +107,29 @@ export async function updateEvent(eventData) {
     descricao: eventData.description,
     ano_id: eventData.ano_id,
   };
-  await calendarioMethods.updateCalendarioById(eventData.id, payload);
+  const response = await calendarioMethods.updateCalendarioById(eventData.id, payload);
 
   /**
    * Work in local
    */
   mutate(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     (currentData) => {
-      const events = (currentData.events ?? currentData).map((event) =>
-        event.id === eventData.id ? { ...event, ...eventData } : event
+      const events = (currentData.events ?? currentData).map((event) =>{
+        if (event.id === eventData.id) {
+          const newEvent = {
+            ...event, 
+            ...eventData,
+            titulo: eventData.title,
+            descricao: eventData.description,
+          }
+          return newEvent
+        }
+        else {
+          return event
+        }
+
+      }
       );
 
       return {
@@ -136,9 +150,9 @@ export async function deleteEvent(eventId) {
    * Work in local
    */
   mutate(
-    endpoints.calendar.list,
+    [endpoints.calendar.list, localStorage.accessToken],
     (currentData) => {
-      const events = (currentData.events ?? currentData).filter((event) => event.id !== eventId);
+      const events = (currentData?.events ?? currentData)?.filter((event) => event.id !== eventId);
 
       return {
         ...currentData,
