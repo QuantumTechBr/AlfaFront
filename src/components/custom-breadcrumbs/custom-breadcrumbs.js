@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 //
 import LinkItem from './link-item';
+import InstructionButton from '../helpers/instruction-button';
 
 // ----------------------------------------------------------------------
 
@@ -17,6 +18,7 @@ export default function CustomBreadcrumbs({
   moreLink,
   activeLast,
   sx,
+  youtubeLink,
   ...other
 }) {
   const lastLink = links[links.length - 1].name;
@@ -27,9 +29,14 @@ export default function CustomBreadcrumbs({
         <Box sx={{ flexGrow: 1 }}>
           {/* HEADING */}
           {heading && (
-            <Typography variant="h4" gutterBottom>
-              {heading}
-            </Typography>
+            <>
+              <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="h4" gutterBottom>
+                {heading}
+              </Typography>
+              {youtubeLink && <InstructionButton youtubeLink={youtubeLink} />}
+              </Box>
+            </>
           )}
 
           {/* BREADCRUMBS */}
