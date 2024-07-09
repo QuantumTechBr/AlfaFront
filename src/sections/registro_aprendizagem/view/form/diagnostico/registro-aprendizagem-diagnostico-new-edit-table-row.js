@@ -110,6 +110,82 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
 
+  const renderTooltip = (rNota, rNumero) => {
+    if (anoEscolar == '1') {
+      if ((rNumero == 9 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    } else if (anoEscolar == '2') {
+      if ((rNumero == 8 || rNumero == 9 || rNumero == 18 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    } else if (anoEscolar == '3') {
+      if ((rNumero == 7 || rNumero == 8 || rNumero == 9 || rNumero == 17 || rNumero == 18 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    }
+  }
+
   const preenche_R = () => {
     const retorno = []
     for (let index = 0; index < 20; index++) {
@@ -120,20 +196,24 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               name={'registros['+id+'].r['+index+']'}  
               label="">
                 {r_options.map((r) => (
+                  <Tooltip placement="top" title={renderTooltip(r, index)}>
                   <MenuItem 
                   disabled={disableMenuItem(r, index)} 
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
                         {r}
                     </MenuItem>
+                    </Tooltip>
                 ))}
                 { 
                   (((index == 9 || index == 19) && anoEscolar == '1' ) ||
                   ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                   ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
                   && 
+                  <Tooltip placement="top" title="Completo">
                 <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
                   {2}
-                </MenuItem>}
+                </MenuItem>
+                </Tooltip>}
               </RHFSelect>
         </TableCell>
       ) 
