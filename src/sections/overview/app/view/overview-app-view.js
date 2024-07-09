@@ -14,7 +14,7 @@ export default function OverviewAppView() {
 
   useEffect(() => {
     console.log('redirecionando');
-    if (checkFuncao('SUPERADMIN')) {
+    if (checkFuncao('SUPERADMIN') || checkFuncao('ADMIN')) {
       router.push(`${paths.dashboard.root}/dash-rede`);
     } else if (checkFuncao('ASSESSOR DDZ')) {
       router.push(`${paths.dashboard.root}/dash-ddz`);
