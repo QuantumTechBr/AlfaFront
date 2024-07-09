@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { format } from 'date-fns';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useContext } from 'react';
 
 // @mui
 import Stack from '@mui/material/Stack';
@@ -25,12 +25,19 @@ import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { useSnackbar } from 'src/components/snackbar';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import FileThumbnail from 'src/components/file-thumbnail';
+import { AuthContext } from 'src/auth/context/alfa';
 //
 import FileManagerShareDialog from './file-manager-share-dialog';
 
 // ----------------------------------------------------------------------
 
 export default function FileManagerTableRow({ row, selected, onSelectRow, onDeleteRow }) {
+
+  const { user } = useContext(AuthContext);
+
+  const isAdmin = user?.permissao_usuario.find(permissaoUsuario => permissaoUsuario.nome.includes('ADMIN'));
+  const isEditavel = isAdmin ?? (row ? (row.criado_por?.id == user.id) : true)
+  
   const theme = useTheme();
 
   const { ano, arquivo, criado_por, updated_at, created_at, destino, id, nomeArquivo, tamanho } = row;
@@ -246,6 +253,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
         <Divider sx={{ borderStyle: 'dashed' }} />
 
         <MenuItem
+          disabled={!isEditavel}
           onClick={() => {
             confirm.onTrue();
             popover.onClose();
