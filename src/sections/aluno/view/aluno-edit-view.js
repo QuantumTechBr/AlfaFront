@@ -50,6 +50,7 @@ export default function AlunoEditView({ id }) {
           },
           { name: currentAluno?.nome },
         ]}
+        youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
         sx={{
           mb: { xs: 3, md: 5 },
         }}
