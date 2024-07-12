@@ -35,12 +35,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const anoEscolar = turma?.ano_escolar;
 
-  const getMapResultados = useCallback(async () => {
-    const mp = await mapResultadosAlunoTurmaInicial({
-      alunoTurmaId: id,
-    });
-    setMapResultados(mp)
-  }, [id, setMapResultados, mapResultadosAlunoTurmaInicial]);
 
   const disableSelect = () => {
     let mds = []
@@ -58,9 +52,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const preparacaoInicial = useCallback(async () => {
     disableSelect();
-    if (periodo == 'Saída') {
-      getMapResultados();
-    }
+    // if (periodo == 'Saída') {
+    //   getMapResultados();
+    // }
   }, [periodo, getMapResultados]);
 
   const nomeAluno = () => {
@@ -121,7 +115,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
               label="">
                 {r_options.map((r) => (
                   <MenuItem 
-                  disabled={disableMenuItem(r, index)} 
+                  // disabled={disableMenuItem(r, index)} 
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
                         {r}
                     </MenuItem>
