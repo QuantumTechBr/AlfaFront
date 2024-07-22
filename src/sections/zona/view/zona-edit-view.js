@@ -49,6 +49,7 @@ export default function ZonaEditView({ id }) {
           },
           { name: nomeBreadcrumbs },
         ]}
+        youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

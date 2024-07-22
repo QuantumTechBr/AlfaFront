@@ -12,6 +12,7 @@ import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import { IconButton, Tooltip } from '@mui/material';
 import Stack from '@mui/material/Stack';
 // routes
 import { paths } from 'src/routes/paths';
@@ -46,6 +47,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import UserQuickEditForm from '../user-quick-edit-form';
+import { Box } from '@mui/system';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -335,6 +337,7 @@ export default function UserListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+     
         <CustomBreadcrumbs
           heading="Usuários"
           links={[
@@ -357,6 +360,7 @@ export default function UserListView() {
               </Button>
             )
           }
+          youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
           sx={{
             mb: { xs: 3, md: 5 },
           }}

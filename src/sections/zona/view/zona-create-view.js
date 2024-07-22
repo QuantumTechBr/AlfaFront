@@ -30,6 +30,7 @@ export default function ZonaCreateView() {
           },
           { name: 'Nova zona' },
         ]}
+        youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

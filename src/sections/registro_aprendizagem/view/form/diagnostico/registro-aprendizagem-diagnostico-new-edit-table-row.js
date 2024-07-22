@@ -35,17 +35,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const anoEscolar = turma?.ano_escolar;
 
-  const getMapResultados = useCallback(async () => {
-    const mp = await mapResultadosAlunoTurmaInicial({
-      alunoTurmaId: id,
-    });
-    setMapResultados(mp)
-  }, [id, setMapResultados, mapResultadosAlunoTurmaInicial]);
 
   const disableSelect = () => {
     let mds = []
     for (let index = 0; index < 20; index++) {
-      if (getValues('registros['+id+'].r['+index+']') === '') {
+      if (getValues('registros[' + id + '].r[' + index + ']') === '') {
         mds[index] = false;
       } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
         mds[index] = true
@@ -58,37 +52,37 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const preparacaoInicial = useCallback(async () => {
     disableSelect();
-    if (periodo == 'Saída') {
-      getMapResultados();
-    }
-  }, [periodo, getMapResultados]);
+    // if (periodo == 'Saída') {
+    //   getMapResultados();
+    // }
+  }, [periodo]);
 
   const nomeAluno = () => {
-    const  necessidades_especiais = row.aluno.necessidades_especiais ?JSON.parse(aluno.necessidades_especiais) : '';
+    const necessidades_especiais = row.aluno.necessidades_especiais ? JSON.parse(aluno.necessidades_especiais) : '';
     return (
-        <Box>
-          {row.aluno.nome}
-         {necessidades_especiais != "" &&
+      <Box>
+        {row.aluno.nome}
+        {necessidades_especiais != "" &&
           <Tooltip title={necessidades_especiais}>
-            <Iconify 
+            <Iconify
               icon="mdi:alphabet-n-circle-outline"
               sx={{
                 ml: 1,
               }}
-              />
+            />
           </Tooltip>}
-        </Box>
+      </Box>
     );
   };
 
- 
+
 
   useEffect(() => {
-    preparacaoInicial() 
+    preparacaoInicial()
   }, []);
 
   const mapDesabilitarMenuItem = {
-    '' : 6,
+    '': 6,
     'NR': 2,
     '0': 3,
     '1': 4,
@@ -110,33 +104,114 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }
 
+  const renderTooltip = (rNota, rNumero) => {
+    if (anoEscolar == '1') {
+      if ((rNumero == 9 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    } else if (anoEscolar == '2') {
+      if ((rNumero == 8 || rNumero == 9 || rNumero == 18 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    } else if (anoEscolar == '3') {
+      if ((rNumero == 7 || rNumero == 8 || rNumero == 9 || rNumero == 17 || rNumero == 18 || rNumero == 19)) {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Insuficiente"
+        } else if (rNota === 1) {
+          return "Parcial"
+        }
+      } else {
+        if (rNota === "") {
+          return ""
+        }
+        else if (rNota === "NR") {
+          return "Não Respondeu"
+        } else if (rNota === 0) {
+          return "Não Domina"
+        } else if (rNota === 1) {
+          return "Domina"
+        }
+      }
+    }
+  }
+
+
   const preenche_R = () => {
     const retorno = []
     for (let index = 0; index < 20; index++) {
       retorno.push(
-        <TableCell key={id+'rcell'+index}sx={{ whiteSpace: 'nowrap' }}>
-              <RHFSelect 
-              disabled={mapDesabilitarSelect[index] || desabilitaResposta.value} 
-              name={'registros['+id+'].r['+index+']'}  
-              label="">
-                {r_options.map((r) => (
-                  <MenuItem 
-                  disabled={disableMenuItem(r, index)} 
+        <TableCell key={id + 'rcell' + index} sx={{ whiteSpace: 'nowrap' }}>
+          <RHFSelect
+            disabled={mapDesabilitarSelect[index] || desabilitaResposta.value}
+            name={'registros[' + id + '].r[' + index + ']'}
+            label="">
+            {r_options.map((r) => (
+              <Tooltip placement="top" title={renderTooltip(r, index)}>
+                <MenuItem
+                  disabled={disableMenuItem(r, index)}
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
-                        {r}
-                    </MenuItem>
-                ))}
-                { 
-                  (((index == 9 || index == 19) && anoEscolar == '1' ) ||
-                  ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2' ) ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
-                  ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3' ))
-                  && 
+                  {r}
+                </MenuItem>
+              </Tooltip>
+            ))}
+            {
+              (((index == 9 || index == 19) && anoEscolar == '1') ||
+                ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2') ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
+                ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3'))
+              &&
+              <Tooltip placement="top" title="Completo">
                 <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
                   {2}
-                </MenuItem>}
-              </RHFSelect>
+                </MenuItem>
+              </Tooltip>}
+          </RHFSelect>
         </TableCell>
-      ) 
+      )
     }
     return retorno;
   }
@@ -144,36 +219,36 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const mediaLP = useCallback(() => {
     let pt = true;
     let media = 0;
-    
+
     for (let index = 0; index < 10; index++) {
-      if (getValues('registros['+id+'].r['+index+']') === "") {
+      if (getValues('registros[' + id + '].r[' + index + ']') === "") {
         pt = false;
       }
-      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+      media += getValues('registros[' + id + '].r[' + index + ']') == "" || getValues('registros[' + id + '].r[' + index + ']') == 'NR' ? 0 : getValues('registros[' + id + '].r[' + index + ']')
 
     }
     if (anoEscolar == '1') {
       media = (media * 10) / 11.00;
-    }else if (anoEscolar == '2') {
+    } else if (anoEscolar == '2') {
       media = (media * 10) / 12.00;
-    }else if (anoEscolar == '3') {
-      media = (media * 10) / 13.00; 
+    } else if (anoEscolar == '3') {
+      media = (media * 10) / 13.00;
     }
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
 
     if (pt) {
       return media;
-    } else{
+    } else {
       return '-'
     }
   }, [getValues])
 
   const nivelEscritaLP = () => {
-    if (getValues('registros['+id+'].r[9]') == 2) {
+    if (getValues('registros[' + id + '].r[9]') == 2) {
       return 'Completo';
-    } else if (getValues('registros['+id+'].r[9]') == 1) {
+    } else if (getValues('registros[' + id + '].r[9]') == 1) {
       return 'Parcial';
-    } else if (getValues('registros['+id+'].r[9]') === 0) {
+    } else if (getValues('registros[' + id + '].r[9]') === 0) {
       return 'Insuficiente';
     } else {
       return '-';
@@ -191,44 +266,44 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       return '-';
     }
   }
-   
+
   const mediaMAT = useCallback(() => {
     let mat = true;
     let media = 0;
     for (let index = 10; index < 20; index++) {
-      if (getValues('registros['+id+'].r['+index+']') === "") {
+      if (getValues('registros[' + id + '].r[' + index + ']') === "") {
         mat = false;
       }
-      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+      media += getValues('registros[' + id + '].r[' + index + ']') == "" || getValues('registros[' + id + '].r[' + index + ']') == 'NR' ? 0 : getValues('registros[' + id + '].r[' + index + ']')
     }
     if (anoEscolar == '1') {
       media = (media * 10) / 11.00;
-    }else if (anoEscolar == '2') {
+    } else if (anoEscolar == '2') {
       media = (media * 10) / 12.00;
-    }else if (anoEscolar == '3') {
+    } else if (anoEscolar == '3') {
       media = (media * 10) / 13.00;
     }
 
     // media = media * 10 // MULTIPLICAMOS POR 10 PARA PEGAR A PRIMERA CARA APÓS A VÍRGULA
     if (mat) {
       return media;
-    } else{
+    } else {
       return '-'
     }
   }, [getValues])
-   
+
   const nivelResProb = () => {
-    if (getValues('registros['+id+'].r[19]') == 2) {
+    if (getValues('registros[' + id + '].r[19]') == 2) {
       return 'Completo'
-    } else if (getValues('registros['+id+'].r[19]') == 1) {
+    } else if (getValues('registros[' + id + '].r[19]') == 1) {
       return 'Parcial'
-    } else if (getValues('registros['+id+'].r[19]') === 0) {
+    } else if (getValues('registros[' + id + '].r[19]') === 0) {
       return 'Insuficiente'
     } else {
       return '-'
     }
   }
-   
+
   const nivelMAT = () => {
     if (mediaMAT() <= 4) {
       return 'N1';
@@ -240,21 +315,21 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       return '-';
     }
   }
-   
+
   const mediaFinal = useCallback(() => {
     let pt_mat = true;
     let media = 0;
     for (let index = 0; index < 20; index++) {
-      if (getValues('registros['+id+'].r['+index+']') === "") {
+      if (getValues('registros[' + id + '].r[' + index + ']') === "") {
         pt_mat = false;
       }
-      media += getValues('registros['+id+'].r['+index+']') == "" || getValues('registros['+id+'].r['+index+']') == 'NR' ? 0 : getValues('registros['+id+'].r['+index+']')
+      media += getValues('registros[' + id + '].r[' + index + ']') == "" || getValues('registros[' + id + '].r[' + index + ']') == 'NR' ? 0 : getValues('registros[' + id + '].r[' + index + ']')
     }
     if (anoEscolar == '1') {
       media = (media * 10) / 22.00;
-    }else if (anoEscolar == '2') {
+    } else if (anoEscolar == '2') {
       media = (media * 10) / 24.00;
-    }else if (anoEscolar == '3') {
+    } else if (anoEscolar == '3') {
       media = (media * 10) / 26.00;
     }
 
@@ -262,11 +337,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
     if (pt_mat) {
       return media;
-    } else{
+    } else {
       return '-'
     }
-  },  [getValues])
-   
+  }, [getValues])
+
   const nivelFinal = () => {
     if (mediaFinal() <= 4) {
       return 'N1';
@@ -282,58 +357,58 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   useEffect(() => {
     if (freqCheck == 'Ausente') {
       for (let index = 0; index < 20; index++) {
-        setValue('registros['+id+'].r['+index+']', "")
+        setValue('registros[' + id + '].r[' + index + ']', "")
       }
       desabilitaResposta.onTrue()
-    } 
+    }
     else {
       desabilitaResposta.onFalse()
     }
   }, [freqCheck]);
-  
+
   return (
     <TableRow hover selected={selected}>
 
-        <TableCell sx={{ whiteSpace: 'nowrap', display: 'none'}} >
-          <Controller
-            name={`registros[${id}].id_aluno_turma`}
-            control={control}
-            defaultValue = {id}
-            render={({ field, fieldState: { error } }) => (
+      <TableCell sx={{ whiteSpace: 'nowrap', display: 'none' }} >
+        <Controller
+          name={`registros[${id}].id_aluno_turma`}
+          control={control}
+          defaultValue={id}
+          render={({ field, fieldState: { error } }) => (
             <FormControl>
-                <TextField
-                  color='primary'
-                  value={id}
-                />  
+              <TextField
+                color='primary'
+                value={id}
+              />
             </FormControl>
-            )}
-          />
-        </TableCell>
+          )}
+        />
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {row.aluno.matricula}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {row.aluno.matricula}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nomeAluno()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nomeAluno()}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-            <RHFSelect disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} key={id+'freq'} name={'registros[' + id + '].frequencia'} > 
-                <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
-                  
-                </MenuItem>
-              {frequencia_options.map((freq) => (
-                <MenuItem 
-                disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia) )}
-                key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
-                  {freq}
-                </MenuItem>
-              ))}
-            </RHFSelect>
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        <RHFSelect disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} key={id + 'freq'} name={'registros[' + id + '].frequencia'} >
+          <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
 
-        {/* {habilidades.map((habilidade) => {
+          </MenuItem>
+          {frequencia_options.map((freq) => (
+            <MenuItem
+              disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia))}
+              key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
+              {freq}
+            </MenuItem>
+          ))}
+        </RHFSelect>
+      </TableCell>
+
+      {/* {habilidades.map((habilidade) => {
           return (
             <TableCell key={id+'habcell'+habilidade.id}sx={{ whiteSpace: 'nowrap' }}>
               <RHFSelect disabled={mapHabilidades ? disableSelect(mapHabilidades[habilidade.id]) : false} name={'registros['+id+'].habilidades_registro_aprendizagem['+habilidade.id+']'}  label="">
@@ -355,50 +430,50 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
           );
         })} */}
 
-        {preenche_R()}
+      {preenche_R()}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {
-            mediaLP() == '-' ? mediaLP() : mediaLP().toFixed(1)
-         // Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          }  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {
+          mediaLP() == '-' ? mediaLP() : mediaLP().toFixed(1)
+          // Math.trunc(mediaLP()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+        }
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nivelEscritaLP()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nivelEscritaLP()}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nivelLP()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nivelLP()}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
           mediaMAT() == '-' ? mediaMAT() : mediaMAT().toFixed(1)
-        // Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-        }  
-        </TableCell>
+          // Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
+        }
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nivelResProb()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nivelResProb()}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nivelMAT()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nivelMAT()}
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {
-            mediaFinal() == '-' ? mediaFinal() : mediaFinal().toFixed(1)
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {
+          mediaFinal() == '-' ? mediaFinal() : mediaFinal().toFixed(1)
           // Math.trunc(mediaFinal()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
-          }  
-        </TableCell>
+        }
+      </TableCell>
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-          {nivelFinal()}  
-        </TableCell>
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {nivelFinal()}
+      </TableCell>
 
-      </TableRow>
+    </TableRow>
   );
 }
 
