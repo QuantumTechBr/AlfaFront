@@ -187,13 +187,13 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       retorno.push(
         <TableCell key={id + 'rcell' + index} sx={{ whiteSpace: 'nowrap' }}>
           <RHFSelect
-            // disabled={mapDesabilitarSelect[index] || desabilitaResposta.value}
+            disabled={mapDesabilitarSelect[index] || desabilitaResposta.value}
             name={'registros[' + id + '].r[' + index + ']'}
             label="">
             {r_options.map((r) => (
               <Tooltip placement="top" title={renderTooltip(r, index)}>
                 <MenuItem
-                  // disabled={disableMenuItem(r, index)}
+                  disabled={disableMenuItem(r, index)}
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
                   {r}
                 </MenuItem>
@@ -394,9 +394,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       </TableCell>
 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
-        <RHFSelect
-        //  disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} 
-         key={id + 'freq'} name={'registros[' + id + '].frequencia'} >
+        <RHFSelect disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} key={id + 'freq'} name={'registros[' + id + '].frequencia'} >
           <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
 
           </MenuItem>
