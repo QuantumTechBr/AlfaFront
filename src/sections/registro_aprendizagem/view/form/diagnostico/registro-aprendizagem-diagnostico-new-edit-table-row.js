@@ -22,11 +22,11 @@ import { Box } from '@mui/material';
 
 export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, selected, habilidades, periodo, onEditRow, onSelectRow, onDeleteRow, turma }) {
   const { id, nome, aluno, mapHabilidades, frequencia, status, funcao, funcao_usuario, permissao_usuario, created_at, updated_at, deleted_at } = row;
-  const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
+  // const { mapResultadosAlunoTurmaInicial } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
-  const [mapResultados, setMapResultados] = useState([]);
+  // const [mapResultados, setMapResultados] = useState([]);
   const { control, getValues, watch, setValue } = useFormContext();
-  const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
+  // const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
   const desabilitaResposta = useBoolean(false);
 
   const values = watch();
@@ -35,27 +35,29 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const anoEscolar = turma?.ano_escolar;
 
+  const registros = values.registros[id].r?.length ? values.registros[id].r[0] : [];
 
-  const disableSelect = () => {
-    let mds = []
-    for (let index = 0; index < 20; index++) {
-      if (getValues('registros[' + id + '].r[' + index + ']') === '') {
-        mds[index] = false;
-      } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
-        mds[index] = true
-      } else {
-        mds[index] = false;
-      }
-    }
-    setMapDesabilitarSelect(mds);
-  }
 
-  const preparacaoInicial = useCallback(async () => {
-    disableSelect();
-    // if (periodo == 'Saída') {
-    //   getMapResultados();
-    // }
-  }, [periodo]);
+  // const disableSelect = () => {
+  //   let mds = []
+  //   for (let index = 0; index < 20; index++) {
+  //     if (getValues('registros[' + id + '].r[' + index + ']') === '') {
+  //       mds[index] = false;
+  //     } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
+  //       mds[index] = true
+  //     } else {
+  //       mds[index] = false;
+  //     }
+  //   }
+  //   setMapDesabilitarSelect(mds);
+  // }
+
+  // const preparacaoInicial = useCallback(async () => {
+  //   disableSelect();
+  //   // if (periodo == 'Saída') {
+  //   //   getMapResultados();
+  //   // }
+  // }, [periodo]);
 
   const nomeAluno = () => {
     const necessidades_especiais = row.aluno.necessidades_especiais ? JSON.parse(aluno.necessidades_especiais) : '';
@@ -77,32 +79,32 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
 
 
-  useEffect(() => {
-    preparacaoInicial()
-  }, []);
+  // useEffect(() => {
+  //   console.log(getValues());
+  // }, []);
 
-  const mapDesabilitarMenuItem = {
-    '': 6,
-    'NR': 2,
-    '0': 3,
-    '1': 4,
-    '2': 5
-  };
+  // const mapDesabilitarMenuItem = {
+  //   '': 6,
+  //   'NR': 2,
+  //   '0': 3,
+  //   '1': 4,
+  //   '2': 5
+  // };
 
-  const disableMenuItem = (rNota, rNumero) => {
-    if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
-      if (mapResultados[rNumero] == '') {
-        return false
-      } else {
-        return mapDesabilitarMenuItem[rNota] < mapDesabilitarMenuItem[mapResultados[rNumero]] ? true : false;
-      }
-    }
-    if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
-      return true
-    } else {
-      return false
-    }
-  }
+  // const disableMenuItem = (rNota, rNumero) => {
+  //   if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
+  //     if (mapResultados[rNumero] == '') {
+  //       return false
+  //     } else {
+  //       return mapDesabilitarMenuItem[rNota] < mapDesabilitarMenuItem[mapResultados[rNumero]] ? true : false;
+  //     }
+  //   }
+  //   if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
+  //     return true
+  //   } else {
+  //     return false
+  //   }
+  // }
 
   const renderTooltip = (rNota, rNumero) => {
     if (anoEscolar == '1') {
@@ -187,28 +189,28 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       retorno.push(
         <TableCell key={id + 'rcell' + index} sx={{ whiteSpace: 'nowrap' }}>
           <RHFSelect
-            disabled={mapDesabilitarSelect[index] || desabilitaResposta.value}
+            disabled={desabilitaResposta.value}
             name={'registros[' + id + '].r[' + index + ']'}
             label="">
             {r_options.map((r) => (
-              <Tooltip placement="top" title={renderTooltip(r, index)}>
-                <MenuItem
-                  disabled={disableMenuItem(r, index)}
+              <MenuItem
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
-                  {r}
+              <Tooltip placement="top" title={renderTooltip(r, index)}>
+                    {r}
+               </Tooltip>
                 </MenuItem>
-              </Tooltip>
             ))}
             {
               (((index == 9 || index == 19) && anoEscolar == '1') ||
                 ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2') ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                 ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3'))
               &&
-              <Tooltip placement="top" title="Completo">
                 <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
+              <Tooltip placement="top" title="Completo">
                   {2}
+                </Tooltip> 
                 </MenuItem>
-              </Tooltip>}
+              }
           </RHFSelect>
         </TableCell>
       )
@@ -366,6 +368,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }, [freqCheck]);
 
+  useEffect(() => {
+    console.log("oi",registros)
+  }, [registros]);
+
   return (
     <TableRow hover selected={selected}>
 
@@ -394,7 +400,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       </TableCell>
 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
-        <RHFSelect disabled={(user?.permissao_usuario[0]?.nome === "DIRETOR") ? true : false} key={id + 'freq'} name={'registros[' + id + '].frequencia'} >
+        <RHFSelect key={id + 'freq'} name={'registros[' + id + '].frequencia'} >
           <MenuItem key={id + '_freq_'} value='' sx={{ height: '34px' }}>
 
           </MenuItem>
