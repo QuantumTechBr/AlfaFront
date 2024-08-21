@@ -43,7 +43,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
       return false
     }
-    if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
+    if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
       return true
     } else {
       return false;
@@ -106,9 +106,6 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       } else {
         return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
       }
-    }
-    if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
-      return true
     } else {
       return false
     }

@@ -193,23 +193,24 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
             name={'registros[' + id + '].r[' + index + ']'}
             label="">
             {r_options.map((r) => (
-              <Tooltip placement="top" title={renderTooltip(r, index)}>
-                <MenuItem
+              <MenuItem
                   key={id + '_r_' + index + r} value={r} sx={{ height: '34px' }}>
-                  {r}
+              <Tooltip placement="top" title={renderTooltip(r, index)}>
+                    {r}
+               </Tooltip>
                 </MenuItem>
-              </Tooltip>
             ))}
             {
               (((index == 9 || index == 19) && anoEscolar == '1') ||
                 ((index == 8 || index == 9 || index == 18 || index == 19) && anoEscolar == '2') ||  // AQUI DEFINIMOS EM BASE NO ANO ESCOLAR, QUAIS R PODEM TER A OPÇÃO '2' COMO RESPOSTA
                 ((index == 7 || index == 8 || index == 9 || index == 17 || index == 18 || index == 19) && anoEscolar == '3'))
               &&
-              <Tooltip placement="top" title="Completo">
                 <MenuItem key={id + '_r_' + index + 'r'} value={2} sx={{ height: '34px' }}>
+              <Tooltip placement="top" title="Completo">
                   {2}
+                </Tooltip> 
                 </MenuItem>
-              </Tooltip>}
+              }
           </RHFSelect>
         </TableCell>
       )
