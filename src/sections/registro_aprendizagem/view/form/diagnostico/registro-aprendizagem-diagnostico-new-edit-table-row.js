@@ -35,30 +35,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
 
   const anoEscolar = turma?.ano_escolar;
 
-  const registros = values.registros[id].r?.length ? values.registros[id].r[0] : [];
-
-
-  // const disableSelect = () => {
-  //   let mds = []
-  //   for (let index = 0; index < 20; index++) {
-  //     if (getValues('registros[' + id + '].r[' + index + ']') === '') {
-  //       mds[index] = false;
-  //     } else if (user?.permissao_usuario[0]?.nome === "PROFESSOR" || user?.permissao_usuario[0]?.nome === "DIRETOR") {
-  //       mds[index] = true
-  //     } else {
-  //       mds[index] = false;
-  //     }
-  //   }
-  //   setMapDesabilitarSelect(mds);
-  // }
-
-  // const preparacaoInicial = useCallback(async () => {
-  //   disableSelect();
-  //   // if (periodo == 'Saída') {
-  //   //   getMapResultados();
-  //   // }
-  // }, [periodo]);
-
   const nomeAluno = () => {
     const necessidades_especiais = row.aluno.necessidades_especiais ? JSON.parse(aluno.necessidades_especiais) : '';
     return (
@@ -76,35 +52,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       </Box>
     );
   };
-
-
-
-  // useEffect(() => {
-  //   console.log(getValues());
-  // }, []);
-
-  // const mapDesabilitarMenuItem = {
-  //   '': 6,
-  //   'NR': 2,
-  //   '0': 3,
-  //   '1': 4,
-  //   '2': 5
-  // };
-
-  // const disableMenuItem = (rNota, rNumero) => {
-  //   if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
-  //     if (mapResultados[rNumero] == '') {
-  //       return false
-  //     } else {
-  //       return mapDesabilitarMenuItem[rNota] < mapDesabilitarMenuItem[mapResultados[rNumero]] ? true : false;
-  //     }
-  //   }
-  //   if (user?.permissao_usuario[0]?.nome === "DIRETOR") {
-  //     return true
-  //   } else {
-  //     return false
-  //   }
-  // }
 
   const renderTooltip = (rNota, rNumero) => {
     if (anoEscolar == '1') {
@@ -367,10 +314,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
       desabilitaResposta.onFalse()
     }
   }, [freqCheck]);
-
-  useEffect(() => {
-    console.log("oi",registros)
-  }, [registros]);
 
   return (
     <TableRow hover selected={selected}>
