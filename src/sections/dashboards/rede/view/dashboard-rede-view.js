@@ -124,18 +124,10 @@ export default function DashboardRedeView() {
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           // adequação dos dados
           const result = response.data.map((i) => {
-            const _avaliados = _.isArray(i.qtd_avaliados)
-              ? _.last(i.qtd_avaliados)
-              : i.qtd_avaliados;
-            const _alfabetizados = _.isArray(i.qtd_alfabetizado)
-              ? _.last(i.qtd_alfabetizado)
-              : i.qtd_alfabetizado;
-            const _nao_alfabetizados = _.isArray(i.qtd_nao_alfabetizado)
-              ? _.last(i.qtd_nao_alfabetizado)
-              : i.qtd_nao_alfabetizado;
-            const _nao_avaliados = _.isArray(i.qtd_nao_avaliado)
-              ? _.last(i.qtd_nao_avaliado)
-              : i.qtd_nao_avaliado;
+            const _avaliados = i.total_avaliados ?? 0;
+            const _alfabetizados = i.total_alfabetizados ?? 0;
+            const _nao_alfabetizados = i.total_nao_alfabetizados ?? 0;
+            const _nao_avaliados = i.total_nao_avaliados ?? 0;
 
             return {
               ...i,
