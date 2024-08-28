@@ -967,7 +967,7 @@ export default function DashboardDiagnosticaView() {
           
           let _metricasSaida = []
 
-          if (typeof porZona[0].data.entrada.N1 === "object" ) {
+          if (typeof porZona[0]?.data.entrada.N1 === "object" ) {
             _metricas.entrada = [
               _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N1))),
               _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N2))),
