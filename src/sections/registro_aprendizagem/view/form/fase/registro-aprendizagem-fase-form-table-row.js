@@ -89,7 +89,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       }    
       
     }
-  }, [ResultadoPrevio, aluno_turma_id, bimestreAnterior, registroAprendizagemFase, row.aluno.id, user?.permissao_usuario]);
+  }, [bimestreAnterior]);
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
