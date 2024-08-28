@@ -82,7 +82,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-br" className={primaryFont.className}>
       <head>
-        <Script src='https://embed.tawk.to/66cf2bc5ea492f34bc0b02fe/1i6ck5v5l' async />
+        <Script src='https://embed.tawk.to/66cf2bc5ea492f34bc0b02fe/1i6ck5v5l' async crossOrigin='*'/>
       </head>
       <body>
         <AuthProvider>
