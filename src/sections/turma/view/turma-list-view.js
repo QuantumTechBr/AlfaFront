@@ -331,7 +331,7 @@ export default function TurmaListView() {
               </Button>
             )
           }
-          youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
+          youtubeLink="https://www.youtube.com/embed/pSimqELmNw8?si=dCGAFuPCBpvGVqlR"
           sx={{
             mb: { xs: 3, md: 5 },
           }}

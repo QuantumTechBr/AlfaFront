@@ -17,10 +17,12 @@ import Iconify from 'src/components/iconify';
 
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { useAuthContext } from 'src/auth/hooks';
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDeleteRow }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const {
     id,
     ano_letivo,
@@ -35,7 +37,7 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
     updated_at,
     deleted_at,
   } = row;
-
+  const permissaoDeletar = checkPermissaoModulo("registro_aprendizagem", "deletar");
   const confirm = useBoolean();
   const popover = usePopover();
 
@@ -56,9 +58,11 @@ export default function RegistroAprendizagemFaseTableRow({ row, onEditRow, onDel
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
+          {permissaoDeletar &&
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
+          }
         </TableCell>
       </TableRow>
 

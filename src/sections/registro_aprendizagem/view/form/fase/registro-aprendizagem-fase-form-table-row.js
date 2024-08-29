@@ -62,9 +62,10 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     }
   }, [disableCheckbox, desabilita, bimestreAnterior, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, turmaId]);
 
-  const ResultadoPrevio = useCallback(async ({ alunoTurmaId }) => {
+  const ResultadoPrevio = useCallback(async ({ alunoTurmaId, bimestreId }) => {
     const rp = await melhorResultadoAlunoTurma({
       alunoTurmaId: alunoTurmaId,
+      bimestreId: bimestreId,
     });
     setResultadoPrevio(rp)
   }, [melhorResultadoAlunoTurma, setResultadoPrevio]);
@@ -74,21 +75,19 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, []);
 
   useEffect(() => {
-    if (registroAprendizagemFase.length > 0) {
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
-            ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+            ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
           } else {
             setResultadoPrevio(registro?.resultado)
           }      
         } else {
-          ResultadoPrevio({alunoTurmaId: aluno_turma_id});
+          ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
         }
       }    
       
-    }
   }, [bimestreAnterior]);
   
   const mapDesabilitarCheckbox = {

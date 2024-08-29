@@ -20,11 +20,13 @@ import Label from 'src/components/label';
 import { Box } from '@mui/material';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
 import { useContext } from 'react';
+import { useAuthContext } from 'src/auth/hooks';
 
 
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, periodo, handleTurma, habilidades, alunosTurma, prep }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const router = useRouter();
@@ -36,7 +38,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
     senha: Yup.string(),
     funcao_usuario: Yup.string(),
   });
-
+  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const defaultValues = {
     registros: []
   }
@@ -215,9 +217,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
         ))}
       </Stack> */}
       <Stack alignItems="flex-end" sx={{ mt: 3, mr: 3 }}>
+        {permissaoCadastrar &&
         <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
           Salvar
         </LoadingButton>
+        }
       </Stack>
     </FormProvider>
   );

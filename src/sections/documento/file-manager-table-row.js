@@ -36,7 +36,7 @@ export default function FileManagerTableRow({ row, selected, onSelectRow, onDele
   const { user } = useContext(AuthContext);
 
   const isAdmin = user?.permissao_usuario.find(permissaoUsuario => permissaoUsuario.nome.includes('ADMIN'));
-  const isEditavel = isAdmin ?? (row ? (row.criado_por?.id == user.id) : true)
+  const isEditavel = isAdmin ?? (row ? (row.criado_por?.id == user?.id) : true)
   
   const theme = useTheme();
 

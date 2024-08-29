@@ -22,7 +22,7 @@ import { RegistroAprendizagemFasesCRUD } from 'src/_mock';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
-
+import { useAuthContext } from 'src/auth/hooks';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
@@ -69,6 +69,7 @@ const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pes
 // ----------------------------------------------------------------------
 
 export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
+  const { checkPermissaoModulo } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
@@ -84,7 +85,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const { turmas, buscaTurmas, buscaTurmaPorId } = useContext(TurmasContext);
   const { limparMapCache } = useContext(RegistroAprendizagemContext);
-
+  const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const contextReady = useBoolean(false);
 
   const [tableData, setTableData] = useState([]);
@@ -401,9 +402,11 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
           <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
             <Grid alignItems="center" xs={3}>
+              {permissaoCadastrar &&
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 Salvar informações
               </LoadingButton>
+              }
             </Grid>
           </Stack>
         </FormProvider>
