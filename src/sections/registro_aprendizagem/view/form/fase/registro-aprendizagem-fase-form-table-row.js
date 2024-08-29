@@ -75,7 +75,6 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, []);
 
   useEffect(() => {
-    if (registroAprendizagemFase.length > 0) {
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
@@ -89,7 +88,6 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
         }
       }    
       
-    }
   }, [bimestreAnterior]);
   
   const mapDesabilitarCheckbox = {
