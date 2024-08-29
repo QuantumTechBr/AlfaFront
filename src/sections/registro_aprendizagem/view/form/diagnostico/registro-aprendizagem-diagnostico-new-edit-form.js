@@ -86,27 +86,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       if (frequencia != undefined && frequencia != '') {
         freqBool = true;
       }
-      // const dataHabilidades = data.registros[itemList.id].habilidades_registro_aprendizagem;
-      // const habilidadesRegistroAprendizagem = [];
-      // for (const item in dataHabilidades) {
-      //   if (typeof (dataHabilidades[item]) == 'string') {
-      //     if (itemList.id_habilidades_registro_aprendizagem) {
-      //       const encontrada = itemList.id_habilidades_registro_aprendizagem[item];
-      //       const habilidadeRegistroAprendizagem = {
-      //         habilidade_id: item,
-      //         nota: dataHabilidades[item],
-      //         id: encontrada,
-      //       }
-      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
-      //     } else {
-      //       const habilidadeRegistroAprendizagem = {
-      //         habilidade_id: item,
-      //         nota: dataHabilidades[item],
-      //       }
-      //       habilidadesRegistroAprendizagem.push(habilidadeRegistroAprendizagem);
-      //     }
-      //   }
-      // }
       let habilidades_registro_aprendizagem = [];
       let mediaLP = 0;
       let mediaMAT = 0;
