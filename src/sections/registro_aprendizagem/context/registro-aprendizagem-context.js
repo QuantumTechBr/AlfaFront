@@ -67,7 +67,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
     return consulta;
   };
 
-  const buscaRegistroAprendizagemFaseByAlunoTurmaId = async ({ alunoTurmaId, force = false } = {}) => {
+  const buscaRegistroAprendizagemFaseByAlunoTurmaId = async ({ alunoTurmaId, bimestreId, force = false } = {}) => {
     if (!force) {
       const valorCache = retornaValorCache([alunoTurmaId]);
       if (valorCache) return valorCache
@@ -75,6 +75,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
     const consulta = registroAprendizagemMethods.getAllRegistrosAprendizagemFase({
       alunoTurmaId: alunoTurmaId,
+      bimestreId: bimestreId,
     }).then((response) => {
       if (response?.data == '' || response?.data === undefined) response.data = [];
       setRegistroAprendizagemFaseAlunoTurma(response.data);
