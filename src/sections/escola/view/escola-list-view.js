@@ -198,7 +198,7 @@ export default function EscolaListView() {
               Adicionar
             </Button>
           }
-          youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
+          youtubeLink="https://www.youtube.com/embed/Z4IWZCAqsvE?si=AmQqnX0kvUuF6zSS"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
