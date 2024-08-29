@@ -18,7 +18,7 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
-//
+import { useAuthContext } from 'src/auth/hooks';
 // import RegistroAprendizagemQuickEditForm from './registro-aprendizagem-quick-edit-form';
 
 // ----------------------------------------------------------------------
@@ -42,7 +42,8 @@ export default function RegistroAprendizagemDiagnosticoTableRow({
     updated_at,
     deleted_at,
   } = row;
-
+  const { checkPermissaoModulo } = useAuthContext();
+  const permissaoDeletar = checkPermissaoModulo("registro_aprendizagem", "deletar");
   const router = useRouter();
 
   const confirm = useBoolean();
@@ -77,9 +78,11 @@ export default function RegistroAprendizagemDiagnosticoTableRow({
               <Iconify icon="solar:pen-bold" />
             </IconButton>
           </Tooltip>
+          {permissaoDeletar &&
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
+          }
         </TableCell>
       </TableRow>
 
