@@ -30,7 +30,7 @@ export default function UserCreateView() {
           },
           { name: 'Novo usuário' },
         ]}
-        youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
+        youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

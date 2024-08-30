@@ -77,7 +77,7 @@ export default function PlanoIntervencaoEditView({ id }) {
           },
           { name: currentPlano?.responsavel?.nome },
         ]}
-        youtubeLink="https://www.youtube.com/embed/2tfCF7lzilw?si=WYiCrwjrMm_RbZbr"
+        youtubeLink="https://www.youtube.com/embed/iUP0CRlH7Gs?si=S_TqzfCnhYEtq45F"
         sx={{
           mb: { xs: 3, md: 5 },
         }}
