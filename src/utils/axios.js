@@ -214,6 +214,7 @@ export const endpoints = {
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       update: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+      import: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/import/',
     },
     fase: {
       post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
