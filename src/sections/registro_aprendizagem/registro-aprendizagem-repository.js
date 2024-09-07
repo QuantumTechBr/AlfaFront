@@ -22,6 +22,7 @@ export const updateRegistroAprendizagemFaseById = (id, payload) => axios.patch(e
 export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.registro_aprendizagem.fase.get_by_id.concat(id));
 export const getListIdTurmaRegistroAprendizagemFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.idsTurmaList.concat(`/?limit=${payload.limit}&offset=${payload.offset}`), payload);
 export const exportFileFaseList = (query) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?`).concat(query));
+export const importFileFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 const registroAprendizagemMethods = {
     insertRegistroAprendizagem,
@@ -41,7 +42,8 @@ const registroAprendizagemMethods = {
     getRegistroAprendizagemFaseById,
     getListIdTurmaRegistroAprendizagemFase,
     exportFileFaseList,
-    importFileDiagnostico
+    importFileDiagnostico,
+    importFileFase
 };
 
 export default registroAprendizagemMethods;

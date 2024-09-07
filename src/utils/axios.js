@@ -223,6 +223,7 @@ export const endpoints = {
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+      import: '/api/v1/registros-aprendizagens/avaliacao-fase/import/',
     },
   },
   turma: {

@@ -13,6 +13,9 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -92,6 +95,48 @@ export default function RegistroAprendizagemFaseListView() {
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
+  
+  const [openUploadModal, setOpenUploadModal] = useState(false);
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
+
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+  const uploadAvaliacoes = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await registroAprendizagemMethods.importFileFase(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -306,6 +351,18 @@ export default function RegistroAprendizagemFaseListView() {
             Adicionar
           </Button>
         }
+        {permissaoCadastrar && (
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+              }}
+            >
+              Import
+            </Button>
+          )}
       </Stack>
 
       <NovaAvaliacaoForm
@@ -400,6 +457,15 @@ export default function RegistroAprendizagemFaseListView() {
           onRowsPerPageChange={onChangeRowsPerPage}
         />
       </Card>
+      <Modal open={openUploadModal} onClose={closeUploadModal}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6">Upload File</Typography>
+          <input type="file" 
+            onChange={handleFileUpload} 
+          />
+          <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
+        </Box>
+      </Modal>
     </Container>
   );
 }
