@@ -97,6 +97,7 @@ export default function RegistroAprendizagemFaseListView() {
   const buscando = useBoolean(false);
   
   const [openUploadModal, setOpenUploadModal] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
 
   const modalStyle = {
     position: 'absolute',

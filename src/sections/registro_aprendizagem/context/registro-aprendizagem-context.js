@@ -89,7 +89,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
   const melhorResultadoAlunoTurma = async ({ alunoTurmaId, bimestreId }) => {
     const mapResultados = {
       'Não Avaliado' : 1,
-      'Pré Alfabética': 2,
+      'Pré-Alfabética': 2,
       'Alfabética Parcial': 3,
       'Alfabética Completa': 4,
       'Alfabética Consolidada': 5,

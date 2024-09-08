@@ -92,7 +92,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
-    'Pré Alfabética': 2,
+    'Pré-Alfabética': 2,
     'Alfabética Parcial': 3,
     'Alfabética Completa': 4,
     'Alfabética Consolidada': 5,
