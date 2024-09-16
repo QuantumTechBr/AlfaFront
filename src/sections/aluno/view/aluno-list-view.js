@@ -11,6 +11,9 @@ import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import Stack from '@mui/material/Stack';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -79,6 +82,8 @@ export default function AlunoListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
   const contextReady = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo('aluno', 'cadastrar');
@@ -92,6 +97,26 @@ export default function AlunoListView() {
   const [tableData, setTableData] = useState([]);
 
   const [filters, setFilters] = useState(defaultFilters);
+
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
 
   const buscaAlunos = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldAlunoList = [], filtros = filters) => {
@@ -237,6 +262,26 @@ export default function AlunoListView() {
     quickEdit.onFalse();
   };
 
+  const uploadAlunos = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await alunoMethods.importFileAlunos(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
+
   return (
     <>
       <Container maxWidth="xxl">
@@ -267,6 +312,18 @@ export default function AlunoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+        {permissaoCadastrar && (
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+              }}
+            >
+              Import
+            </Button>
+          )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -361,6 +418,15 @@ export default function AlunoListView() {
             onRowsPerPageChange={onChangeRowsPerPage}
           />
         </Card>
+        <Modal open={openUploadModal} onClose={closeUploadModal}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6">Upload File</Typography>
+            <input type="file" 
+              onChange={handleFileUpload} 
+            />
+            <Button variant="contained" onClick={uploadAlunos}>Upload</Button>
+          </Box>
+        </Modal>
       </Container>
 
       {checkPermissaoModulo('aluno', 'editar') && (

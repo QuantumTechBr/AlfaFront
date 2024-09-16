@@ -43,6 +43,7 @@ export const endpoints = {
     get_by_id: '/api/v1/alunos/',
     update: '/api/v1/alunos/',
     delete: '/api/v1/alunos/',
+    import: '/api/v1/alunos/importar-alunos/',
   },
   ano_letivo: {
     list: '/api/v1/anos-letivos/',
