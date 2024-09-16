@@ -215,8 +215,8 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Excluir Usuário"
-        content="Tem certeza que deseja excluir o usuário?"
+        title="Excluir Plano"
+        content="Tem certeza que deseja excluir o plano?"
         action={
           <Button variant="contained" color="error" onClick={newDeleteRow}>
             Deletar
