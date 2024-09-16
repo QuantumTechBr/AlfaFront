@@ -34,7 +34,7 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
     <TableRow hover selected={selected}>
         <TableCell padding="checkbox">
           <Checkbox 
-          disabled={row?.turma ? true : false} 
+          //disabled={row?.turma ? true : false} 
           checked={selected} onClick={onSelectRow} />
         </TableCell>
 
