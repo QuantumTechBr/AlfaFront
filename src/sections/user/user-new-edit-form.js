@@ -194,11 +194,7 @@ export default function UserNewEditForm({ currentUser }) {
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
-      const arrayMsg = Object.values(error).map((msg) => {
-        return (msg[0] ? msg[0].charAt(0).toUpperCase() + msg[0].slice(1) : '');
-      });
-      const mensagem = arrayMsg.join(' ');
-      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${mensagem}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${mensagem}`);
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${error}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${error}`);
       console.error(error);
     }
   });
