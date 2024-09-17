@@ -14,7 +14,11 @@ axiosInstance.interceptors.response.use(
     if ( error.status >= 400 && error.status < 500) {
       let arrayMsg = [];
       for (const [key, value] of Object.entries(error.response.data)) {
-        arrayMsg.push(`${key}: ${value}`);
+        if (key == 'non_field_errors') {
+          arrayMsg.push(`${value}`);
+        } else {
+          arrayMsg.push(`${key}: ${value}`);
+        }
       }
       const mensagem = arrayMsg.join(' ');
       return Promise.reject((mensagem) || 'Algo deu errado')
