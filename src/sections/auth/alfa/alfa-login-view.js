@@ -79,9 +79,10 @@ export default function AlfaLoginView() {
       if (login == ''){
         setErrorMsg(typeof error === 'string' ? error : 'O campo Login não pode ser vazio.');
       }
-
+      console.log("sucesso login")
       router.push(returnTo || PATH_AFTER_LOGIN);
     } catch (error) {
+      console.log(error);
       data.tentativas += 1;
 
       if (data.tentativas > 2){
