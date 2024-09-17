@@ -26,6 +26,7 @@ axiosInstance.interceptors.response.use(
     } else if (error.status >= 500) {
       return Promise.reject(`Erro ` + error.status +`, contate o suporte e descreva como reproduzir o erro.`)
     }
+    return Promise.reject(error);
   } 
 );
 
