@@ -13,6 +13,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if ( error.status >= 400 && error.status < 500) {
       let arrayMsg = [];
+      console.log(error);
       for (const [key, value] of Object.entries(error.response.data)) {
         if (key == 'non_field_errors') {
           arrayMsg.push(`${value}`);
