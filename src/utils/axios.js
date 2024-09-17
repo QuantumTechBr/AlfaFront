@@ -11,9 +11,9 @@ const axiosInstance = axios.create({ baseURL: HOST_API });
 axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
+    console.log(error);
     if ( error.status >= 400 && error.status < 500) {
       let arrayMsg = [];
-      console.log(error);
       for (const [key, value] of Object.entries(error.response.data)) {
         if (key == 'non_field_errors') {
           arrayMsg.push(`${value}`);
