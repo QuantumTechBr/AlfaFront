@@ -225,7 +225,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                   ))}
                 </RHFSelect>
 
-                {currentTurma && (
+                {currentTurma?.id && (
                   <Button
                     variant="contained"
                     onClick={modalAlunoTurma.onTrue}
@@ -237,7 +237,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                     Definir Estudantes da Turma
                   </Button>
                 )}
-                {currentTurma && (
+                {currentTurma?.id && (
                   <Button
                     variant="contained"
                     onClick={modalProfessorTurma.onTrue}

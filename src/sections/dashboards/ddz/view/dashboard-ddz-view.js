@@ -139,14 +139,10 @@ export default function DashboardDDZView() {
             .groupBy((turmaEscola) => turmaEscola.escola_nome)
             .map((escolaTurmas, key) => {
               const _alunos = _.sumBy(escolaTurmas, (s) => s.qtd_alunos);
-              const _avaliados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_avaliados));
-              const _alfabetizados = _.sumBy(escolaTurmas, (s) => _.last(s.qtd_alfabetizado));
-              const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) =>
-                _.last(s.qtd_nao_alfabetizado)
-              );
-              const _nao_avaliados = _.sumBy(escolaTurmas, (s) =>
-                _.last(s.qtd_nao_avaliado)
-              );
+              const _avaliados = _.sumBy(escolaTurmas, (s) => s.total_avaliados);
+              const _alfabetizados = _.sumBy(escolaTurmas, (s) => s.total_alfabetizados);
+              const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => s.total_nao_alfabetizados);
+              const _nao_avaliados = _.sumBy(escolaTurmas, (s) => s.total_nao_avaliados);
 
               return {
                 escola_nome: key,

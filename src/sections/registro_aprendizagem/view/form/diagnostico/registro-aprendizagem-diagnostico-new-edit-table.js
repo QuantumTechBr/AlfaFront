@@ -100,6 +100,26 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   }, []);
 
   useEffect(() => {
+    let descritivoLP = "Nível escrita - LP (resultado"
+    let descritivoMAT = "Nível Resolução de problemas - MAT (resultado"
+    switch (turma.ano_escolar) {
+      case '1':
+        descritivoLP += " do item 10)"
+        descritivoMAT += " do item 20)"
+        break;
+      case '2':
+        descritivoLP += " dos itens 9 e 10)"
+        descritivoMAT += " dos itens 19 e 20)"
+        break;
+      case '3':
+        descritivoLP += " dos itens 8, 9 e 10)"
+        descritivoMAT += " dos itens 18, 19 e 20)"
+        break;
+      default:
+        descritivoLP += " do item 10)"
+        descritivoMAT += " do item 20)"
+        break;
+    }
     const cabecalho = [
         { id: 'matricula', label: 'Matrícula', width: 150 },
         { id: 'nome', label: 'Nome', width: 150 },
@@ -109,10 +129,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
       cabecalho.push({ id: `R${i}`, label: habilidades.length > 0 ? labelHabilidade(habilidades, i) : `R${i}`, width: 50 });
     }
     cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
-    cabecalho.push({ id: 'nvEscrita', label: 'Nível escrita - LP (resultado do item 10)', width: 200, minWidth: 200 });
+    cabecalho.push({ id: 'nvEscrita', label: descritivoLP, width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvLP', label: 'NÍVEL_LP', width: 50 });
     cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
-    cabecalho.push({ id: 'nvResolucao', label: 'Nível Resolução de problemas - MAT (resultado do item 20)', width: 200, minWidth: 200 });
+    cabecalho.push({ id: 'nvResolucao', label: descritivoMAT, width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
     cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
