@@ -160,8 +160,8 @@ export default function UserListView() {
           setCountUsuarios(usuarios.data.count);
         })
         .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de usuários');
-          console.log(error);
+          setErrorMsg(error);
+          console.log("errou",error);
         });
         preparado.onTrue();
     },
