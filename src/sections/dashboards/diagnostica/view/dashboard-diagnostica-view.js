@@ -37,7 +37,7 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
-
+import { AuthContext } from 'src/auth/context/alfa';
 // components
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
@@ -80,7 +80,7 @@ export default function DashboardDiagnosticaView() {
 
   const theme = useTheme();
   const settings = useSettingsContext();
-
+  const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -90,10 +90,11 @@ export default function DashboardDiagnosticaView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
+  const [zonaFiltro, setZonaFiltro] = useState('');
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
-    zona: '',
+    zona: zonaFiltro,
     escola: [],
     turma: [],
     anoEscolar: [],
@@ -318,16 +319,38 @@ export default function DashboardDiagnosticaView() {
   }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
 
   useEffect(() => {
-    if (contextReady.value) {
+    if (user && contextReady.value) {
+
+      let _zonaFiltro = undefined;
+
+      if (user?.funcao_usuario?.length > 0) {
+        if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ' || user?.funcao_usuario[0]?.funcao?.nome == 'COORDENADOR DE GESTÃO') {
+          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
+        } else {
+          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
+        }
+      }
+
+      //if (initialZona) {
+      //  _zonaFiltro = zonas.find((z) => z.id == initialZona);
+      //}
+
+      if (!_zonaFiltro) {
+        _zonaFiltro = _.first(zonas);
+      }
+
+      setZonaFiltro(_zonaFiltro);
+
       const _filters = {
         ...filters,
+        zona: _zonaFiltro,
         ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
       };
 
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
+  }, [contextReady.value, user]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
