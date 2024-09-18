@@ -11,16 +11,21 @@ const axiosInstance = axios.create({ baseURL: HOST_API });
 axiosInstance.interceptors.response.use(
   (res) => res,
   (error) => {
-    if ( error.status >= 400 && error.status < 500) {
+    if ( error.response.status >= 400 && error.response.status < 500) {
       let arrayMsg = [];
       for (const [key, value] of Object.entries(error.response.data)) {
-        arrayMsg.push(`${key}: ${value}`);
+        if (key == 'non_field_errors') {
+          arrayMsg.push(`${value}`);
+        } else {
+          arrayMsg.push(`${key}: ${value}`);
+        }
       }
       const mensagem = arrayMsg.join(' ');
       return Promise.reject((mensagem) || 'Algo deu errado')
-    } else if (error.status >= 500) {
+    } else if (error.response.status >= 500) {
       return Promise.reject(`Erro ` + error.status +`, contate o suporte e descreva como reproduzir o erro.`)
     }
+    return Promise.reject('Erro na comunicação com a API, contate o suporte e descreva como reproduzir o erro.');
   } 
 );
 
