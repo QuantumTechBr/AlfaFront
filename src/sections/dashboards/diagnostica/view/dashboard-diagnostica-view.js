@@ -321,23 +321,23 @@ export default function DashboardDiagnosticaView() {
   useEffect(() => {
     if (user && contextReady.value) {
 
-      let _zonaFiltro = undefined;
-
+      let _zonaFiltro = '';
+      console.log(user)
       if (user?.funcao_usuario?.length > 0) {
         if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ' || user?.funcao_usuario[0]?.funcao?.nome == 'COORDENADOR DE GESTÃO') {
           _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
         } else {
           _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
         }
-      }
+      } 
 
-      //if (initialZona) {
+      // if (initialZona) {
       //  _zonaFiltro = zonas.find((z) => z.id == initialZona);
-      //}
+      // }
 
-      if (!_zonaFiltro) {
-        _zonaFiltro = _.first(zonas);
-      }
+      // if (!_zonaFiltro) {
+      //  _zonaFiltro = _.first(zonas);
+      // }
 
       setZonaFiltro(_zonaFiltro);
 
