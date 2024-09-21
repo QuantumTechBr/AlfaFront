@@ -348,6 +348,7 @@ export default function DashboardDiagnosticaView() {
       };
 
       setFilters(_filters);
+      setFiltersApplied(_filters);
       preencheGraficos(_filters);
     }
   }, [contextReady.value, user]); // CHAMADA SEMPRE QUE ESTES MUDAREM
@@ -832,6 +833,7 @@ export default function DashboardDiagnosticaView() {
 
       let _totalSaidaPresente = 0;
       let _totalSaidaAusente = 0;
+      console.log("isZonaFiltered",isZonaFiltered)
 
       if (isEscolaFiltered || isZonaFiltered) {
         const _turmasDoAnoEscolar = (dados.grid_turmas ?? []).filter(
