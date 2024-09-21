@@ -348,6 +348,7 @@ export default function DashboardDiagnosticaView() {
       };
 
       setFilters(_filters);
+      setFiltersApplied(_filters);
       preencheGraficos(_filters);
     }
   }, [contextReady.value, user]); // CHAMADA SEMPRE QUE ESTES MUDAREM
@@ -832,6 +833,7 @@ export default function DashboardDiagnosticaView() {
 
       let _totalSaidaPresente = 0;
       let _totalSaidaAusente = 0;
+      console.log("isZonaFiltered",isZonaFiltered)
 
       if (isEscolaFiltered || isZonaFiltered) {
         const _turmasDoAnoEscolar = (dados.grid_turmas ?? []).filter(
@@ -1093,7 +1095,7 @@ export default function DashboardDiagnosticaView() {
               sx={{
                 position: { lg: 'sticky' },
                 top: { lg: window.screen.width > 1740 ? 0 : 64 },
-                zIndex: { lg: 1101 },
+                zIndex: theme.zIndex.appBar + 2,
 
                 ...bgBlur({
                   color: theme.palette.background.default,
@@ -1101,7 +1103,11 @@ export default function DashboardDiagnosticaView() {
               }}
               paddingY={1}
             >
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+               sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <DashboardDiagnosticaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -1111,7 +1117,11 @@ export default function DashboardDiagnosticaView() {
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+              sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <Button
                   variant="contained"
                   sx={{
