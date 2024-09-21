@@ -89,7 +89,7 @@ export default function DashboardEscolaView() {
   const [filters, setFilters] = useState({
     anoLetivo: '',
     zona: [],
-    escola: [],
+    escola: {},
     turma: [],
     anoEscolar: [],
     pne: '-',
@@ -121,7 +121,9 @@ export default function DashboardEscolaView() {
           (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
-        escola: _filtersToSearch.escola.map((item) => item.id),
+        escola: [
+          (_filtersToSearch.escola != {} ? _filtersToSearch.escola : _.first(_escolasFiltered)).id,
+        ],
         turma: _.flatten(
           filters.anoEscolar.map((aE) => {
             return getTurmasPorAnoEscolar(aE);
@@ -193,7 +195,7 @@ export default function DashboardEscolaView() {
 
         setFilters((prevState) => ({
           ...prevState,
-          ['escola']: [],
+          ['escola']: {},
           [campo]: value,
         }));
       } else {
@@ -230,10 +232,10 @@ export default function DashboardEscolaView() {
   useEffect(() => {
     if (contextReady.value) {
       const _escola = escolas.filter((e) => e.id == initialEscola);
-
+      console.log('initiallll', _escola)
       const _filters = {
         ...filters,
-        ...(_escola.length > 0 ? { escola: _escola } : {}),
+        ...(_escola.length > 0 ? { escola: _escola[0] } : {}),
         ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
@@ -398,10 +400,14 @@ export default function DashboardEscolaView() {
                 md: 0,
               }}
               alignItems="center"
-              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: theme.zIndex.appBar + 2, }}
               paddingY={1}
             >
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+               sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <DashboardEscolaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -411,7 +417,11 @@ export default function DashboardEscolaView() {
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+               sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <Button
                   variant="contained"
                   sx={{

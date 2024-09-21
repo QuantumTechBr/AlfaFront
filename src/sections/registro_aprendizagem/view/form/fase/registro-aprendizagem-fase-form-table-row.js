@@ -117,7 +117,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     return (
       <Box>
         {row.aluno.nome}
-        {necessidades_especiais != '' && (
+        {!!necessidades_especiais && (
           <Tooltip title={necessidades_especiais}>
             <Iconify
               icon="mdi:alphabet-n-circle-outline"

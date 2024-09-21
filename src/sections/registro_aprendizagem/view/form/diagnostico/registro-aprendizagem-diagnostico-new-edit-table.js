@@ -37,6 +37,8 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { useContext } from 'react';
 import Typography from '@mui/material/Typography';
+import { useTheme } from '@mui/material/styles';
+import zIndex from '@mui/material/styles/zIndex';
 
 
 // ----------------------------------------------------------------------
@@ -50,7 +52,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
-
+  const theme = useTheme();
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
@@ -205,18 +207,18 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
-
-          <TableContainer sx={{ position: 'relative',overflow: 'unset', }}  >
+          <TableContainer sx={{ position: 'relative', overflow: 'unset'}} >
             <Scrollbar sx={{
               "& .simplebar-scrollbar": {
                 "backgroundColor": "#D3D3D3",
                 'borderRadius': 10,
               },
+              maxHeight: 800,
              }}>
             {!preparado.value ? (
               <LoadingBox />
                 ) : (
-              <Table size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+              <Table stickyHeader size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
                   orderBy={table.orderBy}
@@ -224,6 +226,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
+                 
                   />
 
                 <TableBody sx={{ bgcolor: 'white' }}>

@@ -26,7 +26,7 @@ export default function DashboardEscolaTableToolbar({
   anoEscolarOptions,
 }) {
   const { user } = useContext(AuthContext);
-
+  
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
     [onFilters]
@@ -46,7 +46,7 @@ export default function DashboardEscolaTableToolbar({
     (event) => {
       onFilters(
         'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        event.target.value
       );
     },
     [onFilters]
@@ -128,11 +128,10 @@ export default function DashboardEscolaTableToolbar({
 
             <Select
               size="small"
-              multiple
               value={filters.escola}
               onChange={handleFilterEscola}
               input={<OutlinedInput fullWidth label="Escolas" />}
-              renderValue={renderValueEscola}
+              // renderValue={renderValueEscola}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
@@ -141,7 +140,6 @@ export default function DashboardEscolaTableToolbar({
             >
               {escolaOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
                   {option.nome}
                 </MenuItem>
               ))}

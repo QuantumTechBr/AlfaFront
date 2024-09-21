@@ -302,15 +302,15 @@ export const fases_options = [
 ];
 
 export const necessidades_especiais = [
-  'Cegueira',
-  'Baixa Visão',
-  'Visão Monocular',
-  'Deficiência Auditiva',
-  'Deficiência Intelectual',
-  'Deficência Física',
-  'Deficiência Múltipla',
-  'Transtorno do Espectro Autista',
-  'Altas Habilidades ou Superdotação',
+  'CEGUEIRA',
+  'BAIXA VISAO',
+  'VISAO MONOCULAR',
+  'DEFICIENCIA AUDITIVA',
+  'DEFICIENCIA INTELECTUAL',
+  'DEFICIENCIA FISICA',
+  'DEFICIENCIAS MULTIPLAS',
+  'TRANSTORNO DO ESPECTRO AUTISTA',
+  'ALTA HABILIDADE/SUPERDOTACAO',
 ];
 
 export const habilidades_1ano = [

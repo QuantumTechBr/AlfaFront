@@ -354,11 +354,17 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             />
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
-              <Scrollbar>
+              <Scrollbar sx={{
+              "& .simplebar-scrollbar": {
+                "backgroundColor": "#D3D3D3",
+                'borderRadius': 10,
+              },
+              maxHeight: 800,
+             }}>
                 {(!contextReady.value || buscando.value) && <LoadingBox />}
 
                 {contextReady.value && tabelaPreparada.value && (
-                  <Table size="small" sx={{ minWidth: 960 }}>
+                  <Table stickyHeader size="small" sx={{ minWidth: 960 }}>
                     <TableHeadCustom
                       order={table.order}
                       orderBy={table.orderBy}
