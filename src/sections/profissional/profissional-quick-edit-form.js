@@ -165,6 +165,12 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   const onSubmit = handleSubmit(async (data) => {
     try {
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
+      var novoUsuario = {
+        nome: data.nome,
+        email: data.email,
+        status: data.status,
+      };
+      
       if (idsAssessorCoordenador.includes(data.funcao)) {
         if (zonaCtrl == '') {
           setErrorMsg('Voce deve selecionar uma zona');
