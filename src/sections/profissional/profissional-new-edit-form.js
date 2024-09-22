@@ -47,16 +47,15 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   const [filters, setFilters] = useState(filtros);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
-  const [idAssessorGestao, setIdAssessorGestao] = useState('');
+  const [idAssessorGestao, setIdAssessorGestao] = useState([]);
+  const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [ zonaCtrl, setZonaCtrl ] = useState('');
 
   const [funcaoProfessor, setFuncaoProfessor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    buscaFuncoes().then(_funcoes => {
-      setFuncaoProfessor(_funcoes.find(_funcao => _funcao.nome == "PROFESSOR"))
-    }).catch((error) => {
+    buscaFuncoes().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de funções');
     });
     buscaEscolas().catch((error) => {
@@ -73,17 +72,35 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(() => {
     const idsAC = [];
-    let idAG = '';
+    let idAG = [];
+    let funcoes_opts = [];
     funcoes.map((_funcao) => {
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(_funcao.id);
-      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = _funcao.id;
+      funcoes_opts.push({..._funcao,
+        nome_exibicao: _funcao.nome,
+      });
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
+        idsAC.push(_funcao.nome);
+      } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'ASSESSOR PEDAGOGICO',
+        })
+        idAG.push(_funcao.nome);
+        idAG.push('ASSESSOR PEDAGOGICO');
+      } else if (_funcao.nome == "DIRETOR") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'PEDAGOGO',
+        })
+      } else if (_funcao.nome == "PROFESSOR") {
+        setFuncaoProfessor({..._funcao,
+          nome_exibicao: 'PROFESSOR',
+        })
       }
     });
     setIdsAssessorCoordenador(idsAC);
     setIdAssessorGestao(idAG);
+    setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
+
 
   const { enqueueSnackbar } = useSnackbar();
   const NewUserSchema = Yup.object().shape({
@@ -127,6 +144,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
       if (data.senha) {
         novoUsuario = {
@@ -150,20 +168,22 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           return
         } else {
           novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
+            funcao_id: funcaoEscolhida.id,
             zona_id: zonaCtrl,
+            nome_exibicao: funcaoEscolhida.nome_exibicao,
           }];
         }
-      } else if (data.funcao == idAssessorGestao) {
+      } else if (idAssessorGestao.includes(data.funcao)) {
         if (filters.escolasAG.length == 0) {
           setErrorMsg('Voce deve selecionar uma ou mais escolas');
         } else {
           novoUsuario.funcao_usuario = [];
           filters.escolasAG.map((escolaId) => {
             novoUsuario.funcao_usuario.push({
-              funcao_id: data.funcao,
+              funcao_id: funcaoEscolhida.id,
               escola_id: escolaId,
-            })
+              nome_exibicao: funcaoEscolhida.nome_exibicao,
+            });
           })
         }
 
@@ -173,13 +193,14 @@ export default function ProfissionalNewEditForm({ currentUser }) {
           return
         } else {
           novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
+            funcao_id: funcaoEscolhida.id,
             escola_id: data.escola,
+            nome_exibicao: funcaoEscolhida.nome_exibicao,
           }];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
+
+      const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
@@ -299,7 +320,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
         // </RHFSelect>
       )
     } 
-    if ( getValues('funcao') == idAssessorGestao ) {
+    if ( idAssessorGestao.includes(getValues('funcao')) ) {
       return (
         <FormControl
           sx={{
@@ -373,12 +394,12 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
               <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
                 {(user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") ? 
-                (<MenuItem key={funcaoProfessor?.id} value={funcaoProfessor?.id}>
-                  {funcaoProfessor?.nome}
+                (<MenuItem key={funcaoProfessor?.nome_exibicao} value={funcaoProfessor?.nome_exibicao}>
+                  {funcaoProfessor?.nome_exibicao}
                 </MenuItem>)
-                : (funcoes.map((_funcao) => (
-                  <MenuItem key={_funcao.id} value={_funcao.id}>
-                    {_funcao.nome}
+                : (funcoesOptions.map((_funcao) => (
+                  <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
+                    {_funcao.nome_exibicao}
                   </MenuItem>
                 )))
                 }

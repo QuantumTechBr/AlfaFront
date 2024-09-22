@@ -274,9 +274,9 @@ export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const permissao_values = {
   PROFESSOR: 1,
   DIRETOR: 2,
-  'ASSESSOR DE GESTÃO': 3,
+  'ASSESSOR DE GESTAO': 3,
   'ASSESSOR DDZ': 4,
-  'COORDENADOR DE GESTÃO': 5,
+  'COORDENADOR DE GESTAO': 5,
   ADMIN: 6,
   SUPERADMIN: 7,
 };
@@ -292,6 +292,16 @@ export const anos_fase_adequada = {
 };
 
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos'];
+
+export const funcoes_usuarios = [
+  'PROFESSOR',
+  'DIRETOR',
+  'PEDAGOGO',
+  'ASSESSOR PEDAGOGICO',
+  'ASSESSOR DDZ',
+  'COORDENADOR DE GESTAO',
+  'ASSESSOR DE GESTAO',
+]
 
 export const fases_options = [
   '',

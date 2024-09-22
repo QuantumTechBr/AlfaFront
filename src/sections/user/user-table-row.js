@@ -23,10 +23,9 @@ import { ConfirmDialog } from 'src/components/custom-dialog';
 
 export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
-
   const funcaoNome =
     row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
-      ? row.funcao_usuario[0].funcao.nome
+      ? row.funcao_usuario[0].nome_exibicao
       : '';
 
   const confirm = useBoolean();
