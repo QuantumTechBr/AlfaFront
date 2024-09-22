@@ -63,8 +63,7 @@ export default function DashboardTurmaTableToolbar({
   const handleFilterTurma = useCallback(
     (event) => {
       onFilters(
-        'turma',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        'turma', event.target.value
       );
     },
     [onFilters]
@@ -197,11 +196,10 @@ export default function DashboardTurmaTableToolbar({
 
           <Select
             size="small"
-            multiple
             value={filters.turma}
             onChange={handleFilterTurma}
             input={<OutlinedInput fullWidth label="Ano - Turma" />}
-            renderValue={renderValueTurma}
+            // renderValue={renderValueTurma}
             MenuProps={{
               PaperProps: {
                 sx: { maxHeight: 240 },
@@ -210,7 +208,6 @@ export default function DashboardTurmaTableToolbar({
           >
             {anoTurmaOptions?.map((option) => (
               <MenuItem key={option.id} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.turma.includes(option)} />
                 {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
                   filters.escola.length != 1 ? ` (${getEscola(option.escola_id)?.nome})` : ''
                 } `}

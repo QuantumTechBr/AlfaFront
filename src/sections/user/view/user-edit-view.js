@@ -29,7 +29,7 @@ export default function UserEditView({ id }) {
         const escola = [];
         const zona = [];
         for (let index = 0; index < usuario.data.funcao_usuario.length; index++) {  
-          funcao.push(usuario.data.funcao_usuario[index].funcao?.id);
+          funcao.push(usuario.data.funcao_usuario[index]?.nome_exibicao);
           escola.push(usuario.data.funcao_usuario[index].escola?.id);
           zona.push(usuario.data.funcao_usuario[index].zona?.id);
         }

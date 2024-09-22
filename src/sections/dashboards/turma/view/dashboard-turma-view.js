@@ -79,7 +79,7 @@ export default function DashboardTurmaView() {
     anoLetivo: '',
     zona: zonaFiltro,
     escola: [],
-    turma: [],
+    turma: {},
     bimestre: '',
     pne: '-',
     pneItem: '-',
@@ -180,7 +180,9 @@ export default function DashboardTurmaView() {
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
-        turma: _filtersToSearch.turma.map((item) => item.id),
+        turma: [
+          (_filtersToSearch.turma != {} ? _filtersToSearch.turma : _.first(_turmasFiltered)).id,
+        ],
         bimestre: [
           (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
         ],
@@ -234,7 +236,7 @@ export default function DashboardTurmaView() {
         setFilters((prevState) => ({
           ...prevState,
           ['escola']: [],
-          ['turma']: [],
+          ['turma']: {},
           [campo]: value,
         }));
       } else if (campo == 'escola') {
@@ -248,7 +250,7 @@ export default function DashboardTurmaView() {
         }
         setFilters((prevState) => ({
           ...prevState,
-          ['turma']: [],
+          ['turma']: {},
           [campo]: value,
         }));
       } else {
@@ -294,7 +296,7 @@ export default function DashboardTurmaView() {
         ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
         zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
         escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
-        turma: _turma.length > 0 ? _turma : turmas.length == 1 ? turmas : [],
+        turma: _turma.length > 0 ? _turma[0] : turmas.length == 1 ? turmas[0] : {},
         ...(bimestres && bimestres.length > 0 ? { bimestre: _.last(bimestres) } : {}),
       };
       setFilters((prevState) => ({ ...prevState, ..._filters }));
@@ -316,7 +318,7 @@ export default function DashboardTurmaView() {
       anoLetivo: '',
       zona: _zonaFiltro,
       escola: [],
-      turma: [],
+      turma: {},
       bimestre: '',
       pne: '-',
       pneItem: '-',
@@ -332,7 +334,7 @@ export default function DashboardTurmaView() {
       anoLetivo: _.first(anosLetivos),
       zona: zonaFiltro,
       escola: [],
-      turma: [],
+      turma: {},
       bimestre: _.last(bimestres),
       pne: '-',
       pneItem: '-',
@@ -466,10 +468,14 @@ export default function DashboardTurmaView() {
                 md: 0,
               }}
               alignItems="center"
-              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: theme.zIndex.appBar + 2, }}
               paddingY={1}
             >
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+              sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <DashboardTurmaTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -482,7 +488,11 @@ export default function DashboardTurmaView() {
                   bimestreOptions={bimestres}
                 />
               </Grid>
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+              sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <Button
                   variant="contained"
                   sx={{
@@ -618,10 +628,10 @@ export default function DashboardTurmaView() {
                     variant="contained"
                     color="info"
                     component={RouterLink}
-                    href={paths.dashboard.registro_aprendizagem.root_diagnostico}
+                    href={paths.dashboard.registro_aprendizagem.root_fase}
                     sx={{ mr: 3, marginTop: 2 }}
                   >
-                    Ir para Acompanhamento Diagnóstico
+                    Ir para Acompanhamento Fase
                   </Button>
                 </Grid>
               </Grid>

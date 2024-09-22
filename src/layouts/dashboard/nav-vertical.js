@@ -49,7 +49,7 @@ export default function NavVertical({ openNav, onCloseNav }) {
         },
       }}
     >
-      <Logo sx={{ mt: 3, pl: 4, pr:3, mb: 5, height: 'auto' }} />
+      <Logo sx={{ mt: 3, pl: 4, pr: 3, mb: 5, height: 'auto' }} />
 
       <NavSectionVertical
         data={navData}
@@ -80,6 +80,8 @@ export default function NavVertical({ openNav, onCloseNav }) {
             position: 'fixed',
             width: NAV.W_VERTICAL,
             borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
+            zIndex: 2000,
+            backgroundColor: 'white',
           }}
         >
           {renderContent}

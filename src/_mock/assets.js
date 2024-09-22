@@ -274,9 +274,9 @@ export const _anosSerie = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 export const permissao_values = {
   PROFESSOR: 1,
   DIRETOR: 2,
-  'ASSESSOR DE GESTÃO': 3,
+  'ASSESSOR DE GESTAO': 3,
   'ASSESSOR DDZ': 4,
-  'COORDENADOR DE GESTÃO': 5,
+  'COORDENADOR DE GESTAO': 5,
   ADMIN: 6,
   SUPERADMIN: 7,
 };
@@ -293,6 +293,16 @@ export const anos_fase_adequada = {
 
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos'];
 
+export const funcoes_usuarios = [
+  'PROFESSOR',
+  'DIRETOR',
+  'PEDAGOGO',
+  'ASSESSOR PEDAGOGICO',
+  'ASSESSOR DDZ',
+  'COORDENADOR DE GESTAO',
+  'ASSESSOR DE GESTAO',
+]
+
 export const fases_options = [
   '',
   'Pré Alfabética',
@@ -302,15 +312,15 @@ export const fases_options = [
 ];
 
 export const necessidades_especiais = [
-  'Cegueira',
-  'Baixa Visão',
-  'Visão Monocular',
-  'Deficiência Auditiva',
-  'Deficiência Intelectual',
-  'Deficência Física',
-  'Deficiência Múltipla',
-  'Transtorno do Espectro Autista',
-  'Altas Habilidades ou Superdotação',
+  'CEGUEIRA',
+  'BAIXA VISAO',
+  'VISAO MONOCULAR',
+  'DEFICIENCIA AUDITIVA',
+  'DEFICIENCIA INTELECTUAL',
+  'DEFICIENCIA FISICA',
+  'DEFICIENCIAS MULTIPLAS',
+  'TRANSTORNO DO ESPECTRO AUTISTA',
+  'ALTA HABILIDADE/SUPERDOTACAO',
 ];
 
 export const habilidades_1ano = [

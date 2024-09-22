@@ -54,6 +54,7 @@ export default function DashboardLayout({ children }) {
             minHeight: 1,
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
+            pb: 20,
           }}
         >
           {lgUp ? renderNavMini : renderNavVertical}
@@ -73,6 +74,7 @@ export default function DashboardLayout({ children }) {
           minHeight: 1,
           display: 'flex',
           flexDirection: { xs: 'column', md: 'row' },
+          pb: 20,
         }}
       >
         {renderNavVertical}

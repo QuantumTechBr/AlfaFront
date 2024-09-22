@@ -45,7 +45,8 @@ export default function UserNewEditForm({ currentUser }) {
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
-  const [idAssessorGestao, setIdAssessorGestao] = useState('');
+  const [idAssessorGestao, setIdAssessorGestao] = useState([]);
+  const [funcoesOptions, setFuncoesOptions] = useState([]);
 
   const [ zonaCtrl, setZonaCtrl ] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -68,16 +69,29 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(() => {
     const idsAC = [];
-    let idAG = '';
+    let idAG = [];
+    let funcoes_opts = [];
     funcoes.map((_funcao) => {
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTÃO") {
-        idsAC.push(_funcao.id);
-      } else if (_funcao.nome == "ASSESSOR DE GESTÃO") {
-        idAG = _funcao.id;
+      funcoes_opts.push({..._funcao,
+        nome_exibicao: _funcao.nome,
+      });
+      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
+        idsAC.push(_funcao.nome);
+      } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'ASSESSOR PEDAGOGICO',
+        })
+        idAG.push(_funcao.nome);
+        idAG.push('ASSESSOR PEDAGOGICO');
+      } else if (_funcao.nome == "DIRETOR") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'PEDAGOGO',
+        })
       }
     });
     setIdsAssessorCoordenador(idsAC);
     setIdAssessorGestao(idAG);
+    setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 
 
@@ -125,6 +139,7 @@ export default function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
       if (data.senha) {
         novoUsuario = {
@@ -148,20 +163,22 @@ export default function UserNewEditForm({ currentUser }) {
           return
         } else {
           novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
+            funcao_id: funcaoEscolhida.id,
             zona_id: zonaCtrl,
+            nome_exibicao: funcaoEscolhida.nome_exibicao,
           }];
         }
-      } else if (data.funcao == idAssessorGestao) {
+      } else if (idAssessorGestao.includes(data.funcao)) {
         if (filters.escolasAG.length == 0) {
           setErrorMsg('Voce deve selecionar uma ou mais escolas');
         } else {
           novoUsuario.funcao_usuario = [];
           filters.escolasAG.map((escolaId) => {
             novoUsuario.funcao_usuario.push({
-              funcao_id: data.funcao,
+              funcao_id: funcaoEscolhida.id,
               escola_id: escolaId,
-            })
+              nome_exibicao: funcaoEscolhida.nome_exibicao,
+            });
           })
         }
 
@@ -171,13 +188,13 @@ export default function UserNewEditForm({ currentUser }) {
           return
         } else {
           novoUsuario.funcao_usuario = [{
-            funcao_id: data.funcao,
+            funcao_id: funcaoEscolhida.id,
             escola_id: data.escola,
+            nome_exibicao: funcaoEscolhida.nome_exibicao,
           }];
         }
       }
-      const _funcao = funcoes.find((funcaoEscolhida) =>  funcaoEscolhida.id == data.funcao)
-      const permissao = permissoes.find((permissao) => permissao.nome == _funcao.nome)
+      const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
@@ -283,7 +300,7 @@ export default function UserNewEditForm({ currentUser }) {
         </FormControl>
       )
     } 
-    if ( getValues('funcao') == idAssessorGestao ) {
+    if ( idAssessorGestao.includes(getValues('funcao')) ) {
       return (
         <FormControl
           sx={{
@@ -351,9 +368,10 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                {funcoes.map((_funcao) => (
-                  <MenuItem key={_funcao.id} value={_funcao.id}>
-                    {_funcao.nome}
+                
+                {funcoesOptions.map((_funcao) => (
+                  <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
+                    {_funcao.nome_exibicao}
                   </MenuItem>
                 ))}
               </RHFSelect>

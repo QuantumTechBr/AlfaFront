@@ -67,8 +67,8 @@ export default function ProfissionalTableToolbar({
 
   const renderValueFuncao = (selected) =>
     selected
-      .map((funcaoId) => {
-        return roleOptions.find((option) => option.id == funcaoId)?.nome;
+      .map((funcao_nome_exibicao) => {
+        return roleOptions.find((option) => option.nome_exibicao == funcao_nome_exibicao)?.nome_exibicao;
       })
       .join(', ');
 
@@ -115,9 +115,9 @@ export default function ProfissionalTableToolbar({
             }}
           >
             {roleOptions.map((funcao) => (
-              <MenuItem key={funcao.id} value={funcao.id}>
-                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.id)} />
-                {funcao.nome}
+              <MenuItem key={funcao.nome_exibicao} value={funcao.nome_exibicao}>
+                <Checkbox disableRipple size="small" checked={filters.role.includes(funcao.nome_exibicao)} />
+                {funcao.nome_exibicao}
               </MenuItem>
             ))}
           </Select>

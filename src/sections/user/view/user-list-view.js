@@ -85,7 +85,7 @@ export default function UserListView() {
   const [countAll, setCountAll] = useState(0);
   const [countUsuarios, setCountUsuarios] = useState(0);
   const [filters, setFilters] = useState(defaultFilters);
-
+  const [funcoesOptions, setFuncoesOptions] = useState([]);
   const permissaoCadastrar = checkPermissaoModulo('usuario', 'cadastrar');
 
   const table = useTable();
@@ -140,7 +140,7 @@ export default function UserListView() {
               const userEscola = [];
               if (users[i].funcao_usuario?.length > 0) {
                 for (let index = 0; index < users[i].funcao_usuario.length; index++) {
-                  funcao.push(users[i].funcao_usuario[index].funcao?.id);
+                  funcao.push(users[i].funcao_usuario[index]?.nome_exibicao);
                   userEscola.push(users[i].funcao_usuario[index].escola?.id);
                   userZona.push(users[i].funcao_usuario[index].zona?.id);
                 }
@@ -167,6 +167,25 @@ export default function UserListView() {
     },
     [preparado, filters]
   );
+
+  useEffect(() => {
+    let funcoes_opts = [];
+    funcoes.map((_funcao) => {
+      funcoes_opts.push({..._funcao,
+        nome_exibicao: _funcao.nome,
+      });
+      if (_funcao.nome == "ASSESSOR DE GESTAO") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'ASSESSOR PEDAGOGICO',
+        });
+      } else if (_funcao.nome == "DIRETOR") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'PEDAGOGO',
+        })
+      }
+    });
+    setFuncoesOptions(funcoes_opts);
+  }, [funcoes]);
 
   const contarUsuarios = useCallback(
     async (filtros = filters) => {
@@ -419,7 +438,7 @@ export default function UserListView() {
             <UserTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              roleOptions={funcoes}
+              roleOptions={funcoesOptions}
               escolaOptions={escolas}
             />
             <Button

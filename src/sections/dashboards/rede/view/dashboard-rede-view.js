@@ -332,10 +332,14 @@ export default function DashboardRedeView() {
                 md: 0,
               }}
               alignItems="center"
-              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: { md: 1101 } }}
+              sx={{ position: { md: 'sticky' }, top: { md: 0 }, zIndex: theme.zIndex.appBar + 2, }}
               paddingY={1}
             >
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+              sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <DashboardRedeTableToolbar
                   filters={filters}
                   onFilters={handleFilters}
@@ -343,7 +347,11 @@ export default function DashboardRedeView() {
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>
-              <Grid xs={12} md="auto" paddingY={0}>
+              <Grid xs={12} md="auto" paddingY={2}
+              sx={{
+                backgroundColor: 'white',
+              }}
+              >
                 <Button
                   variant="contained"
                   sx={{

@@ -73,7 +73,7 @@ export default function ProfissionalListView() {
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [filters, setFilters] = useState(defaultFilters);
-
+  const [funcoesOptions, setFuncoesOptions] = useState([]);
   const permissaoCadastrar = checkPermissaoModulo('profissionais', 'cadastrar');
 
   const table = useTable();
@@ -112,7 +112,7 @@ export default function ProfissionalListView() {
               const proEscola = [];
               if (pros[i].funcao_usuario?.length > 0) {
                 for (let index = 0; index < pros[i].funcao_usuario.length; index++) {
-                  funcao.push(pros[i].funcao_usuario[index].funcao?.id);
+                  funcao.push(pros[i].funcao_usuario[index]?.nome_exibicao);
                   proEscola.push(pros[i].funcao_usuario[index].escola?.id);
                   zona.push(pros[i].funcao_usuario[index].zona?.id);
                 }
@@ -139,6 +139,25 @@ export default function ProfissionalListView() {
     },
     [preparado, filters]
   );
+
+  useEffect(() => {
+    let funcoes_opts = [];
+    funcoes.map((_funcao) => {
+      funcoes_opts.push({..._funcao,
+        nome_exibicao: _funcao.nome,
+      });
+      if (_funcao.nome == "ASSESSOR DE GESTAO") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'ASSESSOR PEDAGOGICO',
+        });
+      } else if (_funcao.nome == "DIRETOR") {
+        funcoes_opts.push({..._funcao,
+          nome_exibicao: 'PEDAGOGO',
+        })
+      }
+    });
+    setFuncoesOptions(funcoes_opts);
+  }, [funcoes]);
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -302,7 +321,7 @@ export default function ProfissionalListView() {
             <ProfissionalTableToolbar
               filters={filters}
               onFilters={handleFilters}
-              roleOptions={funcoes}
+              roleOptions={funcoesOptions}
               escolaOptions={escolas}
             />
 

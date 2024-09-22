@@ -63,7 +63,7 @@ export default function AlunoTableRow({ row, quickEdit, onEditRow, onDeleteRow }
     return (
       <Box>
         {nome}
-        {necessidades_especiais != '' && (
+        {!!necessidades_especiais && (
           <Tooltip title={necessidades_especiais}>
             <Iconify
               icon="mdi:alphabet-n-circle-outline"
