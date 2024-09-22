@@ -78,7 +78,7 @@ export default function Header({ onOpenNav }) {
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
             {user?.nome}
-            {showFullInfo ? ` - ${user?.funcao_usuario[0]?.funcao?.nome}` : ''}
+            {showFullInfo ? ` - ${user?.funcao_usuario.length == 0 ?  user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao}` : ''}
           </Typography>
 
           <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
@@ -97,7 +97,7 @@ export default function Header({ onOpenNav }) {
                 ].join(' - ')
               : null}
 
-            {!showFullInfo ? user?.permissao_usuario[0]?.nome : null}
+            {!showFullInfo ? user?.funcao_usuario.length == 0 ?  user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao : null}
           </Typography>
         </Box>
 

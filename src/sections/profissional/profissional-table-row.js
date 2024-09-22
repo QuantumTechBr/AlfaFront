@@ -31,7 +31,6 @@ import { useAuthContext } from 'src/auth/hooks';
 export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quickEdit }) {
   const { checkPermissaoModulo } = useAuthContext();
   const { id, profissional, email, funcao, escola, zona , turma, status } = row;
-  // console.log(row)
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
@@ -61,14 +60,10 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
 
   const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
-  const renderFuncao = () => {
-    for (let index = 0; index < funcoes.length; index++) {
-      if (funcoes[index]?.id == funcao) {
-        return funcoes[index].nome
-      }
-    }
-    return ''
-  }
+  const funcaoNome =
+  row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
+    ? row.funcao_usuario[0].nome_exibicao
+    : '';
 
   const renderZona = () => {
     for (let index = 0; index < zonas.length; index++) {
@@ -104,7 +99,7 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{renderFuncao()}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcaoNome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderEscola()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderZona()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.turma ? 'SIM' : 'NÃO'}</TableCell>
