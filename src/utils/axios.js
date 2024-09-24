@@ -59,6 +59,7 @@ export const endpoints = {
     get_by_id: '/api/v1/alunos/',
     update: '/api/v1/alunos/',
     delete: '/api/v1/alunos/',
+    import: '/api/v1/alunos/importar-alunos/',
   },
   ano_letivo: {
     list: '/api/v1/anos-letivos/',
@@ -230,6 +231,7 @@ export const endpoints = {
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       update: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/',
+      import: '/api/v1/registros-aprendizagens/avaliacao-diagnostico/import/',
     },
     fase: {
       post: '/api/v1/registros-aprendizagens/avaliacao-fase/',
@@ -238,6 +240,7 @@ export const endpoints = {
       get_by_id: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
+      import: '/api/v1/registros-aprendizagens/avaliacao-fase/import/',
     },
   },
   turma: {

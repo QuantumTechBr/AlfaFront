@@ -13,6 +13,8 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -83,6 +85,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const [uploadedFile, setUploadedFile] = useState(null);
   const contextReady = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo('registro_aprendizagem', 'cadastrar');
@@ -91,8 +94,26 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
 
+  const [openUploadModal, setOpenUploadModal] = useState(false);
+
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
+
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -280,6 +301,31 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     [buscarAvaliacoes, table]
   );
 
+  const uploadAvaliacoes = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await registroAprendizagemMethods.importFileDiagnostico(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -304,6 +350,18 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               Adicionar
             </Button>
           )}
+          {/* {permissaoCadastrar && (
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+              }}
+            >
+              Import
+            </Button>
+          )} */}
         </Stack>
 
         <NovaAvaliacaoForm
@@ -400,6 +458,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
           />
         </Card>
       </Container>
+      <Modal open={openUploadModal} onClose={closeUploadModal}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6">Upload File</Typography>
+          <input type="file" 
+            onChange={handleFileUpload} 
+          />
+          <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
+        </Box>
+      </Modal>
     </>
   );
 }

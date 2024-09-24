@@ -92,7 +92,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
-    'Pré Alfabética': 2,
+    'Pré-Alfabética': 2,
     'Alfabética Parcial': 3,
     'Alfabética Completa': 4,
     'Alfabética Consolidada': 5,
@@ -111,9 +111,12 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }
 
   const nomeAluno = () => {
-    const necessidades_especiais = row.aluno.necessidades_especiais
-      ? JSON.parse(aluno.necessidades_especiais)
-      : '';
+    let necessidades_especiais = '';
+    try {
+      necessidades_especiais = JSON.parse(aluno.necessidades_especiais);
+    } catch (e) {
+      necessidades_especiais = [aluno.necessidades_especiais];
+    }
     return (
       <Box>
         {row.aluno.nome}

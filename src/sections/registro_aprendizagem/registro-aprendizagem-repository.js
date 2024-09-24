@@ -14,6 +14,7 @@ export const getAllRegistrosAprendizagemDiagnostico = ({turmaId='', nome='', per
 export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.patch(endpoints.registro_aprendizagem.diagnostico.update.concat(id), payload);
 export const getListIdTurmaRegistroAprendizagemDiagnostico = (payload) => axios.post(endpoints.registro_aprendizagem.diagnostico.idsTurmaList.concat(`/?limit=${payload.limit}&offset=${payload.offset}`), payload);
 export const exportFileDiagnosticoList = (query) => axios.get(endpoints.registro_aprendizagem.diagnostico.list.concat(`/?`).concat(query));
+export const importFileDiagnostico = (payload) => axios.post(endpoints.registro_aprendizagem.diagnostico.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 export const insertRegistroAprendizagemFase = payload => axios.post(endpoints.registro_aprendizagem.fase.post, payload);
 export const getAllRegistrosAprendizagemFase = ({turmaId='', bimestreId='', alunoTurmaId=''}) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?turma=${turmaId}&bimestre=${bimestreId}&aluno_turma=${alunoTurmaId}`));
@@ -21,6 +22,7 @@ export const updateRegistroAprendizagemFaseById = (id, payload) => axios.patch(e
 export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.registro_aprendizagem.fase.get_by_id.concat(id));
 export const getListIdTurmaRegistroAprendizagemFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.idsTurmaList.concat(`/?limit=${payload.limit}&offset=${payload.offset}`), payload);
 export const exportFileFaseList = (query) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?`).concat(query));
+export const importFileFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 const registroAprendizagemMethods = {
     insertRegistroAprendizagem,
@@ -40,6 +42,8 @@ const registroAprendizagemMethods = {
     getRegistroAprendizagemFaseById,
     getListIdTurmaRegistroAprendizagemFase,
     exportFileFaseList,
+    importFileDiagnostico,
+    importFileFase
 };
 
 export default registroAprendizagemMethods;

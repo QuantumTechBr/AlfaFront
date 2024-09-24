@@ -36,7 +36,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const anoEscolar = turma?.ano_escolar;
 
   const nomeAluno = () => {
-    const necessidades_especiais = row.aluno.necessidades_especiais ? JSON.parse(aluno.necessidades_especiais) : '';
+    let necessidades_especiais = '';
+    try {
+      necessidades_especiais = JSON.parse(aluno.necessidades_especiais);
+    } catch (e) {
+      necessidades_especiais = [aluno.necessidades_especiais];
+    }
     return (
       <Box>
         {row.aluno.nome}
