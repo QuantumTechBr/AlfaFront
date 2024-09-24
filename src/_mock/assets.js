@@ -286,9 +286,9 @@ export const anos_options = ['1', '2', '3'];
 export const anos_metas = { 1: 95, 2: 100, 3: 100 };
 
 export const anos_fase_adequada = {
-  1: 'Alfabética Parcial',
-  2: 'Alfabética Completa',
-  3: 'Alfabética Consolidada',
+  1: 'ALFABETICA PARCIAL',
+  2: 'ALFABETICA COMPLETA',
+  3: 'ALFABETICA CONSOLIDADA',
 };
 
 export const aplicacao_options = ['DDZs', 'Escolas', 'Turmas', 'Alunos'];
@@ -305,10 +305,10 @@ export const funcoes_usuarios = [
 
 export const fases_options = [
   '',
-  'Pré Alfabética',
-  'Alfabética Parcial',
-  'Alfabética Completa',
-  'Alfabética Consolidada',
+  'PRE ALFABETICA',
+  'ALFABETICA PARCIAL',
+  'ALFABETICA COMPLETA',
+  'ALFABETICA CONSOLIDADA',
 ];
 
 export const necessidades_especiais = [
@@ -524,34 +524,34 @@ const RegistroAprendizagemDiagnosticoTipos = {
 };
 
 export const RegistroAprendizagemFasesCRUD = {
-  nao_avaliado: 'Não Avaliado',
-  pre_alfabetica: 'Pré Alfabética',
-  alfabetica_parcial: 'Alfabética Parcial',
-  alfabetica_completa: 'Alfabética Completa',
-  alfabetica_consolidada: 'Alfabética Consolidada',
+  nao_avaliado: 'NAO AVALIADAO',
+  pre_alfabetica: 'PRE ALFABETICA',
+  alfabetica_parcial: 'ALFABETICA PARCIAL',
+  alfabetica_completa: 'ALFABETICA COMPLETA',
+  alfabetica_consolidada: 'ALFABETICA CONSOLIDADA',
 };
 
 export const RegistroAprendizagemFases = {
-  pre_alfabetica: 'Pré Alfabética',
-  alfabetica_parcial: 'Alfabética Parcial',
-  alfabetica_completa: 'Alfabética Completa',
-  alfabetica_consolidada: 'Alfabética Consolidada',
-  nao_avaliado: 'Não Avaliado',
+  pre_alfabetica: 'PRE ALFABETICA',
+  alfabetica_parcial: 'ALFABETICA PARCIAL',
+  alfabetica_completa: 'ALFABETICA COMPLETA',
+  alfabetica_consolidada: 'ALFABETICA CONSOLIDADA',
+  nao_avaliado: 'NAO AVALIADO',
 };
 
 export const RegistroAprendizagemFasesLeitura = {
-  'Pré Alfabética': 'Predição',
-  'Alfabética Parcial': 'Analogia',
-  'Alfabética Completa': 'Decodificação',
-  'Alfabética Consolidada': 'Reconhecimento Automático',
-  'Não Avaliado': '',
+  'PRE ALFABETICA': 'PREDICAO',
+  'ALFABETICA PARCIAL': 'ANALOGIA',
+  'ALFABETICA COMPLETA': 'DECODIFICACAO',
+  'ALFABETICA CONSOLIDADA': 'RECONHECIMENTO AUTOMATICO',
+  'NAO AVALIADO': '',
 };
 export const RegistroAprendizagemFasesEscrita = {
-  'Pré Alfabética': 'Letra',
-  'Alfabética Parcial': 'Palavra',
-  'Alfabética Completa': 'Frase',
-  'Alfabética Consolidada': 'Texto',
-  'Não Avaliado': '',
+  'PRE ALFABETICA': 'LETRA',
+  'ALFABETICA PARCIAL': 'PALAVRA',
+  'ALFABETICA COMPLETA': 'FRASE',
+  'ALFABETICA CONSOLIDADA': 'TEXTO',
+  'NAO AVALIADO': '',
 };
 
 export const RegistroAprendizagemFasesColors = {
