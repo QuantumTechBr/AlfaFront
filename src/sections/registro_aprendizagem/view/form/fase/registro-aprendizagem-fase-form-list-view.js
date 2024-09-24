@@ -214,7 +214,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const mapaResultados = Object.values(data.registros).map((formItem) => {
       if (formItem.observacao.length > 0) {
         if (formItem.resultado == '') {
-          formItem.resultado = 'NÃO AVALIADO';
+          formItem.resultado = 'Não Avaliado';
         }
       } else {
         if (formItem.resultado == '') {

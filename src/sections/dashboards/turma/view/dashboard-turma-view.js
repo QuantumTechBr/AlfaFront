@@ -410,7 +410,7 @@ export default function DashboardTurmaView() {
         ? dados[`indice_fases_${+ano_escolar}_ano`]
         : dados.indice_fases_geral;
       return (_indice_fases.chart?.series ?? []).reduce(
-        (acc, item) => acc + (item.label != 'NÃO AVALIADO' ? item.value : 0),
+        (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
         0
       );
     },

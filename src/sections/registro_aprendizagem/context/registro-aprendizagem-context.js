@@ -88,14 +88,14 @@ export const RegistroAprendizagemProvider = ({ children }) => {
 
   const melhorResultadoAlunoTurma = async ({ alunoTurmaId, bimestreId }) => {
     const mapResultados = {
-      'NÃO AVALIADO' : 1,
-      'PRÉ-ALFABÉTICA': 2,
-      'ALFABÉTICA PARCIAL': 3,
-      'ALFABÉTICA COMPLETA': 4,
-      'ALFABÉTICA CONSOLIDADA': 5,
+      'Não Avaliado' : 1,
+      'Pré-Alfabética': 2,
+      'Alfabética Parcial': 3,
+      'Alfabética Completa': 4,
+      'Alfabética Consolidada': 5,
     };
     const resultados = await buscaRegistroAprendizagemFaseByAlunoTurmaId({alunoTurmaId: alunoTurmaId, bimestreId: bimestreId});
-    let melhor = 'NÃO AVALIADO'
+    let melhor = 'Não Avaliado'
     for (let index = 0; index < resultados?.length; index++) {
       melhor = mapResultados[melhor] < mapResultados[resultados[index].resultado] ? resultados[index].resultado : melhor
     }
