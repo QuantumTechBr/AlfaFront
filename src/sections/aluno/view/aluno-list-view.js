@@ -312,7 +312,7 @@ export default function AlunoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
-        {permissaoCadastrar && (
+        {/* {permissaoCadastrar && (
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
@@ -323,7 +323,7 @@ export default function AlunoListView() {
             >
               Import
             </Button>
-          )}
+          )} */}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}

@@ -350,7 +350,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               Adicionar
             </Button>
           )}
-          {permissaoCadastrar && (
+          {/* {permissaoCadastrar && (
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
@@ -361,7 +361,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             >
               Import
             </Button>
-          )}
+          )} */}
         </Stack>
 
         <NovaAvaliacaoForm

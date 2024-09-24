@@ -352,7 +352,7 @@ export default function RegistroAprendizagemFaseListView() {
             Adicionar
           </Button>
         }
-        {permissaoCadastrar && (
+        {/* {permissaoCadastrar && (
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
@@ -363,7 +363,7 @@ export default function RegistroAprendizagemFaseListView() {
             >
               Import
             </Button>
-          )}
+          )} */}
       </Stack>
 
       <NovaAvaliacaoForm
