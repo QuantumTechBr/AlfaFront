@@ -95,7 +95,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
       'ALFABETICA CONSOLIDADA': 5,
     };
     const resultados = await buscaRegistroAprendizagemFaseByAlunoTurmaId({alunoTurmaId: alunoTurmaId, bimestreId: bimestreId});
-    let melhor = 'Não Avaliado'
+    let melhor = 'NAO AVALIADO'
     for (let index = 0; index < resultados?.length; index++) {
       melhor = mapResultados[melhor] < mapResultados[resultados[index].resultado] ? resultados[index].resultado : melhor
     }

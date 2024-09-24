@@ -40,7 +40,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const [resultadoPrevio, setResultadoPrevio] = useState("")
 
   const disableCheckbox = useCallback(() => {
-    if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
+    if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'NAO AVALIADO') {
       return false
     }
     if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
@@ -78,7 +78,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
-          if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
+          if (registro?.resultado == "NAO AVALIADO" || registro?.resultado == "") {
             ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
           } else {
             setResultadoPrevio(registro?.resultado)
@@ -100,7 +100,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
 
   const desabilitaBimestre = (tipoFaseValue) => {
     if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
-      if (resultadoPrevio == 'Não Avaliado') {
+      if (resultadoPrevio == 'NAO AVALIADO') {
         return false
       } else {
         return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
