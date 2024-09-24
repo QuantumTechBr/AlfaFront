@@ -40,7 +40,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const [resultadoPrevio, setResultadoPrevio] = useState("")
 
   const disableCheckbox = useCallback(() => {
-    if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
+    if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'NÃO AVALIADO') {
       return false
     }
     if (user?.permissao_usuario[0]?.nome === "PROFESSOR") {
@@ -78,7 +78,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
-          if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
+          if (registro?.resultado == "NÃO AVALIADO" || registro?.resultado == "") {
             ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
           } else {
             setResultadoPrevio(registro?.resultado)
@@ -91,16 +91,16 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, [bimestreAnterior]);
   
   const mapDesabilitarCheckbox = {
-    'Não Avaliado' : 6,
-    'Pré-Alfabética': 2,
-    'Alfabética Parcial': 3,
-    'Alfabética Completa': 4,
-    'Alfabética Consolidada': 5,
+    'NÃO AVALIADO' : 6,
+    'PRÉ-ALFABÉTICA': 2,
+    'ALFABÉTICA PARCIAL': 3,
+    'ALFABÉTICA COMPLETA': 4,
+    'ALFABÉTICA CONSOLIDADA': 5,
   };
 
   const desabilitaBimestre = (tipoFaseValue) => {
     if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
-      if (resultadoPrevio == 'Não Avaliado') {
+      if (resultadoPrevio == 'NÃO AVALIADO') {
         return false
       } else {
         return mapDesabilitarCheckbox[tipoFaseValue] < mapDesabilitarCheckbox[resultadoPrevio] ? true : false;
@@ -111,9 +111,12 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }
 
   const nomeAluno = () => {
-    const necessidades_especiais = row.aluno.necessidades_especiais
-      ? JSON.parse(aluno.necessidades_especiais)
-      : '';
+    let necessidades_especiais = '';
+    try {
+      necessidades_especiais = JSON.parse(aluno.necessidades_especiais);
+    } catch (e) {
+      necessidades_especiais = [aluno.necessidades_especiais];
+    }
     return (
       <Box>
         {row.aluno.nome}
