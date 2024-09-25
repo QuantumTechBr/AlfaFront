@@ -80,8 +80,8 @@ export default function NavVertical({ openNav, onCloseNav }) {
             position: 'fixed',
             width: NAV.W_VERTICAL,
             borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
-            zIndex: 2000,
-            backgroundColor: 'white',
+            zIndex: pathname.startsWith('/dashboard/dash') ? 2000 : 1,
+            backgroundColor: pathname.startsWith('/dashboard/dash') ? 'white' : '',
           }}
         >
           {renderContent}
