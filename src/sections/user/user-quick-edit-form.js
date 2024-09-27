@@ -166,6 +166,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
       var novoUsuario = {
         nome: data.nome,
         email: data.email,
+        login: data.email,
         status: data.status,
       };
 

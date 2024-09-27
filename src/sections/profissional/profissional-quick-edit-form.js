@@ -52,10 +52,10 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState([]);
-  const [ zonaCtrl, setZonaCtrl ] = useState('');
+  const [zonaCtrl, setZonaCtrl] = useState('');
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
-  const [funcaoProfessor, setFuncaoProfessor] = useState([]);
+  const [funcaoProfessorDiretor, setFuncaoProfessorDiretor] = useState([]);
 
   useEffect(() => {
     contextReady.onFalse();
@@ -86,28 +86,43 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
       const idsAC = [];
       let idAG = [];
       let funcoes_opts = [];
+      let funcoes_professor_diretor = [];
       funcoes.map((_funcao) => {
-        funcoes_opts.push({..._funcao,
+        funcoes_opts.push({
+          ..._funcao,
           nome_exibicao: _funcao.nome,
         });
         if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
           idsAC.push(_funcao.nome);
         } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
-          funcoes_opts.push({..._funcao,
+          funcoes_opts.push({
+            ..._funcao,
             nome_exibicao: 'ASSESSOR PEDAGOGICO',
           })
           idAG.push(_funcao.nome);
           idAG.push('ASSESSOR PEDAGOGICO');
         } else if (_funcao.nome == "DIRETOR") {
-          funcoes_opts.push({..._funcao,
+          funcoes_professor_diretor.push({
+            ..._funcao,
+            nome_exibicao: 'PEDAGOGO',
+          })
+          funcoes_professor_diretor.push({
+            ..._funcao,
+            nome_exibicao: _funcao.nome,
+          });
+          funcoes_opts.push({
+            ..._funcao,
             nome_exibicao: 'PEDAGOGO',
           })
         } else if (_funcao.nome == "PROFESSOR") {
-          setFuncaoProfessor({..._funcao,
+          funcoes_professor_diretor.push({
+            ..._funcao,
             nome_exibicao: 'PROFESSOR',
           })
         }
       });
+      console.log(funcoes_professor_diretor)
+      setFuncaoProfessorDiretor(funcoes_professor_diretor);
       setIdsAssessorCoordenador(idsAC);
       setIdAssessorGestao(idAG);
       setFuncoesOptions(funcoes_opts);
@@ -145,7 +160,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
     }),
     [currentUser]
   );
-
+  console.log(defaultValues)
   const methods = useForm({
     // resolver: yupResolver(NewUserSchema),
     defaultValues,
@@ -168,9 +183,10 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
       var novoUsuario = {
         nome: data.nome,
         email: data.email,
+        login: data.email,
         status: data.status,
       };
-      
+
       if (idsAssessorCoordenador.includes(data.funcao)) {
         if (zonaCtrl == '') {
           setErrorMsg('Voce deve selecionar uma zona');
@@ -234,7 +250,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
     }
   });
 
-  useEffect(()  => {
+  useEffect(() => {
     reset(defaultValues)
     const escIds = [];
     setZonaCtrl(currentUser?.zona);
@@ -274,7 +290,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
 
   const handleZona = useCallback((event) => {
     setZonaCtrl(event.target.value);
-  }, [setZonaCtrl] );
+  }, [setZonaCtrl]);
 
   const renderValueEscolasAG = (selected) =>
     selected
@@ -290,10 +306,10 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           sx={{
             flexShrink: 0,
           }}
-        >      
+        >
           <InputLabel>DDZ</InputLabel>
           <Select
-            id={`zona_`+`${currentUser?.id}`}
+            id={`zona_` + `${currentUser?.id}`}
             name="zona"
             disabled={getValues('funcao') == '' ? true : false}
             value={zonaCtrl}
@@ -305,16 +321,16 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
               },
             }}
           >
-             {zonas.map((zona) => (
-            <MenuItem key={zona.id} value={zona.id}>
-              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-            </MenuItem>
-          ))}
+            {zonas.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id}>
+                <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       )
     }
-    if ( idAssessorGestao.includes(getValues('funcao')) ) {
+    if (idAssessorGestao.includes(getValues('funcao'))) {
       return (
         <FormControl
           sx={{
@@ -324,7 +340,7 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
-            id={`escolas_`+`${currentUser?.id}`}
+            id={`escolas_` + `${currentUser?.id}`}
             name="escolas"
             disabled={getValues('funcao') == '' ? true : false}
             value={filters.escolasAG}
@@ -412,15 +428,17 @@ export default function ProfissionalQuickEditForm({ row, open, onClose, onSave }
               <RHFTextField name="email" label="Email" />
 
               <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
-                {(user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") ? 
-                (<MenuItem key={funcaoProfessor?.nome_exibicao} value={funcaoProfessor?.nome_exibicao}>
-                  {funcaoProfessor?.nome_exibicao}
-                </MenuItem>)
-                : (funcoesOptions.map((_funcao) => (
-                  <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
-                    {_funcao.nome_exibicao}
-                  </MenuItem>
-                )))
+                {(user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") ?
+                  (funcaoProfessorDiretor.map((_funcao) => (
+                    <MenuItem key={_funcao?.nome_exibicao} value={_funcao?.nome_exibicao}>
+                      {_funcao?.nome_exibicao}
+                    </MenuItem>)
+                  ))
+                  : (funcoesOptions.map((_funcao) => (
+                    <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
+                      {_funcao.nome_exibicao}
+                    </MenuItem>
+                  )))
                 }
               </RHFSelect>
 
