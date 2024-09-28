@@ -75,7 +75,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   }, []);
 
   useEffect(() => {
-      if (user?.permissao_usuario[0]?.nome == "PROFESSOR" & bimestreAnterior != undefined) {
+      if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR"  & bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
@@ -99,7 +99,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   };
 
   const desabilitaBimestre = (tipoFaseValue) => {
-    if (user?.permissao_usuario[0]?.nome == "PROFESSOR") {
+    if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR" ) {
       if (resultadoPrevio == 'Não Avaliado') {
         return false
       } else {
