@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { useEffect, useCallback, useMemo, useState, useContext,  } from 'react';
+import { useEffect, useCallback, useMemo, useState, useContext, } from 'react';
 import { useForm } from 'react-hook-form';
 import { useBoolean } from 'src/hooks/use-boolean';
 
@@ -14,7 +14,8 @@ import MenuItem from '@mui/material/MenuItem';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-
+import RHFAutocomplete from '../../components/hook-form/rhf-autocomplete';
+import FormControl from '@mui/material';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -41,6 +42,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
 
   const defaultValues = {
     escola: '',
@@ -48,7 +50,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
     bimestre: '',
     periodo: '',
   };
-  
+
   const methods = useForm({
     // resolver: yupResolver(NewUserSchema),
     defaultValues,
@@ -69,7 +71,19 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   }, []); // CHAMADA UNICA AO ABRIR
 
   useEffect(() => {
-    if(initialTipo) setValue('tipo', initialTipo);
+    const escolasAC = [];
+    escolas.map((escola) => {
+      const ea = {
+        label: escola.nome,
+        id: escola.id,
+      }
+      escolasAC.push(ea)
+    })
+    setEscolasFiltered(escolasAC);
+  }, [escolas]);
+
+  useEffect(() => {
+    if (initialTipo) setValue('tipo', initialTipo);
     if (escolas.length && escolas.length == 1) setValue('escola', first(escolas).id);
   }, [contextReady.value]);
 
@@ -107,19 +121,20 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   const selectEscola = () => {
     return (
-      <RHFSelect name="escola" label="Escola">
-        {escolas.map((_escola) => (
-          <MenuItem key={_escola.id} value={_escola.id}>
-            {_escola.nome}
-          </MenuItem>
-        ))}
-      </RHFSelect>
+        <RHFAutocomplete
+          disablePortal
+          id="escola"
+          name="escola"
+          label="Escola"
+          options={escolasFiltered}
+
+        />
     );
   };
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.filter((_turma) => _turma.escola_id == escola).map((_turma) => (
+        {turmas.filter((_turma) => _turma.escola_id == escola.id).map((_turma) => (
           <MenuItem key={_turma.id} value={_turma.id}>
             {_turma.ano_escolar}º {_turma.nome} ({_turma.turno})
           </MenuItem>

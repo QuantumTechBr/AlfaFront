@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
+import Autocomplete from '@mui/material/Autocomplete';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -31,6 +32,22 @@ export default function RegistroAprendizagemTableToolbar({
   export_type,
 }) {
 
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
+  const [escolasACTotal, setEscolasACTotal] = useState([]);
+
+  useEffect(() => {
+    const escolasAC = [];
+    escolaOptions.map((escola) => {
+      const ea = {
+        label: escola.nome,
+        id: escola.id,
+      }
+      escolasAC.push(ea)
+    })
+    setEscolasFiltered(escolasAC);
+    setEscolasACTotal(escolasAC);
+  }, [escolaOptions]);
+  
   const popover = usePopover();
 
   const handleFilterAnoLetivo = useCallback(
@@ -39,7 +56,12 @@ export default function RegistroAprendizagemTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => onFilters('escola', event.target.value),
+    (event, newValue) => {
+      onFilters(
+        'escola',
+        newValue,
+      );
+    },
     [onFilters]
   );
 
@@ -116,32 +138,25 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
-        {escolaOptions && (
+        {escolasFiltered && (
           <FormControl
-            sx={{
-              flexShrink: 0,
-              width: { xs: 1, md: 300 },
-            }}
-          >
-            <InputLabel>Escola</InputLabel>
-            <Select
-              value={filters.escola}
-              onChange={handleFilterEscola}
-              input={<OutlinedInput label="Escola" />}
-              renderValue={(selected) => `${selected.nome}`}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {escolaOptions.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 300 },
+          }}
+        >
+
+          <Autocomplete
+            multiple
+            disablePortal
+            id="escola"
+            options={escolasFiltered}
+            sx={{ width: 300 }}
+            renderInput={(params) => <TextField {...params} label="Escola" />}
+            value={filters.escola}
+            onChange={handleFilterEscola}
+          />
+        </FormControl>
         )}
 
         {turmaOptions && (
