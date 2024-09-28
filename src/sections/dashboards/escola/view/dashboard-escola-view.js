@@ -289,7 +289,7 @@ export default function DashboardEscolaView() {
   const router = useRouter();
   const TABLE_HEAD = [
     { id: 'ano_escolar', label: 'Ano', width: 110, notsortable: true },
-    { id: 'turma_nome', label: 'Turma', width: 110, notsortable: true },
+    { id: 'turma_nome', label: 'Turma', width: 110 },
     { id: 'turno', label: 'Turno', width: 110, notsortable: true },
     { id: 'professores', label: 'Professores', notsortable: true },
     { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
