@@ -73,6 +73,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
       endereco: currentEscola?.endereco || '',
       zona: currentEscola?.zona?.id || '',
       cidade: currentEscola?.cidade?.nome || 'Manaus',
+      codigo_sigeam: currentEscola?.codigo_sigeam || '',
     }),
     [currentEscola]
   );
@@ -100,7 +101,8 @@ export default function EscolaNewEditForm({ currentEscola }) {
         endereco: data.endereco,
         zona_id: data.zona,
         cidade_id: "4a12c279-f19a-fae9-9c97-9b503e4bbc2c",
-        aluno_escola: []
+        aluno_escola: [],
+        codigo_sigeam: data.codigo_sigeam,
       }
     
       if (currentEscola?.id) {
@@ -155,6 +157,7 @@ export default function EscolaNewEditForm({ currentEscola }) {
                 ))}
               </RHFSelect>
               <RHFTextField name="cidade" label="Cidade" disabled={true} />
+              <RHFTextField name="codigo_sigeam" type="number" label="Código SIGEAM" />
 
               {currentEscola && 
               (<Button
