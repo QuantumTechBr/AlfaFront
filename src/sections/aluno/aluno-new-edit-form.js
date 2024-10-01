@@ -126,7 +126,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       const necessidades_especiais_data = JSON.stringify(data.necessidades_especiais);
       const toSend = {
         nome: data.nome,
-        matricula: data.matricula,
+        matricula: data.matricula.toString(),
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth()+1) + "-" + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
         alunos_turmas: aluno_turmas,
@@ -196,7 +196,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
             
             <RHFTextField name="nome" label="Nome do Estudante" />
 
-            <RHFTextField name="matricula" label="Matrícula" />
+            <RHFTextField type='number' name="matricula" label="Matrícula" />
 
             <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
               <Controller

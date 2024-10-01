@@ -65,7 +65,7 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   anoLetivo: '',
-  escola: '',
+  escola: [],
   turma: [],
   bimestre: [],
 };
@@ -190,6 +190,12 @@ export default function RegistroAprendizagemFaseListView() {
 
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
+      const escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
       
       const _filtersToSend = {
         turmas: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
@@ -199,7 +205,7 @@ export default function RegistroAprendizagemFaseListView() {
         offset:offset,
         limit:limit,
         ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
-        escolas: filtros.escola ? [filtros.escola.id] : [],
+        escolas: escola,
       };
         
       const _newList = [];
@@ -239,7 +245,8 @@ export default function RegistroAprendizagemFaseListView() {
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
 
   useEffect(() => {
-    const _turmasFiltered = turmas.filter((turma) => filters.escola.id == turma.escola_id);
+    const idsEscolas = filters.escola.map(escola => escola.id);
+    const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id));
     setTurmasFiltered(_turmasFiltered);
   }, [filters.escola]);
 

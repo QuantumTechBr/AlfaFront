@@ -143,7 +143,7 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
       const nascimento = new Date(data.data_nascimento);
       const toSend = {
         nome: data.nome,
-        matricula: data.matricula,
+        matricula: data.matricula.toString(),
         data_nascimento:
         nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
         alunoEscolas: aluno_escolas,
@@ -214,7 +214,7 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
             >
               <RHFTextField name="nome" label="Nome do Estudante" />
 
-              <RHFTextField name="matricula" label="Matrícula" />
+              <RHFTextField type="number" name="matricula" label="Matrícula" />
 
               <RHFSelect
                 sx={{}}

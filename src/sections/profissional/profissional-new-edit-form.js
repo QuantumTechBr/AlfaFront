@@ -51,7 +51,7 @@ export default function ProfissionalNewEditForm({ currentUser }) {
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [ zonaCtrl, setZonaCtrl ] = useState('');
 
-  const [funcaoProfessor, setFuncaoProfessor] = useState([]);
+  const [funcaoProfessorDiretor, setFuncaoProfessorDiretor] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -72,33 +72,48 @@ export default function ProfissionalNewEditForm({ currentUser }) {
 
   useEffect(() => {
     const idsAC = [];
-    let idAG = [];
-    let funcoes_opts = [];
-    funcoes.map((_funcao) => {
-      funcoes_opts.push({..._funcao,
-        nome_exibicao: _funcao.nome,
+      let idAG = [];
+      let funcoes_opts = [];
+      let funcoes_professor_diretor = [];
+      funcoes.map((_funcao) => {
+        funcoes_opts.push({
+          ..._funcao,
+          nome_exibicao: _funcao.nome,
+        });
+        if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
+          idsAC.push(_funcao.nome);
+        } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
+          funcoes_opts.push({
+            ..._funcao,
+            nome_exibicao: 'ASSESSOR PEDAGOGICO',
+          })
+          idAG.push(_funcao.nome);
+          idAG.push('ASSESSOR PEDAGOGICO');
+        } else if (_funcao.nome == "DIRETOR") {
+          funcoes_professor_diretor.push({
+            ..._funcao,
+            nome_exibicao: 'PEDAGOGO',
+          })
+          funcoes_professor_diretor.push({
+            ..._funcao,
+            nome_exibicao: _funcao.nome,
+          });
+          funcoes_opts.push({
+            ..._funcao,
+            nome_exibicao: 'PEDAGOGO',
+          })
+        } else if (_funcao.nome == "PROFESSOR") {
+          funcoes_professor_diretor.push({
+            ..._funcao,
+            nome_exibicao: 'PROFESSOR',
+          })
+        }
       });
-      if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
-        idsAC.push(_funcao.nome);
-      } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
-        funcoes_opts.push({..._funcao,
-          nome_exibicao: 'ASSESSOR PEDAGOGICO',
-        })
-        idAG.push(_funcao.nome);
-        idAG.push('ASSESSOR PEDAGOGICO');
-      } else if (_funcao.nome == "DIRETOR") {
-        funcoes_opts.push({..._funcao,
-          nome_exibicao: 'PEDAGOGO',
-        })
-      } else if (_funcao.nome == "PROFESSOR") {
-        setFuncaoProfessor({..._funcao,
-          nome_exibicao: 'PROFESSOR',
-        })
-      }
-    });
-    setIdsAssessorCoordenador(idsAC);
-    setIdAssessorGestao(idAG);
-    setFuncoesOptions(funcoes_opts);
+      console.log(funcoes_professor_diretor)
+      setFuncaoProfessorDiretor(funcoes_professor_diretor);
+      setIdsAssessorCoordenador(idsAC);
+      setIdAssessorGestao(idAG);
+      setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 
 
@@ -392,16 +407,19 @@ export default function ProfissionalNewEditForm({ currentUser }) {
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
+       
               <RHFSelect name="funcao" label="Função" disabled={desabilitaMudarFuncao()}>
-                {(user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") ? 
-                (<MenuItem key={funcaoProfessor?.nome_exibicao} value={funcaoProfessor?.nome_exibicao}>
-                  {funcaoProfessor?.nome_exibicao}
-                </MenuItem>)
-                : (funcoesOptions.map((_funcao) => (
-                  <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
-                    {_funcao.nome_exibicao}
-                  </MenuItem>
-                )))
+                {(user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") ?
+                  (funcaoProfessorDiretor.map((_funcao) => (
+                    <MenuItem key={_funcao?.nome_exibicao} value={_funcao?.nome_exibicao}>
+                      {_funcao?.nome_exibicao}
+                    </MenuItem>)
+                  ))
+                  : (funcoesOptions.map((_funcao) => (
+                    <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
+                      {_funcao.nome_exibicao}
+                    </MenuItem>
+                  )))
                 }
               </RHFSelect>
 
