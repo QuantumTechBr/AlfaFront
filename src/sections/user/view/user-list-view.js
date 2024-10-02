@@ -14,6 +14,9 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { IconButton, Tooltip } from '@mui/material';
 import Stack from '@mui/material/Stack';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -47,7 +50,6 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import UserQuickEditForm from '../user-quick-edit-form';
-import { Box } from '@mui/system';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -87,6 +89,8 @@ export default function UserListView() {
   const [filters, setFilters] = useState(defaultFilters);
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const permissaoCadastrar = checkPermissaoModulo('usuario', 'cadastrar');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
 
   const table = useTable();
 
@@ -98,6 +102,47 @@ export default function UserListView() {
   const [rowToEdit, setRowToEdit] = useState();
 
   const [tableData, setTableData] = useState([]);
+  
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
+
+  
+  const uploadUsuarios = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await userMethods.importFileUsers(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
 
   const buscaUsuarios = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldUserList = [], filtros = filters) => {
@@ -384,6 +429,16 @@ export default function UserListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+        <Button
+            onClick={() => setOpenUploadModal(true)}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#EE6C4D',
+            }}
+          >
+            Import
+        </Button>
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -509,6 +564,15 @@ export default function UserListView() {
             onRowsPerPageChange={onChangeRowsPerPage}
           />
         </Card>
+        <Modal open={openUploadModal} onClose={closeUploadModal}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6">Upload File</Typography>
+            <input type="file" 
+              onChange={handleFileUpload} 
+            />
+            <Button variant="contained" onClick={uploadUsuarios}>Upload</Button>
+          </Box>
+        </Modal>
       </Container>
 
       {checkPermissaoModulo('usuario', 'editar') && (

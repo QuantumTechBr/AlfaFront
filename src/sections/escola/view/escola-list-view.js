@@ -9,6 +9,9 @@ import Alert from '@mui/material/Alert';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -63,6 +66,8 @@ export default function EscolaListView() {
   const [_escolaList, setEscolaList] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
   const preparado = useBoolean(false);
 
   const [tableData, setTableData] = useState([]);
@@ -74,6 +79,26 @@ export default function EscolaListView() {
 
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
+
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -175,6 +200,26 @@ export default function EscolaListView() {
     setFilters(defaultFilters);
   }, []);
 
+  const uploadEscolas = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await escolaMethods.importFileEscolas(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
+
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
@@ -197,7 +242,10 @@ export default function EscolaListView() {
             >
               Adicionar
             </Button>
+            
           }
+          
+          
           youtubeLink="https://www.youtube.com/embed/Z4IWZCAqsvE?si=AmQqnX0kvUuF6zSS"
           sx={{
             mb: { xs: 3, md: 5 },
@@ -207,8 +255,21 @@ export default function EscolaListView() {
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
+        <Button
+            onClick={() => setOpenUploadModal(true)}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#EE6C4D',
+            }}
+          >
+            Import
+        </Button>
+
         <Card>
           <EscolaTableToolbar filters={filters} onFilters={handleFilters} ddzOptions={zonas} />
+
+          
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>
@@ -258,6 +319,16 @@ export default function EscolaListView() {
             onRowsPerPageChange={table.onChangeRowsPerPage}
           />
         </Card>
+
+        <Modal open={openUploadModal} onClose={closeUploadModal}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6">Upload File</Typography>
+            <input type="file" 
+              onChange={handleFileUpload} 
+            />
+            <Button variant="contained" onClick={uploadEscolas}>Upload</Button>
+          </Box>
+        </Modal>
       </Container>
 
       <EscolaQuickEditForm

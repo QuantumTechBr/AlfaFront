@@ -153,6 +153,7 @@ export const endpoints = {
     get_by_id: '/api/v1/escolas/',
     update: '/api/v1/escolas/',
     delete: '/api/v1/escolas/',
+    import: '/api/v1/escolas/importar-escolas/',
   },
   estado: {
     list: '/api/v1/estados/',
@@ -249,6 +250,7 @@ export const endpoints = {
     get_by_id: '/api/v1/turmas/',
     update: '/api/v1/turmas/',
     delete: '/api/v1/turmas/',
+    import: '/api/v1/turmas/importar-turmas/',
   },
   user: {
     list: '/api/v1/usuarios/',
@@ -256,6 +258,7 @@ export const endpoints = {
     get_by_id: '/api/v1/usuarios/',
     update: '/api/v1/usuarios/',
     delete: '/api/v1/usuarios/',
+    import: '/api/v1/usuarios/importar-usuarios/',
   },
   zona: {
     list: '/api/v1/zonas/',
