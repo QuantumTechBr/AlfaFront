@@ -167,7 +167,12 @@ export default function RegistroAprendizagemFaseListView() {
       const _filters = {};
 
       if (anosLetivos.length) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
-      if (escolas.length && escolas.length == 1) _filters.escola = escolas.length ? first(escolas) : [] ?? [];
+      if (escolas.length && escolas.length == 1) {
+        _filters.escola = escolas.length ? [{
+          label: escolas[0].nome,
+          id: escolas[0].id,
+        }] : [] ?? [];
+      }
 
       setFilters((prevState) => ({
         ...prevState,

@@ -84,7 +84,11 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   useEffect(() => {
     if (initialTipo) setValue('tipo', initialTipo);
-    if (escolas.length && escolas.length == 1) setValue('escola', first(escolas).id);
+    if (escolas.length && escolas.length == 1) setValue('escola',
+      {
+        label: escolas[0].nome,
+        id: escolas[0].id,
+      });
   }, [contextReady.value]);
 
   const {
@@ -121,14 +125,14 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   const selectEscola = () => {
     return (
-        <RHFAutocomplete
-          disablePortal
-          id="escola"
-          name="escola"
-          label="Escola"
-          options={escolasFiltered}
+      <RHFAutocomplete
+        disablePortal
+        id="escola"
+        name="escola"
+        label="Escola"
+        options={escolasFiltered}
 
-        />
+      />
     );
   };
   const selectTurma = () => {
