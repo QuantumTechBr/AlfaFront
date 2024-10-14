@@ -74,6 +74,15 @@ export default function AccountPopover() {
     router.push(path);
   };
 
+  const handleMeuUsuario = () => {
+    popover.onClose();
+    if (user?.id) {
+      router.push(paths.dashboard.user.edit(user?.id));
+    } else {
+      router.push(paths.dashboard.user.root);
+    }
+  }
+
   const style = {
     position: 'absolute',
     top: '50%',
@@ -138,10 +147,19 @@ export default function AccountPopover() {
 
         <Divider sx={{ borderStyle: 'dashed' }} />
 
+
+        <Tooltip title="Meu usuário">
+          <MenuItem
+            onClick={handleMeuUsuario}
+            sx={{ m: 1, fontWeight: 'fontWeightBold'}}
+          >
+            Perfil
+          </MenuItem>
+        </Tooltip>
         <Tooltip title="Fazer Logout">
           <MenuItem
             onClick={handleOpen}
-            sx={{ m: 1, fontWeight: 'fontWeightBold', color: 'error.main', toolTip: 'oi' }}
+            sx={{ m: 1, fontWeight: 'fontWeightBold', color: 'error.main'}}
           >
             Logout
           </MenuItem>

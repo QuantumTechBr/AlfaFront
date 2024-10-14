@@ -637,10 +637,10 @@ function Row(props) {
                         {registro.turma_ano_escolar} {registro.turma_nome}
                       </TableCell>
                       <TableCell width="110">{registro.qtd_alunos}</TableCell>
-                      <TableCell width="110">{_.last(registro.qtd_avaliados)}</TableCell>
-                      <TableCell width="110">{_.last(registro.qtd_alfabetizado)}</TableCell>
-                      <TableCell width="160">{_.last(registro.qtd_nao_alfabetizado)}</TableCell>
-                      <TableCell width="180">{_.last(registro.qtd_nao_avaliado)}</TableCell>
+                      <TableCell width="110">{registro.total_avaliados}</TableCell>
+                      <TableCell width="110">{registro.total_alfabetizados}</TableCell>
+                      <TableCell width="160">{registro.total_nao_alfabetizados}</TableCell>
+                      <TableCell width="180">{registro.total_nao_avaliados}</TableCell>
                       <TableCell width="77"></TableCell>
                     </StyledTableRow>
                   ))}
