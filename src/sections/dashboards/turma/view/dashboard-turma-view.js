@@ -508,6 +508,9 @@ export default function DashboardTurmaView() {
                     filters.escola.map((e) => e.id).includes(t.escola_id)
                   )}
                   bimestreOptions={bimestres}
+                  disableAnoLetivo={true}
+                  disableDdz={true}
+                  disableEscola={true}
 
                 />
               </Grid>
