@@ -85,18 +85,18 @@ export default function DashboardTurmaView() {
     pneItem: '-',
   });
 
-  const _objDados = {
-    indice_fases_geral: {},
-    indice_aprovacao_geral: {},
-    desempenho_alunos: {},
-  };
+  // const _objDados = {
+  //   indice_fases_geral: {},
+  //   indice_aprovacao_geral: {},
+  //   desempenho_alunos: {},
+  // };
 
-  (anos_options ?? []).forEach((option) => {
-    Object.assign(_objDados, { [`indice_fases_${option}_ano`]: {} });
-    Object.assign(_objDados, { [`indice_aprovacao_${option}_ano`]: {} });
-  });
+  // (anos_options ?? []).forEach((option) => {
+  //   Object.assign(_objDados, { [`indice_fases_${option}_ano`]: {} });
+  //   Object.assign(_objDados, { [`indice_aprovacao_${option}_ano`]: {} });
+  // });
 
-  const [dados, setDados] = useState(_objDados);
+  const [dados, setDados] = useState([]);
 
   const getFormattedSeries = (series) => {
     const formattedSeries = [];
@@ -317,53 +317,42 @@ export default function DashboardTurmaView() {
     preparacaoInicial(); // chamada unica
   }, []);
 
-  const filtroReset = () => {
-    setFilters({
-      anoLetivo: _.first(anosLetivos),
-      zona: zonaFiltro,
-      escola: [],
-      turma: {},
-      bimestre: _.last(bimestres),
-      pne: '-',
-      pneItem: '-',
-    });
-  };
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
     novaAvaliacao.onFalse();
   };
 
-  const indiceDeFasesCount = useCallback(
-    (ano) => {
-      const _list = [];
-      anos_options.forEach((option) => {
-        const _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
-        _list[+option] = _series.length;
-      });
+  // const indiceDeFasesCount = useCallback(
+  //   (ano) => {
+  //     const _list = [];
+  //     anos_options.forEach((option) => {
+  //       const _series = dados[`indice_fases_${option}_ano`]?.chart?.series ?? [];
+  //       _list[+option] = _series.length;
+  //     });
 
-      if (ano) return _list[+ano];
-      return _list;
-    },
-    [dados]
-  );
+  //     if (ano) return _list[+ano];
+  //     return _list;
+  //   },
+  //   [dados]
+  // );
 
-  const countHasIndiceDeFases = () => {
-    return indiceDeFasesCount().filter((i) => i > 0).length;
-  };
+  // const countHasIndiceDeFases = () => {
+  //   return indiceDeFasesCount().filter((i) => i > 0).length;
+  // };
 
-  const anoHasIndiceDeFases = useCallback(
-    (ano) => {
-      let _ano;
-      indiceDeFasesCount().forEach((value, index) => {
-        if (value > 0) {
-          _ano = index;
-        }
-      });
-      return _ano;
-    },
-    [indiceDeFasesCount]
-  );
+  // const anoHasIndiceDeFases = useCallback(
+  //   (ano) => {
+  //     let _ano;
+  //     indiceDeFasesCount().forEach((value, index) => {
+  //       if (value > 0) {
+  //         _ano = index;
+  //       }
+  //     });
+  //     return _ano;
+  //   },
+  //   [indiceDeFasesCount]
+  // );
 
   const getAlfabetizadosAno = useCallback(
     (ano) => {
@@ -374,38 +363,38 @@ export default function DashboardTurmaView() {
     [dados]
   );
 
-  const getIndiceDeAprovacaoAno = useCallback(
-    (ano) => {
-      return _.sumBy(
-        dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories[0]?.series,
-        (s) => s.amount
-      );
-    },
-    [dados, anoHasIndiceDeFases]
-  );
+  // const getIndiceDeAprovacaoAno = useCallback(
+  //   (ano) => {
+  //     return _.sumBy(
+  //       dados[`indice_aprovacao_${anoHasIndiceDeFases()}_ano`]?.categories[0]?.series,
+  //       (s) => s.amount
+  //     );
+  //   },
+  //   [dados, anoHasIndiceDeFases]
+  // );
 
-  const getTotalEstudandes = useCallback(
-    (ano_escolar) => {
-      const _indice_fases = ano_escolar
-        ? dados[`indice_fases_${+ano_escolar}_ano`]
-        : dados.indice_fases_geral;
-      return (_indice_fases.chart?.series ?? []).reduce((acc, item) => acc + item.value, 0);
-    },
-    [dados]
-  );
+  // const getTotalEstudandes = useCallback(
+  //   (ano_escolar) => {
+  //     const _indice_fases = ano_escolar
+  //       ? dados[`indice_fases_${+ano_escolar}_ano`]
+  //       : dados.indice_fases_geral;
+  //     return (_indice_fases.chart?.series ?? []).reduce((acc, item) => acc + item.value, 0);
+  //   },
+  //   [dados]
+  // );
 
-  const getTotalEstudandesAvaliados = useCallback(
-    (ano_escolar) => {
-      const _indice_fases = ano_escolar
-        ? dados[`indice_fases_${+ano_escolar}_ano`]
-        : dados.indice_fases_geral;
-      return (_indice_fases.chart?.series ?? []).reduce(
-        (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
-        0
-      );
-    },
-    [dados]
-  );
+  // const getTotalEstudandesAvaliados = useCallback(
+  //   (ano_escolar) => {
+  //     const _indice_fases = ano_escolar
+  //       ? dados[`indice_fases_${+ano_escolar}_ano`]
+  //       : dados.indice_fases_geral;
+  //     return (_indice_fases.chart?.series ?? []).reduce(
+  //       (acc, item) => acc + (item.label != 'Não Avaliado' ? item.value : 0),
+  //       0
+  //     );
+  //   },
+  //   [dados]
+  // );
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -441,7 +430,7 @@ export default function DashboardTurmaView() {
           </Grid>
         )}
 
-        {!!contextReady.value && (
+        {(!!contextReady.value && dados.length) && (
           <>
             <Stack
               marginBottom={3}
@@ -474,6 +463,9 @@ export default function DashboardTurmaView() {
                     filters.escola.map((e) => e.id).includes(t.escola_id)
                   )}
                   bimestreOptions={bimestres}
+                  disableAnoLetivo={true}
+                  disableDdz={true}
+                  disableEscola={true}
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
@@ -496,19 +488,6 @@ export default function DashboardTurmaView() {
                   Aplicar filtros
                 </Button>
 
-                <Button
-                  variant="soft"
-                  sx={{
-                    width: {
-                      xs: 'calc(30% - 10px)',
-                      md: 'auto',
-                    },
-                    marginLeft: { xs: '10px', md: 2 },
-                  }}
-                  onClick={filtroReset}
-                >
-                  Limpar
-                </Button>
               </Grid>
             </Stack>
 
@@ -523,7 +502,7 @@ export default function DashboardTurmaView() {
                 <Grid xs={12} md={4}>
                   <NumeroComponent
                     title="Total de Estudantes"
-                    total={getTotalEstudandes()}
+                    total={dados[0].total_estudantes}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -538,7 +517,7 @@ export default function DashboardTurmaView() {
                 <Grid xs={12} md={4}>
                   <NumeroComponent
                     title="Total de Estudantes Avaliados"
-                    total={getTotalEstudandesAvaliados()}
+                    total={dados[0].total_estudantes_avaliados}
                     icon={
                       <Iconify
                         width={ICON_SIZE}
@@ -550,7 +529,7 @@ export default function DashboardTurmaView() {
                     }
                   />
                 </Grid>
-                <Grid xs={12} md={4}>
+                {/* <Grid xs={12} md={4}>
                   {countHasIndiceDeFases() > 1 && (
                     <Typography
                       textAlign="center"
@@ -572,9 +551,9 @@ export default function DashboardTurmaView() {
                         total={getIndiceDeAprovacaoAno(anoHasIndiceDeFases())}
                       ></MetaComponent>
                     )}
-                </Grid>
+                </Grid> */}
 
-                {anos_options.map((ano_escolar) => {
+                {/* {anos_options.map((ano_escolar) => {
                   if (indiceDeFasesCount(ano_escolar) > 0) {
                     const _indice_fases = dados[`indice_fases_${+ano_escolar}_ano`];
                     const _indice_alfabetizacao = dados[`indice_aprovacao_${+ano_escolar}_ano`];
@@ -583,7 +562,7 @@ export default function DashboardTurmaView() {
                       <IndicesCompostosFasesAlfabetizacaoWidget
                         key={`indices_component_${+ano_escolar}_ano`}
                         ano_escolar={+ano_escolar}
-                        total_avaliados={getTotalEstudandesAvaliados(ano_escolar)}
+                        total_avaliados={dados[0].total_estudantes_avaliados}
                         indice_fases={_indice_fases}
                         indice_alfabetizacao={_indice_alfabetizacao}
                         nome_turma={filters.turma.nome ?? ''}
@@ -591,9 +570,9 @@ export default function DashboardTurmaView() {
                       />
                     );
                   }
-                })}
+                })} */}
 
-                {(dados.indice_fases_geral.chart?.series ?? []).length > 0 &&
+                {(dados.indice_fases_geral?.chart?.series ?? []).length > 0 &&
                   countHasIndiceDeFases() > 1 && (
                     <IndicesCompostosFasesAlfabetizacaoWidget
                       key="indices_component_geral"
@@ -604,8 +583,8 @@ export default function DashboardTurmaView() {
                     />
                   )}
 
-                {dados.desempenho_alunos.chart &&
-                  (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
+                {dados.desempenho_alunos?.chart &&
+                  (dados.desempenho_alunos?.chart?.series ?? []).length > 0 && (
                     <Grid xs={12}>
                       <DesempenhoAlunosWidget
                         title="Desempenho dos Estudantes"

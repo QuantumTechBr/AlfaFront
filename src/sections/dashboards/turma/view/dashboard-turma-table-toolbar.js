@@ -27,6 +27,11 @@ export default function DashboardTurmaTableToolbar({
   escolaOptions,
   anoTurmaOptions,
   bimestreOptions,
+  disableAnoLetivo = false,
+  disableDdz = false,
+  disableEscola = false,
+  disableBimestre = false,
+  disableAnoTurma = false,
 }) {
   const { user } = useContext(AuthContext);
 
@@ -110,6 +115,7 @@ export default function DashboardTurmaTableToolbar({
             size="small"
             value={filters.anoLetivo}
             onChange={handleFilterAnoLetivo}
+            disabled={disableAnoLetivo}
             input={<OutlinedInput fullWidth label="Ano Letivo" />}
             MenuProps={{
               PaperProps: {
@@ -135,7 +141,7 @@ export default function DashboardTurmaTableToolbar({
         <Select
           size="small"
           multiple
-          disabled={user?.funcao_usuario?.length > 0 ? true : false}
+          disabled={disableDdz ?? user?.funcao_usuario?.length > 0 ? true : false}
           value={filters.zona}
           onChange={handleFilterZona}
           input={<OutlinedInput fullWidth label="DDZ" />}
@@ -170,6 +176,7 @@ export default function DashboardTurmaTableToolbar({
           onChange={handleFilterEscola}
           input={<OutlinedInput fullWidth label="Escolas" />}
           renderValue={renderValueEscola}
+          disabled={disableEscola}
           MenuProps={{
             PaperProps: {
               sx: { maxHeight: 240 },
