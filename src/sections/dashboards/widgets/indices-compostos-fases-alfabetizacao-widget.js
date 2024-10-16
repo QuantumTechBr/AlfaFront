@@ -14,6 +14,8 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
   indice_fases,
   indice_alfabetizacao,
   total_avaliados,
+  nome_turma = '',
+  turno = ''
 }) {
   let titulo_completo = ano_escolar;
   if (ano_escolar) {
@@ -21,6 +23,7 @@ export default function IndicesCompostosFasesAlfabetizacaoWidget({
   } else {
     titulo_completo = 'Geral';
   }
+  titulo_completo += ` ${nome_turma} ${turno}`;
   const title_indice_fases = `Fases do Desenvolvimento da Leitura e da Escrita - ${titulo_completo}`;
   const title_indice_alfabetizacao = `Índice de Alfabetização - ${titulo_completo}`;
 

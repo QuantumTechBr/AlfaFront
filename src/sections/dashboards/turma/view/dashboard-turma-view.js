@@ -118,52 +118,40 @@ export default function DashboardTurmaView() {
   );
 
   const getIndiceFases = useCallback(
-    async (anoEscolar, payloadFilters) => {
-      let _turmasPorAno = getTurmasPorAnoEscolar(anoEscolar);
-      if (payloadFilters.turma && payloadFilters.turma.length > 0) {
-        _turmasPorAno = _turmasPorAno.filter((e) => payloadFilters.turma.includes(e));
-      }
+    async (payloadFilters) => {
+      // let _turmasPorAno = getTurmasPorAnoEscolar(anoEscolar);
 
-      if (anoEscolar && _turmasPorAno.length == 0) {
-        setDados((prevState) => ({
-          ...prevState,
-          [`indice_fases_${anoEscolar}_ano`]: {},
-        }));
-        return;
-      }
+      // if (anoEscolar && _turmasPorAno.length == 0) {
+      //   setDados((prevState) => ({
+      //     ...prevState,
+      //     [`indice_fases_${anoEscolar}_ano`]: {},
+      //   }));
+      //   return;
+      // }
 
+      // dashboardsMethods
+      //   .getDashboardIndiceFases({
+      //     ...payloadFilters,
+      //     turma: payloadFilters.turma.length > 0
+      //       ? payloadFilters.turma.map((t) => t?.id ?? t)
+      //       : [],
+      //   })
+      //   .then((response) => {
+      //     if (response.data.chart?.series && response.data.chart?.series.length > 0) {
+      //       response.data.chart.series = getFormattedSeries(response.data.chart.series);
+      //     }
+
+      //     setDados((prevState) => ({
+      //       ...prevState,
+      //       [anoEscolar ? `indice_fases_${anoEscolar}_ano` : `indice_fases_geral`]: response.data,
+      //     }));
+      //   });
       dashboardsMethods
-        .getDashboardIndiceFases({
-          ...payloadFilters,
-          turma: anoEscolar
-            ? _turmasPorAno
-            : payloadFilters.turma.length > 0
-            ? payloadFilters.turma.map((t) => t.id ?? t)
-            : null,
+        .getDashboardGridTurmas({
+          ...payloadFilters
         })
         .then((response) => {
-          if (response.data.chart?.series && response.data.chart?.series.length > 0) {
-            response.data.chart.series = getFormattedSeries(response.data.chart.series);
-          }
-
-          setDados((prevState) => ({
-            ...prevState,
-            [anoEscolar ? `indice_fases_${anoEscolar}_ano` : `indice_fases_geral`]: response.data,
-          }));
-        });
-      dashboardsMethods
-        .getDashboardIndiceAprovacao({
-          ...payloadFilters,
-          turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
-              ...response.data,
-              hasSeries: (response.data.categories ?? []).length > 0,
-            },
-          }));
+          setDados(response.data);
         });
     },
     [getTurmasPorAnoEscolar]
@@ -192,23 +180,23 @@ export default function DashboardTurmaView() {
 
       await Promise.all([
         // ## INDICE DE FASES
-        ...anos_options.map((_anoOption) => getIndiceFases(parseInt(_anoOption), payloadFilters)),
-        getIndiceFases(null, payloadFilters),
+        // ...anos_options.map((_anoOption) => getIndiceFases(parseInt(_anoOption), payloadFilters)),
+        getIndiceFases( payloadFilters),
 
         // ## DESEMPENHO ALUNO
-        dashboardsMethods
-          .getDashboardDesempenhoAlunos({
-            ano_letivo: payloadFilters.ano_letivo,
-            ddz: payloadFilters.ddz,
-            escola: payloadFilters.escola,
-            turma: payloadFilters.turma,
-          })
-          .then((response) => {
-            setDados((prevState) => ({
-              ...prevState,
-              desempenho_alunos: response.data,
-            }));
-          }),
+        // dashboardsMethods
+        //   .getDashboardDesempenhoAlunos({
+        //     ano_letivo: payloadFilters.ano_letivo,
+        //     ddz: payloadFilters.ddz,
+        //     escola: payloadFilters.escola,
+        //     turma: payloadFilters.turma,
+        //   })
+        //   .then((response) => {
+        //     setDados((prevState) => ({
+        //       ...prevState,
+        //       desempenho_alunos: response.data,
+        //     }));
+        //   }),
       ]);
 
       isGettingGraphics.onFalse();
@@ -598,6 +586,8 @@ export default function DashboardTurmaView() {
                         total_avaliados={getTotalEstudandesAvaliados(ano_escolar)}
                         indice_fases={_indice_fases}
                         indice_alfabetizacao={_indice_alfabetizacao}
+                        nome_turma={filters.turma.nome ?? ''}
+                        turno={filters.turma.turno ?? ''}
                       />
                     );
                   }
@@ -609,6 +599,8 @@ export default function DashboardTurmaView() {
                       key="indices_component_geral"
                       indice_fases={dados.indice_fases_geral}
                       indice_alfabetizacao={dados.indice_aprovacao_geral}
+                      nome_turma={filters.turma.nome}
+                      turno={filters.turma.turno}
                     />
                   )}
 
