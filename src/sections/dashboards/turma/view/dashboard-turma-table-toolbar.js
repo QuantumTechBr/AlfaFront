@@ -27,6 +27,11 @@ export default function DashboardTurmaTableToolbar({
   escolaOptions,
   anoTurmaOptions,
   bimestreOptions,
+  disableAnoLetivo = false,
+  disableDdz = false,
+  disableEscola = false,
+  disableAnoTurma = false,
+  disableBimestre = false,
 }) {
   const { user } = useContext(AuthContext);
 
@@ -109,6 +114,7 @@ export default function DashboardTurmaTableToolbar({
           <Select
             size="small"
             value={filters.anoLetivo}
+            disabled={disableAnoLetivo}
             onChange={handleFilterAnoLetivo}
             input={<OutlinedInput fullWidth label="Ano Letivo" />}
             MenuProps={{
@@ -135,7 +141,7 @@ export default function DashboardTurmaTableToolbar({
         <Select
           size="small"
           multiple
-          disabled={user?.funcao_usuario?.length > 0 ? true : false}
+          disabled={disableDdz | user?.funcao_usuario?.length > 0 ? true : false}
           value={filters.zona}
           onChange={handleFilterZona}
           input={<OutlinedInput fullWidth label="DDZ" />}
@@ -168,6 +174,7 @@ export default function DashboardTurmaTableToolbar({
           multiple
           value={filters.escola}
           onChange={handleFilterEscola}
+          disabled={disableEscola}
           input={<OutlinedInput fullWidth label="Escolas" />}
           renderValue={renderValueEscola}
           MenuProps={{
@@ -198,6 +205,7 @@ export default function DashboardTurmaTableToolbar({
             size="small"
             value={filters.turma}
             onChange={handleFilterTurma}
+            disabled={disableAnoTurma}
             input={<OutlinedInput fullWidth label="Ano - Turma" />}
             // renderValue={renderValueTurma}
             MenuProps={{
@@ -229,6 +237,7 @@ export default function DashboardTurmaTableToolbar({
             size="small"
             value={filters.bimestre}
             onChange={handleFilterBimestre}
+            disabled={disableBimestre}
             input={<OutlinedInput fullWidth label="Bimestre" />}
             renderValue={(selected) => `${selected.ordinal}º`}
             MenuProps={{

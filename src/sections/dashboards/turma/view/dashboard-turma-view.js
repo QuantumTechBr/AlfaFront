@@ -89,6 +89,7 @@ export default function DashboardTurmaView() {
     indice_fases_geral: {},
     indice_aprovacao_geral: {},
     desempenho_alunos: {},
+    grid_turmas: {},
   };
 
   (anos_options ?? []).forEach((option) => {
@@ -151,20 +152,41 @@ export default function DashboardTurmaView() {
             [anoEscolar ? `indice_fases_${anoEscolar}_ano` : `indice_fases_geral`]: response.data,
           }));
         });
-      dashboardsMethods
-        .getDashboardIndiceAprovacao({
-          ...payloadFilters,
-          turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
-        })
-        .then((response) => {
-          setDados((prevState) => ({
-            ...prevState,
-            [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
-              ...response.data,
-              hasSeries: (response.data.categories ?? []).length > 0,
-            },
-          }));
-        });
+      // dashboardsMethods
+      //   .getDashboardIndiceAprovacao({
+      //     ...payloadFilters,
+      //     turma: anoEscolar ? getTurmasPorAnoEscolar(anoEscolar) : null,
+      //   })
+      //   .then((response) => {
+      //     setDados((prevState) => ({
+      //       ...prevState,
+      //       [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
+      //         ...response.data,
+      //         hasSeries: (response.data.categories ?? []).length > 0,
+      //       },
+      //     }));
+      //   });
+      const bimestreId = payloadFilters.bimestre.length ? payloadFilters.bimestre[0] : ''
+      const bimestreOrdinal = bimestres.find(b => b.id == bimestreId)?.ordinal ?? null
+      dashboardsMethods.getDashboardGridTurmas(payloadFilters).then((response) => {
+        setDados((prevState) => ({
+          ...prevState,
+          [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
+            title: 'Índice de aprovação de rede',
+            hasSeries: (response.data.length ?? 0) > 0,
+            categories: [
+              {
+                label: anoEscolar?.toString(), 
+                series: [
+                  { name: 'Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_alfabetizado[bimestreOrdinal-1] : response.data[0].total_alfabetizados },
+                  { name: 'Não Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_nao_alfabetizado[bimestreOrdinal-1] : response.data[0].total_nao_alfabetizados },
+                  { name: 'Não Avaliado', amount: bimestreOrdinal ? response.data[0].qtd_nao_avaliado[bimestreOrdinal-1] : response.data[0].total_nao_avaliados },
+                ]
+              },
+            ],
+          },
+        }));
+      });
     },
     [getTurmasPorAnoEscolar]
   );
@@ -329,17 +351,17 @@ export default function DashboardTurmaView() {
     preparacaoInicial(); // chamada unica
   }, []);
 
-  const filtroReset = () => {
-    setFilters({
-      anoLetivo: _.first(anosLetivos),
-      zona: zonaFiltro,
-      escola: [],
-      turma: {},
-      bimestre: _.last(bimestres),
-      pne: '-',
-      pneItem: '-',
-    });
-  };
+  // const filtroReset = () => {
+  //   setFilters({
+  //     anoLetivo: _.first(anosLetivos),
+  //     zona: zonaFiltro,
+  //     escola: [],
+  //     turma: {},
+  //     bimestre: _.last(bimestres),
+  //     pne: '-',
+  //     pneItem: '-',
+  //   });
+  // };
 
   const novaAvaliacao = useBoolean();
   const closeNovaAvaliacao = (retorno = null) => {
@@ -486,6 +508,10 @@ export default function DashboardTurmaView() {
                     filters.escola.map((e) => e.id).includes(t.escola_id)
                   )}
                   bimestreOptions={bimestres}
+                  disableAnoLetivo={true}
+                  disableDdz={true}
+                  disableEscola={true}
+
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
@@ -508,19 +534,6 @@ export default function DashboardTurmaView() {
                   Aplicar filtros
                 </Button>
 
-                <Button
-                  variant="soft"
-                  sx={{
-                    width: {
-                      xs: 'calc(30% - 10px)',
-                      md: 'auto',
-                    },
-                    marginLeft: { xs: '10px', md: 2 },
-                  }}
-                  onClick={filtroReset}
-                >
-                  Limpar
-                </Button>
               </Grid>
             </Stack>
 
