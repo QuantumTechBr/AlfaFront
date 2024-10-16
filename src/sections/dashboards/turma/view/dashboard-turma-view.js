@@ -89,6 +89,7 @@ export default function DashboardTurmaView() {
     indice_fases_geral: {},
     indice_aprovacao_geral: {},
     desempenho_alunos: {},
+    grid_turmas: {},
   };
 
   (anos_options ?? []).forEach((option) => {
@@ -165,6 +166,12 @@ export default function DashboardTurmaView() {
             },
           }));
         });
+      dashboardsMethods.getDashboardGridTurmas(payloadFilters).then((response) => {
+        setDados((prevState) => ({
+          ...prevState,
+          grid_turmas: response.data,
+        }));
+      });
     },
     [getTurmasPorAnoEscolar]
   );
