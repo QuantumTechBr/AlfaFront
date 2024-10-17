@@ -466,7 +466,7 @@ export default function DashboardEscolaView() {
               </ButtonBase>
             }
           />
-            <Box display="flex" alignItems="center" gap={1}>
+            <Box display="flex" alignItems="center" gap={1}  flexWrap={"wrap"}>
             {chartBimestres[0].series.length > 0 &&
               <DesempenhoAlunosWidget
                 chart={chartBimestres[0]}
