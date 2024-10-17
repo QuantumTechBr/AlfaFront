@@ -406,22 +406,18 @@ export default function DashboardRedeView() {
             <Box display="flex" alignItems="center" gap={1} flexWrap={"wrap"}>
             {chartBimestres[0].series.length > 0 &&
               <DesempenhoAlunosWidget
-                sx={{ width: '50%' }}
                 chart={chartBimestres[0]}
               />}
             {chartBimestres[1].series.length > 0 &&
               <DesempenhoAlunosWidget
-                sx={{ width: '50vw' }}
                 chart={chartBimestres[1]}
               />}
             {chartBimestres[2].series.length > 0 &&
               <DesempenhoAlunosWidget
-                sx={{ width: '200px' }}
                 chart={chartBimestres[2]}
               />}
             {chartBimestres[3].series.length > 0 &&
               <DesempenhoAlunosWidget
-                sx={{ width: '200px' }}
                 chart={chartBimestres[3]}
               />}
             </Box>
