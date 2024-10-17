@@ -14,13 +14,18 @@ import {
   TableRow,
   TableCell,
   CardHeader,
+  Box,
+  MenuItem,
 } from '@mui/material';
+import ButtonBase from '@mui/material/ButtonBase';
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
-
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { RegistroAprendizagemFasesColors } from 'src/_mock';
+;
 // contexts
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
@@ -60,6 +65,8 @@ import Scrollbar from 'src/components/scrollbar';
 import { paths } from 'src/routes/paths';
 import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabetizacao-bimestre-component';
 import { anos_metas, preDefinedZonaOrder } from 'src/_mock/assets';
+import InstructionButton from 'src/components/helpers/instruction-button';
+import zIndex from '@mui/material/styles/zIndex';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -88,6 +95,18 @@ export default function DashboardRedeView() {
     grid_ddz: [],
     desempenho_alunos: {},
   });
+
+
+
+  const popover = usePopover();
+  const handleChangeSeries = useCallback(
+    (newValue) => {
+      popover.onClose();
+      // setSeriesYearData(newValue);
+    },
+    [popover]
+  );
+
 
   const getTurmasPorAnoEscolar = useCallback(
     (anoEscolar) => {
@@ -297,6 +316,128 @@ export default function DashboardRedeView() {
     return _soma;
   };
 
+  const retornaDesempenhoAlunosWidgetPorBimestre = () => {
+    const chart = dados.desempenho_alunos.chart ?? {};
+    const series = chart?.series;
+    const colors = Object.values(RegistroAprendizagemFasesColors);
+    const { categories: bimestres, series: chartSeries, options } = chart;
+    let seriesYearData = '';
+    if (chartSeries.length) {
+      const _lastYear = _.last(chartSeries)?.year;
+      seriesYearData = `${_lastYear}`;
+    }
+
+
+    if (chart === undefined) {
+      return <>Carregando...</>;
+    }
+
+    if (chartSeries.length == 0) {
+      return <>Sem dados para exibir.</>;
+    }
+
+    let chartBimestres = [
+      {
+        categories: ['1-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['2-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['3-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['4-BIMESTRE'],
+        series: [],
+      },
+    ]
+
+    for (let b = 0; b < bimestres.length; b++) {
+      let serie = [];
+      for (let s = 0; s < series.length; s++) {
+        serie[s] = {
+          year: '',
+          data: [],
+        };
+        serie[s].year = series[s].year;
+        let data = [];
+        for (let d = 0; d < series[s].data.length; d++) {
+          data.push({
+            data: [series[s].data[d]?.data[b]],
+            name: series[s].data[d]?.name,
+          })
+        }
+        serie[s].data = data;
+        chartBimestres[b].series.push(serie[s]);
+      }
+    }
+
+    return (
+      <>
+        <Card sx={{ paddingBottom: 3 }}>
+          <CardHeader
+            title={"Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"}
+            subheader={dados.desempenho_alunos.subheader ?? ''}
+            action={
+              <ButtonBase
+                onClick={popover.onOpen}
+                sx={{
+                  pl: 1,
+                  py: 0.5,
+                  pr: 0.5,
+                  borderRadius: 1,
+                  typography: 'subtitle2',
+                  bgcolor: 'background.neutral',
+                }}
+              >
+                {seriesYearData}
+
+                <Iconify
+                  width={16}
+                  icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+                  sx={{ ml: 0.5 }}
+                />
+              </ButtonBase>
+            }
+          />
+            <Box display="flex" alignItems="center" gap={1}>
+            {chartBimestres[0].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[0]}
+              />}
+            {chartBimestres[1].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[1]}
+              />}
+            {chartBimestres[2].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[2]}
+              />}
+            {chartBimestres[3].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[3]}
+              />}
+            </Box>
+        </Card>
+
+        <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
+          {series.map((option) => (
+            <MenuItem
+              key={option.year}
+              selected={option.year === seriesYearData}
+              onClick={() => handleChangeSeries(option.year)}
+            >
+              {option.year}
+            </MenuItem>
+          ))}
+        </CustomPopover>
+      </>
+    )
+  }
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -306,9 +447,15 @@ export default function DashboardRedeView() {
           alignItems="center"
           justifyContent="space-between"
           width="100%"
+          sx={{
+            zIndex: theme.zIndex.appBar + 2,
+          }}
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Rede)</Typography>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Rede)</Typography>
+              <InstructionButton youtubeLink={""} />
+            </Box>
           </Grid>
         </Stack>
 
@@ -336,9 +483,9 @@ export default function DashboardRedeView() {
               paddingY={1}
             >
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <DashboardRedeTableToolbar
                   filters={filters}
@@ -348,9 +495,9 @@ export default function DashboardRedeView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <Button
                   variant="contained"
@@ -443,11 +590,9 @@ export default function DashboardRedeView() {
                   dados.desempenho_alunos &&
                   dados.desempenho_alunos.chart.series && (
                     <Grid xs={12}>
-                      <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"
-                        subheader={dados.desempenho_alunos.subheader ?? ''}
-                        chart={dados.desempenho_alunos.chart}
-                      />
+                      {
+                        retornaDesempenhoAlunosWidgetPorBimestre()
+                      }
                     </Grid>
                   )}
 
@@ -464,8 +609,8 @@ export default function DashboardRedeView() {
                           (dataFiltered.length == 0
                             ? 350
                             : (dataFiltered.length < table.rowsPerPage
-                                ? dataFiltered.length
-                                : table.rowsPerPage) * 43),
+                              ? dataFiltered.length
+                              : table.rowsPerPage) * 43),
                       }}
                     >
                       <Scrollbar>

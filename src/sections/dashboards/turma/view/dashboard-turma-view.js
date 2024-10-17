@@ -6,7 +6,7 @@ import _ from 'lodash';
 // @mui
 import Grid from '@mui/material/Unstable_Grid2';
 import { useTheme } from '@mui/material/styles';
-import { Stack, Button, Typography, Container } from '@mui/material';
+import { Stack, Button, Typography, Container, Box, MenuItem, ButtonBase, Card, CardHeader} from '@mui/material';
 
 // contexts
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
@@ -28,7 +28,9 @@ import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import LoadingBox from 'src/components/helpers/loading-box';
 import Iconify from 'src/components/iconify';
-
+import InstructionButton from 'src/components/helpers/instruction-button';
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { RegistroAprendizagemFasesColors } from 'src/_mock';
 // _mock
 import { anos_metas, anos_options } from 'src/_mock/assets';
 
@@ -99,6 +101,15 @@ export default function DashboardTurmaView() {
 
   const [dados, setDados] = useState(_objDados);
 
+  const popover = usePopover();
+  const handleChangeSeries = useCallback(
+    (newValue) => {
+      popover.onClose();
+      // setSeriesYearData(newValue);
+    },
+    [popover]
+  );
+
   const getFormattedSeries = (series) => {
     const formattedSeries = [];
     for (const [key, value] of Object.entries(RegistroAprendizagemFases)) {
@@ -139,8 +150,8 @@ export default function DashboardTurmaView() {
           turma: anoEscolar
             ? _turmasPorAno
             : payloadFilters.turma.length > 0
-            ? payloadFilters.turma.map((t) => t.id ?? t)
-            : null,
+              ? payloadFilters.turma.map((t) => t.id ?? t)
+              : null,
         })
         .then((response) => {
           if (response.data.chart?.series && response.data.chart?.series.length > 0) {
@@ -441,6 +452,128 @@ export default function DashboardTurmaView() {
     [dados]
   );
 
+  const retornaDesempenhoAlunosWidgetPorBimestre = () => {
+    const chart = dados.desempenho_alunos.chart ?? {};
+    const series = chart?.series;
+    const colors = Object.values(RegistroAprendizagemFasesColors);
+    const { categories: bimestres, series: chartSeries, options } = chart;
+    let seriesYearData = '';
+    if (chartSeries.length) {
+      const _lastYear = _.last(chartSeries)?.year;
+      seriesYearData = `${_lastYear}`;
+    }
+
+
+    if (chart === undefined) {
+      return <>Carregando...</>;
+    }
+
+    if (chartSeries.length == 0) {
+      return <>Sem dados para exibir.</>;
+    }
+
+    let chartBimestres = [
+      {
+        categories: ['1-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['2-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['3-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['4-BIMESTRE'],
+        series: [],
+      },
+    ]
+
+    for (let b = 0; b < bimestres.length; b++) {
+      let serie = [];
+      for (let s = 0; s < series.length; s++) {
+        serie[s] = {
+          year: '',
+          data: [],
+        };
+        serie[s].year = series[s].year;
+        let data = [];
+        for (let d = 0; d < series[s].data.length; d++) {
+          data.push({
+            data: [series[s].data[d]?.data[b]],
+            name: series[s].data[d]?.name,
+          })
+        }
+        serie[s].data = data;
+        chartBimestres[b].series.push(serie[s]);
+      }
+    }
+
+    return (
+      <>
+        <Card sx={{ paddingBottom: 3 }}>
+          <CardHeader
+            title={"Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"}
+            subheader={dados.desempenho_alunos.subheader ?? ''}
+            action={
+              <ButtonBase
+                onClick={popover.onOpen}
+                sx={{
+                  pl: 1,
+                  py: 0.5,
+                  pr: 0.5,
+                  borderRadius: 1,
+                  typography: 'subtitle2',
+                  bgcolor: 'background.neutral',
+                }}
+              >
+                {seriesYearData}
+
+                <Iconify
+                  width={16}
+                  icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+                  sx={{ ml: 0.5 }}
+                />
+              </ButtonBase>
+            }
+          />
+            <Box display="flex" alignItems="center" gap={1}>
+            {chartBimestres[0].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[0]}
+              />}
+            {chartBimestres[1].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[1]}
+              />}
+            {chartBimestres[2].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[2]}
+              />}
+            {chartBimestres[3].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[3]}
+              />}
+            </Box>
+        </Card>
+
+        <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
+          {series.map((option) => (
+            <MenuItem
+              key={option.year}
+              selected={option.year === seriesYearData}
+              onClick={() => handleChangeSeries(option.year)}
+            >
+              {option.year}
+            </MenuItem>
+          ))}
+        </CustomPopover>
+      </>
+    )
+  }
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -452,7 +585,10 @@ export default function DashboardTurmaView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Turma)</Typography>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Turma)</Typography>
+              <InstructionButton youtubeLink={""} />
+            </Box>
           </Grid>
 
           {permissaoCadastrar && (
@@ -494,9 +630,9 @@ export default function DashboardTurmaView() {
               paddingY={1}
             >
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <DashboardTurmaTableToolbar
                   filters={filters}
@@ -515,9 +651,9 @@ export default function DashboardTurmaView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <Button
                   variant="contained"
@@ -628,11 +764,9 @@ export default function DashboardTurmaView() {
                 {dados.desempenho_alunos.chart &&
                   (dados.desempenho_alunos.chart?.series ?? []).length > 0 && (
                     <Grid xs={12}>
-                      <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes"
-                        subheader={dados.desempenho_alunos.subheader}
-                        chart={dados.desempenho_alunos.chart ?? { categories: [], series: [] }}
-                      />
+                      {
+                        retornaDesempenhoAlunosWidgetPorBimestre()
+                      }
                     </Grid>
                   )}
 

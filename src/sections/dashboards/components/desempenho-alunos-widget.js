@@ -28,6 +28,8 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
 
   const { categories: bimestres, series: chartSeries, options } = chart;
 
+
+
   const _columnWith = 56;
   const chartOptions = useChart({
     chart: { toolbar: { show: true } },
@@ -186,62 +188,65 @@ export default function DesempenhoAlunosWidget({ title, subheader, chart, ...oth
   const _widthPorQuantidade = chart.categories.length * _widthBimestre;
 
   return (
+    // <>
+    //   <Card sx={{ paddingBottom: 3 }} {...other}>
+    //     <CardHeader
+    //       title={title}
+    //       subheader={subheader}
+    //       action={
+    //         <ButtonBase
+    //           onClick={popover.onOpen}
+    //           sx={{
+    //             pl: 1,
+    //             py: 0.5,
+    //             pr: 0.5,
+    //             borderRadius: 1,
+    //             typography: 'subtitle2',
+    //             bgcolor: 'background.neutral',
+    //           }}
+    //         >
+    //           {seriesYearData}
+
+    //           <Iconify
+    //             width={16}
+    //             icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+    //             sx={{ ml: 0.5 }}
+    //           />
+    //         </ButtonBase>
+    //       }
+    //     />
+
     <>
-      <Card sx={{ paddingBottom: 3 }} {...other}>
-        <CardHeader
-          title={title}
-          subheader={subheader}
-          action={
-            <ButtonBase
-              onClick={popover.onOpen}
-              sx={{
-                pl: 1,
-                py: 0.5,
-                pr: 0.5,
-                borderRadius: 1,
-                typography: 'subtitle2',
-                bgcolor: 'background.neutral',
-              }}
-            >
-              {seriesYearData}
-
-              <Iconify
-                width={16}
-                icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
-                sx={{ ml: 0.5 }}
-              />
-            </ButtonBase>
-          }
-        />
-
-        {series.length > 0 && series.find((item) => item.year === seriesYearData) && (
-          <Box sx={{ mt: 3, mx: 3 }} ref={boxRef}>
-            <Scrollbar sx={{ overflowY: 'hidden' }}>
-              <Chart
-                dir="ltr"
-                type="bar"
-                height={364}
-                series={getChartSeries(seriesYearData)}
-                options={chartOptions}
-                width={_.max([boxWidth, _widthPorQuantidade])}
-              />
-            </Scrollbar>
-          </Box>
-        )}
-      </Card>
-
-      <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
-        {series.map((option) => (
-          <MenuItem
-            key={option.year}
-            selected={option.year === seriesYearData}
-            onClick={() => handleChangeSeries(option.year)}
-          >
-            {option.year}
-          </MenuItem>
-        ))}
-      </CustomPopover>
+      {series.length > 0 && series.find((item) => item.year === seriesYearData) && (
+        <Box sx={{ mt: 3, mx: 3 }} ref={boxRef}>
+          <Scrollbar sx={{ overflowY: 'hidden' }}>
+            <Chart
+              dir="ltr"
+              type="bar"
+              height={364}
+              series={getChartSeries(seriesYearData)}
+              options={chartOptions}
+              width={400}
+            />
+          </Scrollbar>
+        </Box>
+      )}
     </>
+
+    // </Card>
+
+    //   <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
+    //     {series.map((option) => (
+    //       <MenuItem
+    //         key={option.year}
+    //         selected={option.year === seriesYearData}
+    //         onClick={() => handleChangeSeries(option.year)}
+    //       >
+    //         {option.year}
+    //       </MenuItem>
+    //     ))}
+    //   </CustomPopover>
+    // </>
   );
 }
 
