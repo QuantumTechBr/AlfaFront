@@ -109,7 +109,7 @@ export default function DashboardDDZTableToolbar({
 
       {anoEscolarOptions && (
         <Grid xs={6} md="auto">
-          <FormControl sx={{ width: { xs: '100%', md: 120 } }}>
+          <FormControl sx={{ width: { xs: '100%', md: 140 } }}>
             <InputLabel size="small">Ano de Ensino</InputLabel>
             <Select
               size="small"

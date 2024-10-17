@@ -16,13 +16,16 @@ import {
   TableCell,
   Box,
   TableHead,
+  MenuItem,
+  ButtonBase,
 } from '@mui/material';
 import Grid from '@mui/material/Unstable_Grid2';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import { styled } from '@mui/material/styles';
-
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { RegistroAprendizagemFasesColors } from 'src/_mock';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Collapse from '@mui/material/Collapse';
@@ -38,6 +41,7 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { RouterLink } from 'src/routes/components';
 import { useSettingsContext } from 'src/components/settings';
 import LoadingBox from 'src/components/helpers/loading-box';
+import InstructionButton from 'src/components/helpers/instruction-button';
 import Iconify from 'src/components/iconify';
 import {
   useTable,
@@ -104,6 +108,15 @@ export default function DashboardDDZView() {
     desempenho_alunos: {},
   });
 
+  const popover = usePopover();
+  const handleChangeSeries = useCallback(
+    (newValue) => {
+      popover.onClose();
+      // setSeriesYearData(newValue);
+    },
+    [popover]
+  );
+
   const getTurmasPorAnoEscolar = useCallback(
     (anoEscolar) => {
       return turmas.filter((turma) => turma.ano_escolar == anoEscolar).map((turma) => turma.id);
@@ -165,7 +178,7 @@ export default function DashboardDDZView() {
             .value();
 
 
-          result.sort((a, b) => (b.alfabetizados ? b.alfabetizados/b.avaliados : 0) - (a.alfabetizados ? a.alfabetizados/a.avaliados : -1))
+          result.sort((a, b) => (b.alfabetizados ? b.alfabetizados / b.avaliados : 0) - (a.alfabetizados ? a.alfabetizados / a.avaliados : -1))
 
           setDados((prevState) => ({
             ...prevState,
@@ -284,6 +297,129 @@ export default function DashboardDDZView() {
     [table]
   );
 
+  const retornaDesempenhoAlunosWidgetPorBimestre = () => {
+    const chart = dados.desempenho_alunos.chart ?? {};
+    const series = chart?.series;
+    const colors = Object.values(RegistroAprendizagemFasesColors);
+    const { categories: bimestres, series: chartSeries, options } = chart;
+    let seriesYearData = '';
+    if (chartSeries.length) {
+      const _lastYear = _.last(chartSeries)?.year;
+      seriesYearData = `${_lastYear}`;
+    }
+
+
+    if (chart === undefined) {
+      return <>Carregando...</>;
+    }
+
+    if (chartSeries.length == 0) {
+      return <>Sem dados para exibir.</>;
+    }
+
+    let chartBimestres = [
+      {
+        categories: ['1-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['2-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['3-BIMESTRE'],
+        series: [],
+      },
+      {
+        categories: ['4-BIMESTRE'],
+        series: [],
+      },
+    ]
+
+    for (let b = 0; b < bimestres.length; b++) {
+      let serie = [];
+      for (let s = 0; s < series.length; s++) {
+        serie[s] = {
+          year: '',
+          data: [],
+        };
+        serie[s].year = series[s].year;
+        let data = [];
+        for (let d = 0; d < series[s].data.length; d++) {
+          data.push({
+            data: [series[s].data[d]?.data[b]],
+            name: series[s].data[d]?.name,
+          })
+        }
+        serie[s].data = data;
+        chartBimestres[b].series.push(serie[s]);
+      }
+    }
+
+    return (
+      <>
+        <Card sx={{ paddingBottom: 3 }}>
+          <CardHeader
+            title={"Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"}
+            subheader={dados.desempenho_alunos.subheader ?? ''}
+            action={
+              <ButtonBase
+                onClick={popover.onOpen}
+                sx={{
+                  pl: 1,
+                  py: 0.5,
+                  pr: 0.5,
+                  borderRadius: 1,
+                  typography: 'subtitle2',
+                  bgcolor: 'background.neutral',
+                }}
+              >
+                {seriesYearData}
+
+                <Iconify
+                  width={16}
+                  icon={popover.open ? 'eva:arrow-ios-upward-fill' : 'eva:arrow-ios-downward-fill'}
+                  sx={{ ml: 0.5 }}
+                />
+              </ButtonBase>
+            }
+          />
+            <Box display="flex" alignItems="center" gap={1}>
+            {chartBimestres[0].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[0]}
+              />}
+            {chartBimestres[1].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[1]}
+              />}
+            {chartBimestres[2].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[2]}
+              />}
+            {chartBimestres[3].series.length > 0 &&
+              <DesempenhoAlunosWidget
+                chart={chartBimestres[3]}
+              />}
+            </Box>
+        </Card>
+
+        <CustomPopover open={popover.open} onClose={popover.onClose} sx={{ width: 77 }}>
+          {series.map((option) => (
+            <MenuItem
+              key={option.year}
+              selected={option.year === seriesYearData}
+              onClick={() => handleChangeSeries(option.year)}
+            >
+              {option.year}
+            </MenuItem>
+          ))}
+        </CustomPopover>
+      </>
+    )
+  }
+
+
   const reduceAlfabetizacaoGeral = () => {
     return {
       hasSeries: true,
@@ -333,7 +469,10 @@ export default function DashboardDDZView() {
           width="100%"
         >
           <Grid xs={12} md>
-            <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (DDZ)</Typography>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (DDZ)</Typography>
+              <InstructionButton youtubeLink={""} />
+            </Box>
           </Grid>
         </Stack>
 
@@ -361,9 +500,9 @@ export default function DashboardDDZView() {
               paddingY={1}
             >
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <DashboardDDZTableToolbar
                   filters={filters}
@@ -374,9 +513,9 @@ export default function DashboardDDZView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <Button
                   variant="contained"
@@ -457,14 +596,11 @@ export default function DashboardDDZView() {
                 />
 
                 {dados.desempenho_alunos.chart &&
-                  (dados.desempenho_alunos.chart.series ?? []).length > 0 && (
-                    <Grid xs={12}>
-                      <DesempenhoAlunosWidget
-                        title="Desempenho dos Estudantes - Fases do Desenvolvimento da Leitura e da Escrita"
-                        subheader={dados.desempenho_alunos.subheader}
-                        chart={dados.desempenho_alunos.chart}
-                      />
-                    </Grid>
+                  (<Grid xs={12}>
+                    {
+                      retornaDesempenhoAlunosWidgetPorBimestre()
+                    }
+                  </Grid>
                   )}
 
                 <Grid xs={12}>
@@ -480,8 +616,8 @@ export default function DashboardDDZView() {
                           (dataFiltered.length == 0
                             ? 350
                             : (dataFiltered.length < table.rowsPerPage
-                                ? dataFiltered.length
-                                : table.rowsPerPage) * 43),
+                              ? dataFiltered.length
+                              : table.rowsPerPage) * 43),
                       }}
                     >
                       <Scrollbar>

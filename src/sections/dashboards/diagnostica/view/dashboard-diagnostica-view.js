@@ -19,6 +19,7 @@ import {
   Collapse,
 } from '@mui/material';
 import Box from '@mui/material/Box';
+import InstructionButton from 'src/components/helpers/instruction-button';
 
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -329,7 +330,7 @@ export default function DashboardDiagnosticaView() {
         } else {
           _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
         }
-      } 
+      }
 
       // if (initialZona) {
       //  _zonaFiltro = zonas.find((z) => z.id == initialZona);
@@ -833,7 +834,7 @@ export default function DashboardDiagnosticaView() {
 
       let _totalSaidaPresente = 0;
       let _totalSaidaAusente = 0;
-      console.log("isZonaFiltered",isZonaFiltered)
+      console.log("isZonaFiltered", isZonaFiltered)
 
       if (isEscolaFiltered || isZonaFiltered) {
         const _turmasDoAnoEscolar = (dados.grid_turmas ?? []).filter(
@@ -989,10 +990,10 @@ export default function DashboardDiagnosticaView() {
             };
           });
           console.log(porZona)
-          
+
           let _metricasSaida = []
 
-          if (typeof porZona[0]?.data.entrada.N1 === "object" ) {
+          if (typeof porZona[0]?.data.entrada.N1 === "object") {
             _metricas.entrada = [
               _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N1))),
               _.sumBy(porZona, (z) => _.sum(_.values(z.data.entrada.N2))),
@@ -1017,7 +1018,7 @@ export default function DashboardDiagnosticaView() {
               _.sumBy(porZona, (z) => z.data.saida.N3),
             ];
           }
-          
+
           if (_.sum(_metricasSaida) > 0) {
             _metricas.saida = _metricasSaida;
           }
@@ -1068,7 +1069,10 @@ export default function DashboardDiagnosticaView() {
           width="100%"
         >
           <Grid xs={12} md>
+            <Box display="flex" alignItems="center" gap={1}>
             <Typography variant="h3">Dashboard: Avaliação Diagnóstica</Typography>
+              <InstructionButton youtubeLink={""} />
+            </Box>
           </Grid>
         </Stack>
 
@@ -1104,9 +1108,9 @@ export default function DashboardDiagnosticaView() {
               paddingY={1}
             >
               <Grid xs={12} md="auto" paddingY={2}
-               sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <DashboardDiagnosticaTableToolbar
                   filters={filters}
@@ -1118,9 +1122,9 @@ export default function DashboardDiagnosticaView() {
                 />
               </Grid>
               <Grid xs={12} md="auto" paddingY={2}
-              sx={{
-                backgroundColor: 'white',
-              }}
+                sx={{
+                  backgroundColor: 'white',
+                }}
               >
                 <Button
                   variant="contained"
