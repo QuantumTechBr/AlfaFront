@@ -87,6 +87,7 @@ export default function AlunoListView() {
   const contextReady = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo('aluno', 'cadastrar');
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
   const table = useTable();
 
@@ -312,18 +313,19 @@ export default function AlunoListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
-        {/* {permissaoCadastrar && (
+        {permissaoSuperAdmin && (
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: '#EE6C4D',
+                marginBottom: "1em"
               }}
             >
-              Import
+              Importar Alunos
             </Button>
-          )} */}
+          )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -420,7 +422,7 @@ export default function AlunoListView() {
         </Card>
         <Modal open={openUploadModal} onClose={closeUploadModal}>
           <Box sx={modalStyle}>
-            <Typography variant="h6">Upload File</Typography>
+            <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
             <input type="file" 
               onChange={handleFileUpload} 
             />

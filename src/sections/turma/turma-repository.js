@@ -9,6 +9,7 @@ export const updateTurmaById = (id, payload) => axios.patch(endpoints.turma.upda
 export const deleteTurmaById = id => axios.delete(endpoints.turma.delete.concat(id));
 export const getTurmaById = id => axios.get(endpoints.turma.get_by_id.concat(id));
 export const exportFile = query => axios.get(endpoints.turma.list.concat(`?`).concat(query));
+export const importFileTurmas = payload => axios.post(endpoints.turma.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 const turmaMethods = {
     insertTurma,
@@ -18,6 +19,7 @@ const turmaMethods = {
     deleteTurmaById,
     getTurmaById,
     exportFile,
+    importFileTurmas
 };
 
 export default turmaMethods;
