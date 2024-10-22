@@ -10,12 +10,13 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
-import Tooltip from '@mui/material/Tooltip';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
-import IconButton from '@mui/material/IconButton';
 import TableContainer from '@mui/material/TableContainer';
 import Stack from '@mui/material/Stack';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -77,6 +78,8 @@ export default function TurmaListView() {
   const [countAll, setCountAll] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [openUploadModal, setOpenUploadModal] = useState(false);
 
   const contextReady = useBoolean(false);
 
@@ -91,6 +94,27 @@ export default function TurmaListView() {
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
 
+  
+  const closeUploadModal = () => {
+    setOpenUploadModal(false);
+  }
+
+  const handleFileUpload = (event) => {
+    setUploadedFile(event.target.files[0]);
+  }
+
+  const modalStyle = {
+    position: 'absolute',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+  }
+
   const TABLE_HEAD = [
     ...(escolas.length > 1 ? [{ id: 'escola', label: 'Escola', width: 300 }] : []),
     { id: 'ano_serie', label: 'Ano', width: 300 },
@@ -104,6 +128,27 @@ export default function TurmaListView() {
 
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
+
+  const uploadTurmas = async () => {
+    try {
+      const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
+
+      const response = await turmaMethods.importFileTurmas(formData);
+
+      if (response.ok) {
+        // File uploaded successfully
+        console.log('File uploaded successfully');
+      } else {
+        // Error uploading file
+        console.error('Error uploading file');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      throw error;
+    }
+  }
+
 
   const buscarTurmas = useCallback(
     async (pagina = 0, linhasPorPagina = 25, oldTurmaList = [], filtros = filters) => {
@@ -336,6 +381,17 @@ export default function TurmaListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
+        <Button
+            onClick={() => setOpenUploadModal(true)}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#EE6C4D',
+            }}
+          >
+            Import
+        </Button>
+
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -462,6 +518,15 @@ export default function TurmaListView() {
             onRowsPerPageChange={onChangeRowsPerPage}
           />
         </Card>
+        <Modal open={openUploadModal} onClose={closeUploadModal}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6">Upload File</Typography>
+            <input type="file" 
+              onChange={handleFileUpload} 
+            />
+            <Button variant="contained" onClick={uploadTurmas}>Upload</Button>
+          </Box>
+        </Modal>
       </Container>
 
       {checkPermissaoModulo('turma', 'editar') && (

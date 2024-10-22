@@ -89,6 +89,8 @@ export default function RegistroAprendizagemFaseListView() {
   const contextReady = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
+
 
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
@@ -364,7 +366,7 @@ export default function RegistroAprendizagemFaseListView() {
             Adicionar
           </Button>
         }
-        {/* {permissaoCadastrar && (
+        {permissaoSuperAdmin && (
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
@@ -373,9 +375,9 @@ export default function RegistroAprendizagemFaseListView() {
                 bgcolor: '#EE6C4D',
               }}
             >
-              Import
+              Importar Avaliações
             </Button>
-          )} */}
+          )}
       </Stack>
 
       <NovaAvaliacaoForm
@@ -472,7 +474,7 @@ export default function RegistroAprendizagemFaseListView() {
       </Card>
       <Modal open={openUploadModal} onClose={closeUploadModal}>
         <Box sx={modalStyle}>
-          <Typography variant="h6">Upload File</Typography>
+          <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
           <input type="file" 
             onChange={handleFileUpload} 
           />
