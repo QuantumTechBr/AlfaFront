@@ -43,6 +43,7 @@ import escolaMethods from '../escola-repository';
 import { EscolasContext } from '../context/escola-context';
 import Iconify from 'src/components/iconify';
 import EscolaQuickEditForm from '../escola-quick-edit-form';
+import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -61,6 +62,7 @@ const defaultFilters = {
 // ----------------------------------------------------------------------
 
 export default function EscolaListView() {
+  const { checkPermissaoModulo } = useAuthContext();
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [_escolaList, setEscolaList] = useState([]);
@@ -79,6 +81,8 @@ export default function EscolaListView() {
 
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
+
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
   const closeUploadModal = () => {
     setOpenUploadModal(false);
@@ -255,16 +259,19 @@ export default function EscolaListView() {
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
-        <Button
+        {permissaoSuperAdmin && (
+          <Button
             onClick={() => setOpenUploadModal(true)}
             variant="contained"
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
               bgcolor: '#EE6C4D',
+              marginBottom: "1em"
             }}
           >
-            Import
-        </Button>
+            Importar Escolas
+          </Button>
+        )}
 
         <Card>
           <EscolaTableToolbar filters={filters} onFilters={handleFilters} ddzOptions={zonas} />
@@ -322,7 +329,7 @@ export default function EscolaListView() {
 
         <Modal open={openUploadModal} onClose={closeUploadModal}>
           <Box sx={modalStyle}>
-            <Typography variant="h6">Upload File</Typography>
+            <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
             <input type="file" 
               onChange={handleFileUpload} 
             />

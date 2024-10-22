@@ -89,6 +89,7 @@ export default function UserListView() {
   const [filters, setFilters] = useState(defaultFilters);
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const permissaoCadastrar = checkPermissaoModulo('usuario', 'cadastrar');
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [openUploadModal, setOpenUploadModal] = useState(false);
 
@@ -429,16 +430,19 @@ export default function UserListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
-        <Button
-            onClick={() => setOpenUploadModal(true)}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#EE6C4D',
-            }}
-          >
-            Import
-        </Button>
+        {permissaoSuperAdmin && (
+          <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+                marginBottom: "1em"
+              }}
+            >
+              Importar Usuários
+          </Button>
+        )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -566,7 +570,7 @@ export default function UserListView() {
         </Card>
         <Modal open={openUploadModal} onClose={closeUploadModal}>
           <Box sx={modalStyle}>
-            <Typography variant="h6">Upload File</Typography>
+            <Typography variant="h6">Upload Arquivo</Typography>
             <input type="file" 
               onChange={handleFileUpload} 
             />
