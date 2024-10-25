@@ -365,13 +365,17 @@ export default function DashboardRedeView() {
         serie[s].year = series[s].year;
         let data = [];
         for (let d = 0; d < series[s].data.length; d++) {
-          data.push({
-            data: [series[s].data[d]?.data[b]],
-            name: series[s].data[d]?.name,
-          })
+          if (series[s].data[d]?.data[b]) {
+            data.push({
+              data: [series[s].data[d]?.data[b]],
+              name: series[s].data[d]?.name,
+            })
+          }
         }
-        serie[s].data = data;
-        chartBimestres[b].series.push(serie[s]);
+        if (data.length > 0) {
+          serie[s].data = data;
+          chartBimestres[b].series.push(serie[s]);
+        }
       }
     }
 

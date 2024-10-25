@@ -180,23 +180,59 @@ export default function DashboardTurmaView() {
       const bimestreId = payloadFilters.bimestre.length ? payloadFilters.bimestre[0] : ''
       const bimestreOrdinal = bimestres.find(b => b.id == bimestreId)?.ordinal ?? null
       dashboardsMethods.getDashboardGridTurmas(payloadFilters).then((response) => {
-        setDados((prevState) => ({
-          ...prevState,
-          [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
-            title: 'Índice de aprovação de rede',
-            hasSeries: (response.data.length ?? 0) > 0,
-            categories: [
-              {
-                label: anoEscolar?.toString(), 
-                series: [
-                  { name: 'Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_alfabetizado[bimestreOrdinal-1] : response.data[0].total_alfabetizados },
-                  { name: 'Não Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_nao_alfabetizado[bimestreOrdinal-1] : response.data[0].total_nao_alfabetizados },
-                  { name: 'Não Avaliado', amount: bimestreOrdinal ? response.data[0].qtd_nao_avaliado[bimestreOrdinal-1] : response.data[0].total_nao_avaliados },
-                ]
-              },
-            ],
-          },
-        }));
+        if(response?.data?.length > 0) {
+          setDados((prevState) => ({
+            ...prevState,
+            grid_turmas: response.data[0],
+            [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {
+              title: 'Índice de aprovação de rede',
+              hasSeries: (response.data.length ?? 0) > 0,
+              categories: [
+                {
+                  label: anoEscolar?.toString(), 
+                  series: [
+                    { name: 'Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_alfabetizado[bimestreOrdinal-1] : response.data[0].total_alfabetizados },
+                    { name: 'Não Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_nao_alfabetizado[bimestreOrdinal-1] : response.data[0].total_nao_alfabetizados },
+                    { name: 'Não Avaliado', amount: bimestreOrdinal ? response.data[0].qtd_nao_avaliado[bimestreOrdinal-1] : response.data[0].total_nao_avaliados },
+                  ]
+                },
+              ],
+            },
+            // [anoEscolar ? `indice_fases_${anoEscolar}_ano` : `indice_fases_geral`]: {
+            //   title: "Índice de Fases",
+            //   chart: {
+            //     series: [
+            //       {
+            //         label: "Pré-Alfabética", 
+            //         value: 2
+            //       },
+            //       {
+            //         label: "Alfabética Parcial", 
+            //         value: 2
+            //       },
+            //       {
+            //         label: "Alfabética Completa", 
+            //         value: 2
+            //       },
+            //       {
+            //         label: "Alfabética Consolidada", 
+            //         value: 1
+            //       },
+            //       {
+            //         label: "Não Avaliado", 
+            //         value: 2
+            //       },
+            //     ]
+            //   }
+            // }
+          }));
+        } else {
+          setDados((prevState) => ({
+            ...prevState,
+            grid_turmas: {},
+            [anoEscolar ? `indice_aprovacao_${anoEscolar}_ano` : `indice_aprovacao_geral`]: {},
+          }));
+        }
       });
     },
     [getTurmasPorAnoEscolar]
@@ -430,11 +466,14 @@ export default function DashboardTurmaView() {
   );
 
   const getTotalEstudandes = useCallback(
-    (ano_escolar) => {
-      const _indice_fases = ano_escolar
-        ? dados[`indice_fases_${+ano_escolar}_ano`]
-        : dados.indice_fases_geral;
-      return (_indice_fases.chart?.series ?? []).reduce((acc, item) => acc + item.value, 0);
+    // (ano_escolar) => {
+    //   const _indice_fases = ano_escolar
+    //     ? dados[`indice_fases_${+ano_escolar}_ano`]
+    //     : dados.indice_fases_geral;
+    //   return (_indice_fases.chart?.series ?? []).reduce((acc, item) => acc + item.value, 0);
+    // },
+    () => {
+      return dados['grid_turmas']?.qtd_alunos ?? 0;
     },
     [dados]
   );
@@ -501,13 +540,17 @@ export default function DashboardTurmaView() {
         serie[s].year = series[s].year;
         let data = [];
         for (let d = 0; d < series[s].data.length; d++) {
-          data.push({
-            data: [series[s].data[d]?.data[b]],
-            name: series[s].data[d]?.name,
-          })
+          if (series[s].data[d]?.data[b]) {
+            data.push({
+              data: [series[s].data[d]?.data[b]],
+              name: series[s].data[d]?.name,
+            })
+          }
         }
-        serie[s].data = data;
-        chartBimestres[b].series.push(serie[s]);
+        if (data.length > 0) {
+          serie[s].data = data;
+          chartBimestres[b].series.push(serie[s]);
+        }
       }
     }
 
