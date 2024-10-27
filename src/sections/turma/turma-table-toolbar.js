@@ -42,7 +42,7 @@ export default function TurmaTableToolbar({
       setEscolasFiltered(escolasAC);
       setEscolasACTotal(escolasAC);
     }).catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
+      // setErrorMsg('Erro de comunicação com a API de escolas');
     })
 
   }, []);

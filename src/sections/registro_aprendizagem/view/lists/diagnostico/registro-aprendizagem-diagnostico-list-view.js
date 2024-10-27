@@ -49,6 +49,7 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
+import { escolas_piloto } from 'src/_mock';
 
 // ----------------------------------------------------------------------
 
@@ -173,11 +174,23 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
 
-      const escola = [];
-      if (filtros.escola.length > 0) {
-        filtros.escola.map((esc) => {
-          escola.push(esc.id)
+      let escola = filtros.escola;
+      // if (filtros.escola.length > 0) {
+      //   filtros.escola.map((esc) => {
+      //     escola.push(esc.id)
+      //   })
+      // }
+
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
         })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
       }
 
       const _filtersToSend = {

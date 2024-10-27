@@ -67,6 +67,8 @@ import IndiceAlfabetizacaoBimestreComponent from '../../components/indice-alfabe
 import { anos_metas, preDefinedZonaOrder } from 'src/_mock/assets';
 import InstructionButton from 'src/components/helpers/instruction-button';
 import zIndex from '@mui/material/styles/zIndex';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { escolas_piloto } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -76,7 +78,7 @@ export default function DashboardRedeView() {
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
@@ -120,6 +122,18 @@ export default function DashboardRedeView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
+      let escola = [];
+      let escFiltered = [];
+      if (sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -137,8 +151,9 @@ export default function DashboardRedeView() {
           _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-'
             ? []
             : [`["${_filtersToSearch.pneItem}"]`],
+        escola: escola,
       };
-
+      const filtroPiloto = {...fullFilters, escola:[]}
       await Promise.all([
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           // adequação dos dados
@@ -209,11 +224,11 @@ export default function DashboardRedeView() {
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
       preparacaoInicialRunned.onTrue();
-      Promise.all([buscaAnosLetivos(), buscaTurmas()]).then(() => {
+      Promise.all([buscaAnosLetivos(), buscaTurmas(), buscaEscolas()]).then(() => {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaTurmas, contextReady]);
+  }, [preparacaoInicialRunned, buscaEscolas, buscaAnosLetivos, buscaTurmas, contextReady]);
 
   useEffect(() => {
     if (contextReady.value) {

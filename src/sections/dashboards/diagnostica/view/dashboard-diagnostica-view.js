@@ -75,6 +75,7 @@ import ParticipacaoChart from '../components/participacao-chart';
 import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
 import DesempenhoComponent from '../components/desempenho-component';
+import { escolas_piloto } from 'src/_mock';
 
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
@@ -238,6 +239,18 @@ export default function DashboardDiagnosticaView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
+      let escola = filters.escola;
+      let escFiltered = [];
+      if (sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -246,7 +259,7 @@ export default function DashboardDiagnosticaView() {
             ?.id,
         ],
         ddz: _filtersToSearch.zona.id ? [_filtersToSearch.zona.id] : [],
-        escola: _filtersToSearch.escola.map((item) => item.id),
+        escola: escola,
         turma: _.flatten(
           _filtersToSearch.anoEscolar.map((aE) => {
             return getTurmasPorAnoEscolar(aE);

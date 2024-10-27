@@ -73,6 +73,8 @@ import Scrollbar from 'src/components/scrollbar';
 //
 import { paths } from 'src/routes/paths';
 import { anos_metas } from 'src/_mock/assets';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { escolas_piloto } from 'src/_mock/assets';
 
 export default function DashboardDDZView() {
   const ICON_SIZE = 65;
@@ -87,7 +89,7 @@ export default function DashboardDDZView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-
+  const { escolas, buscaEscolas } = useContext(EscolasContext);
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
@@ -129,6 +131,18 @@ export default function DashboardDDZView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
+      let escola = [];
+      let escFiltered = [];
+      if (sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [
@@ -142,6 +156,7 @@ export default function DashboardDDZView() {
         ),
         laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
         necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`["${_filtersToSearch.pneItem}"]`],
+        escola: escola,
       };
 
       await Promise.all([
@@ -214,14 +229,14 @@ export default function DashboardDDZView() {
   const preparacaoInicial = useCallback(() => {
     if (!preparacaoInicialRunned.value) {
       preparacaoInicialRunned.onTrue();
-      Promise.all([buscaAnosLetivos(), buscaZonas(), buscaTurmas()]).then(() => {
+      Promise.all([buscaAnosLetivos(), buscaZonas(), buscaEscolas(),buscaTurmas()]).then(() => {
         contextReady.onTrue();
       });
     }
-  }, [preparacaoInicialRunned, buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
+  }, [preparacaoInicialRunned, buscaEscolas,buscaAnosLetivos, buscaZonas, buscaTurmas, contextReady]);
 
   useEffect(() => {
-    if (user && contextReady.value) {
+    if (user && escolas && contextReady.value) {
       let _zonaFiltro = undefined;
 
       if (user?.funcao_usuario?.length > 0) {
@@ -251,7 +266,7 @@ export default function DashboardDDZView() {
       setFilters(_filters);
       preencheGraficos(_filters);
     }
-  }, [contextReady.value, user, initialZona]);
+  }, [contextReady.value, escolas, user, initialZona]);
 
   useEffect(() => {
     preparacaoInicial(); // chamada unica
