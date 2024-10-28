@@ -107,9 +107,6 @@ export default function EscolaListView() {
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
       buscaEscolas({ force: true })
-        .then((_escolas) => {
-          setTableData(_escolas);
-        })
         .catch((error) => {
           console.log(error);
           setErrorMsg('Erro de comunicação com a API de escolas');
@@ -125,6 +122,10 @@ export default function EscolaListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    setTableData(escolas);
+  }, [escolas]); 
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -351,7 +352,8 @@ export default function EscolaListView() {
 // ----------------------------------------------------------------------
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, ddz } = filters;
+  const { nome, ddz } = filters; 
+  console.log(inputData);
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 

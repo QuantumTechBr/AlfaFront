@@ -53,6 +53,7 @@ import turmaMethods from 'src/sections/turma/turma-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import TurmaQuickEditForm from '../turma-quick-edit-form';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -157,14 +158,26 @@ export default function TurmaListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const escola = [];
+      let escola = [];
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
           escola.push(esc.id)
         })
       }
-      const { nome, ddz, status } = filtros;
+      let { nome, ddz, status } = filtros;
       let statusFilter = '';
+
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       switch (status) {
         case 'false':
@@ -174,7 +187,6 @@ export default function TurmaListView() {
           statusFilter = 'True';
       }
 
-      console.log(escola)
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: statusFilter },
@@ -197,27 +209,11 @@ export default function TurmaListView() {
           console.log(error);
         });
       contextReady.onTrue();
-    },
-    [contextReady, filters]
-  );
-
-  const contarTurmas = useCallback(
-    async (filtros = filters, clear=false) => {
-      const offset = 0;
-      const limit = 1;
-      const escola = [];
-      if (filtros.escola.length > 0) {
-        filtros.escola.map((esc) => {
-          escola.push(esc.id)
-        })
-      }
-      const { nome, ddz, status } = filtros;
-
       let _countAll = 0;
 
       await buscaTurmasPaginado({
         args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
-        clear
+        // clear
       }).then(async (resultado) => {
         setCountAtivos(resultado.count);
         _countAll += resultado.count;
@@ -232,8 +228,42 @@ export default function TurmaListView() {
 
       setCountAll(_countAll);
     },
-    [filters]
+    [contextReady, filters]
   );
+
+  // const contarTurmas = useCallback(
+  //   async (filtros = filters, clear=false) => {
+  //     const offset = 0;
+  //     const limit = 1;
+  //     const escola = [];
+  //     if (filtros.escola.length > 0) {
+  //       filtros.escola.map((esc) => {
+  //         escola.push(esc.id)
+  //       })
+  //     }
+  //     const { nome, ddz, status } = filtros;
+
+  //     let _countAll = 0;
+
+  //     await buscaTurmasPaginado({
+  //       args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
+  //       clear
+  //     }).then(async (resultado) => {
+  //       setCountAtivos(resultado.count);
+  //       _countAll += resultado.count;
+  //     });
+
+  //     await buscaTurmasPaginado({
+  //       args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'False' },
+  //     }).then(async (resultado) => {
+  //       setCountInativos(resultado.count);
+  //       _countAll += resultado.count;
+  //     });
+
+  //     setCountAll(_countAll);
+  //   },
+  //   [filters]
+  // );
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -243,11 +273,7 @@ export default function TurmaListView() {
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
-      buscarTurmas(table.page, table.rowsPerPage).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de turmas');
-        console.log(error);
-      }),
-      contarTurmas(),
+     
     ]);
     contextReady.onTrue();
   }, [buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
@@ -272,6 +298,15 @@ export default function TurmaListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect( () => {
+    buscarTurmas(table.page, table.rowsPerPage).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de turmas');
+      console.log(error);
+    });
+    // contarTurmas();
+ }, [escolas]);
+
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -300,7 +335,7 @@ export default function TurmaListView() {
         .deleteTurmaById(id)
         .then((retorno) => {
           // setTableData(deleteRow);
-          contarTurmas(filters, true);
+          // contarTurmas(filters, true);
           buscarTurmas();
           buscaTurmas({ force: true });
         })
@@ -461,7 +496,7 @@ export default function TurmaListView() {
                 contextReady.onFalse();
                 setTableData([]);
                 table.setPage(0);
-                contarTurmas();
+                // contarTurmas();
                 buscarTurmas(table.page, table.rowsPerPage, [], filters);
               }}
             >

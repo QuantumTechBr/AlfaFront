@@ -287,6 +287,18 @@ export default function DashboardEscolaView() {
     preparacaoInicial(); // chamada unica
   }, []);
 
+//   useEffect( () => {
+//     let escFiltered = [];
+//     escolas.map((esc)=>{
+//       for (let index = 0; index < filters.zona.length; index++) {
+//         if (esc.zona.id == filters.zona[index].id){
+//           escFiltered.push(esc)
+//         }
+//       }
+//     })
+//     setEscolasFiltered(escFiltered)
+//  }, [escolas, filters]);
+
   const filtroReset = () => {
     setFilters({
       anoLetivo: _.first(anosLetivos),
@@ -552,7 +564,15 @@ export default function DashboardEscolaView() {
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
                   ddzOptions={zonas}
-                  escolaOptions={_escolasFiltered || escolas}
+                  escolaOptions={_escolasFiltered ||
+                    escolas.filter((esc)=>{
+                      for (let index = 0; index < filters.zona.length; index++) {
+                        if (esc.zona.id == filters.zona[index].id){
+                          return esc
+                        }
+                      }
+                    })
+                  }
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>

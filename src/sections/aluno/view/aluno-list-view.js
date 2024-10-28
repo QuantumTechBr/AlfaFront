@@ -49,6 +49,7 @@ import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import AlunoQuickEditForm from '../aluno-quick-edit-form';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -126,7 +127,18 @@ export default function AlunoListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, matricula, escola, turma, fase } = filtros;
+      let { nome, matricula, escola, turma, fase } = filtros;
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       await alunoMethods
         .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase })
@@ -157,17 +169,15 @@ export default function AlunoListView() {
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
-      buscaEscolas().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de escolas');
-      }),
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-      buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de estudantes');
-        console.log(error);
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
       }),
+
     ]);
+
     contextReady.onTrue();
   }, [buscaEscolas, buscaTurmas, buscaAlunos, contextReady, table.page, table.rowsPerPage]);
 
@@ -191,6 +201,13 @@ export default function AlunoListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect( () => {
+     buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de estudantes');
+      console.log(error);
+    })
+  }, [escolas]);
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -231,7 +248,7 @@ export default function AlunoListView() {
           );
           console.log(error);
         });
-      
+
       // table.onUpdatePageDeleteRow(dataInPage.length);
       // setCountAlunos(countAlunos - 1)
     },
@@ -314,18 +331,18 @@ export default function AlunoListView() {
           }}
         />
         {permissaoSuperAdmin && (
-            <Button
-              onClick={() => setOpenUploadModal(true)}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: '#EE6C4D',
-                marginBottom: "1em"
-              }}
-            >
-              Importar Alunos
-            </Button>
-          )}
+          <Button
+            onClick={() => setOpenUploadModal(true)}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#EE6C4D',
+              marginBottom: "1em"
+            }}
+          >
+            Importar Alunos
+          </Button>
+        )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
@@ -423,8 +440,8 @@ export default function AlunoListView() {
         <Modal open={openUploadModal} onClose={closeUploadModal}>
           <Box sx={modalStyle}>
             <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
-            <input type="file" 
-              onChange={handleFileUpload} 
+            <input type="file"
+              onChange={handleFileUpload}
             />
             <Button variant="contained" onClick={uploadAlunos}>Upload</Button>
           </Box>
