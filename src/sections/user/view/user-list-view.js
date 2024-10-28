@@ -50,6 +50,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import UserQuickEditForm from '../user-quick-edit-form';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -152,8 +153,19 @@ export default function UserListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, role, zona, status } = filtros;
+      let { nome, escola, role, zona, status } = filtros;
       let statusFilter = '';
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       switch (status) {
         case 'false':
@@ -162,6 +174,48 @@ export default function UserListView() {
         case 'true':
           statusFilter = 'True';
       }
+
+      await userMethods
+        .getAllUsersPaginado({
+          offset,
+          limit,
+          nome: nome,
+          escolas: escola,
+          funcao: role,
+          zona: zona,
+          status: '',
+        })
+        .then(async (resultado) => {
+          setCountAll(resultado.data.count);
+        });
+
+      await userMethods
+        .getAllUsersPaginado({
+          offset,
+          limit,
+          nome: nome,
+          escolas: escola,
+          funcao: role,
+          zona: zona,
+          status: 'True',
+        })
+        .then(async (resultado) => {
+          setCountAtivos(resultado.data.count);
+        });
+
+      await userMethods
+        .getAllUsersPaginado({
+          offset,
+          limit,
+          nome: nome,
+          escolas: escola,
+          funcao: role,
+          zona: zona,
+          status: 'False',
+        })
+        .then(async (resultado) => {
+          setCountInativos(resultado.data.count);
+        });
 
       await userMethods
         .getAllUsersPaginado({
@@ -233,56 +287,68 @@ export default function UserListView() {
     setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 
-  const contarUsuarios = useCallback(
-    async (filtros = filters) => {
-      const offset = 0;
-      const limit = 1;
-      const { nome, escola, role, zona, status } = filtros;
+  // const contarUsuarios = useCallback(
+  //   async (filtros = filters) => {
+  //     const offset = 0;
+  //     const limit = 1;
+  //     let { nome, escola, role, zona, status } = filtros;
+  //     let escFiltered = [];
+  //     if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+  //       escolas.map((esc) => {
+  //         if (escolas_piloto.includes(esc.nome)) {
+  //           escFiltered.push(esc.id);
+  //         }
+  //       })
+  //     }
+  //     if (escFiltered.length > 0) {
+  //       escola = escFiltered;
+  //     }
+  //     console.log('oooorra', escolas)
 
-      await userMethods
-        .getAllUsersPaginado({
-          offset,
-          limit,
-          nome: nome,
-          escolas: escola,
-          funcao: role,
-          zona: zona,
-          status: '',
-        })
-        .then(async (resultado) => {
-          setCountAll(resultado.data.count);
-        });
+  //     await userMethods
+  //       .getAllUsersPaginado({
+  //         offset,
+  //         limit,
+  //         nome: nome,
+  //         escolas: escola,
+  //         funcao: role,
+  //         zona: zona,
+  //         status: '',
+  //       })
+  //       .then(async (resultado) => {
+  //         setCountAll(resultado.data.count);
+  //       });
 
-      await userMethods
-        .getAllUsersPaginado({
-          offset,
-          limit,
-          nome: nome,
-          escolas: escola,
-          funcao: role,
-          zona: zona,
-          status: 'True',
-        })
-        .then(async (resultado) => {
-          setCountAtivos(resultado.data.count);
-        });
+  //     await userMethods
+  //       .getAllUsersPaginado({
+  //         offset,
+  //         limit,
+  //         nome: nome,
+  //         escolas: escola,
+  //         funcao: role,
+  //         zona: zona,
+  //         status: 'True',
+  //       })
+  //       .then(async (resultado) => {
+  //         setCountAtivos(resultado.data.count);
+  //       });
 
-      await userMethods
-        .getAllUsersPaginado({
-          offset,
-          limit,
-          nome: nome,
-          escolas: escola,
-          funcao: role,
-          zona: zona,
-          status: 'False',
-        })
-        .then(async (resultado) => {
-          setCountInativos(resultado.data.count);
-        });
-    },
-    [filters]
-  );
+  //     await userMethods
+  //       .getAllUsersPaginado({
+  //         offset,
+  //         limit,
+  //         nome: nome,
+  //         escolas: escola,
+  //         funcao: role,
+  //         zona: zona,
+  //         status: 'False',
+  //       })
+  //       .then(async (resultado) => {
+  //         setCountInativos(resultado.data.count);
+  //       });
+  //   },
+  //   [filters]
+  // );
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([
@@ -294,11 +360,6 @@ export default function UserListView() {
         setErrorMsg('Erro de comunicação com a API de funções');
         preparado.onTrue();
       }),
-      buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de usuários');
-        console.log(error);
-      }),
-      contarUsuarios(),
     ]);
     preparado.onTrue();
   }, [buscaEscolas, buscaUsuarios, preparado, table.page, table.rowsPerPage]);
@@ -323,6 +384,15 @@ export default function UserListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect( () => {
+    buscaUsuarios(table.page, table.rowsPerPage).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de usuários');
+      console.log(error);
+    });
+    // contarUsuarios();
+ }, [escolas]);
+
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -512,7 +582,7 @@ export default function UserListView() {
                 preparado.onFalse();
                 setTableData([]);
                 table.setPage(0);
-                contarUsuarios();
+                // contarUsuarios();
                 buscaUsuarios(table.page, table.rowsPerPage, [], filters);
               }}
             >

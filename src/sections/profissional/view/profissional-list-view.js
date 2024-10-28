@@ -43,6 +43,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import ProfissionalQuickEditForm from '../profissional-quick-edit-form';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -94,7 +95,18 @@ export default function ProfissionalListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      const { nome, escola, role } = filtros;
+      let { nome, escola, role } = filtros;
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
 
       await profissionalMethods
         .getAllProfissionaisPaginado({ offset, limit, nome: nome, escolas: escola, funcao: role })
@@ -167,10 +179,6 @@ export default function ProfissionalListView() {
       buscaFuncoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de funções');
       }),
-      buscaProfissionais(table.page, table.rowsPerPage).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de profissinais');
-        console.log(error);
-      }),
     ]);
     preparado.onTrue();
   }, [buscaEscolas, buscaFuncoes, buscaProfissionais]);
@@ -195,6 +203,13 @@ export default function ProfissionalListView() {
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect( () => {
+    buscaProfissionais(table.page, table.rowsPerPage).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de profissinais');
+      console.log(error);
+    })
+ }, [escolas]);
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,

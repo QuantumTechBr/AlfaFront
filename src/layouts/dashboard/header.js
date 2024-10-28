@@ -25,14 +25,26 @@ import {
   NotificationsPopover,
 } from '../_common';
 import { Box, Typography } from '@mui/material';
-
+import Checkbox from '@mui/material/Checkbox';
+import { Controller, useFormContext } from 'react-hook-form';
+import { useBoolean } from 'src/hooks/use-boolean';
+import { useCallback } from 'react';
+import { useState } from 'react';
+import Label from 'src/components/label';
+import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { useContext } from 'react';
 // ----------------------------------------------------------------------
 
 export default function Header({ onOpenNav }) {
   const theme = useTheme();
   const { user, logout } = useAuthContext();
-
+  const { buscaEscolas } = useContext(EscolasContext);
   const settings = useSettingsContext();
+  let ep = true;
+  if (sessionStorage.getItem('escolasPiloto') == 'false') {
+    ep = false
+  }
+  const [checkEP, setCheckEP] = useState(ep); 
 
   const isNavHorizontal = settings.themeLayout === 'horizontal';
 
@@ -49,6 +61,19 @@ export default function Header({ onOpenNav }) {
     user?.permissao_usuario[0]?.nome == 'DIRETOR';
   const showDDZInfo = user?.permissao_usuario[0]?.nome == 'ASSESSOR DDZ';
   const showFullInfo = showEscolaInfo || showDDZInfo;
+
+
+  const onSelectEP = useCallback(() => {
+    if (checkEP) {
+      sessionStorage.setItem('escolasPiloto', false);
+      setCheckEP(false);
+    } else {
+      sessionStorage.setItem('escolasPiloto', true);
+      setCheckEP(true);
+    }
+    buscaEscolas({force:true})
+    .then(window.location.reload());
+  }, [checkEP, setCheckEP])
 
   const renderContent = (
     <>
@@ -75,29 +100,38 @@ export default function Header({ onOpenNav }) {
 
         {/* <SettingsButton /> */}
 
+        <Checkbox
+          checked={checkEP} onClick={onSelectEP} />
+        <Box
+          sx={{
+            pr: 5,
+          }}
+        >
+          <Label>Escolas Piloto</Label>
+        </Box>
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
             {user?.nome}
-            {showFullInfo ? ` - ${user?.funcao_usuario.length == 0 ?  user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao}` : ''}
+            {showFullInfo ? ` - ${user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao}` : ''}
           </Typography>
 
           <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
             {showEscolaInfo
               ? [
-                  user?.funcao_usuario[0]?.escola?.nome,
-                  user?.funcao_usuario[0]?.escola?.cidade?.nome,
-                  user?.funcao_usuario[0]?.escola?.zona?.nome,
-                ].join(' - ')
+                user?.funcao_usuario[0]?.escola?.nome,
+                user?.funcao_usuario[0]?.escola?.cidade?.nome,
+                user?.funcao_usuario[0]?.escola?.zona?.nome,
+              ].join(' - ')
               : null}
 
             {showDDZInfo
               ? [
-                  user?.funcao_usuario[0]?.zona?.cidade?.nome,
-                  user?.funcao_usuario[0]?.zona?.nome,
-                ].join(' - ')
+                user?.funcao_usuario[0]?.zona?.cidade?.nome,
+                user?.funcao_usuario[0]?.zona?.nome,
+              ].join(' - ')
               : null}
 
-            {!showFullInfo ? user?.funcao_usuario.length == 0 ?  user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao : null}
+            {!showFullInfo ? user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao : null}
           </Typography>
         </Box>
 
