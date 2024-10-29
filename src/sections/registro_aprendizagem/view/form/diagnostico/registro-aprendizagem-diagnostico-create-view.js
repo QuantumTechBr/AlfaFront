@@ -62,7 +62,10 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
                 _alunosTurma[searchIndex].id_registro = registro.id;
                 _alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
                 _alunosTurma[searchIndex].frequencia = registro.frequencia; 
-                _alunosTurma[searchIndex].r = r; 
+                _alunosTurma[searchIndex].r = r;
+                _alunosTurma[searchIndex].media_lingua_portuguesa = registro.media_lingua_portuguesa ?? '';
+                _alunosTurma[searchIndex].media_matematica = registro.media_matematica ?? '';
+                _alunosTurma[searchIndex].media_final = registro.media_final ?? '';  
               }
             });
             setAlunosTurma(_alunosTurma);
@@ -141,6 +144,9 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
               _alunosTurma[searchIndex].id_habilidades_registro_aprendizagem = idHabilidadesRegistroAprendizagem; 
               _alunosTurma[searchIndex].frequencia = registro.frequencia; 
               _alunosTurma[searchIndex].r = r; 
+              _alunosTurma[searchIndex].media_lingua_portuguesa = registro.media_lingua_portuguesa ?? '';
+              _alunosTurma[searchIndex].media_matematica = registro.media_matematica ?? '';
+              _alunosTurma[searchIndex].media_final = registro.media_final ?? '';
             }
           });
           setAlunosTurma(_alunosTurma);

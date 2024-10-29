@@ -3,6 +3,7 @@ import * as React from 'react';
 import PropTypes from 'prop-types';
 import isEqual from 'lodash/isEqual';
 import { useEffect, useState, useCallback, useMemo } from 'react';
+import '../../form/style.css';
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -39,7 +40,8 @@ import { useContext } from 'react';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import zIndex from '@mui/material/styles/zIndex';
-
+import { CSVLink } from "react-csv";
+import { useFormContext } from 'react-hook-form';
 
 // ----------------------------------------------------------------------
 export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, periodo, alunosTurma, habilidades, handleTurma, prep }) {
@@ -56,7 +58,11 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   const [TABLE_HEAD, setTableHead] = useState([]);
   const [tableData, setTableData] = useState([]);
   const preparado = prep;
+  const { getValues, watch } = useFormContext();
+  const [csvData, setCsvData] = useState([]);
+  const [csvFileName, setCsvFileName] = useState('');
 
+  const values = watch();
   const labelHabilidade = (hab, i) => {
     const list_retorno = [];
     list_retorno.push(`- ${hab[0].nome}: `);
@@ -70,25 +76,25 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
     // ''.concat(...list_retorno)]
     <br></br>
     return (
-        <Box>
-          {`R${i}`}
-          <Tooltip 
+      <Box>
+        {`R${i}`}
+        <Tooltip
           title={
             // ''.concat(...list_retorno)
             <React.Fragment>
-            <Typography color="inherit">Tooltip with HTML</Typography>
-            <em>"And here's"</em> <b>'some'</b> <u>'amazing content'</u>.' '
-            "It's very engaging. Right?"
+              <Typography color="inherit">Tooltip with HTML</Typography>
+              <em>"And here's"</em> <b>'some'</b> <u>'amazing content'</u>.' '
+              "It's very engaging. Right?"
             </React.Fragment>
           }
-          >
-          <InfoIcon 
-              sx={{
-                fontSize: 'large',
-              }}
-            />
-          </Tooltip>
-        </Box>
+        >
+          <InfoIcon
+            sx={{
+              fontSize: 'large',
+            }}
+          />
+        </Tooltip>
+      </Box>
     );
   };
 
@@ -123,9 +129,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
         break;
     }
     const cabecalho = [
-        { id: 'matricula', label: 'Matrícula', width: 150 },
-        { id: 'nome', label: 'Nome', width: 150 },
-        { id: 'frequencia', label: 'Frequência', width: 200 },
+      { id: 'matricula', label: 'Matrícula', width: 150 },
+      { id: 'nome', label: 'Nome', width: 150 },
+      { id: 'frequencia', label: 'Frequência', width: 200 },
     ];
     for (var i = 1; i < 21; i++) {
       cabecalho.push({ id: `R${i}`, label: habilidades.length > 0 ? labelHabilidade(habilidades, i) : `R${i}`, width: 50 });
@@ -140,9 +146,12 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
     cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
     setTableData((alunosTurma == undefined) ? [] : alunosTurma);
- 
-    
   }, [habilidades, alunosTurma]);
+
+  useEffect(() => {
+    setCsvData(getValues('csvData'));
+    setCsvFileName(getValues('csvFileName'));
+  }, [values]);
 
   const table = useTable();
 
@@ -185,39 +194,44 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
 
-        <Card>
+      <Card>
 
-          <RegistroAprendizagemDiagnosticoNewEditTableToolbar
+        <RegistroAprendizagemDiagnosticoNewEditTableToolbar
+          filters={filters}
+          onFilters={handleFilters}
+          anoLetivoOptions={anosLetivos}
+          escolaOptions={escolas}
+          freqOptions={frequencia_options}
+          turma={turma}
+          handleTurma={handleTurma}
+        />
+
+        {canReset && (
+          <RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
             filters={filters}
             onFilters={handleFilters}
-            anoLetivoOptions={anosLetivos}
-            escolaOptions={escolas}
+            onResetFilters={handleResetFilters}
             freqOptions={frequencia_options}
-            turma={turma}
-            handleTurma={handleTurma}
+            results={dataFiltered.length}
+            sx={{ p: 2.5, pt: 0 }}
           />
+        )}
 
-          {canReset && (
-            <RegistroAprendizagemDiagnosticoNewEditTableFiltersResult
-              filters={filters}
-              onFilters={handleFilters}
-              onResetFilters={handleResetFilters}
-              freqOptions={frequencia_options}
-              results={dataFiltered.length}
-              sx={{ p: 2.5, pt: 0 }}
-            />
-          )}
-          <TableContainer sx={{ position: 'relative', overflow: 'unset'}} >
-            <Scrollbar sx={{
-              "& .simplebar-scrollbar": {
-                "backgroundColor": "#D3D3D3",
-                'borderRadius': 10,
-              },
-              maxHeight: 800,
-             }}>
+        {csvData?.length > 0 && <CSVLink className='downloadCVSBtn' filename={csvFileName} data={csvData} >
+          Exportar para CSV
+        </CSVLink>}
+
+        <TableContainer sx={{ position: 'relative', overflow: 'unset' }} >
+          <Scrollbar sx={{
+            "& .simplebar-scrollbar": {
+              "backgroundColor": "#D3D3D3",
+              'borderRadius': 10,
+            },
+            maxHeight: 800,
+          }}>
             {!preparado.value ? (
               <LoadingBox />
-                ) : (
+            ) : (
               <Table stickyHeader size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
                 <TableHeadCustom
                   order={table.order}
@@ -226,49 +240,49 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
                   rowCount={tableData.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
-                 
-                  />
+
+                />
 
                 <TableBody sx={{ bgcolor: 'white' }}>
                   {dataFiltered
                     .slice(
                       table.page * table.rowsPerPage,
                       table.page * table.rowsPerPage + table.rowsPerPage
-                      )
-                      .map((row) => (
-                        <RegistroAprendizagemDiagnosticoNewEditTableRow  
+                    )
+                    .map((row) => (
+                      <RegistroAprendizagemDiagnosticoNewEditTableRow
                         key={row.id}
                         row={row}
                         habilidades={habilidades}
                         periodo={periodo}
                         turma={turma}
-                        />
-                        ))}
+                      />
+                    ))}
 
                   <TableEmptyRows
                     height={denseHeight}
                     emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                    />
+                  />
 
                   <TableNoData notFound={notFound} />
                 </TableBody>
-              </Table> )}
-            </Scrollbar> 
-          </TableContainer>
+              </Table>)}
+          </Scrollbar>
+        </TableContainer>
 
-          <TablePaginationCustom
-            count={dataFiltered.length}
-            page={table.page}
-            rowsPerPage={table.rowsPerPage}
-            rowsPerPageOptions={[5, 15, 25]}
-            onPageChange={table.onChangePage}
-            onRowsPerPageChange={table.onChangeRowsPerPage}
-            //
-            // dense={table.dense}
-            // onChangeDense={table.onChangeDense}
-          />
-        </Card>
-      </Container>
+        <TablePaginationCustom
+          count={dataFiltered.length}
+          page={table.page}
+          rowsPerPage={table.rowsPerPage}
+          rowsPerPageOptions={[5, 15, 25]}
+          onPageChange={table.onChangePage}
+          onRowsPerPageChange={table.onChangeRowsPerPage}
+        //
+        // dense={table.dense}
+        // onChangeDense={table.onChangeDense}
+        />
+      </Card>
+    </Container>
   );
 }
 
@@ -307,7 +321,7 @@ function applyFilter({ inputData, comparator, filters }) {
         if (alunosTurma.frequencia == undefined) {
           return alunosTurma
         }
-      } 
+      }
       return frequencia.includes(alunosTurma.frequencia);
     }
     )

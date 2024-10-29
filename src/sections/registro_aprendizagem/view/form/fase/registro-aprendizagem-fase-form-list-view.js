@@ -12,6 +12,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import '../../form/style.css';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -52,6 +53,7 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { RegistroAprendizagemContext } from 'src/sections/registro_aprendizagem/context/registro-aprendizagem-context';
+import { CSVLink } from "react-csv";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -74,7 +76,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const router = useRouter();
   const table = useTable();
   const { enqueueSnackbar } = useSnackbar();
-
+  const [csvData, setCsvData] = useState([]);
+  const [csvFileName, setCsvFileName] = useState('');
   const [filters, setFilters] = useState(defaultFilters);
 
   const [errorMsg, setErrorMsg] = useState('');
@@ -173,11 +176,13 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       await buscaTurmaPorId({ id: _turma.id })
         .then((__turma) => {
           const _newRegistros = [];
+          let csv_dat = [["Nome", "Resultado", "Observação"]];
           __turma.turmas_alunos.forEach((alunoTurmaItem) => {
             const registroEncontrado = last(
               registrosDaTurmaBimestre.data.filter((reg) => reg.aluno_turma.id == alunoTurmaItem.id)
             );
 
+            csv_dat.push([alunoTurmaItem.aluno.nome, registroEncontrado?.resultado ?? '', registroEncontrado?.observacao ?? '',])
             _newRegistros[alunoTurmaItem.id] = {
               aluno_nome: alunoTurmaItem.aluno.nome,
               ...(registroEncontrado?.id !== undefined
@@ -188,8 +193,14 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               observacao: registroEncontrado?.observacao ?? '',
             };
           });
+          
+          const bimestre_csv = getValues('bimestre');
+          const turma_csv = getValues('turma');
+          const escola_csv = getValues('escola');
           setValue('registros', _newRegistros);
+          setCsvFileName(`${anosLetivos.find((a) => a.id == _turma.ano_id).ano} - ${escola_csv.nome} - ${turma_csv.ano_escolar}º ${turma_csv.nome} - ${bimestre_csv.ordinal}º Bimestre.csv`)
           setTableData(__turma.turmas_alunos);
+          setCsvData(csv_dat);
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de turma');
@@ -204,9 +215,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     const _bimestre = getValues('bimestre');
 
     const retornoPadrao = {
-      nome: `Acompanhamento de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${
-        _bimestre.ordinal
-      }º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
+      nome: `Acompanhamento de Fase ${_turma.ano_escolar}º ${_turma.nome} - ${_bimestre.ordinal
+        }º Bimestre ${anosLetivos.find((a) => a.id == _turma.ano_id).ano}`,
       bimestre_id: _bimestre.id,
       tipo: 'Fase',
     };
@@ -314,6 +324,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     }
   }, [contextReady.value]);
 
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
       <CustomBreadcrumbs
@@ -353,14 +364,19 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               showSearch={tableData.length > 0}
             />
 
+            <CSVLink className='downloadCVSBtn' filename={csvFileName} data={csvData} >
+              Exportar para CSV
+            </CSVLink>
+
+
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar sx={{
-              "& .simplebar-scrollbar": {
-                "backgroundColor": "#D3D3D3",
-                'borderRadius': 10,
-              },
-              maxHeight: 800,
-             }}>
+                "& .simplebar-scrollbar": {
+                  "backgroundColor": "#D3D3D3",
+                  'borderRadius': 10,
+                },  
+                maxHeight: 800,
+              }}>
                 {(!contextReady.value || buscando.value) && <LoadingBox />}
 
                 {contextReady.value && tabelaPreparada.value && (
@@ -409,9 +425,9 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
             <Grid alignItems="center" xs={3}>
               {permissaoCadastrar &&
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                Salvar informações
-              </LoadingButton>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  Salvar informações
+                </LoadingButton>
               }
             </Grid>
           </Stack>
