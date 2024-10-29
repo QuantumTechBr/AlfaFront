@@ -174,12 +174,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
 
-      let escola = filtros.escola;
-      // if (filtros.escola.length > 0) {
-      //   filtros.escola.map((esc) => {
-      //     escola.push(esc.id)
-      //   })
-      // }
+      let escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
 
       let escFiltered = [];
       if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
@@ -188,7 +188,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             escFiltered.push(esc.id);
           }
         })
-      }
+      } 
       if (escFiltered.length > 0) {
         escola = escFiltered;
       }
