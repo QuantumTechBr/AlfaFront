@@ -131,6 +131,14 @@ export default function UserListView() {
       const formData = new FormData();
       formData.append('arquivo', uploadedFile);
 
+      closeUploadModal();
+
+      setWarningMsg('Enviando arquivo. Por favor, aguarde... ' +
+        'O processo de importação pode demorar alguns minutos e até mesmo horas dependendo do número de registros a serem validados. ' +
+        'Você pode acompanhar o status do processo pelo painel do Django Admin. Por favor, evite iniciar vários processos de importação simultaneamente. ' +
+        'Isso pode gerar lentidão no sistema e até mesmo inconsistência de dados.'
+      );
+
       const response = await userMethods.importFileUsers(formData);
 
       if (response.ok) {
