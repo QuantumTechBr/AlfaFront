@@ -63,16 +63,55 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   useEffect(() => {
     if (alunosTurma.length) {
       const novosRegistros = [];
+      let r_vazio = Array(20).fill("");
+      let csv_dat = [[
+        "Nome",
+        "Frequência",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "R8",
+        "R9",
+        "R10",
+        "R11",
+        "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16",
+        "R17",
+        "R18",
+        "R19",
+        "R20",
+        "Média LP",
+        "Média MAT",
+        "Média Final",
+      ]];
       alunosTurma.forEach((alunoTurma) => {
+        let nova_linha_csv = [];
+        alunoTurma.aluno.nome ? nova_linha_csv.push(alunoTurma.aluno.nome) : nova_linha_csv.push('');
+        alunoTurma.frequencia ? nova_linha_csv.push(alunoTurma.frequencia) : nova_linha_csv.push('');
+        alunoTurma.r ? 
+        alunoTurma.r.map((r) => nova_linha_csv.push(r.toString())) : r_vazio.map((r) => nova_linha_csv.push(r));
+        alunoTurma.media_lingua_portuguesa ? nova_linha_csv.push(alunoTurma.media_lingua_portuguesa.toString()) : nova_linha_csv.push('');
+        alunoTurma.media_matematica ? nova_linha_csv.push(alunoTurma.media_matematica.toString()) : nova_linha_csv.push('');
+        alunoTurma.media_final ? nova_linha_csv.push(alunoTurma.media_final.toString()) : nova_linha_csv.push('');
+        csv_dat.push(nova_linha_csv)
         novosRegistros[alunoTurma.id] = {
           habilidades_registro_aprendizagem: alunoTurma.mapHabilidades,
           id_aluno_turma: alunoTurma.id,
           promo_ano_anterior: alunoTurma.promo_ano_anterior,
           frequencia: alunoTurma.frequencia,
           r: alunoTurma.r,
-        }       
+        }
       })
-      setValue('registros', novosRegistros); 
+      setValue('csvFileName', `${turma.ano.ano} - ${turma.escola.nome} - ${turma.ano_escolar}º ${turma.nome} - ${periodo}.csv`)
+      setValue('csvData', csv_dat);
+      setValue('registros', novosRegistros);
     }
   }, [alunosTurma, setValue, turma]);
 
@@ -110,7 +149,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
               numero_resposta: index + 1,
             }
             habilidades_registro_aprendizagem.push(habRegAp);
-          } 
+          }
         } else {
           if (dataR != undefined) {
             if (data.registros[itemList.id].r[index] !== "") {
@@ -134,16 +173,16 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
         mediaLP = (mediaLP * 10) / 11;
         mediaMAT = (mediaMAT * 10) / 11;
         mediaFINAL = (mediaFINAL * 10) / 22;
-      }else if (turma?.ano_escolar == '2') {
+      } else if (turma?.ano_escolar == '2') {
         mediaLP = (mediaLP * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
         mediaMAT = (mediaMAT * 10) / 12; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
         mediaFINAL = (mediaFINAL * 10) / 24; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
-      }else if (turma?.ano_escolar == '3') {
+      } else if (turma?.ano_escolar == '3') {
         mediaLP = (mediaLP * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
         mediaMAT = (mediaMAT * 10) / 13; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
         mediaFINAL = (mediaFINAL * 10) / 26; // MULTIPLICAMOS A MÉDIA POR 100 PARA PODERMOS PEGAR A PRIMEIRA CASA APÓS A VÍRUGLA QUANDO O NUMERO VIRAR INTEIRO
       }
-     
+
       if (freqBool || pt || mat) {
         if (itemList.id_registro) {
           const registroAprendizagem = {
@@ -179,7 +218,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
           }
           registrosAprendizagem.push(registroAprendizagem);
         }
-      } 
+      }
     });
     try {
       await registroAprendizagemMethods.insertRegistroAprendizagemDiagnostico(registrosAprendizagem).catch((error) => {
@@ -197,7 +236,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
   return (
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep}/>
+      <RegistroAprendizagemDiagnosticoNewEditTable turma={turma} periodo={periodo} alunosTurma={alunosTurma} habilidades={habilidades} handleTurma={handleTurma} prep={prep} />
       {/* <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mr: 3}}> 
         {habilidades_options.map((hab,index) => (
           hab === '' ? ('') :
@@ -218,9 +257,9 @@ export default function RegistroAprendizagemDiagnosticoNewEditForm({ turma, peri
       </Stack> */}
       <Stack alignItems="flex-end" sx={{ mt: 3, mr: 3 }}>
         {permissaoCadastrar &&
-        <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
-          Salvar
-        </LoadingButton>
+          <LoadingButton type="submit" variant="contained" color="primary" loading={isSubmitting}>
+            Salvar
+          </LoadingButton>
         }
       </Stack>
     </FormProvider>
