@@ -131,7 +131,7 @@ export default function Header({ onOpenNav }) {
               ].join(' - ')
               : null}
 
-            {!showFullInfo ? user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao : null}
+            {!showFullInfo ? user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0]?.nome : user?.funcao_usuario[0]?.nome_exibicao : null}
           </Typography>
         </Box>
 
