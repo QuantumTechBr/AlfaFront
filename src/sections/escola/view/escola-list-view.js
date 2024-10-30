@@ -20,6 +20,7 @@ import { RouterLink } from 'src/routes/components';
 import { useBoolean } from 'src/hooks/use-boolean';
 // components
 import Scrollbar from 'src/components/scrollbar';
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
@@ -269,17 +270,25 @@ export default function EscolaListView() {
         {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
         {permissaoSuperAdmin && (
-          <Button
-            onClick={() => setOpenUploadModal(true)}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#EE6C4D',
-              marginBottom: "1em"
-            }}
-          >
-            Importar Escolas
-          </Button>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+                marginBottom: "1em"
+              }}
+            >
+              Importar Escolas
+            </Button>
+            <ImportHelperButton 
+            ordemImportacao='escola'
+            nomeTela='ESCOLAS'
+            linkDownload={'/modelos-de-importacao/modelo-importacao-escola.csv'}
+            />
+          </Box>
+
         )}
 
         <Card>

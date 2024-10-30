@@ -50,7 +50,7 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { escolas_piloto } from 'src/_mock';
-
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -188,7 +188,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             escFiltered.push(esc.id);
           }
         })
-      } 
+      }
       if (escFiltered.length > 0) {
         escola = escFiltered;
       }
@@ -196,8 +196,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       const _filtersToSend = {
         turmas: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
-        offset:offset,
-        limit:limit,
+        offset: offset,
+        limit: limit,
         ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
         escolas: escola,
       };
@@ -330,7 +330,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const uploadAvaliacoes = async () => {
     try {
       const formData = new FormData();
-      
+
       closeUploadModal();
 
       setWarningMsg('Enviando arquivo. Por favor, aguarde... ' +
@@ -383,20 +383,29 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               Adicionar
             </Button>
           )}
-          {permissaoSuperAdmin && (
+
+        </Stack>
+        {permissaoSuperAdmin && (
+          <Box display="flex" alignItems="center" gap={1}>
             <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
               sx={{
                 bgcolor: '#EE6C4D',
+                marginBottom: "1em"
               }}
             >
-              Importar Avaliações
+              Importar Acompanhamentos de Diagnóstico
             </Button>
-          )}
-        </Stack>
+            <ImportHelperButton
+              ordemImportacao='escola -> turma -> aluno e usuário -> acompanhamento'
+              nomeTela='ACOMPANHAMENTO DE DIAGNOSTICO'
+              linkDownload={'/modelos-de-importacao/modelo-importacao-acompanhamento-diagnostico.xlsx'}
+            />
+          </Box>
 
+        )}
         <NovaAvaliacaoForm
           open={novaAvaliacao.value}
           onClose={closeNovaAvaliacao}
@@ -494,8 +503,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
       <Modal open={openUploadModal} onClose={closeUploadModal}>
         <Box sx={modalStyle}>
           <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
-          <input type="file" 
-            onChange={handleFileUpload} 
+          <input type="file"
+            onChange={handleFileUpload}
           />
           <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
         </Box>

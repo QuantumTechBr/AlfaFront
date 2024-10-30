@@ -49,7 +49,7 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { escolas_piloto } from 'src/_mock';
-
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -97,7 +97,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
-  
+
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
@@ -125,7 +125,7 @@ export default function RegistroAprendizagemFaseListView() {
     try {
       const formData = new FormData();
       formData.append('arquivo', uploadedFile);
-      
+
       closeUploadModal();
 
       setWarningMsg('Enviando arquivo. Por favor, aguarde... ' +
@@ -223,18 +223,18 @@ export default function RegistroAprendizagemFaseListView() {
       if (escFiltered.length > 0) {
         escola = escFiltered;
       }
-      
+
       const _filtersToSend = {
         turmas: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
         bimestres: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
           (bimestre) => bimestre.id
-          ),
-        offset:offset,
-        limit:limit,
+        ),
+        offset: offset,
+        limit: limit,
         ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
         escolas: escola,
       };
-        
+
       const _newList = [];
 
       await registroAprendizagemMethods
@@ -267,7 +267,7 @@ export default function RegistroAprendizagemFaseListView() {
           buscando.onFalse();
         });
 
-      
+
     }
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
 
@@ -332,7 +332,7 @@ export default function RegistroAprendizagemFaseListView() {
           setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');
           throw error;
         });
-      
+
 
     },
     [dataInPage.length, table, tableData, preparacaoInicial]
@@ -372,7 +372,7 @@ export default function RegistroAprendizagemFaseListView() {
         }}
       >
         <Typography variant="h4">
-        Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita
+          Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita
         </Typography>
         {permissaoCadastrar &&
           <Button
@@ -386,18 +386,6 @@ export default function RegistroAprendizagemFaseListView() {
             Adicionar
           </Button>
         }
-        {permissaoSuperAdmin && (
-            <Button
-              onClick={() => setOpenUploadModal(true)}
-              variant="contained"
-              startIcon={<Iconify icon="mingcute:add-line" />}
-              sx={{
-                bgcolor: '#EE6C4D',
-              }}
-            >
-              Importar Avaliações
-            </Button>
-          )}
       </Stack>
 
       <NovaAvaliacaoForm
@@ -406,6 +394,27 @@ export default function RegistroAprendizagemFaseListView() {
         initialTipo="Acompanhamento de Fase"
       />
 
+      {permissaoSuperAdmin && (
+        <Box display="flex" alignItems="center" gap={1}>
+          <Button
+            onClick={() => setOpenUploadModal(true)}
+            variant="contained"
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#EE6C4D',
+              marginBottom: "1em"
+            }}
+          >
+            Importar Acompanhamentos de Fase
+          </Button>
+          <ImportHelperButton
+            ordemImportacao='escola -> turma -> aluno e usuário -> acompanhamento'
+            nomeTela='ACOMPANHAMENTO DE FASE'
+            linkDownload={'/modelos-de-importacao/modelo-importacao-acompanhamento-fase.xlsx'}
+          />
+        </Box>
+
+      )}
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
@@ -495,8 +504,8 @@ export default function RegistroAprendizagemFaseListView() {
       <Modal open={openUploadModal} onClose={closeUploadModal}>
         <Box sx={modalStyle}>
           <Typography variant="h6">Upload Arquivo (xlsx ou csv)</Typography>
-          <input type="file" 
-            onChange={handleFileUpload} 
+          <input type="file"
+            onChange={handleFileUpload}
           />
           <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
         </Box>

@@ -51,6 +51,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import UserQuickEditForm from '../user-quick-edit-form';
 import { escolas_piloto } from 'src/_mock';
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -509,7 +510,8 @@ export default function UserListView() {
           }}
         />
         {permissaoSuperAdmin && (
-          <Button
+          <Box display="flex" alignItems="center" gap={1}>
+            <Button
               onClick={() => setOpenUploadModal(true)}
               variant="contained"
               startIcon={<Iconify icon="mingcute:add-line" />}
@@ -519,7 +521,14 @@ export default function UserListView() {
               }}
             >
               Importar Usuários
-          </Button>
+            </Button>
+            <ImportHelperButton 
+            ordemImportacao='escola -> turma -> usuário'
+            nomeTela='USUARIOS'
+            linkDownload={'/modelos-de-importacao/modelo-importacao-usuario.xlsx'}
+            />
+          </Box>
+
         )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}

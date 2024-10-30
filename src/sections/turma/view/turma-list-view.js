@@ -40,6 +40,7 @@ import {
   TableSelectedAction,
   TablePaginationCustom,
 } from 'src/components/table';
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 //
 import TurmaTableRow from '../turma-table-row';
 import TurmaTableToolbar from '../turma-table-toolbar';
@@ -85,6 +86,7 @@ export default function TurmaListView() {
   const contextReady = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo('turma', 'cadastrar');
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
   const table = useTable();
 
@@ -424,16 +426,27 @@ export default function TurmaListView() {
             mb: { xs: 3, md: 5 },
           }}
         />
-        <Button
-            onClick={() => setOpenUploadModal(true)}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#EE6C4D',
-            }}
-          >
-            Import
-        </Button>
+         {permissaoSuperAdmin && (
+          <Box display="flex" alignItems="center" gap={1}>
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+                marginBottom: "1em"
+              }}
+            >
+              Importar Turmas
+            </Button>
+            <ImportHelperButton 
+            ordemImportacao='escola -> turma'
+            nomeTela='TURMAS'
+            linkDownload={'/modelos-de-importacao/modelo-importacao-turma.csv'}
+            />
+          </Box>
+
+        )}
 
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}

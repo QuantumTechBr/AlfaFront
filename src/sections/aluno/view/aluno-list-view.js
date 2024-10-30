@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext } from 'react';
-
 // @mui
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
@@ -50,6 +49,7 @@ import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import AlunoQuickEditForm from '../aluno-quick-edit-form';
 import { escolas_piloto } from 'src/_mock';
+import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -202,8 +202,8 @@ export default function AlunoListView() {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
-  useEffect( () => {
-     buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
+  useEffect(() => {
+    buscaAlunos(table.page, table.rowsPerPage).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de estudantes');
       console.log(error);
     })
@@ -339,17 +339,25 @@ export default function AlunoListView() {
           }}
         />
         {permissaoSuperAdmin && (
-          <Button
-            onClick={() => setOpenUploadModal(true)}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#EE6C4D',
-              marginBottom: "1em"
-            }}
-          >
-            Importar Alunos
-          </Button>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Button
+              onClick={() => setOpenUploadModal(true)}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#EE6C4D',
+                marginBottom: "1em"
+              }}
+            >
+              Importar Alunos
+            </Button>
+            <ImportHelperButton 
+            ordemImportacao='escola -> turma -> aluno'
+            nomeTela='ALUNOS'
+            linkDownload={'/modelos-de-importacao/modelo-importacao-aluno.csv'}
+            />
+          </Box>
+
         )}
 
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
