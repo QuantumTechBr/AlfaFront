@@ -94,7 +94,6 @@ export default function PlanoIntervencaoListView() {
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
       setTableData(planos.data);
-      console.log(planos.data);
       preparado.onTrue();
     }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de planos');
