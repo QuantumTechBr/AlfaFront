@@ -202,6 +202,13 @@ export default function UserNewEditForm({ currentUser }) {
       }
       const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
+      if (data.avatar != null) {
+        const formData = new FormData();
+        formData.append('arquivo', data.avatar)
+        await userMethods.updateUserAvatar(formData).catch((error) => {
+          throw error;
+        });
+      }
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
           throw error;
@@ -407,7 +414,7 @@ export default function UserNewEditForm({ currentUser }) {
 
               {escolaOuZona()}
 
-              {user?.id == currentUser.id &&
+              {user?.id == currentUser?.id &&
                 <Box sx={{ mb: 5 }}>
                   <RHFUploadAvatar
                     name="avatar"

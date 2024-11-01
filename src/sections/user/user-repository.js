@@ -10,6 +10,7 @@ export const deleteUserById = id => axios.delete(endpoints.user.delete.concat(id
 export const getUserById = id => axios.get(endpoints.user.get_by_id.concat(id));
 export const exportFile = query => axios.get(endpoints.user.list.concat(`?`).concat(query));
 export const importFileUsers = payload => axios.post(endpoints.user.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const updateUserAvatar = payload => axios.post(endpoints.user.update_avatar, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
 const userMethods = {
     insertUser,
@@ -19,7 +20,8 @@ const userMethods = {
     deleteUserById,
     getUserById,
     exportFile,
-    importFileUsers
+    importFileUsers,
+    updateUserAvatar
 };
 
 export default userMethods;
