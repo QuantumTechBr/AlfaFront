@@ -28,11 +28,13 @@ import { useAuthContext } from 'src/auth/hooks';
 // ----------------------------------------------------------------------
 
 export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onNewFrom, onSelectRow, onDeleteRow }){
-  const { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar } = row;
+  const { id, nome, acao, responsavel, inicio_previsto, aplicacao, status, termino_previsto, ano_escolar, data_conclusao } = row;
 
   const date_inicio = parse(inicio_previsto, 'yyyy-MM-dd', new Date())
 
   const date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
+
+  const date_conclusao = parse(data_conclusao, 'yyyy-MM-dd', new Date())
   
   const hoje = new Date()
 
@@ -128,6 +130,11 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{mostra_aplicacao}</TableCell>
 
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
+
+        {status == 'Concluído' ? <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{date_conclusao.toLocaleDateString('pt-br')}</TableCell>
+        :
+        <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}></TableCell>
+      }
 
         <TableCell onClick={handleClickRow}>
           <Label

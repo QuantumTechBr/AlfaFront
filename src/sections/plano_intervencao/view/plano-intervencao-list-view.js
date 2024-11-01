@@ -63,6 +63,7 @@ const TABLE_HEAD = [
   { id: 'ano_escolar', label: 'Ano de Ensino', width: 80 },
   { id: 'aplicacao', label: 'Aplicação', width: 80 },
   { id: 'status', label: 'Status', width: 80 },
+  { id: 'data_conclusao', label: 'Data de Conclusão', width: 80 },
   { id: 'farol', label: 'Farol', width: 50 },
   { id: '', width: 88 },
 ];
@@ -93,6 +94,7 @@ export default function PlanoIntervencaoListView() {
   useEffect(() => {
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
       setTableData(planos.data);
+      console.log(planos.data);
       preparado.onTrue();
     }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de planos');

@@ -27,6 +27,7 @@ export default function PlanoIntervencaoEditView({ id }) {
   const [status, setStatus] = useState('')
   const [date_inicio, setDateInicio] = useState('');
   const [date_termino, setDateTermino] = useState('');
+  const [date_conclusao, setDateConclusao] = useState('');
 
   const hoje = new Date()
 
@@ -38,6 +39,10 @@ export default function PlanoIntervencaoEditView({ id }) {
       setDateInicio(parse(plano.data.inicio_previsto, 'yyyy-MM-dd', new Date()))
       setDateTermino(parse(plano.data.termino_previsto, 'yyyy-MM-dd', new Date()))
       setStatus(plano.data.status)
+      if (plano.data.status === 'Concluído') {
+        setDateConclusao(parse(plano.data.data_conclusao, 'yyyy-MM-dd', new Date()))
+        console.log()
+      }
       setCurrentPlano(plano.data);
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de planos de intervenção');
@@ -99,7 +104,18 @@ export default function PlanoIntervencaoEditView({ id }) {
       >
         {retornoStatus()}
       </Label>
-
+      {retornoStatus() === 'Concluído' && date_conclusao != '' ?  
+       <Label
+       sx={{
+        ml: 2,
+        mb: 3,
+        fontSize: 18,
+        height: 36,
+      }}
+     >
+       {date_conclusao.toLocaleDateString('pt-br')}
+     </Label>
+      : ''}
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
       <PlanoIntervencaoNewEditForm currentPlano={currentPlano} statusConcluido={() => statusConcluido()}/>
