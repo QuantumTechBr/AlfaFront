@@ -35,11 +35,22 @@ import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 import { useAuthContext } from 'src/auth/hooks';
+import { tr } from 'date-fns/locale';
+import { get, set } from 'lodash';
+import { Button, IconButton } from '@mui/material';
+import { margin, width } from '@mui/system';
 
 // ----------------------------------------------------------------------
 const filtros = {
   escolasAG: [],
 };
+
+const uploadImagemButtonStyle = {
+  marginTop: '0%',
+  minWidth: '150px',
+  backgroundColor: 'light-green !important',
+  color: 'white',
+}
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
   const { user } = useAuthContext();
@@ -53,6 +64,8 @@ export default function UserNewEditForm({ currentUser }) {
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [zonaCtrl, setZonaCtrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [selectNewAvatar, setSelectNewAvatar] = useState(false);
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -143,6 +156,31 @@ export default function UserNewEditForm({ currentUser }) {
 
   const { funcao } = values;
 
+  const updateUserAvatar = async () => {
+    try {
+      setEnviandoImagem(true);
+      const userAvatar = getValues('avatar');
+      if (!!userAvatar) {
+        const formData = new FormData();
+        formData.append('arquivo', userAvatar)
+        await userMethods.updateUserAvatar(formData).then(()=>{
+          setEnviandoImagem(false);
+          setSelectNewAvatar(false);
+          enqueueSnackbar('Avatar atualizado com sucesso!');
+        }).catch((error) => {
+          setEnviandoImagem(false);
+          setSelectNewAvatar(false);
+          throw error;
+        });
+      }
+    } catch (error) {
+      setEnviandoImagem(false);
+      setSelectNewAvatar(false);
+      setErrorMsg(`Tentativa de atualização do avatar falhou - ` + `${error}`);
+      console.error(error);
+    }
+  }
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
@@ -202,13 +240,6 @@ export default function UserNewEditForm({ currentUser }) {
       }
       const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
       novoUsuario.permissao_usuario_id = [permissao.id]
-      if (data.avatar != null) {
-        const formData = new FormData();
-        formData.append('arquivo', data.avatar)
-        await userMethods.updateUserAvatar(formData).catch((error) => {
-          throw error;
-        });
-      }
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
           throw error;
@@ -292,6 +323,7 @@ export default function UserNewEditForm({ currentUser }) {
 
       if (file) {
         setValue('avatar', newFile, { shouldValidate: true });
+        setSelectNewAvatar(true);
       }
     },
     [setValue]
@@ -377,11 +409,77 @@ export default function UserNewEditForm({ currentUser }) {
 
 
   return (
+    
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+          {user?.id == currentUser?.id ?
+                <Box sx={{ mb: 5 }}>
+                  <RHFUploadAvatar
+                    name="avatar"
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    helperText={
+                      <>
+                        {selectNewAvatar && <div style={{
+                          width: 'min-content',
+                          margin: 'auto',
+                        }}>
+                          <LoadingButton 
+                            variant="contained" 
+                            loading={enviandoImagem}
+                            style={uploadImagemButtonStyle}
+                            onClick={updateUserAvatar}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                m: '0',
+                                display: 'block',
+                                textAlign: 'center',
+                                color: 'white',
+                              }}
+                            >
+                             Enviar imagem
+                            </Typography>
+                          </LoadingButton>
+                        </div>}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            mt: 3,
+                            mx: 'auto',
+                            display: 'block',
+                            textAlign: 'center',
+                            color: 'text.disabled',
+                          }}
+                        >
+                          Permitido *.jpeg, *.jpg, *.png
+                          <br /> tamanho máximo {fData(3145728)}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </Box>
+              :
+                <>
+                  <Box
+                    component="img"
+                    src={currentUser?.avatar || '/assets/user-avatar.svg'}
+                    alt="User Avatar"
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      mx: 'auto',
+                      mb: 3,
+                    }}
+                  />
+                </>
+              }
             <Box
               rowGap={3}
               columnGap={2}
@@ -414,30 +512,7 @@ export default function UserNewEditForm({ currentUser }) {
 
               {escolaOuZona()}
 
-              {user?.id == currentUser?.id &&
-                <Box sx={{ mb: 5 }}>
-                  <RHFUploadAvatar
-                    name="avatar"
-                    maxSize={3145728}
-                    onDrop={handleDrop}
-                    helperText={
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          mt: 3,
-                          mx: 'auto',
-                          display: 'block',
-                          textAlign: 'center',
-                          color: 'text.disabled',
-                        }}
-                      >
-                        Permitido *.jpeg, *.jpg, *.png
-                        <br /> max size of {fData(3145728)}
-                      </Typography>
-                    }
-                  />
-                </Box>
-              }
+              
 
             </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
