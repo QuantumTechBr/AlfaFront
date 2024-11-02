@@ -34,7 +34,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
 
   const date_termino = parse(termino_previsto, 'yyyy-MM-dd', new Date())
 
-  const date_conclusao = parse(data_conclusao, 'yyyy-MM-dd', new Date())
+  const date_conclusao = data_conclusao ? parse(data_conclusao, 'yyyy-MM-dd', new Date()) : null
   
   const hoje = new Date()
 
@@ -131,7 +131,7 @@ export default function PlanoIntervencaoTableRow({ row, selected, onEditRow, onN
 
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{retornoStatus()}</TableCell>
 
-        {status == 'Concluído' ? <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{date_conclusao.toLocaleDateString('pt-br')}</TableCell>
+        {status == 'Concluído' ? <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}>{date_conclusao?.toLocaleDateString('pt-br')}</TableCell>
         :
         <TableCell onClick={handleClickRow} sx={{ whiteSpace: 'nowrap' }}></TableCell>
       }
