@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -23,7 +24,9 @@ import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, {
   RHFSelect,
   RHFTextField,
+  RHFUploadAvatar,
 } from 'src/components/hook-form';
+import { fData } from 'src/utils/format-number';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
 import userMethods from './user-repository';
 import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
@@ -31,14 +34,26 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
+import { useAuthContext } from 'src/auth/hooks';
+import { tr } from 'date-fns/locale';
+import { get, set } from 'lodash';
+import { Button, IconButton } from '@mui/material';
+import { margin, width } from '@mui/system';
 
 // ----------------------------------------------------------------------
 const filtros = {
   escolasAG: [],
 };
+
+const uploadImagemButtonStyle = {
+  marginTop: '0%',
+  minWidth: '150px',
+  backgroundColor: 'light-green !important',
+  color: 'white',
+}
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
-
+  const { user } = useAuthContext();
   const [filters, setFilters] = useState(filtros);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -47,10 +62,10 @@ export default function UserNewEditForm({ currentUser }) {
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState([]);
   const [funcoesOptions, setFuncoesOptions] = useState([]);
-
-  const [ zonaCtrl, setZonaCtrl ] = useState('');
+  const [zonaCtrl, setZonaCtrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-
+  const [selectNewAvatar, setSelectNewAvatar] = useState(false);
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -72,19 +87,22 @@ export default function UserNewEditForm({ currentUser }) {
     let idAG = [];
     let funcoes_opts = [];
     funcoes.map((_funcao) => {
-      funcoes_opts.push({..._funcao,
+      funcoes_opts.push({
+        ..._funcao,
         nome_exibicao: _funcao.nome,
       });
       if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
         idsAC.push(_funcao.nome);
       } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
-        funcoes_opts.push({..._funcao,
+        funcoes_opts.push({
+          ..._funcao,
           nome_exibicao: 'ASSESSOR PEDAGOGICO',
         })
         idAG.push(_funcao.nome);
         idAG.push('ASSESSOR PEDAGOGICO');
       } else if (_funcao.nome == "DIRETOR") {
-        funcoes_opts.push({..._funcao,
+        funcoes_opts.push({
+          ..._funcao,
           nome_exibicao: 'PEDAGOGO',
         })
       }
@@ -102,7 +120,7 @@ export default function UserNewEditForm({ currentUser }) {
     senha: Yup.string(),
     funcao_usuario: Yup.string(),
   });
-  
+
   const defaultValues = useMemo(
     () => ({
       nome: currentUser?.nome || '',
@@ -112,6 +130,7 @@ export default function UserNewEditForm({ currentUser }) {
       status: (currentUser?.status ? "true" : "false") || '',
       zona: zonaCtrl,
       escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
+      avatar: currentUser?.avatar || null,
     }),
     [currentUser]
   );
@@ -137,21 +156,46 @@ export default function UserNewEditForm({ currentUser }) {
 
   const { funcao } = values;
 
+  const updateUserAvatar = async () => {
+    try {
+      setEnviandoImagem(true);
+      const userAvatar = getValues('avatar');
+      if (!!userAvatar) {
+        const formData = new FormData();
+        formData.append('arquivo', userAvatar)
+        await userMethods.updateUserAvatar(formData).then(()=>{
+          setEnviandoImagem(false);
+          setSelectNewAvatar(false);
+          enqueueSnackbar('Avatar atualizado com sucesso!');
+        }).catch((error) => {
+          setEnviandoImagem(false);
+          setSelectNewAvatar(false);
+          throw error;
+        });
+      }
+    } catch (error) {
+      setEnviandoImagem(false);
+      setSelectNewAvatar(false);
+      setErrorMsg(`Tentativa de atualização do avatar falhou - ` + `${error}`);
+      console.error(error);
+    }
+  }
+
   const onSubmit = handleSubmit(async (data) => {
     try {
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
       if (data.senha) {
         novoUsuario = {
-          nome:  data.nome,
+          nome: data.nome,
           email: data.email,
-          senha: data.senha, 
+          senha: data.senha,
           login: data.email,
           status: data.status,
         }
       } else {
         novoUsuario = {
-          nome:  data.nome,
+          nome: data.nome,
           email: data.email,
           login: data.email,
           status: data.status,
@@ -200,7 +244,7 @@ export default function UserNewEditForm({ currentUser }) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
           throw error;
         });
-        
+
       } else {
         await userMethods.insertUser(novoUsuario).catch((error) => {
           throw error;
@@ -211,12 +255,12 @@ export default function UserNewEditForm({ currentUser }) {
       router.push(paths.dashboard.user.list);
       console.info('DATA', data);
     } catch (error) {
-      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - `+`${error}`) : setErrorMsg(`Tentativa de criação do usuário falhou - `+`${error}`);
+      currentUser ? setErrorMsg(`Tentativa de atualização do usuário falhou - ` + `${error}`) : setErrorMsg(`Tentativa de criação do usuário falhou - ` + `${error}`);
       console.error(error);
     }
   });
 
-  useEffect(()  => {
+  useEffect(() => {
     reset(defaultValues)
     const escIds = [];
     setZonaCtrl(currentUser?.zona);
@@ -232,7 +276,7 @@ export default function UserNewEditForm({ currentUser }) {
     }
     setFilters(novosFiltros);
   }, [currentUser, defaultValues, reset]);
-  
+
   // useEffect(()  => {
   //   setFilters(filtros);
   //   setValue('escola', '');
@@ -249,7 +293,7 @@ export default function UserNewEditForm({ currentUser }) {
     },
     [filters]
   );
-  
+
   const handleEscolasAG = useCallback(
     (event) => {
       handleFilters(
@@ -262,12 +306,28 @@ export default function UserNewEditForm({ currentUser }) {
 
   const handleZona = useCallback((event) => {
     setZonaCtrl(event.target.value);
-  }, [setZonaCtrl] );
+  }, [setZonaCtrl]);
 
-  const renderValueEscolasAG = (selected) => 
+  const renderValueEscolasAG = (selected) =>
     selected.map((escolaId) => {
       return escolas.find((option) => option.id == escolaId)?.nome;
     }).join(', ');
+
+  const handleDrop = useCallback(
+    (acceptedFiles) => {
+      const file = acceptedFiles[0];
+
+      const newFile = Object.assign(file, {
+        preview: URL.createObjectURL(file),
+      });
+
+      if (file) {
+        setValue('avatar', newFile, { shouldValidate: true });
+        setSelectNewAvatar(true);
+      }
+    },
+    [setValue]
+  );
 
   const escolaOuZona = () => {
     if (idsAssessorCoordenador.includes(getValues('funcao'))) {
@@ -276,10 +336,10 @@ export default function UserNewEditForm({ currentUser }) {
           sx={{
             flexShrink: 0,
           }}
-        >      
+        >
           <InputLabel>DDZ</InputLabel>
           <Select
-            id={`zona_`+`${currentUser?.id}`}
+            id={`zona_` + `${currentUser?.id}`}
             name="zona"
             disabled={getValues('funcao') == '' ? true : false}
             value={zonaCtrl}
@@ -291,26 +351,26 @@ export default function UserNewEditForm({ currentUser }) {
               },
             }}
           >
-             {zonas.map((zona) => (
-            <MenuItem key={zona.id} value={zona.id}>
-              <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-            </MenuItem>
-          ))}
+            {zonas.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id}>
+                <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+              </MenuItem>
+            ))}
           </Select>
         </FormControl>
       )
-    } 
-    if ( idAssessorGestao.includes(getValues('funcao')) ) {
+    }
+    if (idAssessorGestao.includes(getValues('funcao'))) {
       return (
         <FormControl
           sx={{
             flexShrink: 0,
           }}
-        >      
+        >
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
-            id={`escolas_`+`${currentUser?.id}`}
+            id={`escolas_` + `${currentUser?.id}`}
             name="escolas"
             disabled={getValues('funcao') == '' ? true : false}
             value={filters.escolasAG}
@@ -326,7 +386,7 @@ export default function UserNewEditForm({ currentUser }) {
             {escolas?.map((escola) => (
               <MenuItem key={escola.id} value={escola.id}>
                 <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
-                  {escola.nome}
+                {escola.nome}
               </MenuItem>
             ))}
           </Select>
@@ -334,8 +394,8 @@ export default function UserNewEditForm({ currentUser }) {
       )
     } else {
       return (
-        <RHFSelect 
-          id={`escola_`+`${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
+        <RHFSelect
+          id={`escola_` + `${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
           {escolas.map((escola) => (
             <MenuItem key={escola.id} value={escola.id}>
               {escola.nome}
@@ -349,11 +409,77 @@ export default function UserNewEditForm({ currentUser }) {
 
 
   return (
+    
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
+          {user?.id == currentUser?.id ?
+                <Box sx={{ mb: 5 }}>
+                  <RHFUploadAvatar
+                    name="avatar"
+                    maxSize={3145728}
+                    onDrop={handleDrop}
+                    helperText={
+                      <>
+                        {selectNewAvatar && <div style={{
+                          width: 'min-content',
+                          margin: 'auto',
+                        }}>
+                          <LoadingButton 
+                            variant="contained" 
+                            loading={enviandoImagem}
+                            style={uploadImagemButtonStyle}
+                            onClick={updateUserAvatar}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                m: '0',
+                                display: 'block',
+                                textAlign: 'center',
+                                color: 'white',
+                              }}
+                            >
+                             Enviar imagem
+                            </Typography>
+                          </LoadingButton>
+                        </div>}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            mt: 3,
+                            mx: 'auto',
+                            display: 'block',
+                            textAlign: 'center',
+                            color: 'text.disabled',
+                          }}
+                        >
+                          Permitido *.jpeg, *.jpg, *.png
+                          <br /> tamanho máximo {fData(3145728)}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </Box>
+              :
+                <>
+                  <Box
+                    component="img"
+                    src={currentUser?.avatar || '/assets/user-avatar.svg'}
+                    alt="User Avatar"
+                    sx={{
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      objectFit: 'cover',
+                      mx: 'auto',
+                      mb: 3,
+                    }}
+                  />
+                </>
+              }
             <Box
               rowGap={3}
               columnGap={2}
@@ -368,7 +494,7 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
               <RHFSelect name="funcao" label="Função">
-                
+
                 {funcoesOptions.map((_funcao) => (
                   <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
                     {_funcao.nome_exibicao}
@@ -386,8 +512,9 @@ export default function UserNewEditForm({ currentUser }) {
 
               {escolaOuZona()}
 
-            </Box>
+              
 
+            </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
               <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
                 {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}

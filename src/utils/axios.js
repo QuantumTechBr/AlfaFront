@@ -259,6 +259,7 @@ export const endpoints = {
     update: '/api/v1/usuarios/',
     delete: '/api/v1/usuarios/',
     import: '/api/v1/usuarios/importar-usuarios/',
+    update_avatar : '/api/v1/usuarios/upload-avatar/',
   },
   zona: {
     list: '/api/v1/zonas/',
