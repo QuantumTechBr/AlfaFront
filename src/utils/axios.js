@@ -243,6 +243,8 @@ export const endpoints = {
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       import: '/api/v1/registros-aprendizagens/avaliacao-fase/import/',
     },
+    relatorioAvaliacaoFasePorTurma: '/api/v1/registros-aprendizagens/report-por-turma/',
+    relatorioAvaliacaoFasePorEscola: '/api/v1/registros-aprendizagens/report-por-escola/',
   },
   turma: {
     list: '/api/v1/turmas/',

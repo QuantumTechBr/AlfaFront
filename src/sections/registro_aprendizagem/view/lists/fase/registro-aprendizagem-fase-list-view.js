@@ -279,9 +279,11 @@ export default function RegistroAprendizagemFaseListView() {
     }
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
 
-  const buscarAvaliacoesCSV = useCallback(async (filtros = filters) => {
+  const buscarAvaliacoesCSV = useCallback(async (por, filtros = filters) => {
     if (anosLetivos.length && turmas.length && bimestres.length) {
-      setWarningMsg('');
+      setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+        'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+        'Quando o processo for concluído, o download será iniciado automaticamente e essa mensagem irá sumir.');	
       setErrorMsg('');
       buscandoCSV.onTrue();
 
@@ -314,36 +316,43 @@ export default function RegistroAprendizagemFaseListView() {
         escola: escola,
       };
 
-      const _newList = [];
-      let csvTurma_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Bimestre"]];
-      let csvEscola_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Bimestre"]];
-      await registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
-        .then((_turmasComRegistros) => {
-          _turmasComRegistros.data.results.forEach((registro) => {
-            const _turma = turmas.find((turma) => turma.id == registro.turma_id);
-            if (_turma?.id) {
-              const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
-              _newList.push({
-                id: _turma.id,
-                ano_letivo: anosLetivos.find((a) => a.id == _turma.ano_id).ano,
-                ano_escolar: _turma.ano_escolar,
-                nome: _turma.nome,
-                turno: _turma.turno,
-                alunos: registro.qtd_aluno_turma,
-                bimestre: _bimestre,
-                escola: escolas.find((e) => e.id == _turma.escola_id).nome,
-                atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
-              });
-            }
+      if(por == 'turma') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorTurma(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Turma.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+            buscandoCSV.onFalse();
           });
-
-          buscandoCSV.onFalse();
-        })
-        .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
-          buscandoCSV.onFalse();
-        });
+      } else if (por == 'escola') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorEscola(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Escola.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+            buscandoCSV.onFalse();
+          });
+      }
 
 
     }
@@ -534,7 +543,7 @@ export default function RegistroAprendizagemFaseListView() {
             Aplicar filtros
           </Button>
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" onClick={() => {buscarAvaliacoesCSV()}}/>
+            <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
           <CustomPopover
             open={popover.open}
@@ -543,33 +552,32 @@ export default function RegistroAprendizagemFaseListView() {
             sx={{ width: 200 }}
           >
 
-            {(!buscandoCSV.value) &&
+            {(buscandoCSV.value) &&
               <LoadingBox
                 sx={{ pt: 0.3, pl: 2.5 }}
               />
             }
-            {(buscandoCSV.value) &&
+            {(!buscandoCSV.value) &&
               <>
                 <MenuItem
                   onClick={() => {
-                    popover.onClose();
+                    buscarAvaliacoesCSV('turma');
                   }}
                 >
                   <Iconify icon="material-symbols:download" />
-                  <CSVLink className='downloadCSVFilterBtn'
-                    // filename={ }
-                    data=''
-                  >
+                  <Button className='downloadCSVFilterBtn'>
                     Relatório por turmas
-                  </CSVLink>
+                  </Button>
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    popover.onClose();
+                    buscarAvaliacoesCSV('escola');
                   }}
                 >
                   <Iconify icon="material-symbols:download" />
-                  Relatório por escolas
+                  <Button className='downloadCSVFilterBtn'>
+                    Relatório por escolas
+                  </Button>
                 </MenuItem>
               </>
             }

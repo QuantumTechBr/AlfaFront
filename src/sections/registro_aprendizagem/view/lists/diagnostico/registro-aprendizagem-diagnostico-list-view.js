@@ -243,9 +243,11 @@ export default function RegistroAprendizagemDiagnosticoListView() {
     }
   }, [contextReady, anosLetivos, turmas, filters, _periodos]);
 
-  const buscarAvaliacoesCSV = useCallback(async (filtros = filters) => {
+  const buscarAvaliacoesCSV = useCallback(async (por, filtros = filters) => {
     if (anosLetivos.length && turmas.length) {
-      setWarningMsg('');
+      setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+        'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+        'Quando o processo for concluído, o download será iniciado automaticamente e essa mensagem irá sumir.');	
       setErrorMsg('');
       buscandoCSV.onTrue();
 
@@ -275,37 +277,44 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
         escolas: escola,
       };
-      let csvTurma_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Período"]];
-      let csvEscola_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Período"]];
-      const _newList = [];
 
-      // ENTRADA E SAÍDA
-      await registroAprendizagemMethods
-        .getListIdTurmaRegistroAprendizagemDiagnostico(_filtersToSend)
-        .then((response) => {
-          if (response.data?.results.length) {
-            response.data.results.forEach((registro) => {
-              const turma = turmas.find((turma) => turma.id == registro.turma_id);
-              if (turma?.id) {
-                const retorno = { ...turma };
-                retorno.periodo = registro.periodo;
-                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
-                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
-                retorno.atualizado_por = registro.atualizado_por;
-
-                _newList.push(retorno);
-              }
-            });
-
-            buscandoCSV.onFalse()
-          }
-        })
-        .catch((error) => {
-          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico de Entrada');
-          buscandoCSV.onFalse()
-          console.error(error);
-        });
-        buscandoCSV.onFalse();
+      if(por == 'turma') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorTurma(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Diagnostico_por_Turma.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem diagnóstico');
+            buscandoCSV.onFalse();
+          });
+      } else if (por == 'escola') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorEscola(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Diagnostico_por_Escola.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem diagnóstico');
+            buscandoCSV.onFalse();
+          });
+      }
     }
   }, [anosLetivos, turmas, filters, _periodos]);
 
@@ -528,7 +537,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             </Button>
 
             <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
-            <Iconify icon="eva:more-vertical-fill" onClick={() => {buscarAvaliacoesCSV()}}/>
+            <Iconify icon="eva:more-vertical-fill"/>
           </IconButton>
 
           <CustomPopover
@@ -538,33 +547,32 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             sx={{ width: 200 }}
           >
 
-            {(!buscandoCSV.value) &&
+            {(buscandoCSV.value) &&
               <LoadingBox
                 sx={{ pt: 0.3, pl: 2.5 }}
               />
             }
-            {(buscandoCSV.value) &&
+            {(!buscandoCSV.value) &&
               <>
                 <MenuItem
                   onClick={() => {
-                    popover.onClose();
+                    buscarAvaliacoesCSV('turma');
                   }}
                 >
                   <Iconify icon="material-symbols:download" />
-                  <CSVLink className='downloadCSVFilterBtn'
-                    // filename={ }
-                    data=''
-                  >
+                  <Button className='downloadCSVFilterBtn'>
                     Relatório por turmas
-                  </CSVLink>
+                  </Button>
                 </MenuItem>
                 <MenuItem
                   onClick={() => {
-                    popover.onClose();
+                    buscarAvaliacoesCSV('escola');
                   }}
                 >
                   <Iconify icon="material-symbols:download" />
-                  Relatório por escolas
+                  <Button className='downloadCSVFilterBtn'>
+                    Relatório por escolas
+                  </Button>
                 </MenuItem>
               </>
             }
