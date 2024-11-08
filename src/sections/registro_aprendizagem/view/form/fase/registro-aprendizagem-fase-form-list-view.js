@@ -364,7 +364,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               showSearch={tableData.length > 0}
             />
 
-            <CSVLink className='downloadCVSBtn' filename={csvFileName} data={csvData} >
+            <CSVLink className='downloadCSVBtn' filename={csvFileName} data={csvData} >
               Exportar para CSV
             </CSVLink>
 

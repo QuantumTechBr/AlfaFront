@@ -217,7 +217,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           />
         )}
 
-        {csvData?.length > 0 && <CSVLink className='downloadCVSBtn' filename={csvFileName} data={csvData} >
+        {csvData?.length > 0 && <CSVLink className='downloadCSVBtn' filename={csvFileName} data={csvData} >
           Exportar para CSV
         </CSVLink>}
 

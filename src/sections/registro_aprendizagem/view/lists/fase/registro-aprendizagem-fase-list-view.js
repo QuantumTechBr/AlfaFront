@@ -9,7 +9,9 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -42,6 +44,8 @@ import {
   TableHeadCustom,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
 //
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
@@ -50,6 +54,7 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import LoadingBox from 'src/components/helpers/loading-box';
 import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
+import { CSVLink } from "react-csv";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -77,10 +82,13 @@ export default function RegistroAprendizagemFaseListView() {
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
-
+  const popover = usePopover();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-
+  const [csvTurmaData, setCsvTurmaData] = useState([]);
+  const [csvTurmaFileName, setCsvTurmaFileName] = useState('');
+  const [csvEscolaData, setCsvEscolaData] = useState([]);
+  const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -97,7 +105,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
-
+  const buscandoCSV = useBoolean(false);
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
@@ -206,11 +214,11 @@ export default function RegistroAprendizagemFaseListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let escola = [];
-      // if (filtros.escola.length > 0) {
-      //   filtros.escola.map((esc) => {
-      //     escola.push(esc.id)
-      //   })
-      // }
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
 
       let escFiltered = [];
       if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
@@ -270,6 +278,76 @@ export default function RegistroAprendizagemFaseListView() {
 
     }
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
+
+  const buscarAvaliacoesCSV = useCallback(async (filtros = filters) => {
+    if (anosLetivos.length && turmas.length && bimestres.length) {
+      setWarningMsg('');
+      setErrorMsg('');
+      buscandoCSV.onTrue();
+
+      let escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
+
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
+
+      const _filtersToSend = {
+        tipo: "Fase",
+        turma: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
+        bimestre: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
+          (bimestre) => bimestre.id
+        ),
+        ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
+        escola: escola,
+      };
+
+      const _newList = [];
+      let csvTurma_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Bimestre"]];
+      let csvEscola_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Bimestre"]];
+      await registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemFase(_filtersToSend)
+        .then((_turmasComRegistros) => {
+          _turmasComRegistros.data.results.forEach((registro) => {
+            const _turma = turmas.find((turma) => turma.id == registro.turma_id);
+            if (_turma?.id) {
+              const _bimestre = bimestres.find((bimestre) => bimestre.id == registro.bimestre_id);
+              _newList.push({
+                id: _turma.id,
+                ano_letivo: anosLetivos.find((a) => a.id == _turma.ano_id).ano,
+                ano_escolar: _turma.ano_escolar,
+                nome: _turma.nome,
+                turno: _turma.turno,
+                alunos: registro.qtd_aluno_turma,
+                bimestre: _bimestre,
+                escola: escolas.find((e) => e.id == _turma.escola_id).nome,
+                atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
+              });
+            }
+          });
+
+          buscandoCSV.onFalse();
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          buscandoCSV.onFalse();
+        });
+
+
+    }
+  }, [anosLetivos, turmas, bimestres, filters]);
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
@@ -455,6 +533,50 @@ export default function RegistroAprendizagemFaseListView() {
           >
             Aplicar filtros
           </Button>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" onClick={() => {buscarAvaliacoesCSV()}}/>
+          </IconButton>
+          <CustomPopover
+            open={popover.open}
+            onClose={popover.onClose}
+            arrow="left-top"
+            sx={{ width: 200 }}
+          >
+
+            {(!buscandoCSV.value) &&
+              <LoadingBox
+                sx={{ pt: 0.3, pl: 2.5 }}
+              />
+            }
+            {(buscandoCSV.value) &&
+              <>
+                <MenuItem
+                  onClick={() => {
+                    popover.onClose();
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  <CSVLink className='downloadCSVFilterBtn'
+                    // filename={ }
+                    data=''
+                  >
+                    Relatório por turmas
+                  </CSVLink>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    popover.onClose();
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  Relatório por escolas
+                </MenuItem>
+              </>
+            }
+
+
+          </CustomPopover>
+
         </Stack>
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -510,6 +632,6 @@ export default function RegistroAprendizagemFaseListView() {
           <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
         </Box>
       </Modal>
-    </Container>
+    </Container >
   );
 }

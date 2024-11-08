@@ -9,6 +9,8 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
+import IconButton from '@mui/material/IconButton';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
@@ -51,6 +53,8 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import LoadingBox from 'src/components/helpers/loading-box';
 import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
+import { CSVLink } from "react-csv";
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -79,7 +83,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
-
+  const popover = usePopover();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
   const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
@@ -88,7 +92,10 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [uploadedFile, setUploadedFile] = useState(null);
   const contextReady = useBoolean(false);
-
+  const [csvTurmaData, setCsvTurmaData] = useState([]);
+  const [csvTurmaFileName, setCsvTurmaFileName] = useState('');
+  const [csvEscolaData, setCsvEscolaData] = useState([]);
+  const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const permissaoCadastrar = checkPermissaoModulo('registro_aprendizagem', 'cadastrar');
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
@@ -101,7 +108,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
-
+  const buscandoCSV = useBoolean(false);
   const closeUploadModal = () => {
     setOpenUploadModal(false);
   }
@@ -234,7 +241,73 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         });
       buscando.onFalse();
     }
-  }, [contextReady, anosLetivos, turmas, filters]);
+  }, [contextReady, anosLetivos, turmas, filters, _periodos]);
+
+  const buscarAvaliacoesCSV = useCallback(async (filtros = filters) => {
+    if (anosLetivos.length && turmas.length) {
+      setWarningMsg('');
+      setErrorMsg('');
+      buscandoCSV.onTrue();
+
+      let escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
+
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
+
+      const _filtersToSend = {
+        tipo: "Diagnóstico",
+        turma: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
+        periodo: filters.periodo.length ? filters.periodo : _periodos,
+        ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
+        escolas: escola,
+      };
+      let csvTurma_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Período"]];
+      let csvEscola_dat = [["DDZ", "Escola", "Turma", "Usuário", "Diretor", "Professor", "Status", "Período"]];
+      const _newList = [];
+
+      // ENTRADA E SAÍDA
+      await registroAprendizagemMethods
+        .getListIdTurmaRegistroAprendizagemDiagnostico(_filtersToSend)
+        .then((response) => {
+          if (response.data?.results.length) {
+            response.data.results.forEach((registro) => {
+              const turma = turmas.find((turma) => turma.id == registro.turma_id);
+              if (turma?.id) {
+                const retorno = { ...turma };
+                retorno.periodo = registro.periodo;
+                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
+                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
+                retorno.atualizado_por = registro.atualizado_por;
+
+                _newList.push(retorno);
+              }
+            });
+
+            buscandoCSV.onFalse()
+          }
+        })
+        .catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de Registro Aprendizagem Diagnostico de Entrada');
+          buscandoCSV.onFalse()
+          console.error(error);
+        });
+        buscandoCSV.onFalse();
+    }
+  }, [anosLetivos, turmas, filters, _periodos]);
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
@@ -453,6 +526,51 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             >
               Aplicar filtros
             </Button>
+
+            <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" onClick={() => {buscarAvaliacoesCSV()}}/>
+          </IconButton>
+
+          <CustomPopover
+            open={popover.open}
+            onClose={popover.onClose}
+            arrow="left-top"
+            sx={{ width: 200 }}
+          >
+
+            {(!buscandoCSV.value) &&
+              <LoadingBox
+                sx={{ pt: 0.3, pl: 2.5 }}
+              />
+            }
+            {(buscandoCSV.value) &&
+              <>
+                <MenuItem
+                  onClick={() => {
+                    popover.onClose();
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  <CSVLink className='downloadCSVFilterBtn'
+                    // filename={ }
+                    data=''
+                  >
+                    Relatório por turmas
+                  </CSVLink>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    popover.onClose();
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  Relatório por escolas
+                </MenuItem>
+              </>
+            }
+
+
+          </CustomPopover>
           </Stack>
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
