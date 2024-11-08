@@ -9,7 +9,9 @@ import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
 import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
+import MenuItem from '@mui/material/MenuItem';
 import Container from '@mui/material/Container';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
@@ -42,6 +44,8 @@ import {
   TableHeadCustom,
   TablePaginationCustom,
 } from 'src/components/table';
+
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
 //
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
 import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-toolbar';
@@ -50,6 +54,7 @@ import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/regi
 import LoadingBox from 'src/components/helpers/loading-box';
 import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
+import { CSVLink } from "react-csv";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -77,10 +82,13 @@ export default function RegistroAprendizagemFaseListView() {
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
-
+  const popover = usePopover();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
-
+  const [csvTurmaData, setCsvTurmaData] = useState([]);
+  const [csvTurmaFileName, setCsvTurmaFileName] = useState('');
+  const [csvEscolaData, setCsvEscolaData] = useState([]);
+  const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -97,7 +105,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
-
+  const buscandoCSV = useBoolean(false);
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
@@ -206,11 +214,11 @@ export default function RegistroAprendizagemFaseListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let escola = [];
-      // if (filtros.escola.length > 0) {
-      //   filtros.escola.map((esc) => {
-      //     escola.push(esc.id)
-      //   })
-      // }
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
 
       let escFiltered = [];
       if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
@@ -270,6 +278,85 @@ export default function RegistroAprendizagemFaseListView() {
 
     }
   }, [contextReady, anosLetivos, turmas, bimestres, filters]);
+
+  const buscarAvaliacoesCSV = useCallback(async (por, filtros = filters) => {
+    if (anosLetivos.length && turmas.length && bimestres.length) {
+      setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+        'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+        'Quando o processo for concluído, o download será iniciado automaticamente e essa mensagem irá sumir.');	
+      setErrorMsg('');
+      buscandoCSV.onTrue();
+
+      let escola = [];
+      if (filtros.escola.length > 0) {
+        filtros.escola.map((esc) => {
+          escola.push(esc.id)
+        })
+      }
+
+      let escFiltered = [];
+      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+        escolas.map((esc) => {
+          if (escolas_piloto.includes(esc.nome)) {
+            escFiltered.push(esc.id);
+          }
+        })
+      }
+      if (escFiltered.length > 0) {
+        escola = escFiltered;
+      }
+
+      const _filtersToSend = {
+        tipo: "Fase",
+        turma: (filtros.turma.length ? filtros.turma : turmasFiltered).map((turma) => turma.id),
+        bimestre: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
+          (bimestre) => bimestre.id
+        ),
+        ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
+        escola: escola,
+      };
+
+      if(por == 'turma') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorTurma(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Turma.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+            buscandoCSV.onFalse();
+          });
+      } else if (por == 'escola') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorEscola(_filtersToSend)
+          .then((result) => {
+            const url = window.URL.createObjectURL(new Blob([result.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Escola.csv');
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+            setWarningMsg('');
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+            buscandoCSV.onFalse();
+          });
+      }
+
+
+    }
+  }, [anosLetivos, turmas, bimestres, filters]);
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
@@ -455,6 +542,49 @@ export default function RegistroAprendizagemFaseListView() {
           >
             Aplicar filtros
           </Button>
+          <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+          <CustomPopover
+            open={popover.open}
+            onClose={popover.onClose}
+            arrow="left-top"
+            sx={{ width: 200 }}
+          >
+
+            {(buscandoCSV.value) &&
+              <LoadingBox
+                sx={{ pt: 0.3, pl: 2.5 }}
+              />
+            }
+            {(!buscandoCSV.value) &&
+              <>
+                <MenuItem
+                  onClick={() => {
+                    buscarAvaliacoesCSV('turma');
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  <Button className='downloadCSVFilterBtn'>
+                    Relatório por turmas
+                  </Button>
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    buscarAvaliacoesCSV('escola');
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  <Button className='downloadCSVFilterBtn'>
+                    Relatório por escolas
+                  </Button>
+                </MenuItem>
+              </>
+            }
+
+
+          </CustomPopover>
+
         </Stack>
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -510,6 +640,6 @@ export default function RegistroAprendizagemFaseListView() {
           <Button variant="contained" onClick={uploadAvaliacoes}>Upload</Button>
         </Box>
       </Modal>
-    </Container>
+    </Container >
   );
 }
