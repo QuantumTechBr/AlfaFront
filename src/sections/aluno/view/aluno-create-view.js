@@ -30,7 +30,7 @@ export default function AlunoCreateView() {
           },
           { name: 'Novo estudante' },
         ]}
-        youtubeLink="https://www.youtube.com/embed/pegGQtw2af4?si=7Dw3taXWlksbw6sa"
+        youtubeLink="https://www.youtube.com/embed/t2u3ADfdphA?si=qjP95vxnIGKoye-x"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

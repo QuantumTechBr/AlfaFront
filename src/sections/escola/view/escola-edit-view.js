@@ -50,7 +50,7 @@ export default function EscolaEditView({ id }) {
           },
           { name: currentEscola?.nome },
         ]}
-        youtubeLink="https://www.youtube.com/embed/Z4IWZCAqsvE?si=AmQqnX0kvUuF6zSS"
+        youtubeLink="https://www.youtube.com/embed/PRtd9syb-8k?si=IB5qYTX-wHmM2ZQ5"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

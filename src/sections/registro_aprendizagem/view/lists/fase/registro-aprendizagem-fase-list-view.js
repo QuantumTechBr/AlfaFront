@@ -283,7 +283,9 @@ export default function RegistroAprendizagemFaseListView() {
     if (anosLetivos.length && turmas.length && bimestres.length) {
       setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
         'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-        'Quando o processo for concluído, o download será iniciado automaticamente e essa mensagem irá sumir.');	
+        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email + 
+        ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+      );
       setErrorMsg('');
       buscandoCSV.onTrue();
 
@@ -320,14 +322,7 @@ export default function RegistroAprendizagemFaseListView() {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorTurma(_filtersToSend)
           .then((result) => {
-            const url = window.URL.createObjectURL(new Blob([result.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Turma.csv');
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            setWarningMsg('');
+            setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
             buscandoCSV.onFalse();
           })
           .catch((error) => {
@@ -338,14 +333,7 @@ export default function RegistroAprendizagemFaseListView() {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorEscola(_filtersToSend)
           .then((result) => {
-            const url = window.URL.createObjectURL(new Blob([result.data]));
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Relatório_de_Avaliações_de_Fase_por_Escola.csv');
-            document.body.appendChild(link);
-            link.click();
-            link.parentNode.removeChild(link);
-            setWarningMsg('');
+            setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
             buscandoCSV.onFalse();
           })
           .catch((error) => {
@@ -554,8 +542,9 @@ export default function RegistroAprendizagemFaseListView() {
 
             {(buscandoCSV.value) &&
               <LoadingBox
-                sx={{ pt: 0.3, pl: 2.5 }}
-              />
+              sx={{ pt: 0.3, pl: 2.5 }}
+              texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+            />
             }
             {(!buscandoCSV.value) &&
               <>

@@ -247,7 +247,7 @@ export default function PlanoIntervencaoListView() {
               Adicionar
             </Button>
           }
-          youtubeLink="https://www.youtube.com/embed/iUP0CRlH7Gs?si=S_TqzfCnhYEtq45F"
+          youtubeLink="https://www.youtube.com/embed/bf9xNpG2NZ4?si=P0prPKwf74aOXPf8"
           sx={{
             mb: { xs: 3, md: 5 },
           }}

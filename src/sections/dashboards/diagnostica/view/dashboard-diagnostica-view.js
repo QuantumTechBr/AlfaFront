@@ -1084,7 +1084,7 @@ export default function DashboardDiagnosticaView() {
           <Grid xs={12} md>
             <Box display="flex" alignItems="center" gap={1}>
             <Typography variant="h3">Dashboard: Avaliação Diagnóstica</Typography>
-              <InstructionButton youtubeLink={""} />
+              <InstructionButton youtubeLink={"https://www.youtube.com/embed/fxgNcBmSqYQ?si=C-YQ95rK6y6NlODS"} />
             </Box>
           </Grid>
         </Stack>

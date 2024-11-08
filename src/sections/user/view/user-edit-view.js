@@ -65,7 +65,7 @@ export default function UserEditView({ id }) {
           },
           { name: currentUser?.nome },
         ]}
-        youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r"
+        youtubeLink="https://www.youtube.com/embed/CCRIjmY_6Xs?si=SH1R_J1YtN-gffFz"
         sx={{
           mb: { xs: 3, md: 5 },
         }}
