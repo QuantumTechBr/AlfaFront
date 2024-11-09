@@ -37,6 +37,7 @@ import CalendarFiltersResult from '../calendar-filters-result';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { addDays, setHours } from 'date-fns';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 // ----------------------------------------------------------------------
 
 const defaultFilters = {
@@ -219,6 +220,17 @@ export default function CalendarView() {
     <>
       <Container maxWidth="none">
         {canReset && renderResults}
+
+        <CustomBreadcrumbs
+          heading="Calendário"
+          links={[
+            { name: '' },
+          ]}
+          youtubeLink="https://www.youtube.com/embed/Q8tJf_oGD9c?si=1Bacd1RpjwXvW4f2"
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        />
 
         <Card>
           <StyledCalendar>

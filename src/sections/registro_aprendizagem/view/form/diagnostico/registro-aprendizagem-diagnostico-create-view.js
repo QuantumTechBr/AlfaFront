@@ -192,7 +192,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
           },
           { name: 'Acompanhamento Diagnóstico - ' + `${periodo}` },
         ]}
-        youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r"
+        youtubeLink="https://www.youtube.com/embed/fxgNcBmSqYQ?si=ZgvKKXdEZpmjb2ik"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

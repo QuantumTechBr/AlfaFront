@@ -167,7 +167,7 @@ export default function ZonaListView() {
               Adicionar
             </Button>
           }
-          youtubeLink="https://www.youtube.com/embed/Z4IWZCAqsvE?si=AmQqnX0kvUuF6zSS"
+          youtubeLink="https://www.youtube.com/embed/h7_iVqBN6dM?si=NgoMolmmWPmBlyOW"
           sx={{
             mb: { xs: 3, md: 5 },
           }}

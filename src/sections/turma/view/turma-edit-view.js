@@ -55,7 +55,7 @@ export default function TurmaEditView({ id }) {
           },
           { name: nomeBreadcrumbs },
         ]}
-        youtubeLink="https://www.youtube.com/embed/pSimqELmNw8?si=dCGAFuPCBpvGVqlR"
+        youtubeLink="https://www.youtube.com/embed/CbvIlF82Ogc?si=vCt_nMPhbfpKiJu4"
         sx={{
           mb: { xs: 3, md: 5 },
         }}
