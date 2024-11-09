@@ -44,7 +44,7 @@ import {
   TableHeadCustom,
   TablePaginationCustom,
 } from 'src/components/table';
-
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 //
 import RegistroAprendizagemFaseTableRow from './registro-aprendizagem-fase-table-row';
@@ -438,30 +438,29 @@ export default function RegistroAprendizagemFaseListView() {
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        sx={{
-          mb: { xs: 3, md: 5 },
-        }}
-      >
-        <Typography variant="h4">
-          Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita
-        </Typography>
-        {permissaoCadastrar &&
-          <Button
-            onClick={novaAvaliacao.onTrue}
-            variant="contained"
-            startIcon={<Iconify icon="mingcute:add-line" />}
-            sx={{
-              bgcolor: '#00A5AD',
-            }}
-          >
-            Adicionar
-          </Button>
-        }
-      </Stack>
+
+      <CustomBreadcrumbs
+          heading="Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita"
+          links={[
+            { name: '' },
+          ]}
+          action=  {permissaoCadastrar &&
+            <Button
+              onClick={novaAvaliacao.onTrue}
+              variant="contained"
+              startIcon={<Iconify icon="mingcute:add-line" />}
+              sx={{
+                bgcolor: '#00A5AD',
+              }}
+            >
+              Adicionar
+            </Button>
+          }
+          youtubeLink="https://www.youtube.com/embed/AFM9adKIDX8?si=IJdxDNMtQyyGijwz"
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        />
 
       <NovaAvaliacaoForm
         open={novaAvaliacao.value}

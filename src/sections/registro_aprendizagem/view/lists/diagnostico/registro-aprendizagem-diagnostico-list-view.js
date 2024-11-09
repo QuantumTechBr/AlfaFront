@@ -20,7 +20,7 @@ import Box from '@mui/material/Box';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
-
+import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 // hooks
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
@@ -432,16 +432,13 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   return (
     <>
       <Container maxWidth={settings.themeStretch ? false : 'lg'}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          justifyContent="space-between"
-          sx={{
-            mb: { xs: 3, md: 5 },
-          }}
-        >
-          <Typography variant="h4">Acompanhamento Diagnóstico</Typography>
-          {permissaoCadastrar && (
+       
+          <CustomBreadcrumbs
+          heading="Acompanhamento Diagnóstico"
+          links={[
+            { name: '' },
+          ]}
+          action= {permissaoCadastrar && (
             <Button
               onClick={novaAvaliacao.onTrue}
               variant="contained"
@@ -453,8 +450,12 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               Adicionar
             </Button>
           )}
+          youtubeLink="https://www.youtube.com/embed/fxgNcBmSqYQ?si=ZgvKKXdEZpmjb2ik"
+          sx={{
+            mb: { xs: 3, md: 5 },
+          }}
+        />
 
-        </Stack>
         {permissaoSuperAdmin && (
           <Box display="flex" alignItems="center" gap={1}>
             <Button
