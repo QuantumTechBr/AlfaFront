@@ -30,7 +30,7 @@ export default function EscolaCreateView() {
           },
           { name: 'Nova escola' },
         ]}
-        youtubeLink="https://www.youtube.com/embed/PRtd9syb-8k?si=IB5qYTX-wHmM2ZQ5"
+        youtubeLink="https://www.youtube.com/embed/PRtd9syb-8k?si=IB5qYTX-wHmM2ZQ5&cc_load_policy=1"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

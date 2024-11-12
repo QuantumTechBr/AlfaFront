@@ -473,7 +473,7 @@ export default function DashboardRedeView() {
           <Grid xs={12} md>
             <Box display="flex" alignItems="center" gap={1}>
               <Typography variant="h3">Dashboard: Fases do Desenvolvimento da Leitura e da Escrita (Rede)</Typography>
-              <InstructionButton youtubeLink={"https://www.youtube.com/embed/AFM9adKIDX8?si=hStPQ0hHIlGTA9Ow"} />
+              <InstructionButton youtubeLink={"https://www.youtube.com/embed/AFM9adKIDX8?si=hStPQ0hHIlGTA9Ow&cc_load_policy=1"} />
             </Box>
           </Grid>
         </Stack>

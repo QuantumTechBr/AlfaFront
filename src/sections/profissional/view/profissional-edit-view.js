@@ -65,7 +65,7 @@ export default function ProfissionalEditView({ id }) {
           },
           { name: currentUser?.nome },
         ]}
-        youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r"
+        youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r&cc_load_policy=1"
         sx={{
           mb: { xs: 3, md: 5 },
         }}
