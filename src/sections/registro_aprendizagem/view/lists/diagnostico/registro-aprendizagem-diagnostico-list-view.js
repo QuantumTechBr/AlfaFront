@@ -450,7 +450,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
               Adicionar
             </Button>
           )}
-          youtubeLink="https://www.youtube.com/embed/fxgNcBmSqYQ?si=ZgvKKXdEZpmjb2ik"
+          youtubeLink="https://www.youtube.com/embed/fxgNcBmSqYQ?si=ZgvKKXdEZpmjb2ik&cc_load_policy=1"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
@@ -533,7 +533,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
             open={popover.open}
             onClose={popover.onClose}
             arrow="left-top"
-            sx={{ width: 200 }}
+            // sx={{ width: 200 }}
           >
 
             {(buscandoCSV.value) &&

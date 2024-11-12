@@ -48,7 +48,7 @@ export default function PlanoIntervencaoCreateFromView({ id }) {
           },
           { name: 'Criar' },
         ]}
-        youtubeLink="https://www.youtube.com/embed/bf9xNpG2NZ4?si=P0prPKwf74aOXPf8"
+        youtubeLink="https://www.youtube.com/embed/bf9xNpG2NZ4?si=P0prPKwf74aOXPf8&cc_load_policy=1"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

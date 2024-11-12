@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,7 +16,9 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import profissionalMethods from './profissional-repository';
 import { saveCSVFile } from 'src/utils/functions';
-
+import { useBoolean } from 'src/hooks/use-boolean';
+import LoadingBox from 'src/components/helpers/loading-box';
+import { AuthContext } from 'src/auth/context/alfa';
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableToolbar({
@@ -25,8 +27,12 @@ export default function ProfissionalTableToolbar({
   roleOptions,
   ddzOptions,
   escolaOptions,
+  setErrorMsg,
+  setWarningMsg
 }) {
+  const { user } = useContext(AuthContext);
   const popover = usePopover();
+  const buscandoCSV = useBoolean(false);
 
   const handleFilterPesquisa = useCallback(
     (event) => {
@@ -177,7 +183,7 @@ export default function ProfissionalTableToolbar({
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        sx={{ width: 140 }}
+        // sx={{ width: 140 }}
       >
         {/* <MenuItem
           onClick={() => {
@@ -188,19 +194,28 @@ export default function ProfissionalTableToolbar({
           Imprimir
         </MenuItem> */}
 
-        <MenuItem
-          onClick={() => {
-            const exportFilters = { ...filters, export: 'csv' };
-            const query = new URLSearchParams(exportFilters).toString();
-            profissionalMethods.exportFile(query).then((csvFile) => {
-              saveCSVFile('Profissionais', csvFile.data);
-            });
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
+        {(buscandoCSV.value) &&
+          <LoadingBox
+            sx={{ pt: 0.3, pl: 2.5 }}
+            texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+          />
+        }
+        {(!buscandoCSV.value) &&
+          <MenuItem
+            onClick={() => {
+              setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+                'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
+                ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+              );
+              setErrorMsg('');
+              buscandoCSV.onTrue();
+            }}
+          >
+            <Iconify icon="solar:export-bold" />
+            Exportar
+          </MenuItem>
+        }
       </CustomPopover>
     </>
   );

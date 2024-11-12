@@ -333,7 +333,7 @@ export default function AlunoListView() {
               </Button>
             )
           }
-          youtubeLink="https://www.youtube.com/embed/t2u3ADfdphA?si=qjP95vxnIGKoye-x"
+          youtubeLink="https://www.youtube.com/embed/t2u3ADfdphA?si=qjP95vxnIGKoye-x&cc_load_policy=1"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
@@ -385,6 +385,8 @@ export default function AlunoListView() {
                   : null
               }
               faseOptions={fases}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
             <Button
               variant="contained"

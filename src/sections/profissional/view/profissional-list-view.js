@@ -312,7 +312,7 @@ export default function ProfissionalListView() {
               </Button>
             )
           }
-          youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r"
+          youtubeLink="https://www.youtube.com/embed/GI5MDRzXaFA?si=UQDtn79OfRtiTn1r&cc_load_policy=1"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
@@ -338,6 +338,8 @@ export default function ProfissionalListView() {
               onFilters={handleFilters}
               roleOptions={funcoesOptions}
               escolaOptions={escolas}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
 
             <Button

@@ -504,7 +504,7 @@ export default function UserListView() {
               </Button>
             )
           }
-          youtubeLink="https://www.youtube.com/embed/CCRIjmY_6Xs?si=SH1R_J1YtN-gffFz"
+          youtubeLink="https://www.youtube.com/embed/CCRIjmY_6Xs?si=SH1R_J1YtN-gffFz&cc_load_policy=1"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
@@ -586,6 +586,8 @@ export default function UserListView() {
               onFilters={handleFilters}
               roleOptions={funcoesOptions}
               escolaOptions={escolas}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
             <Button
               variant="contained"

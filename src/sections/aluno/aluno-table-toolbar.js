@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useCallback, useState, Fragment } from 'react';
+import { useCallback, useState, Fragment, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
 import Alert from '@mui/material/Alert';
@@ -19,7 +19,9 @@ import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import alunoMethods from './aluno-repository';
 import { saveCSVFile } from 'src/utils/functions';
-
+import { useBoolean } from 'src/hooks/use-boolean';
+import LoadingBox from 'src/components/helpers/loading-box';
+import { AuthContext } from 'src/auth/context/alfa';
 
 // ----------------------------------------------------------------------
 
@@ -29,13 +31,16 @@ export default function AlunoTableToolbar({
   escolaOptions,
   turmaOptions,
   faseOptions,
+  setWarningMsg,
+  setErrorMsg,
 }) {
 
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
-  
+  const { user } = useContext(AuthContext);
+  const buscandoCSV = useBoolean(false);
   const popover = usePopover();
 
   const handleFilterNome = useCallback(
@@ -132,7 +137,7 @@ export default function AlunoTableToolbar({
   return (
     <>
       <Snackbar
-        style={{top:'120px'}}
+        style={{ top: '120px' }}
         open={openError}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
         autoHideDuration={6000}
@@ -223,9 +228,8 @@ export default function AlunoTableToolbar({
                       size="small"
                       checked={filters.turma.includes(option.id)}
                     />
-                    {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${
-                      filters.escola.length != 1 ? ` (${getEscola(option.escola_id)?.nome})` : ''
-                    } `}
+                    {` ${option.ano_escolar}º ${option.nome} (${option.turno}) ${filters.escola.length != 1 ? ` (${getEscola(option.escola_id)?.nome})` : ''
+                      } `}
                   </MenuItem>
                 ))}
               </Select>
@@ -298,7 +302,7 @@ export default function AlunoTableToolbar({
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        sx={{ width: 140 }}
+        // sx={{ width: 140 }}
       >
         {/* <MenuItem
           onClick={() => {
@@ -309,31 +313,28 @@ export default function AlunoTableToolbar({
           Imprimir
         </MenuItem> */}
 
-        <MenuItem
-          onClick={() => {
-            const exportFilters = { 
-              escolas: filters.escola, 
-              turmas: filters.turma,
-              fase: filters.fase, 
-              matricula : filters.matricula,
-              nome: filters.nome,
-              export: 'csv'
-            };
-            const query = new URLSearchParams(exportFilters).toString();
-            alunoMethods.exportFile(query).then((csvFile) => {
-              saveCSVFile('Estudantes', csvFile.data);
-            }).catch(erro => {
-              setOpenError(true);
-              setErrorMessage(erro.detail);
-            });
-            popover.onClose();
-            // window.open(alunoMethods.exportFile(query));
-            // router.push(paths.dashboard.post.details(title));
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
+        {(buscandoCSV.value) &&
+          <LoadingBox
+            sx={{ pt: 0.3, pl: 2.5 }}
+            texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+          />
+        }
+        {(!buscandoCSV.value) &&
+          <MenuItem
+            onClick={() => {
+              setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+                'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
+                ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+              );
+              setErrorMsg('');
+              buscandoCSV.onTrue();
+            }}
+          >
+            <Iconify icon="solar:export-bold" />
+            Exportar
+          </MenuItem>
+        }
       </CustomPopover>
     </>
   );
