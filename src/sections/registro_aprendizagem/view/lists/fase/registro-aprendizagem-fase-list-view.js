@@ -537,7 +537,7 @@ export default function RegistroAprendizagemFaseListView() {
             open={popover.open}
             onClose={popover.onClose}
             arrow="left-top"
-            sx={{ width: 200 }}
+            // sx={{ width: 200 }}
           >
 
             {(buscandoCSV.value) &&
