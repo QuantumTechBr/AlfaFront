@@ -340,7 +340,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           },
           { name: 'Acompanhamento de Fase' },
         ]}
-        youtubeLink="https://www.youtube.com/embed/AFM9adKIDX8?si=IJdxDNMtQyyGijwz"
+        youtubeLink="https://www.youtube.com/embed/AFM9adKIDX8?si=IJdxDNMtQyyGijwz&cc_load_policy=1"
         sx={{
           mb: { xs: 3, md: 5 },
         }}

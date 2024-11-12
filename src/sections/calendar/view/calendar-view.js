@@ -226,7 +226,7 @@ export default function CalendarView() {
           links={[
             { name: '' },
           ]}
-          youtubeLink="https://www.youtube.com/embed/Q8tJf_oGD9c?si=1Bacd1RpjwXvW4f2"
+          youtubeLink="https://www.youtube.com/embed/Q8tJf_oGD9c?si=1Bacd1RpjwXvW4f2&cc_load_policy=1"
           sx={{
             mb: { xs: 3, md: 5 },
           }}
