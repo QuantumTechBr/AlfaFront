@@ -338,6 +338,8 @@ export default function ProfissionalListView() {
               onFilters={handleFilters}
               roleOptions={funcoesOptions}
               escolaOptions={escolas}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
 
             <Button

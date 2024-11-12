@@ -503,6 +503,8 @@ export default function TurmaListView() {
               filters={filters}
               onFilters={handleFilters}
               ddzOptions={zonas}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
 
             <Button

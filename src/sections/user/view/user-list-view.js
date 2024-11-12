@@ -586,6 +586,8 @@ export default function UserListView() {
               onFilters={handleFilters}
               roleOptions={funcoesOptions}
               escolaOptions={escolas}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
             <Button
               variant="contained"

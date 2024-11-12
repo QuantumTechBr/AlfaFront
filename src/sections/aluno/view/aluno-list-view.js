@@ -385,6 +385,8 @@ export default function AlunoListView() {
                   : null
               }
               faseOptions={fases}
+              setErrorMsg={setErrorMsg}
+              setWarningMsg={setWarningMsg}
             />
             <Button
               variant="contained"

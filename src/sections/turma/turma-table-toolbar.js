@@ -17,14 +17,21 @@ import { saveCSVFile } from 'src/utils/functions';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { useBoolean } from 'src/hooks/use-boolean';
+import LoadingBox from 'src/components/helpers/loading-box';
+import { AuthContext } from 'src/auth/context/alfa';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableToolbar({
   filters,
   onFilters,
   ddzOptions,
+  setErrorMsg,
+  setWarningMsg,
 }) {
+  const { user } = useContext(AuthContext);
   const popover = usePopover();
+  const buscandoCSV = useBoolean(false);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
   const [escolasACTotal, setEscolasACTotal] = useState([]);
@@ -250,19 +257,28 @@ export default function TurmaTableToolbar({
         arrow="right-top"
         sx={{ width: 140 }}
       >
-        <MenuItem
-          onClick={() => {
-            const exportFilters = { ...filters, export: 'csv' };
-            const query = new URLSearchParams(exportFilters).toString();
-            turmaMethods.exportFile(query).then((csvFile) => {
-              saveCSVFile('Turmas', csvFile.data);
-            });
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
+       {(buscandoCSV.value) &&
+          <LoadingBox
+            sx={{ pt: 0.3, pl: 2.5 }}
+            texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+          />
+        }
+        {(!buscandoCSV.value) &&
+          <MenuItem
+            onClick={() => {
+              setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+                'Para uma resposta mais rápida, tente filtrar menos registros. ' +
+                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
+                ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+              );
+              setErrorMsg('');
+              buscandoCSV.onTrue();
+            }}
+          >
+            <Iconify icon="solar:export-bold" />
+            Exportar
+          </MenuItem>
+        }
       </CustomPopover>
     </>
   );
