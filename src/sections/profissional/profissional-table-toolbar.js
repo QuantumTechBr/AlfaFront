@@ -210,6 +210,12 @@ export default function ProfissionalTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
+              const exportFilters = { ...filters, export: 'csv' };
+              const query = new URLSearchParams(exportFilters).toString();
+              profissionalMethods.exportFile(query).then((csvFile) => {
+                setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+                buscandoCSV.onFalse();
+              });
             }}
           >
             <Iconify icon="solar:export-bold" />

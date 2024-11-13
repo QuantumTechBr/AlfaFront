@@ -238,6 +238,12 @@ export default function UserTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
+              const exportFilters = { ...filters, export: 'csv' };
+              const query = new URLSearchParams(exportFilters).toString();
+              userMethods.exportFile(query).then((csvFile) => {
+                setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+                buscandoCSV.onFalse();
+              });
             }}
           >
             <Iconify icon="solar:export-bold" />
