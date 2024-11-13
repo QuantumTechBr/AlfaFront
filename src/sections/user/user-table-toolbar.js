@@ -240,7 +240,15 @@ export default function UserTableToolbar({
               setErrorMsg('');
               buscandoCSV.onTrue();
               let escFiltered = [];
-              if (exportFilters.escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+              const exportFilters = { 
+                nome: filters.nome,
+                escola_id: filters.escola.join(','),
+                zona_id: filters.ddz.join(','),
+                funcao_usuario_nome_exibicao: filters.role.join(','),
+                status: filters.status,
+                export: 'csv' 
+              };
+              if (exportFilters.escola_id.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
                 escolaOptions.map((esc) => {
                   if (escolas_piloto.includes(esc.nome)) {
                     escFiltered.push(esc.id);
@@ -248,16 +256,9 @@ export default function UserTableToolbar({
                 })
               }
               if (escFiltered.length > 0) {
-                exportFilters.escola = escFiltered;
+                exportFilters.escola_id = escFiltered;
               }
-              const exportFilters = { 
-                noem: filters.nome,
-                escola_id: filters.escola.join(','),
-                zona_id: filters.ddz.join(','),
-                funcao_usuario_nome_exibicao: filters.role.join(','),
-                status: filters.status,
-                export: 'csv' 
-              };
+              
               const query = new URLSearchParams(exportFilters).toString();
               userMethods.exportFile(query).then((csvFile) => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);

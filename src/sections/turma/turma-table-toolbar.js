@@ -275,9 +275,15 @@ export default function TurmaTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { ...filters, export: 'csv' };
+              const exportFilters = { 
+                nome: filters.nome,
+                status: filters.status,
+                ddzs: filters.ddz,
+                escolas: filters.escola?.length > 0 ? filters.escola?.map((esc) => esc.id) : [],
+                export: 'csv' 
+              };
               let escFiltered = [];
-              if (exportFilters.escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+              if (exportFilters.escolas.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
                 escolaOptions.map((esc) => {
                   if (escolas_piloto.includes(esc.nome)) {
                     escFiltered.push(esc.id);
@@ -285,7 +291,7 @@ export default function TurmaTableToolbar({
                 })
               }
               if (escFiltered.length > 0) {
-                exportFilters.escola = escFiltered;
+                exportFilters.escolas = escFiltered;
               }
               const query = new URLSearchParams(exportFilters).toString();
               turmaMethods.exportFile(query).then((csvFile) => {
