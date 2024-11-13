@@ -19,6 +19,7 @@ import { saveCSVFile } from 'src/utils/functions';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
+import { status } from 'nprogress';
 // ----------------------------------------------------------------------
 
 export default function UserTableToolbar({
@@ -238,7 +239,13 @@ export default function UserTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { ...filters, export: 'csv' };
+              const exportFilters = { 
+                escola_id: filters.escola.join(','),
+                zona_id: filters.ddz.join(','),
+                funcao_usuario_nome_exibicao: filters.role.join(','),
+                status: filters.status,
+                export: 'csv' 
+              };
               const query = new URLSearchParams(exportFilters).toString();
               userMethods.exportFile(query).then((csvFile) => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
