@@ -329,6 +329,11 @@ export default function AlunoTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
+              const exportFilters = { ...filters, export: 'csv' };
+              const query = new URLSearchParams(exportFilters).toString();
+              alunoMethods.exportFile(query).then((csvFile) => {
+                setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+              });
             }}
           >
             <Iconify icon="solar:export-bold" />
