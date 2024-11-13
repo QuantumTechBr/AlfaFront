@@ -503,6 +503,7 @@ export default function TurmaListView() {
               filters={filters}
               onFilters={handleFilters}
               ddzOptions={zonas}
+              escolaOptions={escolas}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
             />
