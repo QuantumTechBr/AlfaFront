@@ -240,6 +240,7 @@ export default function UserTableToolbar({
               setErrorMsg('');
               buscandoCSV.onTrue();
               const exportFilters = { 
+                noem: filters.nome,
                 escola_id: filters.escola.join(','),
                 zona_id: filters.ddz.join(','),
                 funcao_usuario_nome_exibicao: filters.role.join(','),
