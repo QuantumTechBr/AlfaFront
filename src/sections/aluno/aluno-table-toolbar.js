@@ -333,6 +333,7 @@ export default function AlunoTableToolbar({
               const query = new URLSearchParams(exportFilters).toString();
               alunoMethods.exportFile(query).then((csvFile) => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+                buscandoCSV.onFalse();
               });
             }}
           >
