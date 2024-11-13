@@ -20,12 +20,14 @@ import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function TurmaTableToolbar({
   filters,
   onFilters,
   ddzOptions,
+  escolaOptions,
   setErrorMsg,
   setWarningMsg,
 }) {
@@ -274,6 +276,17 @@ export default function TurmaTableToolbar({
               setErrorMsg('');
               buscandoCSV.onTrue();
               const exportFilters = { ...filters, export: 'csv' };
+              let escFiltered = [];
+              if (exportFilters.escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+                escolaOptions.map((esc) => {
+                  if (escolas_piloto.includes(esc.nome)) {
+                    escFiltered.push(esc.id);
+                  }
+                })
+              }
+              if (escFiltered.length > 0) {
+                exportFilters.escola = escFiltered;
+              }
               const query = new URLSearchParams(exportFilters).toString();
               turmaMethods.exportFile(query).then((csvFile) => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
