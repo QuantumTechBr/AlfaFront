@@ -330,9 +330,17 @@ export default function AlunoTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { ...filters, export: 'csv' };
+              const exportFilters = { 
+                turmas: filters.turma,
+                escolas: filters.escola,
+                matricula: filters.matricula,
+                nome: filters.nome,
+                fase: filters.fase,
+                pesquisa: filters.pesquisa ? filters.pesquisa : '',
+                export: 'csv' 
+              };
               let escFiltered = [];
-              if (exportFilters.escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+              if (exportFilters.escolas.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
                 escolaOptions.map((esc) => {
                   if (escolas_piloto.includes(esc.nome)) {
                     escFiltered.push(esc.id);
@@ -340,7 +348,7 @@ export default function AlunoTableToolbar({
                 })
               }
               if (escFiltered.length > 0) {
-                exportFilters.escola = escFiltered;
+                exportFilters.escolas = escFiltered;
               }
               const query = new URLSearchParams(exportFilters).toString();
               alunoMethods.exportFile(query).then((csvFile) => {

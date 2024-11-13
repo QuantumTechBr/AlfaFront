@@ -248,7 +248,7 @@ export default function UserTableToolbar({
                 status: filters.status,
                 export: 'csv' 
               };
-              if (exportFilters.escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+              if (exportFilters.escola_id.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
                 escolaOptions.map((esc) => {
                   if (escolas_piloto.includes(esc.nome)) {
                     escFiltered.push(esc.id);
@@ -256,7 +256,7 @@ export default function UserTableToolbar({
                 })
               }
               if (escFiltered.length > 0) {
-                exportFilters.escola = escFiltered;
+                exportFilters.escola_id = escFiltered;
               }
               
               const query = new URLSearchParams(exportFilters).toString();
