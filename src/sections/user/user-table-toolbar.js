@@ -19,6 +19,7 @@ import { saveCSVFile } from 'src/utils/functions';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
+import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function UserTableToolbar({
@@ -212,7 +213,7 @@ export default function UserTableToolbar({
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        // sx={{ width: 140 }}
+      // sx={{ width: 140 }}
       >
         {/* <MenuItem
           onClick={() => {
@@ -238,7 +239,26 @@ export default function UserTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { ...filters, export: 'csv' };
+              let escFiltered = [];
+              const exportFilters = { 
+                nome: filters.nome,
+                escola_id: filters.escola.join(','),
+                zona_id: filters.ddz.join(','),
+                funcao_usuario_nome_exibicao: filters.role.join(','),
+                status: filters.status,
+                export: 'csv' 
+              };
+              if (exportFilters.escola_id.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+                escolaOptions.map((esc) => {
+                  if (escolas_piloto.includes(esc.nome)) {
+                    escFiltered.push(esc.id);
+                  }
+                })
+              }
+              if (escFiltered.length > 0) {
+                exportFilters.escola_id = escFiltered;
+              }
+              
               const query = new URLSearchParams(exportFilters).toString();
               userMethods.exportFile(query).then((csvFile) => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
