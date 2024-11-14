@@ -289,15 +289,15 @@ export default function RegistroAprendizagemFaseListView() {
       setErrorMsg('');
       buscandoCSV.onTrue();
 
-      let escola = [];
+      let escolas = [];
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
-          escola.push(esc.id)
+          escolas.push(esc.id)
         })
       }
 
       let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
+      if (escolas.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
         escolas.map((esc) => {
           if (escolas_piloto.includes(esc.nome)) {
             escFiltered.push(esc.id);
@@ -305,7 +305,7 @@ export default function RegistroAprendizagemFaseListView() {
         })
       }
       if (escFiltered.length > 0) {
-        escola = escFiltered;
+        escolas = escFiltered;
       }
 
       const _filtersToSend = {
@@ -315,7 +315,7 @@ export default function RegistroAprendizagemFaseListView() {
           (bimestre) => bimestre.id
         ),
         ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
-        escola: escola,
+        escola: escolas,
       };
 
       if(por == 'turma') {
