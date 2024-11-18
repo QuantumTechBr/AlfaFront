@@ -39,6 +39,7 @@ import { tr } from 'date-fns/locale';
 import { get, set } from 'lodash';
 import { Button, IconButton } from '@mui/material';
 import { margin, width } from '@mui/system';
+import { useBoolean } from 'src/hooks/use-boolean';
 
 // ----------------------------------------------------------------------
 const filtros = {
@@ -66,6 +67,7 @@ export default function UserNewEditForm({ currentUser }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [selectNewAvatar, setSelectNewAvatar] = useState(false);
   const [enviandoImagem, setEnviandoImagem] = useState(false);
+  const eAdmin = useBoolean(false);
 
   useEffect(() => {
     buscaFuncoes().catch((error) => {
@@ -81,6 +83,14 @@ export default function UserNewEditForm({ currentUser }) {
       setErrorMsg('Erro de comunicação com a API de permissoes');
     });
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
+
+  useEffect(() => {
+    user.permissao_usuario.map((perm) => {
+      if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
+        eAdmin.onTrue();
+      }
+    })
+  }, [user]);
 
   useEffect(() => {
     const idsAC = [];
@@ -163,7 +173,7 @@ export default function UserNewEditForm({ currentUser }) {
       if (!!userAvatar) {
         const formData = new FormData();
         formData.append('arquivo', userAvatar)
-        await userMethods.updateUserAvatar(formData).then(()=>{
+        await userMethods.updateUserAvatar(formData).then(() => {
           setEnviandoImagem(false);
           setSelectNewAvatar(false);
           enqueueSnackbar('Avatar atualizado com sucesso!');
@@ -183,6 +193,41 @@ export default function UserNewEditForm({ currentUser }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      if (data.funcao == "ADMIN" || data.funcao == "SUPERADMIN") {
+        console.log(data.funcao)
+        const permissao = permissoes.find((permissao) => permissao.nome == data.funcao);
+        if (data.senha) {
+          novoUsuario = {
+            nome: data.nome,
+            email: data.email,
+            senha: data.senha,
+            login: data.email,
+            status: data.status,
+            permissao_usuario_id: [permissao.id]
+          }
+        } else {
+          novoUsuario = {
+            nome: data.nome,
+            email: data.email,
+            login: data.email,
+            status: data.status,
+            permissao_usuario_id: [permissao.id]
+          }
+        }
+        if (currentUser) {
+          await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
+            throw error;
+          });
+
+        } else {
+          await userMethods.insertUser(novoUsuario).catch((error) => {
+            throw error;
+          });
+        }
+        reset();
+        enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
+        router.push(paths.dashboard.user.list);
+      }
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
       if (data.senha) {
@@ -409,77 +454,77 @@ export default function UserNewEditForm({ currentUser }) {
 
 
   return (
-    
+
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
         <Grid xs={12} md={8}>
           <Card sx={{ p: 3 }}>
-          {user?.id == currentUser?.id ?
-                <Box sx={{ mb: 5 }}>
-                  <RHFUploadAvatar
-                    name="avatar"
-                    maxSize={3145728}
-                    onDrop={handleDrop}
-                    helperText={
-                      <>
-                        {selectNewAvatar && <div style={{
-                          width: 'min-content',
-                          margin: 'auto',
-                        }}>
-                          <LoadingButton 
-                            variant="contained" 
-                            loading={enviandoImagem}
-                            style={uploadImagemButtonStyle}
-                            onClick={updateUserAvatar}
-                          >
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                m: '0',
-                                display: 'block',
-                                textAlign: 'center',
-                                color: 'white',
-                              }}
-                            >
-                             Enviar imagem
-                            </Typography>
-                          </LoadingButton>
-                        </div>}
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            mt: 3,
-                            mx: 'auto',
-                            display: 'block',
-                            textAlign: 'center',
-                            color: 'text.disabled',
-                          }}
+            {user?.id == currentUser?.id ?
+              <Box sx={{ mb: 5 }}>
+                <RHFUploadAvatar
+                  name="avatar"
+                  maxSize={3145728}
+                  onDrop={handleDrop}
+                  helperText={
+                    <>
+                      {selectNewAvatar && <div style={{
+                        width: 'min-content',
+                        margin: 'auto',
+                      }}>
+                        <LoadingButton
+                          variant="contained"
+                          loading={enviandoImagem}
+                          style={uploadImagemButtonStyle}
+                          onClick={updateUserAvatar}
                         >
-                          Permitido *.jpeg, *.jpg, *.png
-                          <br /> tamanho máximo {fData(3145728)}
-                        </Typography>
-                      </>
-                    }
-                  />
-                </Box>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              m: '0',
+                              display: 'block',
+                              textAlign: 'center',
+                              color: 'white',
+                            }}
+                          >
+                            Enviar imagem
+                          </Typography>
+                        </LoadingButton>
+                      </div>}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          mt: 3,
+                          mx: 'auto',
+                          display: 'block',
+                          textAlign: 'center',
+                          color: 'text.disabled',
+                        }}
+                      >
+                        Permitido *.jpeg, *.jpg, *.png
+                        <br /> tamanho máximo {fData(3145728)}
+                      </Typography>
+                    </>
+                  }
+                />
+              </Box>
               :
-                <>
-                  <Box
-                    component="img"
-                    src={currentUser?.avatar || '/assets/user-avatar.svg'}
-                    alt="User Avatar"
-                    sx={{
-                      width: 80,
-                      height: 80,
-                      borderRadius: '50%',
-                      objectFit: 'cover',
-                      mx: 'auto',
-                      mb: 3,
-                    }}
-                  />
-                </>
-              }
+              <>
+                <Box
+                  component="img"
+                  src={currentUser?.avatar || '/assets/user-avatar.svg'}
+                  alt="User Avatar"
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: '50%',
+                    objectFit: 'cover',
+                    mx: 'auto',
+                    mb: 3,
+                  }}
+                />
+              </>
+            }
             <Box
               rowGap={3}
               columnGap={2}
@@ -500,6 +545,20 @@ export default function UserNewEditForm({ currentUser }) {
                     {_funcao.nome_exibicao}
                   </MenuItem>
                 ))}
+                {eAdmin &&
+
+                  <MenuItem key={"ADMIN"} value={"ADMIN"}>
+                    {"ADMIN"}
+                  </MenuItem>
+
+                }
+                {eAdmin &&
+
+                  <MenuItem key={"SUPERADMIN"} value={"SUPERADMIN"}>
+                    {"SUPERADMIN"}
+                  </MenuItem>
+
+                }
               </RHFSelect>
 
               <RHFSelect name="status" label="Status">
@@ -512,7 +571,7 @@ export default function UserNewEditForm({ currentUser }) {
 
               {escolaOuZona()}
 
-              
+
 
             </Box>
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
