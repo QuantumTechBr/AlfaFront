@@ -393,6 +393,10 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           </Select>
         </FormControl>
       );
+    } else if (getValues('funcao') == "ADMIN" || getValues('funcao') == "SUPERADMIN") {
+      return (
+        <></>
+      )
     } else {
       return (
         <RHFSelect

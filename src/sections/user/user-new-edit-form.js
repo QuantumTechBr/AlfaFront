@@ -322,11 +322,6 @@ export default function UserNewEditForm({ currentUser }) {
     setFilters(novosFiltros);
   }, [currentUser, defaultValues, reset]);
 
-  // useEffect(()  => {
-  //   setFilters(filtros);
-  //   setValue('escola', '');
-  //   setValue('zona', '');
-  // }, [funcao, setValue]);
 
   const handleFilters = useCallback(
     async (nome, value) => {
@@ -436,6 +431,10 @@ export default function UserNewEditForm({ currentUser }) {
             ))}
           </Select>
         </FormControl>
+      )
+    } else if (getValues('funcao') == "ADMIN" || getValues('funcao') == "SUPERADMIN") {
+      return (
+       <></>
       )
     } else {
       return (
@@ -568,6 +567,7 @@ export default function UserNewEditForm({ currentUser }) {
                   </MenuItem>
                 ))}
               </RHFSelect>
+
 
               {escolaOuZona()}
 
