@@ -227,6 +227,7 @@ export default function UserNewEditForm({ currentUser }) {
         reset();
         enqueueSnackbar(currentUser ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
         router.push(paths.dashboard.user.list);
+        return;
       }
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
