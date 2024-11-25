@@ -511,7 +511,7 @@ export default function RegistroAprendizagemFaseListView() {
             anoLetivoOptions={anosLetivos}
             escolaOptions={escolas}
             turmaOptions={turmasFiltered.length ? turmasFiltered : null}
-            bimestreOptions={turmasFiltered.length ? bimestres : null}
+            bimestreOptions={bimestres}
             export_type="fase"
           />
           <Button

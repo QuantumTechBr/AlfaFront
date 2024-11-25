@@ -183,6 +183,9 @@ export const endpoints = {
     update: '/api/v1/habilidades/',
     delete: '/api/v1/habilidades/',
   },
+  importacao: {
+    list: '/api/v1/importacao/',
+  },
   log_acesso: {
     list: '/api/v1/logs-acesso/',
     post: '/api/v1/logs-acesso',

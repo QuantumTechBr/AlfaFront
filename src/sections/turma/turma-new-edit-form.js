@@ -90,6 +90,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       escola_id: currentTurma?.escola?.id || '',
       turno: currentTurma?.turno?.toLowerCase() || '',
       status: (currentTurma?.status) || '',
+      codigo_turma: currentTurma?.codigo_turma || '',
     }),
     [currentTurma]
   );
@@ -122,6 +123,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
       novaTurma.ano_id = data.ano_id;
       novaTurma.status = data.status;
       novaTurma.ano_escolar = data.ano_escolar;
+      novaTurma.codigo_turma = data.codigo_turma;
 
       if (currentTurma?.id) {
         await turmaMethods.updateTurmaById(currentTurma.id, novaTurma).then(buscaTurmas({force: true})).catch((error) => {
@@ -146,6 +148,9 @@ export default function TurmaNewEditForm({ currentTurma }) {
 
   useEffect(() => {
     reset(defaultValues);
+    if (currentTurma) {
+      console.log(currentTurma);
+    }
   }, [currentTurma, defaultValues, reset]);
 
   return (
@@ -188,7 +193,9 @@ export default function TurmaNewEditForm({ currentTurma }) {
                     </MenuItem>
                   ))}
                 </RHFSelect>
-
+                {currentTurma?.id && (
+                  <RHFTextField name="codigo_turma" label="Código da Turma" />
+                )}
                 {currentTurma ? (
                   <Paper
                     variant="outlined"

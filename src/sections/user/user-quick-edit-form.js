@@ -31,7 +31,7 @@ import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import LoadingBox from 'src/components/helpers/loading-box';
-
+import { useAuthContext } from 'src/auth/hooks';
 import _ from 'lodash';
 
 // ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   };
 
   const { enqueueSnackbar } = useSnackbar();
-
+  const { user } = useAuthContext();
   const [currentUser, setCurrentUser] = useState();
   const [filters, setFilters] = useState(defaultFilters);
   const contextReady = useBoolean(false);
@@ -53,8 +53,9 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
   const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
   const [idAssessorGestao, setIdAssessorGestao] = useState([]);
-  const [ zonaCtrl, setZonaCtrl ] = useState('');
+  const [zonaCtrl, setZonaCtrl] = useState('');
   const [funcoesOptions, setFuncoesOptions] = useState([]);
+  const eAdmin = useBoolean(false);
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -83,24 +84,35 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes, open]);
 
   useEffect(() => {
+    user.permissao_usuario.map((perm) => {
+      if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
+        eAdmin.onTrue();
+      }
+    })
+  }, [user]);
+
+  useEffect(() => {
     if (contextReady.value) {
       const idsAC = [];
       let idAG = [];
       let funcoes_opts = [];
       funcoes.map((_funcao) => {
-        funcoes_opts.push({..._funcao,
+        funcoes_opts.push({
+          ..._funcao,
           nome_exibicao: _funcao.nome,
         });
         if (_funcao.nome == "ASSESSOR DDZ" || _funcao.nome == "COORDENADOR DE GESTAO") {
           idsAC.push(_funcao.nome);
         } else if (_funcao.nome == "ASSESSOR DE GESTAO") {
-          funcoes_opts.push({..._funcao,
+          funcoes_opts.push({
+            ..._funcao,
             nome_exibicao: 'ASSESSOR PEDAGOGICO',
           })
           idAG.push(_funcao.nome);
           idAG.push('ASSESSOR PEDAGOGICO');
         } else if (_funcao.nome == "DIRETOR") {
-          funcoes_opts.push({..._funcao,
+          funcoes_opts.push({
+            ..._funcao,
             nome_exibicao: 'PEDAGOGO',
           })
         }
@@ -162,6 +174,39 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
+      if (data.funcao == "ADMIN" || data.funcao == "SUPERADMIN") {
+        console.log(data.funcao)
+        const permissao = permissoes.find((permissao) => permissao.nome == data.funcao);
+        if (data.senha) {
+          novoUsuario = {
+            nome: data.nome,
+            email: data.email,
+            senha: data.senha,
+            login: data.email,
+            status: data.status,
+            permissao_usuario_id: [permissao.id]
+          }
+        } else {
+          novoUsuario = {
+            nome: data.nome,
+            email: data.email,
+            login: data.email,
+            status: data.status,
+            permissao_usuario_id: [permissao.id]
+          }
+        }
+        const retornoPatch = await userMethods
+          .updateUserById(currentUser.id, novoUsuario)
+          .catch((error) => {
+            throw error;
+          });
+
+        retornoPatch.data.status = novoUsuario.status;
+
+        enqueueSnackbar('Atualizado com sucesso!');
+        onSave(retornoPatch.data);
+        reset();
+      }
       const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {
         nome: data.nome,
@@ -232,7 +277,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     }
   });
 
-  useEffect(()  => {
+  useEffect(() => {
     reset(defaultValues)
     const escIds = [];
     setZonaCtrl(currentUser?.zona);
@@ -272,7 +317,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 
   const handleZona = useCallback((event) => {
     setZonaCtrl(event.target.value);
-  }, [setZonaCtrl] );
+  }, [setZonaCtrl]);
 
   const renderValueEscolasAG = (selected) =>
     selected
@@ -285,34 +330,34 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     if (idsAssessorCoordenador.includes(getValues('funcao'))) {
       return (
         <FormControl
-        sx={{
-          flexShrink: 0,
-        }}
-      >      
-        <InputLabel>DDZ</InputLabel>
-        <Select
-          id={`zona_`+`${currentUser?.id}`}
-          name="zona"
-          disabled={getValues('funcao') == '' ? true : false}
-          value={zonaCtrl}
-          onChange={handleZona}
-          label="DDZ"
-          MenuProps={{
-            PaperProps: {
-              sx: { maxHeight: 240 },
-            },
+          sx={{
+            flexShrink: 0,
           }}
         >
-           {zonas.map((zona) => (
-          <MenuItem key={zona.id} value={zona.id}>
-            <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-          </MenuItem>
-        ))}
-        </Select>
-      </FormControl>
+          <InputLabel>DDZ</InputLabel>
+          <Select
+            id={`zona_` + `${currentUser?.id}`}
+            name="zona"
+            disabled={getValues('funcao') == '' ? true : false}
+            value={zonaCtrl}
+            onChange={handleZona}
+            label="DDZ"
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {zonas.map((zona) => (
+              <MenuItem key={zona.id} value={zona.id}>
+                <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
       );
     }
-    if ( idAssessorGestao.includes(getValues('funcao')) ) {
+    if (idAssessorGestao.includes(getValues('funcao'))) {
       return (
         <FormControl
           sx={{
@@ -322,7 +367,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           <InputLabel>Escolas</InputLabel>
           <Select
             multiple
-            id={`escolas_`+`${currentUser?.id}`}
+            id={`escolas_` + `${currentUser?.id}`}
             name="escolas"
             disabled={getValues('funcao') == '' ? true : false}
             value={filters.escolasAG}
@@ -348,6 +393,10 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
           </Select>
         </FormControl>
       );
+    } else if (getValues('funcao') == "ADMIN" || getValues('funcao') == "SUPERADMIN") {
+      return (
+        <></>
+      )
     } else {
       return (
         <RHFSelect
@@ -412,12 +461,26 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
                 sm: 'repeat(1, 1fr)',
               }}
             >
-               <RHFSelect name="funcao" label="Função">
+              <RHFSelect name="funcao" label="Função">
                 {funcoesOptions.map((_funcao) => (
                   <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
                     {_funcao.nome_exibicao}
                   </MenuItem>
                 ))}
+                {eAdmin &&
+
+                  <MenuItem key={"ADMIN"} value={"ADMIN"}>
+                    {"ADMIN"}
+                  </MenuItem>
+
+                }
+                {eAdmin &&
+
+                  <MenuItem key={"SUPERADMIN"} value={"SUPERADMIN"}>
+                    {"SUPERADMIN"}
+                  </MenuItem>
+
+                }
               </RHFSelect>
             </Box>
 
