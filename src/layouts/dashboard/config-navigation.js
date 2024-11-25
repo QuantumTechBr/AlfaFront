@@ -155,6 +155,13 @@ export function useNavData() {
           path: paths.dashboard.plano_intervencao.list,
           icon: ICONS.folder,
         },
+
+         // Importações
+         {
+          title: t('Importações'),
+          path: paths.dashboard.importacao.list,
+          icon: ICONS.folder,
+        },
       ];
     } else {
       try {

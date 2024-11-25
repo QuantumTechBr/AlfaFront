@@ -91,5 +91,8 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/escola/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/escola/${id}/edit`,
     },
+    importacao: {
+      list: `${ROOTS.DASHBOARD}/importacao/list`,
+    },
   },
 };
