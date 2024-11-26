@@ -50,6 +50,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import turmaMethods from 'src/sections/turma/turma-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
@@ -60,6 +61,7 @@ import { escolas_piloto } from 'src/_mock';
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
 
 const defaultFilters = {
+  ano: '',
   nome: '',
   ddz: [],
   escola: [],
@@ -74,6 +76,7 @@ export default function TurmaListView() {
   const { buscaTurmas, buscaTurmasPaginado } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [countTurmas, setCountTurmas] = useState(0);
   const [countAtivos, setCountAtivos] = useState(0);
   const [countInativos, setCountInativos] = useState(0);
@@ -82,6 +85,9 @@ export default function TurmaListView() {
   const [warningMsg, setWarningMsg] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [openUploadModal, setOpenUploadModal] = useState(false);
+
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
 
   const contextReady = useBoolean(false);
 
@@ -174,7 +180,7 @@ export default function TurmaListView() {
           escola.push(esc.id)
         })
       }
-      let { nome, ddz, status } = filtros;
+      let { ano, nome, ddz, status } = filtros;
       let statusFilter = '';
 
       let escFiltered = [];
@@ -199,7 +205,7 @@ export default function TurmaListView() {
 
 
       await buscaTurmasPaginado({
-        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: statusFilter },
+        args: { offset, limit, ano, nome, ddzs: ddz, escolas: escola, status: statusFilter },
       })
         .then(async (resultado) => {
           if (resultado.count == 0) {
@@ -222,7 +228,7 @@ export default function TurmaListView() {
       let _countAll = 0;
 
       await buscaTurmasPaginado({
-        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'True' },
+        args: { offset, limit, ano, nome, ddzs: ddz, escolas: escola, status: 'True' },
         // clear
       }).then(async (resultado) => {
         setCountAtivos(resultado.count);
@@ -230,7 +236,7 @@ export default function TurmaListView() {
       });
 
       await buscaTurmasPaginado({
-        args: { offset, limit, nome, ddzs: ddz, escolas: escola, status: 'False' },
+        args: { offset, limit, ano, nome, ddzs: ddz, escolas: escola, status: 'False' },
       }).then(async (resultado) => {
         setCountInativos(resultado.count);
         _countAll += resultado.count;
@@ -283,10 +289,12 @@ export default function TurmaListView() {
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
-     
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
     ]);
     contextReady.onTrue();
-  }, [buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
+  }, [buscaAnosLetivos, buscaEscolas, buscarTurmas, contextReady, table.page, table.rowsPerPage]);
 
   const onChangePage = async (event, newPage) => {
     if (tableData.length < (newPage + 1) * table.rowsPerPage) {
@@ -309,6 +317,18 @@ export default function TurmaListView() {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
+  useEffect(() => {
+    if (anosLetivos.length > 0) {
+      anosLetivos.map((ano)=>{
+        if (ano.ano == anoAtual) {
+          const novosFiltros = filters;
+          novosFiltros.ano = ano.id;
+          setFilters(novosFiltros);
+        }
+      })
+    }
+  }, [anosLetivos]);
+
   useEffect( () => {
     buscarTurmas(table.page, table.rowsPerPage).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de turmas');
@@ -316,6 +336,7 @@ export default function TurmaListView() {
     });
     // contarTurmas();
  }, [escolas]);
+
 
 
   const dataInPage = tableData.slice(
@@ -504,6 +525,7 @@ export default function TurmaListView() {
               onFilters={handleFilters}
               ddzOptions={zonas}
               escolaOptions={escolas}
+              anoOptions={anosLetivos}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
             />
