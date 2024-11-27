@@ -406,6 +406,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const uploadAvaliacoes = async () => {
     try {
       const formData = new FormData();
+      formData.append('arquivo', uploadedFile);
 
       closeUploadModal();
 
