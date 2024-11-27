@@ -28,6 +28,7 @@ export default function TurmaTableToolbar({
   onFilters,
   ddzOptions,
   escolaOptions,
+  anoOptions,
   setErrorMsg,
   setWarningMsg,
 }) {
@@ -82,13 +83,13 @@ export default function TurmaTableToolbar({
   //   setEscolasACTotal(escolasAC);
   // }, []);
 
-
-  const handleFilterNome = useCallback(
+  const handleFilterAno = useCallback(
     (event) => {
-      onFilters('nome', event.target.value);
+      onFilters('ano', event.target.value);
     },
     [onFilters]
   );
+
 
   const handleFilterDdz = useCallback(
     (event) => {
@@ -128,14 +129,14 @@ export default function TurmaTableToolbar({
     }
   }, [filters.ddz]);
 
-  const renderValueEscola = (selected) =>
-    selected.map((escolaId) => {
-      return escolas.find((option) => option.id == escolaId)?.nome;
-    }).join(', ');
-
   const renderValueZona = (selected) =>
     selected.map((zonaId) => {
       return ddzOptions.find((option) => option.id == zonaId)?.nome;
+    }).join(', ');
+
+  const renderValueAno = (selected) =>
+    selected.map((anoId) => {
+      return anoOptions.find((option) => option.id == anoId)?.ano;
     }).join(', ');
 
   return (
@@ -153,7 +154,31 @@ export default function TurmaTableToolbar({
           width: '100%'
         }}
       >
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 100 },
+          }}
+        >
+          <InputLabel>Ano</InputLabel>
 
+          <Select
+            value={filters.ano}
+            onChange={handleFilterAno}
+            input={<OutlinedInput label="Ano" />}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 },
+              },
+            }}
+          >
+            {anoOptions?.map((option) => (
+              <MenuItem key={option.id} value={option.id}>
+                {option.ano}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <FormControl
           sx={{
@@ -257,9 +282,9 @@ export default function TurmaTableToolbar({
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        // sx={{ width: 140 }}
+      // sx={{ width: 140 }}
       >
-       {(buscandoCSV.value) &&
+        {(buscandoCSV.value) &&
           <LoadingBox
             sx={{ pt: 0.3, pl: 2.5 }}
             texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
@@ -275,12 +300,12 @@ export default function TurmaTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { 
+              const exportFilters = {
                 nome: filters.nome,
                 status: filters.status,
                 ddzs: filters.ddz,
                 escolas: filters.escola?.length > 0 ? filters.escola?.map((esc) => esc.id) : [],
-                export: 'csv' 
+                export: 'csv'
               };
               let escFiltered = [];
               if (exportFilters.escolas.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
