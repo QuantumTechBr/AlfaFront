@@ -69,7 +69,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoLetivo: '',
+  ano: '',
   escola: [],
   turma: [],
   bimestre: [],
@@ -99,7 +99,8 @@ export default function RegistroAprendizagemFaseListView() {
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
-
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -182,9 +183,16 @@ export default function RegistroAprendizagemFaseListView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      const _filters = {};
+      const _filters = filters;
 
-      if (anosLetivos.length) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+      if (anosLetivos.length > 0) {
+        anosLetivos.map((ano)=>{
+          
+          if (ano.ano == anoAtual) {
+            _filters.ano = ano.id;
+          }
+        })
+      }
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
           label: escolas[0].nome,
@@ -197,8 +205,8 @@ export default function RegistroAprendizagemFaseListView() {
         ..._filters,
       }));
 
-      if (_filters.anoLetivo) {
-        buscarAvaliacoes(table.page, table.rowsPerPage)
+      if (_filters.ano) {
+        buscarAvaliacoes(table.page, table.rowsPerPage, [], _filters);
       }
     }
   }, [contextReady.value]);
@@ -239,10 +247,9 @@ export default function RegistroAprendizagemFaseListView() {
         ),
         offset: offset,
         limit: limit,
-        ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
+        ano: filtros.ano ? filtros.ano : '',
         escolas: escola,
       };
-
       const _newList = [];
 
       await registroAprendizagemMethods

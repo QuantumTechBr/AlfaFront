@@ -51,7 +51,7 @@ export default function RegistroAprendizagemTableToolbar({
   const popover = usePopover();
 
   const handleFilterAnoLetivo = useCallback(
-    (event) => onFilters('anoLetivo', event.target.value),
+    (event) => onFilters('ano', event.target.value),
     [onFilters]
   );
 
@@ -125,12 +125,12 @@ export default function RegistroAprendizagemTableToolbar({
             <InputLabel>Ano Letivo</InputLabel>
 
             <Select
-              value={filters.anoLetivo}
+              value={filters.ano}
               onChange={handleFilterAnoLetivo}
               input={<OutlinedInput label="Ano Letivo" />}
             >
               {anoLetivoOptions.map((option) => (
-                <MenuItem key={option.id} value={option}>
+                <MenuItem key={option.id} value={option.id}>
                   {option.ano}
                 </MenuItem>
               ))}
@@ -166,7 +166,7 @@ export default function RegistroAprendizagemTableToolbar({
               width: { xs: 1, md: 210 },
             }}
           >
-            <InputLabel>Turmas</InputLabel>
+            <InputLabel>Turma</InputLabel>
 
             <Select
               multiple
