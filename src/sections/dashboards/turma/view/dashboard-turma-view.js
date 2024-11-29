@@ -340,7 +340,7 @@ export default function DashboardTurmaView() {
         buscaZonas(),
         buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
         buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
-        buscaBimestres(),
+        buscaBimestres(filters.anoLetivo ? filters.anoLetivo.id : null),
       ]).then(() => {
         contextReady.onTrue();
       });

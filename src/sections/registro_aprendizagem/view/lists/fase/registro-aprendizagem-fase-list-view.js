@@ -190,6 +190,7 @@ export default function RegistroAprendizagemFaseListView() {
           
           if (ano.ano == anoAtual) {
             _filters.ano = ano.id;
+            buscaBimestres(ano.id);
           }
         })
       }
@@ -206,6 +207,7 @@ export default function RegistroAprendizagemFaseListView() {
       }));
 
       if (_filters.ano) {
+        buscaBimestres(_filters.ano);
         buscarAvaliacoes(table.page, table.rowsPerPage, [], _filters);
       }
     }
@@ -371,6 +373,10 @@ export default function RegistroAprendizagemFaseListView() {
       let _filters = {};
       if (campo == 'escola') {
         _filters.turma = [];
+      }
+      if (campo == 'ano') {
+        _filters.bimestre = [];
+        buscaBimestres(value);
       }
       _filters[campo] = value;
       setFilters((prevState) => ({
