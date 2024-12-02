@@ -27,6 +27,9 @@ export const BimestresProvider = ({ children }) => {
         _consultaAtual = bimestreMethods.getAllBimestres(anoLetivoId ?? '').then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
           let bimestresFiltrados = response.data;
+          if (anoLetivoId != '') {
+            bimestresFiltrados = response.data.filter(bimestre => bimestre.ano.id == anoLetivoId);
+          }
           setBimestres(bimestresFiltrados);
           returnData = bimestresFiltrados;
           return returnData;
@@ -37,7 +40,7 @@ export const BimestresProvider = ({ children }) => {
         returnData = value;
       });
     }  
-
+    setBimestres(returnData);
     return returnData;
   };
 

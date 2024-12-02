@@ -8,6 +8,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -90,7 +91,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const contextReady = useBoolean(false);
-
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
@@ -138,12 +140,20 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         _filters.turma = '';
       }
 
+      if (['anoLetivo'].includes(name) && value != '') {
+        setValue('turma', '');
+        setValue('bimestre', '');
+        _filters.turma = '';
+        _filters.bimestre = '';
+        buscaBimestres(value.id);
+      }
+
       if (['anoLetivo', 'escola'].includes(name)) {
         setValue(name, value);
-        setTableData([]);
+        // setTableData([]);
       } else if (['turma', 'bimestre'].includes(name)) {
         setValue(name, value);
-        getRegistros();
+        // getRegistros();
       }
 
       setFilters((prevState) => ({
@@ -193,7 +203,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               observacao: registroEncontrado?.observacao ?? '',
             };
           });
-          
+
           const bimestre_csv = getValues('bimestre');
           const turma_csv = getValues('turma');
           const escola_csv = getValues('escola');
@@ -263,17 +273,31 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-      buscaBimestres().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de bimestres');
-      }),
-    ]).finally(() => {
-      contextReady.onTrue();
-    });
+    ]); 
   }, [buscaTurmas, buscaBimestres, turmaInicial, bimestreInicial, setValue]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    const fetchData = async () => {
+      let anoIdAtual = '';
+      anosLetivos.map((ano) => {
+        if (ano.ano == anoAtual) {
+          anoIdAtual = ano.id;
+        }
+      })
+      await buscaBimestres(anoIdAtual).catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de bimestres');
+      }).finally(() => {
+        contextReady.onTrue();
+      });
+    }
+    if (anosLetivos.length > 0) {
+      fetchData();
+    }
+  }, [anosLetivos]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -362,11 +386,10 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id)}
               bimestreOptions={bimestres}
               showSearch={tableData.length > 0}
+              nomeArquivo={csvFileName}
+              dataArquivo={csvData}
+              getRegistros={getRegistros}
             />
-
-            <CSVLink className='downloadCSVBtn' filename={csvFileName} data={csvData} >
-              Exportar para CSV
-            </CSVLink>
 
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
@@ -374,7 +397,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                 "& .simplebar-scrollbar": {
                   "backgroundColor": "#D3D3D3",
                   'borderRadius': 10,
-                },  
+                },
                 maxHeight: 800,
               }}>
                 {(!contextReady.value || buscando.value) && <LoadingBox />}

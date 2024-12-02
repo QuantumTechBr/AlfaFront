@@ -35,8 +35,13 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
   const { control, getValues } = useFormContext();
   const resultado = getValues('registros[' + aluno_turma_id + '].resultado');
   const turmaId = getValues('turma.id')
-  const bimestreAtual = bimestres.find((bimestre) => (bimestre.id == getValues('bimestre.id')))
-  const bimestreAnterior = bimestres.find((bimestre) => (bimestre.ordinal + 1 == bimestreAtual.ordinal))
+  const bimestreId = getValues('bimestre.id') != undefined ? getValues('bimestre.id') : '';
+  let bimestreAtual = {};
+  let bimestreAnterior = {};
+  if (bimestres.length > 0) {
+    bimestreAtual = bimestres.find((bimestre) => (bimestre?.id == bimestreId));
+    bimestreAnterior = bimestres.find((bimestre) => (bimestre?.ordinal + 1 == bimestreAtual?.ordinal));
+  }
   const [resultadoPrevio, setResultadoPrevio] = useState("")
 
   const disableCheckbox = useCallback(() => {
