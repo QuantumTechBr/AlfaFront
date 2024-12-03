@@ -169,38 +169,54 @@ export default function RegistroAprendizagemFaseListView() {
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-      buscaBimestres().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de bimestres');
-      }),
-    ]).finally(() => {
-      contextReady.onTrue();
-    });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres]);
+    ]);
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (anosLetivos.length > 0) {
+        let anoIdInicial = '';
+        anosLetivos.map((ano) => {
+          if (anoAtual == ano.ano) {
+            anoIdInicial = ano.id;
+          }
+        })
+        await buscaBimestres(anoIdInicial).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de bimestres');
+        }).finally(() => {
+          contextReady.onTrue();
+        });
+      }
+    }
+    if (anosLetivos.length > 0) {
+      fetchData();
+    }
+  }, [anosLetivos]);
+
+  useEffect(() => {
     if (contextReady.value) {
+
       const _filters = filters;
 
-      if (anosLetivos.length > 0) {
-        if (_filters.ano != '') {
-          anosLetivos.map((ano)=>{          
-            if (ano.id == _filters.ano) {
-              buscaBimestres(ano.id);
-            }
-          })
-        } else if (_filters.ano == '') {
-          anosLetivos.map((ano)=>{          
-            if (ano.ano == anoAtual) {
-              _filters.ano = ano.id;
-              buscaBimestres(ano.id);
-            }
-          })
-        }
+
+      if (_filters.ano != '') {
+        anosLetivos.map((ano) => {
+          if (ano.id == _filters.ano) {
+            buscaBimestres(ano.id);
+          }
+        })
+      } else if (_filters.ano == '') {
+        anosLetivos.map((ano) => {
+          if (ano.ano == anoAtual) {
+            _filters.ano = ano.id;
+          }
+        })
       }
+
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
           label: escolas[0].nome,
@@ -298,7 +314,7 @@ export default function RegistroAprendizagemFaseListView() {
     if (anosLetivos.length && turmas.length && bimestres.length) {
       setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
         'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email + 
+        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
         ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
       );
       setErrorMsg('');
@@ -333,7 +349,7 @@ export default function RegistroAprendizagemFaseListView() {
         escola: escolas,
       };
 
-      if(por == 'turma') {
+      if (por == 'turma') {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorTurma(_filtersToSend)
           .then((result) => {
@@ -557,14 +573,14 @@ export default function RegistroAprendizagemFaseListView() {
             open={popover.open}
             onClose={popover.onClose}
             arrow="left-top"
-            // sx={{ width: 200 }}
+          // sx={{ width: 200 }}
           >
 
             {(buscandoCSV.value) &&
               <LoadingBox
-              sx={{ pt: 0.3, pl: 2.5 }}
-              texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
-            />
+                sx={{ pt: 0.3, pl: 2.5 }}
+                texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+              />
             }
             {(!buscandoCSV.value) &&
               <>
