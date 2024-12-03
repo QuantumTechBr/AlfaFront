@@ -1,7 +1,7 @@
 'use client';
-
 import { last } from 'lodash';
 import { useEffect, useState, useCallback } from 'react';
+import isEqual from 'lodash/isEqual';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -126,11 +126,11 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
-  const notFound = !dataFiltered.length || !dataFiltered.length;
+  const canReset = !isEqual(defaultFilters, filters);
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (name, value) => {
+    async (name, value) => {
       table.onResetPage();
       const _filters = {};
       _filters[name] = value;
@@ -145,7 +145,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         setValue('bimestre', '');
         _filters.turma = '';
         _filters.bimestre = '';
-        buscaBimestres(value.id);
+        await buscaBimestres(value.id);
       }
 
       if (['anoLetivo', 'escola'].includes(name)) {
