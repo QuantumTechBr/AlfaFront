@@ -91,8 +91,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const contextReady = useBoolean(false);
-  const dataAtual = new Date();
-  const anoAtual = dataAtual.getFullYear();
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
@@ -273,8 +271,8 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-    ]); 
-  }, [buscaTurmas, buscaBimestres, turmaInicial, bimestreInicial, setValue]);
+    ]);
+  }, [buscaTurmas, turmaInicial, bimestreInicial, setValue]);
 
   useEffect(() => {
     preparacaoInicial();
@@ -282,13 +280,18 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
 
   useEffect(() => {
     const fetchData = async () => {
-      let anoIdAtual = '';
-      anosLetivos.map((ano) => {
-        if (ano.ano == anoAtual) {
-          anoIdAtual = ano.id;
+      if (turmaInicial) {
+        let anoIdInicial = '';
+        const _turmaComplete = turmas.find((t) => t.id == turmaInicial);
+        if (_turmaComplete) {
+          anosLetivos.map((ano) => {
+            if (_turmaComplete.ano_id == ano.id) {
+              anoIdInicial = ano.id;
+            }
+          })
         }
-      })
-      await buscaBimestres(anoIdAtual).catch((error) => {
+      }
+      await buscaBimestres(anoIdInicial).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de bimestres');
       }).finally(() => {
         contextReady.onTrue();
