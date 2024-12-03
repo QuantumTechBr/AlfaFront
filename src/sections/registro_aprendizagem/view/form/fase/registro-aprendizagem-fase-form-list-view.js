@@ -386,7 +386,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
               escolaOptions={escolas}
-              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id)}
+              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id).filter((_turma) => filters.anoLetivo.id == _turma.ano_id)}
               bimestreOptions={bimestres}
               showSearch={tableData.length > 0}
               nomeArquivo={csvFileName}
