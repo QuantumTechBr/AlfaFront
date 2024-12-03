@@ -290,12 +290,12 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             }
           })
         }
+        await buscaBimestres(anoIdInicial).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de bimestres');
+        }).finally(() => {
+          contextReady.onTrue();
+        });
       }
-      await buscaBimestres(anoIdInicial).catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de bimestres');
-      }).finally(() => {
-        contextReady.onTrue();
-      });
     }
     if (anosLetivos.length > 0) {
       fetchData();
