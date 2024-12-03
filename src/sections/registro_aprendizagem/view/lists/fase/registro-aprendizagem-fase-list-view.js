@@ -363,7 +363,7 @@ export default function RegistroAprendizagemFaseListView() {
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
-    const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id).filter((_turma) => filters?.ano == _turma.ano_id));
+    const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id)).filter((_turma) => filters?.ano == _turma.ano_id);
     setTurmasFiltered(_turmasFiltered);
   }, [filters.escola]);
 
