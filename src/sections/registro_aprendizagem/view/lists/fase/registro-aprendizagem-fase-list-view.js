@@ -397,6 +397,9 @@ export default function RegistroAprendizagemFaseListView() {
         _filters.turma = [];
       }
       if (campo == 'ano') {
+        const idsEscolas = filters.escola.map(escola => escola.id);
+        const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id)).filter((_turma) => value == _turma.ano_id);
+        setTurmasFiltered(_turmasFiltered);
         _filters.turma = [];
         _filters.bimestre = [];
         buscaBimestres(value);
