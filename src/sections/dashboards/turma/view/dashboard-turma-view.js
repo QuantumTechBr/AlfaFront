@@ -245,15 +245,15 @@ export default function DashboardTurmaView() {
       isGettingGraphics.onTrue();
       const payloadFilters = {
         ano_letivo: [
-          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos)).id,
+          (_filtersToSearch.anoLetivo != '' ? _filtersToSearch.anoLetivo : _.first(anosLetivos))?.id,
         ],
         ddz: _filtersToSearch.zona.map((item) => item.id),
         escola: _filtersToSearch.escola.map((item) => item.id),
         turma: [
-          (_filtersToSearch.turma != {} ? _filtersToSearch.turma : _.first(_turmasFiltered)).id,
+          (_filtersToSearch.turma != {} ? _filtersToSearch.turma : _.first(_turmasFiltered))?.id,
         ],
         bimestre: [
-          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres)).id,
+          (_filtersToSearch.bimestre != '' ? _filtersToSearch.bimestre : _.last(bimestres))?.id,
         ],
         laudo_necessidade: _filtersToSearch.pne == '-' ? '' : _filtersToSearch.pne,
         necessidades_especiais: _filtersToSearch.pne == '-' || _filtersToSearch.pneItem == '-' ? [] : [`["${_filtersToSearch.pneItem}"]`],
@@ -340,8 +340,10 @@ export default function DashboardTurmaView() {
         buscaZonas(),
         buscaEscolas().then((_escolas) => setEscolasFiltered(_escolas)),
         buscaTurmas().then((_turmas) => setTurmasFiltered(_turmas)),
-        buscaBimestres(filters.anoLetivo ? filters.anoLetivo.id : null),
+        buscaBimestres()
       ]).then(() => {
+        // const _turma = turmas.find((t) => t.id == initialTurma);
+        // awaitbuscaBimestres(_turma?.ano_id),
         contextReady.onTrue();
       });
     }
@@ -357,16 +359,19 @@ export default function DashboardTurmaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      const _turma = turmas.filter((t) => t.id == initialTurma);
-      const _escola = escolas.filter((e) => e.id == _turma[0]?.escola_id);
+      const _turma = turmas.find((t) => t.id == initialTurma);
+      const _escola = escolas.find((e) => e.id == _turma?.escola_id);
+      const _anoLetivo = anosLetivos.find((a) => a.id == _turma?.ano_id);
 
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
-        zona: _escola.length > 0 ? zonas.filter((z) => z.id == _escola[0]?.zona.id) : filters.zona,
-        escola: _escola.length > 0 ? _escola : escolas.length == 1 ? escolas : [],
-        turma: _turma.length > 0 ? _turma[0] : turmas.length == 1 ? turmas[0] : {},
-        ...(bimestres && bimestres.length > 0 ? { bimestre: _.last(bimestres) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo:_anoLetivo } : {}),
+        zona: _escola ? zonas.filter((z) => z.id == _escola?.zona.id) : filters.zona,
+        escola: _escola ? [_escola] : [],
+        turma: _turma?.id ? _turma : turmas.length == 1 ? turmas[0] : {},
+        ...(bimestres && bimestres.length > 0 ? { bimestre: bimestres.find(
+          (b) => b.ano.id == _anoLetivo.id
+        ) } : {}),
       };
       setFilters((prevState) => ({ ...prevState, ..._filters }));
       preencheGraficos(_filters);
@@ -685,8 +690,8 @@ export default function DashboardTurmaView() {
                   escolaOptions={_escolasFiltered || escolas}
                   anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
                     filters.escola.map((e) => e.id).includes(t.escola_id)
-                  )}
-                  bimestreOptions={bimestres}
+                  ).filter((t) => t.ano_id == filters.anoLetivo.id)}
+                  bimestreOptions={bimestres.filter((b) => b.ano.id == filters.anoLetivo.id)}
                   disableAnoLetivo={true}
                   disableDdz={true}
                   disableEscola={true}
