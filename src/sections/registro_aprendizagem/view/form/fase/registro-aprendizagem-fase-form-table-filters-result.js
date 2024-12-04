@@ -19,13 +19,13 @@ export default function RegistroAprendizagemFaseFormTableFiltersResult({
   ...other
 }) {
   
-  const handleRemoveTurma = (inputValue) => {
-    const newValue = filters.turma.filter((item) => item !== inputValue);
-    onFilters('turma', newValue);
-  };
+  // const handleRemoveTurma = (inputValue) => {
+  //   const newValue = filters.turma.filter((item) => item !== inputValue);
+  //   onFilters('turma', newValue);
+  // };
 
     const handleRemoveNome = (inputValue) => {
-    onFilters('nome', '');
+    onFilters('pesquisa', '');
   };
   return (
     <Stack spacing={1.5} {...other}>
@@ -37,19 +37,19 @@ export default function RegistroAprendizagemFaseFormTableFiltersResult({
       </Box>
 
       <Stack flexGrow={1} spacing={1} direction="row" flexWrap="wrap" alignItems="center">
-        {filters.nome && filters.nome !== '' && (
+        {filters.pesquisa && filters.pesquisa !== '' && (
           <Block label="Nome:">
-            <Chip size="small" label={filters.nome} onDelete={handleRemoveNome} />
+            <Chip size="small" label={filters.pesquisa} onDelete={handleRemoveNome} />
           </Block>
         )}
 
-        {!!filters.turma && filters.turma.length && (
+        {/* {!!filters.turma && filters.turma.length && (
           <Block label="Turma:">
             {filters.turma.map((item) => (
               <Chip key={item.id} label={item.ano_escolar+'º '+item.nome} size="small" onDelete={() => handleRemoveTurma(item)} />
             ))}
           </Block>
-        )}
+        )} */}
 
         <Button
           color="error"

@@ -50,6 +50,7 @@ import {
 //
 import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-form-table-row';
 import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
+import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -68,6 +69,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pesquisa: '' };
+
 
 // ----------------------------------------------------------------------
 
@@ -124,7 +126,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-  const canReset = !isEqual(defaultFilters, filters);
+  const canReset = !isEqual(defaultFilters.pesquisa, filters.pesquisa);
   const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
@@ -351,6 +353,24 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     }
   }, [contextReady.value]);
 
+  const handleResultFilters = useCallback(
+    (nome, value) => {
+      table.onResetPage();
+      setFilters((prevState) => ({
+        ...prevState,
+        [nome]: value,
+      }));
+    },
+    [table]
+  );
+
+  const handleResetResultFilters = useCallback(() => {
+    setFilters((prevState) => ({
+      ...prevState,
+      pesquisa: '',
+    }));
+  }, [filters]);
+
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
@@ -394,6 +414,15 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               getRegistros={getRegistros}
             />
 
+            {canReset && (
+              <RegistroAprendizagemFaseFormTableFiltersResult
+                filters={filters}
+                onFilters={handleResultFilters}
+                onResetFilters={handleResetResultFilters}
+                results={dataFiltered.length}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar sx={{
@@ -485,6 +514,5 @@ function applyFilter({ inputData, comparator, filters }) {
   if (_pesquisa.length) {
     inputData = inputData.filter((item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0);
   }
-
   return inputData;
 }
