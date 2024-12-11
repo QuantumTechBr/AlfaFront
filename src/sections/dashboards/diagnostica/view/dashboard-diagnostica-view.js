@@ -407,12 +407,8 @@ export default function DashboardDiagnosticaView() {
       { id: 'estudantes', label: 'Estudantes', width: 110, notsortable: true },
       { id: 'entrada_presentes', label: 'Entrada Presentes', width: 110, notsortable: true },
       { id: 'entrada_ausentes', label: 'Entrada Ausentes', width: 110, notsortable: true },
-      ...(dados.total_alunos_presentes.saida ?? 0 > 0
-        ? [{ id: 'saida_presentes', label: 'Saída Presentes', width: 110, notsortable: true }]
-        : []),
-      ...(dados.total_alunos_ausentes.saida ?? 0 > 0
-        ? [{ id: 'saida_ausentes', label: 'Saída Ausentes', width: 110, notsortable: true }]
-        : []),
+      { id: 'saida_presentes', label: 'Saída Presentes', width: 110, notsortable: true },
+      { id: 'saida_ausentes', label: 'Saída Ausentes', width: 110, notsortable: true },
       { id: '', width: 88, notsortable: true },
     ],
     [dados]
@@ -1665,8 +1661,8 @@ function RowEscola(props) {
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
       <TableCell>{_entradaPresente ?? 0}</TableCell>
       <TableCell>{_entradaAusente ?? 0}</TableCell>
-      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
-      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
+      <TableCell>{_saidaPresente ?? 0}</TableCell>
+      <TableCell>{_saidaAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"
@@ -1704,8 +1700,8 @@ function RowTurma(props) {
       <TableCell>{row.qtd_alunos ?? 0}</TableCell>
       <TableCell>{_entradaPresente ?? 0}</TableCell>
       <TableCell>{_entradaAusente ?? 0}</TableCell>
-      {_saidaPresente > 0 && <TableCell>{_saidaPresente ?? 0}</TableCell>}
-      {_saidaAusente > 0 && <TableCell>{_saidaAusente ?? 0}</TableCell>}
+      <TableCell>{_saidaPresente ?? 0}</TableCell>
+      <TableCell>{_saidaAusente ?? 0}</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           component={RouterLink}
