@@ -192,7 +192,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
   }, [defaultFilters]);
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
 
       <Card>
 
@@ -204,6 +203,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
           freqOptions={frequencia_options}
           turma={turma}
           handleTurma={handleTurma}
+          nomeArquivo={csvFileName}
+          dataArquivo={csvData}
         />
 
         {canReset && (
@@ -216,10 +217,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
             sx={{ p: 2.5, pt: 0 }}
           />
         )}
-
-        {csvData?.length > 0 && <CSVLink className='downloadCSVBtn' filename={csvFileName} data={csvData} >
-          Exportar para CSV
-        </CSVLink>}
 
         <TableContainer sx={{ position: 'relative', overflow: 'unset' }} >
           <Scrollbar sx={{
@@ -282,7 +279,6 @@ export default function RegistroAprendizagemDiagnosticoNewEditTable({ turma, per
         // onChangeDense={table.onChangeDense}
         />
       </Card>
-    </Container>
   );
 }
 

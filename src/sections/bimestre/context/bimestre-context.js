@@ -7,23 +7,29 @@ export const BimestresProvider = ({ children }) => {
   const [bimestres, setBimestres] = useState([]);
   let _consultaAtual;
 
-  const filtrarBimestres = (todosBimestres) => {
-    const hoje = new Date();
-    const dataAtual = hoje.toISOString().slice(0, 10); // Formata a data atual para 'YYYY-MM-DD'
+  // const filtrarBimestres = (todosBimestres) => {
+  //   const hoje = new Date();
+  //   const dataAtual = hoje.toISOString().slice(0, 10); // Formata a data atual para 'YYYY-MM-DD'
   
-    return todosBimestres.filter(bim => {
-      const dataInicio = new Date(bim.data_inicio).toISOString().slice(0, 10);
-      return dataInicio < dataAtual;
-    });
-  }
+  //   return todosBimestres.filter(bim => {
+  //     const dataInicio = new Date(bim.data_inicio).toISOString().slice(0, 10);
+  //     return dataInicio < dataAtual;
+  //   });
+  // }
 
-  const buscaBimestres = async ({ force = false } = {}) => {
+  const buscaBimestres = async ( anoLetivoId = '', force = false ) => {
     let returnData = bimestres;
-    if (force || bimestres.length == 0) {
+    if(anoLetivoId) {
+      returnData = bimestres.filter(bimestre => bimestre.ano.id == anoLetivoId);
+    }
+    if (force || returnData.length == 0) {
       if (!_consultaAtual || force) {
-        _consultaAtual = bimestreMethods.getAllBimestres().then((response) => {
+        _consultaAtual = bimestreMethods.getAllBimestres(anoLetivoId ?? '').then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
-          let bimestresFiltrados = filtrarBimestres(response.data);
+          let bimestresFiltrados = response.data;
+          if (anoLetivoId != '') {
+            bimestresFiltrados = response.data.filter(bimestre => bimestre.ano.id == anoLetivoId);
+          }
           setBimestres(bimestresFiltrados);
           returnData = bimestresFiltrados;
           return returnData;
@@ -33,8 +39,8 @@ export const BimestresProvider = ({ children }) => {
       await _consultaAtual.then((value) => {
         returnData = value;
       });
-    }
-
+    }  
+    setBimestres(returnData);
     return returnData;
   };
 

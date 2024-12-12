@@ -69,7 +69,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoLetivo: '',
+  ano: '',
   escola: [],
   turma: [],
   bimestre: [],
@@ -99,7 +99,8 @@ export default function RegistroAprendizagemFaseListView() {
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
-
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -168,23 +169,54 @@ export default function RegistroAprendizagemFaseListView() {
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-      buscaBimestres().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de bimestres');
-      }),
-    ]).finally(() => {
-      contextReady.onTrue();
-    });
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaBimestres]);
+    ]);
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
   useEffect(() => {
-    if (contextReady.value) {
-      const _filters = {};
+    const fetchData = async () => {
+      if (anosLetivos.length > 0) {
+        let anoIdInicial = '';
+        anosLetivos.map((ano) => {
+          if (anoAtual == ano.ano) {
+            anoIdInicial = ano.id;
+          }
+        })
+        await buscaBimestres(anoIdInicial).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de bimestres');
+        }).finally(() => {
+          contextReady.onTrue();
+        });
+      }
+    }
+    if (anosLetivos.length > 0) {
+      fetchData();
+    }
+  }, [anosLetivos]);
 
-      if (anosLetivos.length) _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+  useEffect(() => {
+    if (contextReady.value) {
+
+      const _filters = filters;
+
+
+      if (_filters.ano != '') {
+        anosLetivos.map((ano) => {
+          if (ano.id == _filters.ano) {
+            buscaBimestres(ano.id);
+          }
+        })
+      } else if (_filters.ano == '') {
+        anosLetivos.map((ano) => {
+          if (ano.ano == anoAtual) {
+            _filters.ano = ano.id;
+          }
+        })
+      }
+
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
           label: escolas[0].nome,
@@ -197,8 +229,8 @@ export default function RegistroAprendizagemFaseListView() {
         ..._filters,
       }));
 
-      if (_filters.anoLetivo) {
-        buscarAvaliacoes(table.page, table.rowsPerPage)
+      if (_filters.ano) {
+        buscarAvaliacoes(table.page, table.rowsPerPage, [], _filters);
       }
     }
   }, [contextReady.value]);
@@ -239,10 +271,9 @@ export default function RegistroAprendizagemFaseListView() {
         ),
         offset: offset,
         limit: limit,
-        ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
+        ano: filtros.ano ? filtros.ano : '',
         escolas: escola,
       };
-
       const _newList = [];
 
       await registroAprendizagemMethods
@@ -283,7 +314,7 @@ export default function RegistroAprendizagemFaseListView() {
     if (anosLetivos.length && turmas.length && bimestres.length) {
       setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
         'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email + 
+        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
         ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
       );
       setErrorMsg('');
@@ -318,7 +349,7 @@ export default function RegistroAprendizagemFaseListView() {
         escola: escolas,
       };
 
-      if(por == 'turma') {
+      if (por == 'turma') {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorTurma(_filtersToSend)
           .then((result) => {
@@ -348,7 +379,7 @@ export default function RegistroAprendizagemFaseListView() {
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
-    const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id));
+    const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id)).filter((_turma) => filters?.ano == _turma.ano_id);
     setTurmasFiltered(_turmasFiltered);
   }, [filters.escola]);
 
@@ -364,6 +395,14 @@ export default function RegistroAprendizagemFaseListView() {
       let _filters = {};
       if (campo == 'escola') {
         _filters.turma = [];
+      }
+      if (campo == 'ano') {
+        const idsEscolas = filters.escola.map(escola => escola.id);
+        const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id)).filter((_turma) => value == _turma.ano_id);
+        setTurmasFiltered(_turmasFiltered);
+        _filters.turma = [];
+        _filters.bimestre = [];
+        buscaBimestres(value);
       }
       _filters[campo] = value;
       setFilters((prevState) => ({
@@ -537,14 +576,14 @@ export default function RegistroAprendizagemFaseListView() {
             open={popover.open}
             onClose={popover.onClose}
             arrow="left-top"
-            // sx={{ width: 200 }}
+          // sx={{ width: 200 }}
           >
 
             {(buscandoCSV.value) &&
               <LoadingBox
-              sx={{ pt: 0.3, pl: 2.5 }}
-              texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
-            />
+                sx={{ pt: 0.3, pl: 2.5 }}
+                texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+              />
             }
             {(!buscandoCSV.value) &&
               <>

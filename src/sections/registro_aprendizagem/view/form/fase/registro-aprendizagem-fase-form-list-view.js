@@ -1,13 +1,14 @@
 'use client';
-
 import { last } from 'lodash';
 import { useEffect, useState, useCallback } from 'react';
+import isEqual from 'lodash/isEqual';
 
 // @mui
 import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
@@ -49,6 +50,7 @@ import {
 //
 import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-form-table-row';
 import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
+import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -67,6 +69,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pesquisa: '' };
+
 
 // ----------------------------------------------------------------------
 
@@ -90,7 +93,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
   const { limparMapCache } = useContext(RegistroAprendizagemContext);
   const permissaoCadastrar = checkPermissaoModulo("registro_aprendizagem", "cadastrar");
   const contextReady = useBoolean(false);
-
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
@@ -124,11 +126,11 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     comparator: getComparator(table.order, table.orderBy),
     filters,
   });
-
-  const notFound = !dataFiltered.length || !dataFiltered.length;
+  const canReset = !isEqual(defaultFilters.pesquisa, filters.pesquisa);
+  const notFound = (!dataFiltered.length && canReset) || !dataFiltered.length;
 
   const handleFilters = useCallback(
-    (name, value) => {
+    async (name, value) => {
       table.onResetPage();
       const _filters = {};
       _filters[name] = value;
@@ -138,12 +140,20 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
         _filters.turma = '';
       }
 
+      if (['anoLetivo'].includes(name) && value != '') {
+        setValue('turma', '');
+        setValue('bimestre', '');
+        _filters.turma = '';
+        _filters.bimestre = '';
+        await buscaBimestres(value.id);
+      }
+
       if (['anoLetivo', 'escola'].includes(name)) {
         setValue(name, value);
-        setTableData([]);
+        // setTableData([]);
       } else if (['turma', 'bimestre'].includes(name)) {
         setValue(name, value);
-        getRegistros();
+        // getRegistros();
       }
 
       setFilters((prevState) => ({
@@ -193,7 +203,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               observacao: registroEncontrado?.observacao ?? '',
             };
           });
-          
+
           const bimestre_csv = getValues('bimestre');
           const turma_csv = getValues('turma');
           const escola_csv = getValues('escola');
@@ -263,17 +273,36 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
-      buscaBimestres().catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de bimestres');
-      }),
-    ]).finally(() => {
-      contextReady.onTrue();
-    });
-  }, [buscaTurmas, buscaBimestres, turmaInicial, bimestreInicial, setValue]);
+    ]);
+  }, [buscaTurmas, turmaInicial, bimestreInicial, setValue]);
 
   useEffect(() => {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (turmaInicial) {
+        let anoIdInicial = '';
+        const _turmaComplete = turmas.find((t) => t.id == turmaInicial);
+        if (_turmaComplete) {
+          anosLetivos.map((ano) => {
+            if (_turmaComplete.ano_id == ano.id) {
+              anoIdInicial = ano.id;
+            }
+          })
+        }
+        await buscaBimestres(anoIdInicial).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de bimestres');
+        }).finally(() => {
+          contextReady.onTrue();
+        });
+      }
+    }
+    if (anosLetivos.length > 0) {
+      fetchData();
+    }
+  }, [anosLetivos]);
 
   useEffect(() => {
     if (contextReady.value) {
@@ -324,6 +353,24 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
     }
   }, [contextReady.value]);
 
+  const handleResultFilters = useCallback(
+    (nome, value) => {
+      table.onResetPage();
+      setFilters((prevState) => ({
+        ...prevState,
+        [nome]: value,
+      }));
+    },
+    [table]
+  );
+
+  const handleResetResultFilters = useCallback(() => {
+    setFilters((prevState) => ({
+      ...prevState,
+      pesquisa: '',
+    }));
+  }, [filters]);
+
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
@@ -359,22 +406,30 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
               escolaOptions={escolas}
-              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id)}
+              turmaOptions={turmas.filter((_turma) => filters.escola.id == _turma.escola_id).filter((_turma) => filters.anoLetivo.id == _turma.ano_id)}
               bimestreOptions={bimestres}
               showSearch={tableData.length > 0}
+              nomeArquivo={csvFileName}
+              dataArquivo={csvData}
+              getRegistros={getRegistros}
             />
 
-            <CSVLink className='downloadCSVBtn' filename={csvFileName} data={csvData} >
-              Exportar para CSV
-            </CSVLink>
-
+            {canReset && (
+              <RegistroAprendizagemFaseFormTableFiltersResult
+                filters={filters}
+                onFilters={handleResultFilters}
+                onResetFilters={handleResetResultFilters}
+                results={dataFiltered.length}
+                sx={{ p: 2.5, pt: 0 }}
+              />
+            )}
 
             <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
               <Scrollbar sx={{
                 "& .simplebar-scrollbar": {
                   "backgroundColor": "#D3D3D3",
                   'borderRadius': 10,
-                },  
+                },
                 maxHeight: 800,
               }}>
                 {(!contextReady.value || buscando.value) && <LoadingBox />}
@@ -459,6 +514,5 @@ function applyFilter({ inputData, comparator, filters }) {
   if (_pesquisa.length) {
     inputData = inputData.filter((item) => item.aluno.nome.toLowerCase().indexOf(_pesquisa) >= 0);
   }
-
   return inputData;
 }

@@ -196,25 +196,7 @@ export default function TurmaNewEditForm({ currentTurma }) {
                 {currentTurma?.id && (
                   <RHFTextField name="codigo_turma" label="Código da Turma" />
                 )}
-                {currentTurma ? (
-                  <Paper
-                    variant="outlined"
-                    sx={{
-                      borderRadius: 1.1,
-                      borderColor: 'divider',
-                      borderStyle: 'solid',
-                      display: 'flex',
-                      alignItems: 'center',
-                      py: 0.3,
-                      px: 1.5,
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ lineHeight: 1.2 }}>
-                      {currentTurma.escola?.nome}
-                    </Typography>
-                  </Paper>
-                ) : (
-
+                {!currentTurma && (
                   <RHFSelect name="escola_id" label="Escola">
                     {escolas.map((escola) => (
                       <MenuItem key={escola.id} value={escola.id}>

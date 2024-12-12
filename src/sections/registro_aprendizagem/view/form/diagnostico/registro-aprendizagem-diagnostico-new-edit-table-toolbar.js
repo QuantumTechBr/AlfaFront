@@ -8,10 +8,13 @@ import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import IconButton from '@mui/material/IconButton';
 import FormControl from '@mui/material/FormControl';
+import { Button } from '@mui/material';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
 // components
+import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { CSVLink } from "react-csv";
 import Iconify from 'src/components/iconify';
 import turmaMethods from 'src/sections/turma/turma-repository';
 
@@ -25,9 +28,14 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   freqOptions,
   turma,
   handleTurma,
+  nomeArquivo,
+  dataArquivo,
+  getRegistros,
 }) {
   const [turmas, setTurmas] = useState([]);
-  const [escola, setEscola] = useState([]);
+  const [escola, setEscola] = useState({});
+  const [turmaSelect, setTurmaSelect] = useState(turma);
+  const [anoLetivo, setAnoLetivo] = useState({});
 
   useEffect(() => {
     turmaMethods.getAllTurmas().then((response) => {
@@ -38,16 +46,27 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
   useEffect(() => {
     const esc = escolaOptions.filter((_escola) => turma.escola.id == _escola.id);
     setEscola(esc[0]);
-  }, [escolaOptions, turma]);
+    const ano = anoLetivoOptions.filter((_ano) => turma.ano.id == _ano.id);
+    setAnoLetivo(ano[0]);
+  }, [turma, escolaOptions, anoLetivoOptions]);
 
   const handleFilterAnoLetivo = useCallback(
-    (event) => onFilters('anoLetivo', event.target.value),
-    [onFilters]
+    (event) => {
+      setAnoLetivo(event.target.value)
+      setTurmaSelect('');
+    }, [setAnoLetivo]
   );
 
   const handleFilterEscola = useCallback(
-    (event) => setEscola(event.target.value),
-    [setEscola],
+    (event) => {
+      setEscola(event.target.value);
+      setTurmaSelect('');
+    }, [setEscola],
+  );
+
+  const handleFilterTurma = useCallback(
+    (event) => setTurmaSelect(event.target.value),
+    [setTurmaSelect],
   );
 
   const handleFilterNome = useCallback(
@@ -66,9 +85,10 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
     },
     [onFilters]
   );
-
+  const popover = usePopover();
   return (
-    <Stack
+    <>
+      <Stack
         spacing={2}
         alignItems={{ xs: 'flex-end', md: 'center' }}
         direction={{
@@ -80,7 +100,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
         }}
       >
 
-        {/* {anoLetivoOptions && !!anoLetivoOptions.length && (
+        {anoLetivoOptions && (
           <FormControl
             sx={{
               flexShrink: 0,
@@ -90,7 +110,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
             <InputLabel>Ano Letivo</InputLabel>
 
             <Select
-              value={filters.anoLetivo}
+              value={anoLetivo}
               onChange={handleFilterAnoLetivo}
               input={<OutlinedInput label="Ano Letivo" />}
               MenuProps={{
@@ -108,7 +128,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               })}
             </Select>
           </FormControl>
-        )} */}
+        )}
 
         {escolaOptions && (
           <FormControl
@@ -150,8 +170,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           <InputLabel>Turma</InputLabel>
 
           <Select
-            value={turma}
-            onChange={handleTurma}
+            value={turmaSelect}
+            onChange={handleFilterTurma}
             input={<OutlinedInput label="Turma" />}
             renderValue={(selected) => ` ${selected.ano_escolar}º ${selected.nome}`}
             MenuProps={{
@@ -160,7 +180,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
               },
             }}
           >
-            {turmas.filter((_turma) => escola?.id == _turma.escola_id).map((option) => (
+            {turmas.filter((_turma) => escola?.id == _turma.escola_id).filter((_turma) => anoLetivo?.id == _turma.ano_id).map((option) => (
               <MenuItem key={option.id} value={option}>
                 {` ${option.ano_escolar}º ${option.nome} (${option.turno})`}
               </MenuItem>
@@ -168,6 +188,67 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
           </Select>
         </FormControl>
 
+
+        <IconButton onClick={popover.onOpen}>
+          <Iconify icon="eva:more-vertical-fill" />
+        </IconButton>
+        <CustomPopover
+          open={popover.open}
+          onClose={popover.onClose}
+          arrow="left-top"
+        // sx={{ width: 140 }}
+        >
+          <MenuItem>
+            <CSVLink className='downloadCSVBtn' filename={nomeArquivo} data={dataArquivo} >
+              Exportar para CSV
+            </CSVLink>
+          </MenuItem>
+
+        </CustomPopover>
+        <Button
+          disabled={escola && turmaSelect && anoLetivo ? false : true}
+          variant="contained"
+          sx={{
+            width: {
+              xs: '100%',
+              md: '15%',
+            },
+          }}
+          onClick={() => {
+            handleTurma(turmaSelect);
+          }}
+        >
+          Aplicar filtros
+        </Button>
+      </Stack>
+      <Stack
+        spacing={2}
+        alignItems={{ xs: 'flex-end', md: 'center' }}
+        direction={{
+          xs: 'column',
+          md: 'row',
+        }}
+        sx={{
+          pb: 2.5,
+          pl: 2.5,
+
+          pr: { xs: 2.5, md: 1 },
+        }}>
+        <TextField
+          value={filters.nome}
+          onChange={handleFilterNome}
+          placeholder="Nome/Matrícula..."
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            width: 660,
+          }}
+        />
         <FormControl
           sx={{
             flexShrink: 0,
@@ -208,23 +289,8 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableToolbar({
             ))}
           </Select>
         </FormControl>
-
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Nome/Matrícula..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Stack>
       </Stack>
+    </>
   );
 }
 

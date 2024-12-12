@@ -69,7 +69,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
-  anoLetivo: '',
+  ano: '',
   escola: [],
   turma: [],
   periodo: [],
@@ -98,7 +98,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
   const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const permissaoCadastrar = checkPermissaoModulo('registro_aprendizagem', 'cadastrar');
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
-
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
 
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
@@ -147,10 +148,15 @@ export default function RegistroAprendizagemDiagnosticoListView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      const _filters = {};
+      const _filters = filters;
 
-      if (anosLetivos.length) {
-        _filters.anoLetivo = anosLetivos.length ? first(anosLetivos) : '' ?? '';
+      if (anosLetivos.length > 0) {
+        anosLetivos.map((ano)=>{
+          
+          if (ano.ano == anoAtual) {
+            _filters.ano = ano.id;
+          }
+        })
       }
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
@@ -164,8 +170,8 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         ..._filters,
       }));
 
-      if (_filters.anoLetivo) {
-        buscarAvaliacoes(table.page, table.rowsPerPage);
+      if (_filters.ano) {
+        buscarAvaliacoes(table.page, table.rowsPerPage, [], _filters);
       }
     }
   }, [contextReady.value]);
@@ -205,7 +211,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         periodo: filters.periodo.length ? filters.periodo : _periodos,
         offset: offset,
         limit: limit,
-        ano_letivos: filtros.anoLetivo ? [filtros.anoLetivo.id] : [],
+        ano: filtros.ano ? filtros.ano : '',
         escolas: escola,
       };
 

@@ -28,7 +28,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   const { control, getValues, watch, setValue } = useFormContext();
   // const [mapDesabilitarSelect, setMapDesabilitarSelect] = useState([]);
   const desabilitaResposta = useBoolean(false);
-
+  const eAdmin = useBoolean(false);
   const values = watch();
 
   const freqCheck = values.registros[id]?.frequencia;
@@ -320,6 +320,14 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
     }
   }, [freqCheck]);
 
+  useEffect(() => {
+    user.permissao_usuario.map((perm) => {
+      if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
+        eAdmin.onTrue();
+      }
+    })
+  }, [user]);
+
   return (
     <TableRow hover selected={selected}>
 
@@ -354,7 +362,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
           </MenuItem>
           {frequencia_options.map((freq) => (
             <MenuItem
-              disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia))}
+              disabled={(freq == 'Ausente' && frequencia_options.includes(row?.frequencia) && !eAdmin)}
               key={id + '_freq_' + freq} value={freq} sx={{ height: '34px' }}>
               {freq}
             </MenuItem>

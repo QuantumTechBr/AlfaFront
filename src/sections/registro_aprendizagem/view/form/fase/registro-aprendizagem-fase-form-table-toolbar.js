@@ -6,6 +6,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import { Button } from '@mui/material';
+import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
@@ -13,6 +15,7 @@ import { useFormContext, Controller } from 'react-hook-form';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
+import { CSVLink } from "react-csv";
 
 // ----------------------------------------------------------------------
 
@@ -24,6 +27,9 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
   turmaOptions,
   bimestreOptions,
   showSearch,
+  nomeArquivo,
+  dataArquivo,
+  getRegistros,
 }) {
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
@@ -57,7 +63,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
     },
     [onFilters]
   );
-
+  const popover = usePopover();
   return (
     <>
       <Stack
@@ -195,25 +201,68 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
             </Select>
           </FormControl>
         )}
+          <IconButton onClick={popover.onOpen}>
+            <Iconify icon="eva:more-vertical-fill" />
+          </IconButton>
+        <CustomPopover
+          open={popover.open}
+          onClose={popover.onClose}
+          arrow="left-top"
+        // sx={{ width: 140 }}
+        >
+          <MenuItem>
+            <CSVLink className='downloadCSVBtn' filename={nomeArquivo} data={dataArquivo} >
+              Exportar para CSV
+            </CSVLink>
+          </MenuItem>
 
-        {showSearch && (
-          <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-            <TextField
-              fullWidth
-              value={filters.pesquisa}
-              onChange={handleFilterPesquisa}
-              placeholder="Pesquisar aluno..."
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                  </InputAdornment>
-                ),
+        </CustomPopover>
+        <Button
+              disabled={filters.anoLetivo && filters.escola && filters.turma && filters.bimestre ? false : true}
+              variant="contained"
+              sx={{
+                width: {
+                  xs: '100%',
+                  md: '15%',
+                },
               }}
-            />
-          </Stack>
-        )}
+              onClick={() => {
+                getRegistros();
+              }}
+            >
+              Aplicar filtros
+            </Button>
       </Stack>
+      {showSearch && (
+        <Stack
+          spacing={2}
+          alignItems={{ xs: 'flex-end', md: 'center' }}
+          direction={{
+            xs: 'column',
+            md: 'row',
+          }}
+          sx={{
+            pb: 2.5,
+            pl: 2.5,
+
+            pr: { xs: 2.5, md: 1 },
+          }}
+        >
+          <TextField
+            fullWidth
+            value={filters.pesquisa}
+            onChange={handleFilterPesquisa}
+            placeholder="Pesquisar aluno..."
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Stack>
+      )}
     </>
   );
 }

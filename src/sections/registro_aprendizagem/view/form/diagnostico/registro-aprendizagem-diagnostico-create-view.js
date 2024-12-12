@@ -100,7 +100,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   }, [_turma, periodo]);
 
   const handleTurma = useCallback(async (event) => {
-    const novaTurma = (await turmaMethods.getTurmaById(event.target.value.id)).data;
+    const novaTurma = (await turmaMethods.getTurmaById(event.id)).data;
     setErrorMsg('');
     setWarningMsg('');
     prep.onFalse();
@@ -178,7 +178,7 @@ export default function RegistroAprendizagemDiagnosticoCreateView({ turma, perio
   }, [periodo, prep])
 
   return (
-    <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+    <Container maxWidth={settings.themeStretch ? false : 'xxl'}>
       <CustomBreadcrumbs
         heading="Criar novo Acompanhamento Diagnóstico"
         links={[

@@ -32,11 +32,14 @@ export const TurmasProvider = ({ children }) => {
     return novaBusca;
   };
 
-  const buscaTurmas = async ({ force = false } = {}) => {
+  const buscaTurmas = async ({anoLetivoId = '', force = false } = {}) => {
     let returnData = turmas;
-    if (force || turmas.length == 0) {
+    if(anoLetivoId) {
+      returnData = turmas.filter(turma => turma.ano.id == anoLetivoId);
+    }
+    if (force || returnData.length == 0) {
       if (!_consultaAtual || force) {
-        _consultaAtual = turmaMethods.getAllTurmas().then((response) => {
+        _consultaAtual = turmaMethods.getAllTurmas({anoLetivoId}).then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
           setTurmas(response.data);
           returnData = response.data;
