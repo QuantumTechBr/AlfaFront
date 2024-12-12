@@ -42,7 +42,18 @@ export const EscolasProvider = ({ children }) => {
     return returnData;
   };
 
+  const buscaEscola = async (id) => {
+    let returnData = escolas.find((escola) => escola.id === id);
+    if (!returnData) {
+      returnData = await escolaMethods.getEscolaById(id).then((response) => {
+        return response.data;
+      });
+    }
+
+    return returnData;
+  };
+
   return (
-    <EscolasContext.Provider value={{ escolas, buscaEscolas }}>{children}</EscolasContext.Provider>
+    <EscolasContext.Provider value={{ escolas, buscaEscolas, buscaEscola }}>{children}</EscolasContext.Provider>
   );
 };

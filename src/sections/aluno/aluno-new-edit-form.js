@@ -62,11 +62,11 @@ const TABLE_HEAD = [
 
 export default function AlunoNewEditForm({ currentAluno }) {
   const { user } = useContext(AuthContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, buscaAnoLetivo } = useContext(AnosLetivosContext);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { escolas, buscaEscolas, buscaEscola } = useContext(EscolasContext);
+  const { turmas, buscaTurmas, buscaTurma } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const table = useTable();
@@ -177,15 +177,60 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [currentAluno, defaultValues, reset]);
 
   useEffect(() => {
-    if (currentAluno?.alunoEscolas?.length > 0 ) {
-      setTableData([{
-        ano_letivo: currentAluno?.alunoEscolas[0].ano,
-        escola: currentAluno?.alunoEscolas[0].escola,
-        turma: currentAluno?.alunos_turmas[0].turma,
+    const data = []
+    anosLetivos.map((ano) => {
+      let escola = {}
+      let turma = {}
+      if (currentAluno?.alunoEscolas?.length > 0) {
+        escola = currentAluno.alunoEscolas.find((alunoEscola) => alunoEscola.ano.id == ano.id)?.escola ?? {}
+      }
+      if (currentAluno?.alunos_turmas?.length > 0) {
+        turma = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.turma ?? {}
+      }
+      data.push({
+        ano_letivo: ano,
+        escola: escola,
+        turma: turma,
+      })
+    })
+    setTableData(data)
+    // if (currentAluno?.alunoEscolas?.length > 0 ) {
+    //   setTableData([{
+    //     ano_letivo: currentAluno?.alunoEscolas[0].ano,
+    //     escola: currentAluno?.alunoEscolas[0].escola,
+    //     turma: currentAluno?.alunos_turmas[0].turma,
 
-      }])
-      console.log(currentAluno)
-    }
+    //   }])
+    //   console.log(currentAluno)
+    // }
+    // console.log(currentAluno)
+    // let anoLetivoAluno = {};
+    // let escolaAluno = {};
+    // let turmaAluno = {};
+    // let promises = [];
+    // let alunoEscolasTurmas = [];
+    // if (currentAluno?.alunoEscolas?.length > 0 ) {
+    //   promises.push(buscaAnoLetivo(currentAluno.alunoEscolas[0].ano).then((ano) => {
+    //     anoLetivoAluno = ano;
+    //   }));
+    //   promises.push(buscaEscola(currentAluno.alunoEscolas[0].escola).then((esc) => {
+    //     escolaAluno = esc;
+    //   }));
+    // }
+    // if (currentAluno?.alunos_turmas?.length > 0) {
+    //   promises.push(buscaTurma(currentAluno.alunos_turmas[0].turma).then((tur) => {
+    //     turmaAluno = tur;
+    //   }));
+    // }
+    // Promise.all(promises).then(() => {	
+    //   setTableData([{
+    //     ano_letivo: anoLetivoAluno,
+    //     escola: escolaAluno,
+    //     turma: turmaAluno,
+    //   }])
+    // }).catch((error) => {
+    //   setErrorMsg('Erro de comunicação com a API de estudantes', error);
+    // });
   }, [currentAluno]);
 
   useEffect(() => {

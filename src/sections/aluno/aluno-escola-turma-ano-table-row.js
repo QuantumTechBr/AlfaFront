@@ -64,9 +64,9 @@ export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRo
   return (
     <>
       <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola.nome}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{`${turma.ano_escolar}º ${turma.nome} (${turma.turno})`} </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_letivo.ano}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome ?? ''}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma.nome ? `${turma?.ano_escolar}º ${turma?.nome} (${turma?.turno})` : ''} </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_letivo?.ano ?? ''}</TableCell>
         
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
