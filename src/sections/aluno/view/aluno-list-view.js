@@ -44,6 +44,8 @@ import AlunoTableToolbar from '../aluno-table-toolbar';
 import alunoMethods from '../aluno-repository';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
@@ -64,11 +66,14 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
+  ano: '',
   nome: '',
+  ddz: [],
   matricula: '',
   escola: [],
   turma: [],
   fase: [],
+  sem_escola: false,
 };
 
 // ----------------------------------------------------------------------
@@ -79,6 +84,8 @@ export default function AlunoListView() {
   const fases = Object.values(RegistroAprendizagemFasesCRUD);
 
   const [countAlunos, setCountAlunos] = useState(0);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [errorMsg, setErrorMsg] = useState('');
@@ -93,7 +100,8 @@ export default function AlunoListView() {
   const table = useTable();
 
   const router = useRouter();
-
+  const dataAtual = new Date();
+  const anoAtual = dataAtual.getFullYear();
   const quickEdit = useBoolean();
   const [rowToEdit, setRowToEdit] = useState();
   const [tableData, setTableData] = useState([]);
@@ -127,7 +135,7 @@ export default function AlunoListView() {
       setErrorMsg('');
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
-      let { nome, matricula, escola, turma, fase } = filtros;
+      let { ano, ddz, sem_escola, nome, matricula, escola, turma, fase } = filtros;
       let escFiltered = [];
       if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
         escolas.map((esc) => {
@@ -140,8 +148,15 @@ export default function AlunoListView() {
         escola = escFiltered;
       }
 
+      if (ano == '') {
+        anosLetivos.map((ano_letivo) => {
+          if (ano_letivo.ano == anoAtual) {
+            ano = ano_letivo.id
+          }
+        })
+      }
       await alunoMethods
-        .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase })
+        .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase, zonas: ddz, ano_letivo: ano, sem_escola })
         .then(async (alunos) => {
           if (alunos.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de estudantes');
@@ -172,10 +187,15 @@ export default function AlunoListView() {
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
       buscaEscolas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de escolas');
       }),
-
     ]);
 
     contextReady.onTrue();
@@ -387,6 +407,8 @@ export default function AlunoListView() {
               faseOptions={fases}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
+              ddzOptions={zonas}
+              anoOptions={anosLetivos}
             />
             <Button
               variant="contained"

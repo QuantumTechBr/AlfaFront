@@ -13,7 +13,9 @@ import InputLabel from '@mui/material/InputLabel';
 import Select from '@mui/material/Select';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
+import Label from 'src/components/label';
 import CloseIcon from '@mui/icons-material/Close';
+import { Box } from '@mui/material';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -23,13 +25,16 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
 import { escolas_piloto } from 'src/_mock';
+import { stubTrue } from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function AlunoTableToolbar({
   filters,
   onFilters,
+  ddzOptions,
   escolaOptions,
+  anoOptions,
   turmaOptions,
   faseOptions,
   setWarningMsg,
@@ -88,6 +93,28 @@ export default function AlunoTableToolbar({
     [onFilters]
   );
 
+  const handleFilterAno = useCallback(
+    (event) => {
+      onFilters('ano', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const handleFilterDdz = useCallback(
+    (event) => {
+      onFilters(
+        'ddz',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
+  const renderValueZona = (selected) =>
+    selected.map((zonaId) => {
+      return ddzOptions.find((option) => option.id == zonaId)?.nome;
+    }).join(', ');
+
   const renderValueEscola = (selected) =>
     selected
       .map((escolaId) => {
@@ -135,6 +162,15 @@ export default function AlunoTableToolbar({
     </Fragment>
   );
 
+  const handleFilterSemEscola = useCallback(() => {
+    if (filters?.sem_escola) {
+      onFilters('sem_escola', false);
+    } else {
+      onFilters('sem_escola', true);
+    }
+
+  }, [filters, onFilters])
+
   return (
     <>
       <Snackbar
@@ -171,35 +207,91 @@ export default function AlunoTableToolbar({
           <FormControl
             sx={{
               flexShrink: 0,
-              width: { xs: 1, md: 300 },
+              width: { xs: 1, md: 100 },
             }}
           >
-            <InputLabel>Escola</InputLabel>
+            <InputLabel>Ano</InputLabel>
 
             <Select
-              multiple
-              value={filters.escola}
-              onChange={handleFilterEscola}
-              input={<OutlinedInput label="Escola" />}
-              renderValue={renderValueEscola}
+              value={filters.ano}
+              onChange={handleFilterAno}
+              input={<OutlinedInput label="Ano" />}
               MenuProps={{
                 PaperProps: {
                   sx: { maxHeight: 240 },
                 },
               }}
             >
-              {escolaOptions?.map((escola) => (
-                <MenuItem key={escola.id} value={escola.id}>
-                  <Checkbox
-                    disableRipple
-                    size="small"
-                    checked={filters.escola.includes(escola.id)}
-                  />
-                  {escola.nome}
+              {anoOptions?.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  {option.ano}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
+
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 100 },
+            }}
+          >
+            <InputLabel>DDZ</InputLabel>
+
+            <Select
+              multiple
+              value={filters.ddz}
+              onChange={handleFilterDdz}
+              input={<OutlinedInput label="DDZ" />}
+              renderValue={renderValueZona}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {ddzOptions?.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                  <Checkbox disableRipple size="small" checked={filters.ddz.includes(option.id)} />
+                  {option.nome}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {filters.ddz.length > 0 &&
+            <FormControl
+              sx={{
+                flexShrink: 0,
+                width: { xs: 1, md: 300 },
+              }}
+            >
+              <InputLabel>Escola</InputLabel>
+
+              <Select
+                multiple
+                value={filters.escola}
+                onChange={handleFilterEscola}
+                input={<OutlinedInput label="Escola" />}
+                renderValue={renderValueEscola}
+                MenuProps={{
+                  PaperProps: {
+                    sx: { maxHeight: 240 },
+                  },
+                }}
+              >
+                {escolaOptions?.filter((_escola) => filters.ddz.includes(_escola.zona.id)).map((escola) => (
+                  <MenuItem key={escola.id} value={escola.id}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.escola.includes(escola.id)}
+                    />
+                    {escola.nome}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>}
 
           {filters.escola.length > 0 && (
             <FormControl
@@ -292,18 +384,27 @@ export default function AlunoTableToolbar({
               ),
             }}
           />
-
+          <Checkbox
+            checked={filters.sem_escola} onClick={handleFilterSemEscola} />
+          <Box
+            sx={{
+              pr: 5,
+            }}
+          >
+            <Label>Sem Escola</Label>
+          </Box>
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
         </Stack>
+
       </Stack>
 
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
         arrow="right-top"
-        // sx={{ width: 140 }}
+      // sx={{ width: 140 }}
       >
         {/* <MenuItem
           onClick={() => {
@@ -330,14 +431,14 @@ export default function AlunoTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              const exportFilters = { 
+              const exportFilters = {
                 turmas: filters.turma,
                 escolas: filters.escola,
                 matricula: filters.matricula,
                 nome: filters.nome,
                 fase: filters.fase,
                 pesquisa: filters.pesquisa ? filters.pesquisa : '',
-                export: 'csv' 
+                export: 'csv'
               };
               let escFiltered = [];
               if (exportFilters.escolas.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
