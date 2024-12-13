@@ -418,11 +418,11 @@ export default function AlunoNewEditForm({ currentAluno }) {
           }
         }
         enqueueSnackbar('Atualizado com sucesso!');
-        // window.location.reload();
+        window.location.reload();
       } catch (error) {
         setErrorMsg('Tentativa de atualização de escola/turma/ano falhou');
         console.error(error);
-        // window.location.reload();
+        window.location.reload();
       }
     },
     [tableData]
