@@ -74,9 +74,9 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
             ...row,
             id: row.id,
             id_aluno_escola: row.id_aluno_escola,
+            turma: row.turma?.id,
             ano_letivo: row.ano_letivo.id,
             escola: { label: row.escola.nome, id: row.escola.id },
-            turma: row.turma?.id,
           });
 
         }
@@ -125,10 +125,6 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const values = watch();
 
   let { ano_letivo } = values;
-
-  useEffect(() => {
-    setValue('turma', '');
-  }, [ano_letivo]);
 
   useEffect(() => {
     if (currentAluno) {

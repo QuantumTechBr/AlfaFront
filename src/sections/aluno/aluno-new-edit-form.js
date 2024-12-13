@@ -70,6 +70,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const table = useTable();
   const [tableData, setTableData] = useState([]);
+  const [mapEscolaInicial, setMapEscolaInicial] = useState([]);
   const necessidades_options = necessidades_especiais.map(ne => {
     return { value: ne, label: ne }
   })
@@ -199,6 +200,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   useEffect(() => {
     console.log(currentAluno)
     const data = []
+    const map_escola_data = [];
     // if (currentAluno?.alunos_turmas?.length > 0) {
     //   console.log(currentAluno)
     //   currentAluno.alunos_turmas.map((at) => {
@@ -233,7 +235,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
     //     })
     //   })
     // }
-    
+
     if (anosLetivos.length > 0) {
       anosLetivos.map((ano) => {
         let escola = {}
@@ -248,7 +250,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
           turma = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.turma ?? {}
           id = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.id ?? ''
         }
-        if ( id != '' || id_aluno_escola != '' ) {
+        if (id != '' || id_aluno_escola != '') {
+          map_escola_data.push({escola_id: escola.id, ano_id: ano.id})
           data.push({
             id: id,
             id_aluno_escola: id_aluno_escola,
@@ -256,12 +259,13 @@ export default function AlunoNewEditForm({ currentAluno }) {
             escola: escola,
             turma: turma,
           })
-          
+
         }
       })
-      
+
     }
-    setTableData(data)
+    setMapEscolaInicial(map_escola_data);
+    setTableData(data);
     // if (currentAluno?.alunoEscolas?.length > 0 ) {
     //   setTableData([{
     //     ano_letivo: currentAluno?.alunoEscolas[0].ano,
@@ -344,7 +348,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
           console.error(error);
         }
       }
-      
+
       setTableData(deleteRow);
       // alunoMethods
       //   .deleteAlunoById(id)
@@ -366,7 +370,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
       // table.onUpdatePageDeleteRow(dataInPage.length);
       // setCountAlunos(countAlunos - 1)
-   
+
     },
     [tableData]
   );
@@ -389,22 +393,36 @@ export default function AlunoNewEditForm({ currentAluno }) {
         })
       }
       const alunoEscola = novosDados.ano_letivo?.id ? [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }] : [];
-      const alunoTurma = novosDados.turma?.id ? {aluno_id: currentAluno.id, turma_id: novosDados.turma.id} : {};
+      const alunoTurma = novosDados.turma?.id ? { aluno_id: currentAluno.id, turma_id: novosDados.turma.id } : {};
       try {
         if (novosDados.escola?.id != undefined) {
-          escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
+          let escolaMudou = true;
+          mapEscolaInicial.map((ei) => {
+            if (ei.escola_id == novosDados.escola.id && ei.ano_id == novosDados.ano_letivo?.id ) {
+              escolaMudou = false;
+            }
+          })
+          if (escolaMudou) {
+            escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
+          }
         }
+
         if (novosDados.id == 'novo' || novosDados.id == '') {
-          turmaMethods.insertAlunoTurma(alunoTurma);
+          if (alunoTurma.aluno_id != undefined) {
+            turmaMethods.insertAlunoTurma(alunoTurma);
+
+          }
         } else {
-          turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma); 
+          if (alunoTurma.aluno_id != undefined) {
+            turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma);
+          }
         }
         enqueueSnackbar('Atualizado com sucesso!');
-        window.location.reload();
+        // window.location.reload();
       } catch (error) {
         setErrorMsg('Tentativa de atualização de escola/turma/ano falhou');
         console.error(error);
-        window.location.reload();
+        // window.location.reload();
       }
     },
     [tableData]
