@@ -333,7 +333,9 @@ export default function AlunoNewEditForm({ currentAluno }) {
           if (escolaMudou) {
             promises.push(
               escolaMethods.updateAlunoEscolaByEscolaId(novosDados.escola.id, alunoEscola).then((alunoEscola) => {
-                novaLinha.id_aluno_escola = alunoEscola.data.id;
+                novaLinha.id_aluno_escola = alunoEscola.data[0]?.id;
+                const novoMapEscola = [...mapEscolaInicial, {escola_id: novosDados.escola.id, ano_id: novosDados.ano_letivo?.id}];
+                setMapEscolaInicial(novoMapEscola);
               }).catch((error) => {
                 setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
               })
