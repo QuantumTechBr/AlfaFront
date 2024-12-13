@@ -51,13 +51,24 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const [anosLetivosOptions, setAnosLetivosOptions] = useState([]);
 
+  function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
+  }
+
   useEffect(() => {
     if (mapEscolaInicial?.length > 0) {
       const anoOpt = [];
       mapEscolaInicial.map((ei)=>anoOpt.push(ei.ano_id));
+      if (row) {
+        removeItemOnce(anoOpt, row.ano_letivo.id)
+      }
       setAnosLetivosOptions(anoOpt);
     }
-  }, [mapEscolaInicial]);
+  }, [open]);
 
 
 
@@ -194,7 +205,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 name="ano_letivo"
                 label="Ano Letivo"
               >
-                {anosLetivos 
+              {anosLetivos 
                 .filter((ano) => !anosLetivosOptions.includes(ano.id))
                 .map((ano) => (
                   <MenuItem key={ano.id} value={ano.id}>
