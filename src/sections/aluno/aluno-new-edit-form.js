@@ -201,40 +201,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
     console.log(currentAluno)
     const data = []
     const map_escola_data = [];
-    // if (currentAluno?.alunos_turmas?.length > 0) {
-    //   console.log(currentAluno)
-    //   currentAluno.alunos_turmas.map((at) => {
-    //     data.push({
-    //       id: at.id,
-    //       ano_letivo: at.turma.ano,
-    //       escola: at.turma.escola,
-    //       turma: at.turma,
-    //     })
-    //   })
-    //   if (currentAluno?.alunoEscolas?.length > 0) {
-    //     for (let index = 0; index < currentAluno.alunoEscolas.length; index++) {
-    //       for (let j = 0; j < currentAluno.alunos_turmas.length; j++) {
-    //         if (currentAluno.alunoEscolas[index].escola.id == currentAluno.alunos_turmas[j].turma.escola.id) {
-    //           data[0].id_aluno_escola = currentAluno.alunoEscolas[index].id;
-    //           continue;
-    //         }
-
-    //       }
-
-    //     }
-    //   }
-
-    // }else if (currentAluno?.alunoEscolas?.length > 0) {
-    //   currentAluno.alunoEscolas.map((ae) => {
-    //     data.push({
-    //       id: '',
-    //       id_aluno_escola: ae.id,
-    //       ano_letivo: ae.ano,
-    //       escola: ae.escola,
-    //       turma: at.turma,
-    //     })
-    //   })
-    // }
 
     if (anosLetivos.length > 0) {
       anosLetivos.map((ano) => {
@@ -266,43 +232,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
     }
     setMapEscolaInicial(map_escola_data);
     setTableData(data);
-    // if (currentAluno?.alunoEscolas?.length > 0 ) {
-    //   setTableData([{
-    //     ano_letivo: currentAluno?.alunoEscolas[0].ano,
-    //     escola: currentAluno?.alunoEscolas[0].escola,
-    //     turma: currentAluno?.alunos_turmas[0].turma,
-
-    //   }])
-    //   console.log(currentAluno)
-    // }
-    // console.log(currentAluno)
-    // let anoLetivoAluno = {};
-    // let escolaAluno = {};
-    // let turmaAluno = {};
-    // let promises = [];
-    // let alunoEscolasTurmas = [];
-    // if (currentAluno?.alunoEscolas?.length > 0 ) {
-    //   promises.push(buscaAnoLetivo(currentAluno.alunoEscolas[0].ano).then((ano) => {
-    //     anoLetivoAluno = ano;
-    //   }));
-    //   promises.push(buscaEscola(currentAluno.alunoEscolas[0].escola).then((esc) => {
-    //     escolaAluno = esc;
-    //   }));
-    // }
-    // if (currentAluno?.alunos_turmas?.length > 0) {
-    //   promises.push(buscaTurma(currentAluno.alunos_turmas[0].turma).then((tur) => {
-    //     turmaAluno = tur;
-    //   }));
-    // }
-    // Promise.all(promises).then(() => {	
-    //   setTableData([{
-    //     ano_letivo: anoLetivoAluno,
-    //     escola: escolaAluno,
-    //     turma: turmaAluno,
-    //   }])
-    // }).catch((error) => {
-    //   setErrorMsg('Erro de comunicação com a API de estudantes', error);
-    // });
   }, [currentAluno]);
 
   useEffect(() => {
@@ -383,46 +312,65 @@ export default function AlunoNewEditForm({ currentAluno }) {
         }
         return item;
       });
-      if (novosDados.id == 'novo' && novosDados.id_aluno_escola == 'novo') {
-        _tableData.push({
-          id: novosDados.turma?.id,
-          id_aluno_escola: novosDados.id_aluno_escola,
-          ano_letivo: novosDados.ano_letivo,
-          escola: novosDados.escola,
-          turma: novosDados.turma,
-        })
+      let novaLinha = {
+        id: novosDados.id,
+        id_aluno_escola: novosDados.id_aluno_escola,
+        ano_letivo: novosDados.ano_letivo,
+        escola: novosDados.escola,
+        turma: novosDados.turma,
       }
       const alunoEscola = novosDados.ano_letivo?.id ? [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }] : [];
       const alunoTurma = novosDados.turma?.id ? { aluno_id: currentAluno.id, turma_id: novosDados.turma.id } : {};
       try {
-        if (novosDados.escola?.id != undefined) {
+        let promises = [];
+        if (novosDados.escola?.id) {
           let escolaMudou = true;
           mapEscolaInicial.map((ei) => {
             if (ei.escola_id == novosDados.escola.id && ei.ano_id == novosDados.ano_letivo?.id ) {
               escolaMudou = false;
             }
-          })
+          });
           if (escolaMudou) {
-            escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
+            promises.push(
+              escolaMethods.updateAlunoEscolaByEscolaId(novosDados.escola.id, alunoEscola).then((alunoEscola) => {
+                novaLinha.id_aluno_escola = alunoEscola.data.id;
+              }).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
           }
         }
-
         if (novosDados.id == 'novo' || novosDados.id == '') {
-          if (alunoTurma.aluno_id != undefined) {
-            turmaMethods.insertAlunoTurma(alunoTurma);
-
+          if (alunoTurma.aluno_id) {
+            promises.push(
+              turmaMethods.insertAlunoTurma(alunoTurma).then((alunoTurma) => {
+                novaLinha.id = alunoTurma.data.id;
+              }).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
           }
         } else {
-          if (alunoTurma.aluno_id != undefined) {
-            turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma);
+          if (alunoTurma.aluno_id) {
+            promises.push(
+              turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
           }
         }
-        enqueueSnackbar('Atualizado com sucesso!');
-        window.location.reload();
+        Promise.all(promises).then(() => {
+          if ((novosDados.id == 'novo' || !novosDados.id) && (novosDados.id_aluno_escola == 'novo' || !novosDados.id_aluno_escola)) {
+            _tableData.push(novaLinha)
+          }
+          setTableData(_tableData);
+          enqueueSnackbar('Atualizado com sucesso!');
+        });
+        // window.location.reload();
       } catch (error) {
-        setErrorMsg('Tentativa de atualização de escola/turma/ano falhou');
+        setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
         console.error(error);
-        window.location.reload();
+        // window.location.reload();
       }
     },
     [tableData]

@@ -8,7 +8,7 @@ export const updateEscolaById = (id, payload) => axios.patch(endpoints.escola.up
 export const deleteEscolaById = id => axios.delete(endpoints.escola.delete.concat(id));
 export const getEscolaById = id => axios.get(endpoints.escola.get_by_id.concat(id));
 export const getAlunosByEscolaId = id => axios.get(endpoints.escola.get_by_id.concat(id)+"/alunos");
-export const updateAlunosByEscolaId = (escolaId, payload) => axios.post(endpoints.escola.get_by_id.concat(escolaId)+"/alunos", payload);
+export const updateAlunoEscolaByEscolaId = (escolaId, payload) => axios.post(endpoints.escola.get_by_id.concat(escolaId)+"/alunos", payload);
 export const deleteAlunosByEscolaId = (escolaId, alunoEscolaId) => axios.delete(endpoints.escola.get_by_id.concat(escolaId)+`/alunos/${alunoEscolaId}`);
 export const importFileEscolas = payload => axios.post(endpoints.escola.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
@@ -19,7 +19,7 @@ const escolaMethods = {
     deleteEscolaById, 
     getEscolaById,
     getAlunosByEscolaId,
-    updateAlunosByEscolaId,
+    updateAlunoEscolaByEscolaId,
     deleteAlunosByEscolaId, 
     importFileEscolas
 };

@@ -76,7 +76,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
             id_aluno_escola: row.id_aluno_escola,
             turma: row.turma?.id,
             ano_letivo: row.ano_letivo.id,
-            escola: { label: row.escola.nome, id: row.escola.id },
+            escola: row.escola?.nome ? { label: row.escola.nome, id: row.escola.id } : '',
           });
 
         }

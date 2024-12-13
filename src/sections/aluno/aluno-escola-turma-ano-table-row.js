@@ -30,11 +30,7 @@ export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRo
     turma,
   } = row;
 
-
-
   let ano_escolar = '';
-
- 
   const confirm = useBoolean();
   const popover = usePopover();
 
