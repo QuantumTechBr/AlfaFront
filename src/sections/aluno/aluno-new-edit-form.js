@@ -52,7 +52,8 @@ import { necessidades_especiais } from 'src/_mock';
 import AlunoEscolaTurmaAnoTableRow from './aluno-escola-turma-ano-table-row';
 import AlunoEscolaTurmaAnoEditModal from './aluno-escola-turma-ano-edit-modal';
 import escolaMethods from '../escola/escola-repository';
-
+import turmaMethods from '../turma/turma-repository';
+import { TireRepair } from '@mui/icons-material';
 
 
 
@@ -196,6 +197,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [currentAluno, defaultValues, reset]);
 
   useEffect(() => {
+    console.log(currentAluno)
     const data = []
     // if (currentAluno?.alunos_turmas?.length > 0) {
     //   console.log(currentAluno)
@@ -333,6 +335,15 @@ export default function AlunoNewEditForm({ currentAluno }) {
           console.error(error);
         }
       }
+      if (row.id != '') {
+        try {
+          turmaMethods.deleteAlunoTurmaById(row.id);
+          enqueueSnackbar('Atualizado com sucesso!');
+        } catch (error) {
+          setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+          console.error(error);
+        }
+      }
       
       setTableData(deleteRow);
       // alunoMethods
@@ -370,7 +381,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       });
       if (novosDados.id == 'novo' && novosDados.id_aluno_escola == 'novo') {
         _tableData.push({
-          id: novosDados.turma,
+          id: novosDados.turma.id,
           id_aluno_escola: novosDados.id_aluno_escola,
           ano_letivo: novosDados.ano_letivo,
           escola: novosDados.escola,
@@ -381,6 +392,18 @@ export default function AlunoNewEditForm({ currentAluno }) {
       try {
         const alunoEscola = [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }];
         escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
+        enqueueSnackbar('Atualizado com sucesso!');
+      } catch (error) {
+        setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+        console.error(error);
+      }
+      try {
+        const alunoTurma = {aluno_id: currentAluno.id, turma_id: novosDados.turma.id}
+        if (novosDados.id == 'novo' || novosDados.id == '') {
+          turmaMethods.insertAlunoTurma(alunoTurma);
+        } else {
+          turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma); 
+        }
         enqueueSnackbar('Atualizado com sucesso!');
       } catch (error) {
         setErrorMsg('Tentativa de atualização de alunos da escola falhou');

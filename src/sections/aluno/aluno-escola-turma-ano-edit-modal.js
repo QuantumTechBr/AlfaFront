@@ -195,6 +195,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
               >
                 {turmas
                   .filter((te) => te.escola_id == getValues('escola')?.id)
+                  .filter((te) => te.ano_id == getValues('ano_letivo'))
                   .map((turma) => (
                     <MenuItem key={turma.id} value={turma.id}>
                       {turma.ano_escolar}º {turma.nome} ({turma.turno})

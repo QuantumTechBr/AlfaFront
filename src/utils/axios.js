@@ -256,6 +256,7 @@ export const endpoints = {
     update: '/api/v1/turmas/',
     delete: '/api/v1/turmas/',
     import: '/api/v1/turmas/importar-turmas/',
+    aluno_turma: '/api/v1/turmas/aluno-turma/',
   },
   user: {
     list: '/api/v1/usuarios/',
