@@ -400,7 +400,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         <Grid container spacing={3}>
           <Grid xs={12} md={12}>
-          <Grid xs={12} md={12}>
             <Card sx={{ p: 3 }}>
               <Box
                 rowGap={3}
