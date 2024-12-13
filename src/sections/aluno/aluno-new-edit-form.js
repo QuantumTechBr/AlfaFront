@@ -381,7 +381,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       });
       if (novosDados.id == 'novo' && novosDados.id_aluno_escola == 'novo') {
         _tableData.push({
-          id: novosDados.turma.id,
+          id: novosDados.turma?.id,
           id_aluno_escola: novosDados.id_aluno_escola,
           ano_letivo: novosDados.ano_letivo,
           escola: novosDados.escola,
