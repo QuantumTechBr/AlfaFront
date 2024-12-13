@@ -400,7 +400,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
           turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma); 
         }
         enqueueSnackbar('Atualizado com sucesso!');
-        setTableData(_tableData);
+        window.location.reload();
       } catch (error) {
         setErrorMsg('Tentativa de atualização de escola/turma/ano falhou');
         console.error(error);
