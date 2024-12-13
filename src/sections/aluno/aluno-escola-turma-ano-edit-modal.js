@@ -75,7 +75,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
             id: row.id,
             id_aluno_escola: row.id_aluno_escola,
             ano_letivo: row.ano_letivo.id,
-            escola: {label: row.escola.nome, id: row.escola.id},
+            escola: { label: row.escola.nome, id: row.escola.id },
             turma: row.turma?.id,
           });
 
@@ -123,6 +123,12 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   } = methods;
 
   const values = watch();
+
+  let { ano_letivo } = values;
+
+  useEffect(() => {
+    setValue('turma', '');
+  }, [ano_letivo]);
 
   useEffect(() => {
     if (currentAluno) {
@@ -175,6 +181,20 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
               }}
             >
 
+              <RHFSelect
+                sx={{}}
+                id={`ano_letivo` + `${currentAluno?.id}`}
+                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
+                name="ano_letivo"
+                label="Ano Letivo"
+              >
+                {anosLetivos.map((ano) => (
+                  <MenuItem key={ano.id} value={ano.id}>
+                    {ano.ano}
+                  </MenuItem>
+                ))}
+              </RHFSelect>
+
               <RHFAutocomplete
                 disablePortal
                 id="escola"
@@ -203,20 +223,6 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                   ))}
               </RHFSelect>
 
-              <RHFSelect
-                sx={{}}
-                id={`ano_letivo` + `${currentAluno?.id}`}
-                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
-                name="ano_letivo"
-                label="Ano Letivo"
-              >
-                {anosLetivos.map((ano) => (
-                  <MenuItem key={ano.id} value={ano.id}>
-                    {ano.ano}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
 
             </Box>
           </DialogContent>
@@ -232,21 +238,21 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
             </Button>
 
             <LoadingButton variant="contained" loading={isSubmitting}
-            onClick={()=>{
-              let _turma = turmas.filter(turma => turma.id == getValues('turma'));
-              let _escola = escolas.filter(escola => escola.id == getValues('escola').id);
-              let _ano = anosLetivos.filter(ano => ano.id == getValues('ano_letivo'));
-              setValue('escola', '');
-              setValue('turma', '');
-              setValue('ano_letivo', '');
-              onSave({
-                id: row ? getValues('id') : 'novo',
-                id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
-                turma: _turma[0],
-                escola: _escola[0],
-                ano_letivo: _ano[0],
-              })
-            }}
+              onClick={() => {
+                let _turma = turmas.filter(turma => turma.id == getValues('turma'));
+                let _escola = escolas.filter(escola => escola.id == getValues('escola').id);
+                let _ano = anosLetivos.filter(ano => ano.id == getValues('ano_letivo'));
+                setValue('escola', '');
+                setValue('turma', '');
+                setValue('ano_letivo', '');
+                onSave({
+                  id: row ? getValues('id') : 'novo',
+                  id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
+                  turma: _turma[0],
+                  escola: _escola[0],
+                  ano_letivo: _ano[0],
+                })
+              }}
             >
               Atualizar
             </LoadingButton>
