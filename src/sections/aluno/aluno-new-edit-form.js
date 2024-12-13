@@ -388,26 +388,23 @@ export default function AlunoNewEditForm({ currentAluno }) {
           turma: novosDados.turma,
         })
       }
-      setTableData(_tableData);
+      const alunoEscola = novosDados.ano_letivo?.id ? [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }] : [];
+      const alunoTurma = novosDados.turma?.id ? {aluno_id: currentAluno.id, turma_id: novosDados.turma.id} : {};
       try {
-        const alunoEscola = [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }];
-        escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
-        enqueueSnackbar('Atualizado com sucesso!');
-      } catch (error) {
-        setErrorMsg('Tentativa de atualização de alunos da escola falhou');
-        console.error(error);
-      }
-      try {
-        const alunoTurma = {aluno_id: currentAluno.id, turma_id: novosDados.turma.id}
+        if (novosDados.escola?.id != undefined) {
+          escolaMethods.updateAlunosByEscolaId(novosDados.escola.id, alunoEscola);
+        }
         if (novosDados.id == 'novo' || novosDados.id == '') {
           turmaMethods.insertAlunoTurma(alunoTurma);
         } else {
           turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma); 
         }
         enqueueSnackbar('Atualizado com sucesso!');
+        setTableData(_tableData);
       } catch (error) {
-        setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+        setErrorMsg('Tentativa de atualização de escola/turma/ano falhou');
         console.error(error);
+        window.location.reload();
       }
     },
     [tableData]
