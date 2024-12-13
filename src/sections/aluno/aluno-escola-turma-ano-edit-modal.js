@@ -73,6 +73,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
           setCurrentAluno({
             ...row,
             id: row.id,
+            id_aluno_escola: row.id_aluno_escola,
             ano_letivo: row.ano_letivo.id,
             escola: {label: row.escola.nome, id: row.escola.id},
             turma: row.turma.id,
@@ -99,6 +100,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const defaultValues = useMemo(
     () => ({
       id: currentAluno?.id || '',
+      id_aluno_escola: currentAluno?.id_aluno_escola || '',
       ano_letivo: currentAluno?.ano_letivo || '',
       escola: currentAluno?.escola ? currentAluno.escola : '',
       turma: currentAluno?.turma ? currentAluno.turma : '',
@@ -192,7 +194,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 label="Turma"
               >
                 {turmas
-                  .filter((te) => te.escola_id == getValues('escola').id)
+                  .filter((te) => te.escola_id == getValues('escola')?.id)
                   .map((turma) => (
                     <MenuItem key={turma.id} value={turma.id}>
                       {turma.ano_escolar}º {turma.nome} ({turma.turno})
@@ -238,6 +240,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
               setValue('ano_letivo', '');
               onSave({
                 id: row ? getValues('id') : 'novo',
+                id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
                 turma: _turma[0],
                 escola: _escola[0],
                 ano_letivo: _ano[0],
