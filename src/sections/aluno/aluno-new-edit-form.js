@@ -210,58 +210,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
       })
       setTableData(data)
     }
-    // anosLetivos.map((ano) => {
-    //   let escola = {}
-    //   let turma = {}
-    //   if (currentAluno?.alunoEscolas?.length > 0) {
-    //     escola = currentAluno.alunoEscolas.find((alunoEscola) => alunoEscola.ano.id == ano.id)?.escola ?? {}
-    //   }
-    //   if (currentAluno?.alunos_turmas?.length > 0) {
-    //     turma = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.turma ?? {}
-    //   }
-    //   data.push({
-    //     ano_letivo: ano,
-    //     escola: escola,
-    //     turma: turma,
-    //   })
-    // })
-    // if (currentAluno?.alunoEscolas?.length > 0 ) {
-    //   setTableData([{
-    //     ano_letivo: currentAluno?.alunoEscolas[0].ano,
-    //     escola: currentAluno?.alunoEscolas[0].escola,
-    //     turma: currentAluno?.alunos_turmas[0].turma,
-
-    //   }])
-    //   console.log(currentAluno)
-    // }
-    // console.log(currentAluno)
-    // let anoLetivoAluno = {};
-    // let escolaAluno = {};
-    // let turmaAluno = {};
-    // let promises = [];
-    // let alunoEscolasTurmas = [];
-    // if (currentAluno?.alunoEscolas?.length > 0 ) {
-    //   promises.push(buscaAnoLetivo(currentAluno.alunoEscolas[0].ano).then((ano) => {
-    //     anoLetivoAluno = ano;
-    //   }));
-    //   promises.push(buscaEscola(currentAluno.alunoEscolas[0].escola).then((esc) => {
-    //     escolaAluno = esc;
-    //   }));
-    // }
-    // if (currentAluno?.alunos_turmas?.length > 0) {
-    //   promises.push(buscaTurma(currentAluno.alunos_turmas[0].turma).then((tur) => {
-    //     turmaAluno = tur;
-    //   }));
-    // }
-    // Promise.all(promises).then(() => {	
-    //   setTableData([{
-    //     ano_letivo: anoLetivoAluno,
-    //     escola: escolaAluno,
-    //     turma: turmaAluno,
-    //   }])
-    // }).catch((error) => {
-    //   setErrorMsg('Erro de comunicação com a API de estudantes', error);
-    // });
   }, [currentAluno]);
 
   useEffect(() => {
@@ -289,26 +237,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const handleDeleteRow = useCallback(
     (id) => {
       const deleteRow = tableData.filter((row) => row.id !== id);
-      // alunoMethods
-      //   .deleteAlunoById(id)
-      //   .then((retorno) => {
-      //     // setTableData(deleteRow);
-      //     buscaTurmas({ force: true });
-      //     contextReady.onFalse();
-      //     // buscando.onFalse(),
-      //     // tabelaPreparada.onFalse(),
-      //     setTableData([]);
-      //     setTimeout(preparacaoInicial, 1000);
-      //   })
-      //   .catch((error) => {
-      //     setErrorMsg(
-      //       'Erro de comunicação com a API de estudantes no momento da exclusão do estudante'
-      //     );
-      //     console.log(error);
-      //   });
 
-      // table.onUpdatePageDeleteRow(dataInPage.length);
-      // setCountAlunos(countAlunos - 1)
       setTableData(deleteRow);
     },
     [tableData]
@@ -346,7 +275,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
       <FormProvider methods={methods} onSubmit={onSubmit}>
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         <Grid container spacing={3}>
-          <Grid xs={12} md={8}>
+          <Grid xs={12} md={12}>
             <Card sx={{ p: 3 }}>
               <Box
                 rowGap={3}
