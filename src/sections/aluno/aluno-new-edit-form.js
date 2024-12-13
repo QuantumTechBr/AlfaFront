@@ -513,6 +513,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
         open={edit.value}
         onClose={edit.onFalse}
         onSave={saveAndClose}
+        mapEscolaInicial={mapEscolaInicial}
       />
     </>
   );

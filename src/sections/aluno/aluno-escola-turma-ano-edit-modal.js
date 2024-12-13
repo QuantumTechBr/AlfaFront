@@ -38,7 +38,7 @@ import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSave }) {
+export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSave, mapEscolaInicial }) {
   const [currentAluno, setCurrentAluno] = useState();
   const contextReady = useBoolean(false);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
@@ -49,6 +49,16 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
+  const [anosLetivosOptions, setAnosLetivosOptions] = useState([]);
+
+  useEffect(() => {
+    if (mapEscolaInicial?.length > 0) {
+      const anoOpt = [];
+      mapEscolaInicial.map((ei)=>anoOpt.push(ei.ano_id));
+      setAnosLetivosOptions(anoOpt);
+    }
+  }, [mapEscolaInicial]);
+
 
 
   useEffect(() => {
@@ -184,7 +194,9 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 name="ano_letivo"
                 label="Ano Letivo"
               >
-                {anosLetivos.map((ano) => (
+                {anosLetivos 
+                .filter((ano) => !anosLetivosOptions.includes(ano.id))
+                .map((ano) => (
                   <MenuItem key={ano.id} value={ano.id}>
                     {ano.ano}
                   </MenuItem>
@@ -264,4 +276,5 @@ AlunoEscolaTurmaAnoEditModal.propTypes = {
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,
+  mapEscolaInicial: PropTypes.array,
 };
