@@ -123,31 +123,12 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
           return ano.id;
         }
       });
-      let aluno_escolas = [];
-      let aluno_turmas = [];
-      if (data.escola != '') {
-        aluno_escolas = [
-          {
-            escola_id: data.escola,
-            ano_id: anoLetivoAtual.id,
-          },
-        ];
-      }
-      if (data.turma) {
-        aluno_turmas = [
-          {
-            turma_id: data.turma,
-          },
-        ];
-      }
       const nascimento = new Date(data.data_nascimento);
       const toSend = {
         nome: data.nome,
         matricula: data.matricula.toString(),
         data_nascimento:
         nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
-        alunoEscolas: aluno_escolas,
-        alunos_turmas: aluno_turmas,
       };
       
       const retornoPatch = await alunoMethods
@@ -215,38 +196,6 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
               <RHFTextField name="nome" label="Nome do Estudante" />
 
               <RHFTextField type="number" name="matricula" label="Matrícula" />
-
-              <RHFSelect
-                sx={{}}
-                id={`escola_` + `${currentAluno?.id}`}
-                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
-                name="escola"
-                label="Escola"
-              >
-                {escolasAssessor.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
-              <RHFSelect
-                sx={{
-                  display: getValues('escola') ? 'inherit' : 'none',
-                }}
-                id={`turma_` + `${currentAluno?.id}`}
-                disabled={getValues('escola') == '' ? true : false}
-                name="turma"
-                label="Turma"
-              >
-                {turmas
-                  .filter((te) => te.escola_id == getValues('escola'))
-                  .map((turma) => (
-                    <MenuItem key={turma.id} value={turma.id}>
-                      {turma.ano_escolar}º {turma.nome} ({turma.turno})
-                    </MenuItem>
-                  ))}
-              </RHFSelect>
 
               <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
                 <Controller

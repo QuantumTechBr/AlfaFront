@@ -199,7 +199,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id;
       const alunoEscola = [{ aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }];
       try {
-        escolaMethods.updateAlunosByEscolaId(escola?.id, alunoEscola);
+        escolaMethods.updateAlunoEscolaByEscolaId(escola?.id, alunoEscola);
         enqueueSnackbar('Atualizado com sucesso!');
         setAlunosSelecionados([]);
         setAlunos([]);

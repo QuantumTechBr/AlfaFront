@@ -203,10 +203,10 @@ export default function AlunoTableToolbar({
           width: '100%',
         }}
       >
-        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+        <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }} flexWrap="wrap">
           <FormControl
             sx={{
-              flexShrink: 0,
+              flexShrink: 1,
               width: { xs: 1, md: 100 },
             }}
           >
@@ -232,7 +232,7 @@ export default function AlunoTableToolbar({
 
           <FormControl
             sx={{
-              flexShrink: 0,
+              flexGrow: 1,
               width: { xs: 1, md: 100 },
             }}
           >
@@ -262,7 +262,7 @@ export default function AlunoTableToolbar({
           {filters.ddz.length > 0 &&
             <FormControl
               sx={{
-                flexShrink: 0,
+                flexGrow: 1,
                 width: { xs: 1, md: 300 },
               }}
             >
@@ -296,7 +296,7 @@ export default function AlunoTableToolbar({
           {filters.escola.length > 0 && (
             <FormControl
               sx={{
-                flexShrink: 0,
+                flexGrow: 1,
                 width: { xs: 1, md: 100 },
               }}
             >
@@ -331,7 +331,7 @@ export default function AlunoTableToolbar({
 
           <FormControl
             sx={{
-              flexShrink: 0,
+              flexShrink: 1,
               width: { xs: 1, md: 160 },
             }}
           >
@@ -359,7 +359,6 @@ export default function AlunoTableToolbar({
           </FormControl>
 
           <TextField
-            fullWidth
             value={filters.nome}
             onChange={handleFilterNome}
             placeholder="Nome..."
@@ -372,7 +371,6 @@ export default function AlunoTableToolbar({
             }}
           />
           <TextField
-            fullWidth
             value={filters.matricula}
             onChange={handleFilterMatricula}
             placeholder="Matrícula..."
@@ -384,19 +382,19 @@ export default function AlunoTableToolbar({
               ),
             }}
           />
-          <Checkbox
-            checked={filters.sem_escola} onClick={handleFilterSemEscola} />
           <Box
             sx={{
-              pr: 5,
+              pr: 1,
             }}
           >
-            <Label>Sem Escola</Label>
+            <Checkbox
+              checked={filters.sem_escola} onClick={handleFilterSemEscola} />
+            <Label>Trazer Alunos Sem Escola</Label>
           </Box>
+        </Stack>
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
-        </Stack>
 
       </Stack>
 

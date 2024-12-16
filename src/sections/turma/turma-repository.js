@@ -10,6 +10,9 @@ export const deleteTurmaById = id => axios.delete(endpoints.turma.delete.concat(
 export const getTurmaById = id => axios.get(endpoints.turma.get_by_id.concat(id));
 export const exportFile = query => axios.get(endpoints.turma.list.concat(`?`).concat(query));
 export const importFileTurmas = payload => axios.post(endpoints.turma.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const updateAlunoTurmaById = (alunoTurmaId, payload) => axios.patch(endpoints.turma.aluno_turma.concat(alunoTurmaId), payload);
+export const deleteAlunoTurmaById = alunoTurmaId => axios.delete(endpoints.turma.aluno_turma.concat(alunoTurmaId));
+export const insertAlunoTurma = payload => axios.post(endpoints.turma.aluno_turma, payload);
 
 const turmaMethods = {
     insertTurma,
@@ -19,7 +22,10 @@ const turmaMethods = {
     deleteTurmaById,
     getTurmaById,
     exportFile,
-    importFileTurmas
+    importFileTurmas,
+    updateAlunoTurmaById,
+    deleteAlunoTurmaById,
+    insertAlunoTurma,
 };
 
 export default turmaMethods;

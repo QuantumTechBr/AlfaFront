@@ -7,6 +7,7 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Table from '@mui/material/Table';
+import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
@@ -14,6 +15,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
+import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
 // routes
 import { paths } from 'src/routes/paths';
@@ -49,28 +51,26 @@ import {
 import { necessidades_especiais } from 'src/_mock';
 import AlunoEscolaTurmaAnoTableRow from './aluno-escola-turma-ano-table-row';
 import AlunoEscolaTurmaAnoEditModal from './aluno-escola-turma-ano-edit-modal';
+import escolaMethods from '../escola/escola-repository';
+import turmaMethods from '../turma/turma-repository';
+import { TireRepair } from '@mui/icons-material';
 
 
-const TABLE_HEAD = [
-  { id: 'escola', label: 'Escola', width: 400, notsortable: true },
-  { id: 'turma', label: 'Turma', width: 100, notsortable: true },
-  { id: 'ano_letivo', label: 'Ano Letivo', width: 100, notsortable: true },
-  { id: '', width: 88 },
-];
 
 // ----------------------------------------------------------------------
 
 export default function AlunoNewEditForm({ currentAluno }) {
   const { user } = useContext(AuthContext);
-  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { anosLetivos, buscaAnosLetivos, buscaAnoLetivo } = useContext(AnosLetivosContext);
   const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
-  const { escolas, buscaEscolas } = useContext(EscolasContext);
-  const { turmas, buscaTurmas } = useContext(TurmasContext);
+  const { escolas, buscaEscolas, buscaEscola } = useContext(EscolasContext);
+  const { turmas, buscaTurmas, buscaTurma } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const table = useTable();
   const [tableData, setTableData] = useState([]);
+  const [mapEscolaInicial, setMapEscolaInicial] = useState([]);
   const necessidades_options = necessidades_especiais.map(ne => {
     return { value: ne, label: ne }
   })
@@ -88,13 +88,36 @@ export default function AlunoNewEditForm({ currentAluno }) {
     data_nascimento: Yup.date().required('Data de Nascimento é obrigatório'),
   });
 
+  const botaoLabel = () => {
+    return (
+      <Button
+        variant="contained"
+        onClick={() => {
+          edit.onTrue();
+          setRowToEdit();
+        }}
+        startIcon={<Iconify icon="mingcute:add-line" />}
+        sx={{
+          bgcolor: '#00A5AD',
+        }}
+      >
+        Turma
+      </Button>
+    )
+  }
+
+  const TABLE_HEAD = [
+    { id: 'escola', label: 'Escola', width: 400, notsortable: true },
+    { id: 'turma', label: 'Turma', width: 100, notsortable: true },
+    { id: 'ano_letivo', label: 'Ano Letivo', width: 100, notsortable: true },
+    { id: '', label: botaoLabel(), width: 88 },
+  ];
+
   const defaultValues = useMemo(
     () => ({
       nome: currentAluno?.nome || '',
       matricula: currentAluno?.matricula || '',
       data_nascimento: alunoNascimento,
-      escola: currentAluno?.alunoEscolas?.length ? currentAluno.alunoEscolas[0].escola : '',
-      turma: currentAluno?.alunos_turmas?.length ? currentAluno.alunos_turmas[0].turma : '',
       necessidades_especiais: currentAluno?.necessidades_especiais ? JSON.parse(currentAluno.necessidades_especiais) : [],
       laudo: currentAluno?.laudo_necessidade ? currentAluno?.laudo_necessidade : 'false'
     }),
@@ -148,8 +171,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
         nome: data.nome,
         matricula: data.matricula.toString(),
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth() + 1) + "-" + nascimento.getDate(),
-        alunoEscolas: aluno_escolas,
-        alunos_turmas: aluno_turmas,
         necessidades_especiais: necessidades_especiais_data,
         laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo
       }
@@ -177,15 +198,40 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [currentAluno, defaultValues, reset]);
 
   useEffect(() => {
-    if (currentAluno?.alunoEscolas?.length > 0 ) {
-      setTableData([{
-        ano_letivo: currentAluno?.alunoEscolas[0].ano,
-        escola: currentAluno?.alunoEscolas[0].escola,
-        turma: currentAluno?.alunos_turmas[0].turma,
+    console.log(currentAluno)
+    const data = []
+    const map_escola_data = [];
 
-      }])
-      console.log(currentAluno)
+    if (anosLetivos.length > 0) {
+      anosLetivos.map((ano) => {
+        let escola = {}
+        let turma = {}
+        let id = ''
+        let id_aluno_escola = ''
+        if (currentAluno?.alunoEscolas?.length > 0) {
+          escola = currentAluno.alunoEscolas.find((alunoEscola) => alunoEscola.ano.id == ano.id)?.escola ?? {}
+          id_aluno_escola = currentAluno.alunoEscolas.find((alunoEscola) => alunoEscola.ano.id == ano.id)?.id ?? ''
+        }
+        if (currentAluno?.alunos_turmas?.length > 0) {
+          turma = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.turma ?? {}
+          id = currentAluno.alunos_turmas.find((alunoTurma) => alunoTurma.turma?.ano?.id == ano.id)?.id ?? ''
+        }
+        if (id != '' || id_aluno_escola != '') {
+          map_escola_data.push({escola_id: escola.id, ano_id: ano.id})
+          data.push({
+            id: id,
+            id_aluno_escola: id_aluno_escola,
+            ano_letivo: ano,
+            escola: escola,
+            turma: turma,
+          })
+
+        }
+      })
+
     }
+    setMapEscolaInicial(map_escola_data);
+    setTableData(data);
   }, [currentAluno]);
 
   useEffect(() => {
@@ -211,8 +257,28 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [escolas, setValue, user.funcao_usuario]);
 
   const handleDeleteRow = useCallback(
-    (id) => {
-      // const deleteRow = tableData.filter((row) => row.id !== id);
+    (row) => {
+      const deleteRow = tableData.filter((linha) => linha.id !== row.id);
+      if (row.id_aluno_escola != '') {
+        try {
+          escolaMethods.deleteAlunosByEscolaId(row.escola.id, row.id_aluno_escola);
+          enqueueSnackbar('Atualizado com sucesso!');
+        } catch (error) {
+          setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+          console.error(error);
+        }
+      }
+      if (row.id != '') {
+        try {
+          turmaMethods.deleteAlunoTurmaById(row.id);
+          enqueueSnackbar('Atualizado com sucesso!');
+        } catch (error) {
+          setErrorMsg('Tentativa de atualização de alunos da escola falhou');
+          console.error(error);
+        }
+      }
+
+      setTableData(deleteRow);
       // alunoMethods
       //   .deleteAlunoById(id)
       //   .then((retorno) => {
@@ -233,158 +299,223 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
       // table.onUpdatePageDeleteRow(dataInPage.length);
       // setCountAlunos(countAlunos - 1)
+
     },
-    [table, tableData]
+    [tableData]
   );
 
   const handleSaveRow = useCallback(
     (novosDados) => {
       const _tableData = tableData.map((item) => {
-        if (item.id === novosDados.id) {
+        if (item.id === novosDados.id || item.id_aluno_escola === novosDados.id_aluno_escola) {
           return { ...item, ...novosDados };
         }
         return item;
       });
-      setTableData(_tableData);
+      let novaLinha = {
+        id: novosDados.id,
+        id_aluno_escola: novosDados.id_aluno_escola,
+        ano_letivo: novosDados.ano_letivo,
+        escola: novosDados.escola,
+        turma: novosDados.turma,
+      }
+      const alunoEscola = novosDados.ano_letivo?.id ? [{ aluno_id: currentAluno.id, ano_id: novosDados.ano_letivo.id }] : [];
+      const alunoTurma = novosDados.turma?.id ? { aluno_id: currentAluno.id, turma_id: novosDados.turma.id } : {};
+      try {
+        let promises = [];
+        if (novosDados.escola?.id) {
+          let escolaMudou = true;
+          mapEscolaInicial.map((ei) => {
+            if (ei.escola_id == novosDados.escola.id && ei.ano_id == novosDados.ano_letivo?.id ) {
+              escolaMudou = false;
+            }
+          });
+          if (escolaMudou) {
+            promises.push(
+              escolaMethods.updateAlunoEscolaByEscolaId(novosDados.escola.id, alunoEscola).then((alunoEscola) => {
+                novaLinha.id_aluno_escola = alunoEscola.data[0]?.id;
+                const novoMapEscola = [...mapEscolaInicial, {escola_id: novosDados.escola.id, ano_id: novosDados.ano_letivo?.id}];
+                setMapEscolaInicial(novoMapEscola);
+              }).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
+          }
+        }
+        if (novosDados.id == 'novo' || novosDados.id == '') {
+          if (alunoTurma.aluno_id) {
+            promises.push(
+              turmaMethods.insertAlunoTurma(alunoTurma).then((alunoTurma) => {
+                novaLinha.id = alunoTurma.data.id;
+              }).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
+          }
+        } else {
+          if (alunoTurma.aluno_id) {
+            promises.push(
+              turmaMethods.updateAlunoTurmaById(novosDados.id, alunoTurma).catch((error) => {
+                setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+              })
+            );
+          }
+        }
+        Promise.all(promises).then(() => {
+          if ((novosDados.id == 'novo' || !novosDados.id) && (novosDados.id_aluno_escola == 'novo' || !novosDados.id_aluno_escola)) {
+            _tableData.push(novaLinha)
+          }
+          setTableData(_tableData);
+          enqueueSnackbar('Atualizado com sucesso!');
+        });
+        // window.location.reload();
+      } catch (error) {
+        setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
+        console.error(error);
+        // window.location.reload();
+      }
     },
     [tableData]
   );
 
   const saveAndClose = (retorno = null) => {
-    handleSaveRow({ ...rowToEdit, ...retorno });
+    handleSaveRow(retorno);
     edit.onFalse();
   };
   return (
     <>
-    <FormProvider methods={methods} onSubmit={onSubmit}>
-      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-      <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
-          <Card sx={{ p: 3 }}>
-            <Box
-              rowGap={3}
-              columnGap={4}
-              display="grid"
-              gridTemplateColumns={{
-                xs: 'repeat(1, 1fr)',
-                sm: 'repeat(2, 1fr)',
-              }}
-            >
+      <FormProvider methods={methods} onSubmit={onSubmit}>
+        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+        <Grid container spacing={3}>
+          <Grid xs={12} md={12}>
+            <Card sx={{ p: 3 }}>
+              <Box
+                rowGap={3}
+                columnGap={4}
+                display="grid"
+                gridTemplateColumns={{
+                  xs: 'repeat(1, 1fr)',
+                  sm: 'repeat(2, 1fr)',
+                }}
+              >
 
-              <RHFTextField name="nome" label="Nome do Estudante" />
+                <RHFTextField name="nome" label="Nome do Estudante" />
 
-              <RHFTextField type='number' name="matricula" label="Matrícula" />
+                <RHFTextField type='number' name="matricula" label="Matrícula" />
 
-              <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
-                <Controller
-                  name="data_nascimento"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DatePicker value={value} onChange={onChange} label='Data de Nascimento' />
-                  )}
-                />
-              </LocalizationProvider>
+                <LocalizationProvider adapterLocale={ptBR} dateAdapter={AdapterDateFns}>
+                  <Controller
+                    name="data_nascimento"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <DatePicker value={value} onChange={onChange} label='Data de Nascimento' />
+                    )}
+                  />
+                </LocalizationProvider>
 
-              {!currentAluno &&
-                <>
-                  <RHFSelect sx={{
-                  }} id={`escola_` + `${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
-                    {escolasAssessor.map((escola) => (
-                      <MenuItem key={escola.id} value={escola.id}>
-                        {escola.nome}
-                      </MenuItem>
-                    ))}
-                  </RHFSelect>
-
-                  <RHFSelect sx={{
-                    display: getValues('escola') ? "inherit" : "none"
-                  }} id={`turma_` + `${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                    {turmas.filter((te) => te.escola_id == getValues('escola'))
-                      .map((turma) => (
-                        <MenuItem key={turma.id} value={turma.id}>
-                          {turma.ano_escolar}º {turma.nome} ({turma.turno})
+                {!currentAluno &&
+                  <>
+                    <RHFSelect sx={{
+                    }} id={`escola_` + `${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
+                      {escolasAssessor.map((escola) => (
+                        <MenuItem key={escola.id} value={escola.id}>
+                          {escola.nome}
                         </MenuItem>
                       ))}
-                  </RHFSelect>
-                </>
-              }
+                    </RHFSelect>
 
-              <RHFMultiSelect
-                name="necessidades_especiais"
-                label="Necessidades Especiais"
-                options={necessidades_options}
-              >
-                {necessidades_especiais.map((_ne) => (
-                  <MenuItem key={_ne} value={_ne} sx={{ height: '34px' }}>
-                    {_ne}
-                  </MenuItem>
-                ))}
-              </RHFMultiSelect>
+                    <RHFSelect sx={{
+                      display: getValues('escola') ? "inherit" : "none"
+                    }} id={`turma_` + `${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
+                      {turmas.filter((te) => te.escola_id == getValues('escola'))
+                        .map((turma) => (
+                          <MenuItem key={turma.id} value={turma.id}>
+                            {turma.ano_escolar}º {turma.nome} ({turma.turno})
+                          </MenuItem>
+                        ))}
+                    </RHFSelect>
+                  </>
+                }
 
-              <RHFSelect sx={{
-                display: getValues('necessidades_especiais') == '' ? "none" : "inherit"
-              }} id="laudo" disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
-                <MenuItem key='laudo_sim' value='true'>
-                  SIM
-                </MenuItem>
-                <MenuItem key='laudo_nao' value='false' selected>
-                  NÃO
-                </MenuItem>
-              </RHFSelect>
-
-            </Box>
-            <TableContainer sx={{ pt: 2, position: 'relative', overflow: 'unset' }}>
-
-              <Table size="small">
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {tableData.map((row) => (
-                    <AlunoEscolaTurmaAnoTableRow
-                      key={row.id}
-                      row={row}
-                      onEditRow={() => {
-                        edit.onTrue();
-                        setRowToEdit(row);
-                      }}
-                      onDeleteRow={() => handleDeleteRow(row.id)}
-                    />
+                <RHFMultiSelect
+                  name="necessidades_especiais"
+                  label="Necessidades Especiais"
+                  options={necessidades_options}
+                >
+                  {necessidades_especiais.map((_ne) => (
+                    <MenuItem key={_ne} value={_ne} sx={{ height: '34px' }}>
+                      {_ne}
+                    </MenuItem>
                   ))}
+                </RHFMultiSelect>
 
-                  <TableEmptyRows
-                    height={49}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                <RHFSelect sx={{
+                  display: getValues('necessidades_especiais') == '' ? "none" : "inherit"
+                }} id="laudo" disabled={getValues('necessidades_especiais') == '' ? true : false} name="laudo" label="Possui laudo médico?">
+                  <MenuItem key='laudo_sim' value='true'>
+                    SIM
+                  </MenuItem>
+                  <MenuItem key='laudo_nao' value='false' selected>
+                    NÃO
+                  </MenuItem>
+                </RHFSelect>
 
-                </TableBody>
-              </Table>
+              </Box>
 
-            </TableContainer>
-            <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
-                {!currentAluno ? 'Criar Estudante' : 'Atualizar Estudante'}
-              </LoadingButton>
-            </Stack>
+              {currentAluno &&
+                <TableContainer sx={{ pt: 2, position: 'relative', overflow: 'unset' }}>
+
+                  <Table size="small">
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={tableData.length}
+                      onSort={table.onSort}
+                    />
+
+                    <TableBody>
+                      {tableData.map((row) => (
+                        <AlunoEscolaTurmaAnoTableRow
+                          key={row.id}
+                          row={row}
+                          onEditRow={() => {
+                            edit.onTrue();
+                            setRowToEdit(row);
+                          }}
+                          onDeleteRow={() => handleDeleteRow(row)}
+                        />
+                      ))}
+
+                      <TableEmptyRows
+                        height={49}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                      />
+
+                    </TableBody>
+                  </Table>
+
+                </TableContainer>}
+              <Stack alignItems="flex-end" sx={{ mt: 3 }}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                  {!currentAluno ? 'Criar Estudante' : 'Atualizar Estudante'}
+                </LoadingButton>
+              </Stack>
 
 
 
-          </Card>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </FormProvider>
-    <AlunoEscolaTurmaAnoEditModal
-    row={rowToEdit}
-    open={edit.value}
-    onClose={edit.onFalse}
-    onSave={saveAndClose}
-  />
-  </>
+      </FormProvider>
+      <AlunoEscolaTurmaAnoEditModal
+        row={rowToEdit}
+        open={edit.value}
+        onClose={edit.onFalse}
+        onSave={saveAndClose}
+        mapEscolaInicial={mapEscolaInicial}
+      />
+    </>
   );
 }
 

@@ -17,7 +17,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import alunoMethods from './aluno-repository';
-
+import RHFAutocomplete from '../../components/hook-form/rhf-autocomplete';
 // components
 import { useSnackbar } from 'src/components/snackbar';
 import FormProvider, { RHFSelect, RHFTextField } from 'src/components/hook-form';
@@ -38,10 +38,10 @@ import _ from 'lodash';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSave }) {
+export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSave, mapEscolaInicial }) {
   const [currentAluno, setCurrentAluno] = useState();
   const contextReady = useBoolean(false);
-
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
   const { user } = useContext(AuthContext);
@@ -49,12 +49,28 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const [escolasAssessor, setEscolasAssessor] = useState(escolas);
+  const [anosLetivosOptions, setAnosLetivosOptions] = useState([]);
 
-  const NewTurmaSchema = Yup.object().shape({
-    nome: Yup.string().required('Nome é obrigatório'),
-    matricula: Yup.string().required('Matrícula é obrigatória'),
-    data_nascimento: Yup.string().required('Data de Nascimento é obrigatório'),
-  });
+  function removeItemOnce(arr, value) {
+    var index = arr.indexOf(value);
+    if (index > -1) {
+      arr.splice(index, 1);
+    }
+    return arr;
+  }
+
+  useEffect(() => {
+    if (mapEscolaInicial?.length > 0) {
+      const anoOpt = [];
+      mapEscolaInicial.map((ei)=>anoOpt.push(ei.ano_id));
+      if (row) {
+        removeItemOnce(anoOpt, row.ano_letivo.id)
+      }
+      setAnosLetivosOptions(anoOpt);
+    }
+  }, [open]);
+
+
 
   useEffect(() => {
     contextReady.onFalse();
@@ -74,34 +90,49 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
         }),
       ]).then(() => {
         contextReady.onTrue();
-        let escola_id = escolas.filter((escola) => escola.nome == row?.escola_nome)[0]?.id
-        // console.log(escolas.filter((escola) => escola.nome == row?.escola_nome))
-        let turma_escola = turmas.filter(turma => turma.escola_id == row.escola);
-        setCurrentAluno({
-          ...row,
-          ano_letivo: row.ano_letivo,
-          escola: row.escola,
-          turma: turma_escola.filter((turma) => turma.nome == row?.turma_nome && turma.ano_escolar == row?.turma_ano_escolar && turma.turno == row?.turma_turno)[0]?.id,
-        });
+        if (row) {
+          setCurrentAluno({
+            ...row,
+            id: row.id,
+            id_aluno_escola: row.id_aluno_escola,
+            turma: row.turma?.id,
+            ano_letivo: row.ano_letivo.id,
+            escola: row.escola?.nome ? { label: row.escola.nome, id: row.escola.id } : '',
+          });
+
+        }
       });
     }
   }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, open]);
 
-  
+  useEffect(() => {
+    const escolasAC = [];
+    escolas.map((escola) => {
+      const ea = {
+        label: escola.nome,
+        id: escola.id,
+      }
+      escolasAC.push(ea)
+    })
+    setEscolasFiltered(escolasAC);
+  }, [escolas]);
+
+
   const defaultValues = useMemo(
     () => ({
+      id: currentAluno?.id || '',
+      id_aluno_escola: currentAluno?.id_aluno_escola || '',
       ano_letivo: currentAluno?.ano_letivo || '',
       escola: currentAluno?.escola ? currentAluno.escola : '',
       turma: currentAluno?.turma ? currentAluno.turma : '',
     }),
     [currentAluno]
   );
-  
+
   const methods = useForm({
-    resolver: yupResolver(NewTurmaSchema),
     defaultValues,
   });
-  
+
   const {
     reset,
     watch,
@@ -113,63 +144,15 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   } = methods;
 
   const values = watch();
-  
-  const onSubmit = handleSubmit(async (data) => {
-    try {
-      const anoLetivoAtual = anosLetivos.find((ano) => {
-        if (ano.status === 'NÃO FINALIZADO') {
-          return ano.id;
-        }
-      });
-      let aluno_escolas = [];
-      let aluno_turmas = [];
-      if (data.escola != '') {
-        aluno_escolas = [
-          {
-            escola_id: data.escola,
-            ano_id: anoLetivoAtual.id,
-          },
-        ];
-      }
-      if (data.turma) {
-        aluno_turmas = [
-          {
-            turma_id: data.turma,
-          },
-        ];
-      }
-      const nascimento = new Date(data.data_nascimento);
-      const toSend = {
-        nome: data.nome,
-        matricula: data.matricula.toString(),
-        data_nascimento:
-        nascimento.getFullYear() + '-' + (nascimento.getMonth() + 1) + '-' + nascimento.getDate(),
-        alunoEscolas: aluno_escolas,
-        alunos_turmas: aluno_turmas,
-      };
-      
-      const retornoPatch = await alunoMethods
-      .updateAlunoById(currentAluno.id, toSend)
-      .then(buscaTurmas({ force: true }))
-      .catch((error) => {
-        throw error;
-      });
-      
-      enqueueSnackbar('Atualizado com sucesso!');
-      onSave(retornoPatch.data);
-      reset();
-    } catch (error) {
-      setErrorMsg('Tentativa de atualização do estudante falhou');
-      console.error(error);
-    }
-  });
-  
+
+  let { ano_letivo } = values;
+
   useEffect(() => {
     if (currentAluno) {
       reset(defaultValues);
     }
   }, [currentAluno]);
-  
+
   useEffect(() => {
     if (contextReady.value) {
       if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
@@ -184,19 +167,24 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
 
   return (
     <Dialog
-    fullWidth
-    maxWidth={false}
-    open={open}
-    onClose={onClose}
-    PaperProps={{
-      sx: { maxWidth: 720 },
-    }}
+      fullWidth
+      maxWidth={false}
+      open={open}
+      onClose={() => {
+        setValue('escola', '');
+        setValue('turma', '');
+        setValue('ano_letivo', '');
+        onClose();
+      }}
+      PaperProps={{
+        sx: { maxWidth: 1080, minHeight: 600 },
+      }}
     >
       {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
-        <FormProvider methods={methods} onSubmit={onSubmit}>
-          <DialogTitle>Edição Escola / Turma / Ano</DialogTitle>
+        <FormProvider methods={methods}>
+          <DialogTitle>Escola / Turma / Ano</DialogTitle>
 
           <DialogContent>
             <br></br>
@@ -212,17 +200,28 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
 
               <RHFSelect
                 sx={{}}
-                id={`escola_` + `${currentAluno?.id}`}
+                id={`ano_letivo` + `${currentAluno?.id}`}
                 disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
-                name="escola"
-                label="Escola"
+                name="ano_letivo"
+                label="Ano Letivo"
               >
-                {escolasAssessor.map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    {escola.nome}
+              {anosLetivos 
+                .filter((ano) => !anosLetivosOptions.includes(ano.id))
+                .map((ano) => (
+                  <MenuItem key={ano.id} value={ano.id}>
+                    {ano.ano}
                   </MenuItem>
                 ))}
               </RHFSelect>
+
+              <RHFAutocomplete
+                disablePortal
+                id="escola"
+                name="escola"
+                label="Escola"
+                options={escolasFiltered}
+
+              />
 
               <RHFSelect
                 sx={{
@@ -234,7 +233,8 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 label="Turma"
               >
                 {turmas
-                  .filter((te) => te.escola_id == getValues('escola'))
+                  .filter((te) => te.escola_id == getValues('escola')?.id)
+                  .filter((te) => te.ano_id == getValues('ano_letivo'))
                   .map((turma) => (
                     <MenuItem key={turma.id} value={turma.id}>
                       {turma.ano_escolar}º {turma.nome} ({turma.turno})
@@ -242,30 +242,37 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                   ))}
               </RHFSelect>
 
-              <RHFSelect
-                sx={{}}
-                id={`ano_letivo` + `${currentAluno?.id}`}
-                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
-                name="ano_letivo"
-                label="Ano Letivo"
-              >
-                {anosLetivos.map((ano) => (
-                  <MenuItem key={ano.id} value={ano.id}>
-                    {ano.ano}
-                  </MenuItem>
-                ))}
-              </RHFSelect>
-
 
             </Box>
           </DialogContent>
 
           <DialogActions>
-            <Button variant="outlined" onClick={onClose}>
+            <Button variant="outlined" onClick={() => {
+              setValue('escola', '');
+              setValue('turma', '');
+              setValue('ano_letivo', '');
+              onClose();
+            }}>
               Cancelar
             </Button>
 
-            <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+            <LoadingButton variant="contained" loading={isSubmitting}
+              onClick={() => {
+                let _turma = turmas.filter(turma => turma.id == getValues('turma'));
+                let _escola = escolas.filter(escola => escola.id == getValues('escola').id);
+                let _ano = anosLetivos.filter(ano => ano.id == getValues('ano_letivo'));
+                setValue('escola', '');
+                setValue('turma', '');
+                setValue('ano_letivo', '');
+                onSave({
+                  id: row ? getValues('id') : 'novo',
+                  id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
+                  turma: _turma[0],
+                  escola: _escola[0],
+                  ano_letivo: _ano[0],
+                })
+              }}
+            >
               Atualizar
             </LoadingButton>
           </DialogActions>
@@ -280,4 +287,5 @@ AlunoEscolaTurmaAnoEditModal.propTypes = {
   onClose: PropTypes.func,
   onSave: PropTypes.func,
   open: PropTypes.bool,
+  mapEscolaInicial: PropTypes.array,
 };

@@ -27,8 +27,19 @@ export const AnosLetivosProvider = ({ children }) => {
     return returnData;
   };
 
+  const buscaAnoLetivo = async (id) => {
+    let returnData = anosLetivos.find((ano) => ano.id === id);
+    if (!returnData) {
+      returnData = await anoLetivoMethods.getAnoLetivoById(id).then((response) => {
+        return response.data;
+      });
+    }
+
+    return returnData;
+  };
+
   return (
-    <AnosLetivosContext.Provider value={{ anosLetivos, buscaAnosLetivos }}>
+    <AnosLetivosContext.Provider value={{ anosLetivos, buscaAnosLetivos, buscaAnoLetivo }}>
       {children}
     </AnosLetivosContext.Provider>
   );

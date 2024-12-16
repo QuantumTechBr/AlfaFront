@@ -61,8 +61,19 @@ export const TurmasProvider = ({ children }) => {
     });
   };
 
+  const buscaTurma = async (id) => {
+    let returnData = turmas.find((turma) => turma.id === id);
+    if (!returnData) {
+      returnData = await turmaMethods.getTurmaById(id).then((response) => {
+        return response.data;
+      });
+    }
+
+    return returnData;
+  }
+
   return (
-    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId, buscaTurmasPaginado }}>
+    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId, buscaTurmasPaginado, buscaTurma }}>
       {children}
     </TurmasContext.Provider>
   );
