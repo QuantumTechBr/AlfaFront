@@ -75,9 +75,9 @@ export default function AlunoEscolaTableRow({
               <IconButton onClick={() => {
               confirmAdicionar.onTrue();
             }}
-            disabled={row.alunoEscolas.length > 0 ? true : false}
+            // disabled={row.alunoEscolas.length > 0 ? true : false}
             >
-                <Iconify icon="material-symbols:person-add" color={row.alunoEscolas.length > 0 ? "grey" : "green"} />
+                <Iconify icon="material-symbols:person-add" color={"green"} />
               </IconButton>
           </Tooltip>
         </TableCell>

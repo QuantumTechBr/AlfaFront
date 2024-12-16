@@ -154,6 +154,11 @@ export default function AlunoListView() {
             ano = ano_letivo.id
           }
         })
+        const novosFiltros = {
+          ...filters,
+          ano: ano,
+        };
+        setFilters(novosFiltros);
       }
       await alunoMethods
         .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase, zonas: ddz, ano_letivo: ano, sem_escola })
