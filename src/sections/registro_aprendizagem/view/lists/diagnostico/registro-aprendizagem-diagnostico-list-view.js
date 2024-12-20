@@ -282,7 +282,7 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         tipo: "Diagnóstico",
         turma: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
-        ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
+        ano: filtros.ano,
         escola: escola,
       };
 

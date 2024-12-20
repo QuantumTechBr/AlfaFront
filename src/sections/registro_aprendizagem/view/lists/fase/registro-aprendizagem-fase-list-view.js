@@ -345,7 +345,7 @@ export default function RegistroAprendizagemFaseListView() {
         bimestre: (filtros.bimestre.length ? filtros.bimestre : bimestres).map(
           (bimestre) => bimestre.id
         ),
-        ano: filtros.anoLetivo ? filtros.anoLetivo.id : "",
+        ano: filtros.ano,
         escola: escolas,
       };
 
