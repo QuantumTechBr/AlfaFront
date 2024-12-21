@@ -17,7 +17,19 @@ axiosInstance.interceptors.response.use(
         if (key == 'non_field_errors') {
           arrayMsg.push(`${value}`);
         } else {
-          arrayMsg.push(`${key}: ${value}`);
+          if (Array.isArray(value)) {
+            arrayMsg.push(`${key}: ${value.join(', ')}`);
+          } else if (typeof value === 'object') {
+            for (const [key2, value2] of Object.entries(value)) {
+              if (Array.isArray(value2)) {
+                arrayMsg.push(`${key2}: ${value2.join(', ')}`);
+              } else {
+                arrayMsg.push(`${key2}: ${value2}`);
+              }
+            }
+          } else {
+            arrayMsg.push(`${key}: ${value}`);
+          }
         }
       }
       const mensagem = arrayMsg.join(' ');
