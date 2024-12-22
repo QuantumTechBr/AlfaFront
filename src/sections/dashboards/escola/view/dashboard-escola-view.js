@@ -88,6 +88,7 @@ export default function DashboardEscolaView() {
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
+  const calculandoTabela = useBoolean(false);
   const [zonaFiltro, setZonaFiltro] = useState([]);
   const [escolaFiltro, setEscolaFiltro] = useState([]);
 
@@ -246,14 +247,14 @@ export default function DashboardEscolaView() {
   useEffect(() => {
     if (contextReady.value) {
       const _escola = escolas.filter((e) => e.id == initialEscola);
-      console.log('initiallll', _escola)
+      const anoAtual = new Date().getFullYear();
       const _filters = {
         ...filters,
         ...(_escola.length > 0 ? { escola: _escola[0] } : {}),
         ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) } : {}),
       };
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -287,18 +288,6 @@ export default function DashboardEscolaView() {
     preparacaoInicial(); // chamada unica
   }, []);
 
-//   useEffect( () => {
-//     let escFiltered = [];
-//     escolas.map((esc)=>{
-//       for (let index = 0; index < filters.zona.length; index++) {
-//         if (esc.zona.id == filters.zona[index].id){
-//           escFiltered.push(esc)
-//         }
-//       }
-//     })
-//     setEscolasFiltered(escFiltered)
-//  }, [escolas, filters]);
-
   const filtroReset = () => {
     setFilters({
       anoLetivo: _.first(anosLetivos),
@@ -326,7 +315,7 @@ export default function DashboardEscolaView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = { professor: '' };
+  const defaultTableFilters = { professor: '', bimestre: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -334,20 +323,14 @@ export default function DashboardEscolaView() {
 
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
-  const dataFiltered = applyTableFilter({
-    inputData: dados.grid_turmas,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: debouncedGridFilter,
-  });
-
-  const notFound = dataFiltered.length == 0;
-
   const handleTableFilters = useCallback(
-    (nome, value) => {
+    (campo, value) => {
+      calculandoTabela.onTrue();
       table.onResetPage();
+      const newFilters = { ...tableFilters, [campo]: value };
       setTableFilters((prevState) => ({
         ...prevState,
-        escola: value,
+        ...newFilters,
       }));
     },
     [table]
@@ -516,6 +499,21 @@ export default function DashboardEscolaView() {
       </>
     )
   }
+
+
+  const dataFiltered = applyTableFilter({
+    inputData: dados.grid_turmas,
+    comparator: getComparator(table.order, table.orderBy),
+    filters: debouncedGridFilter,
+  });
+
+  const notFound = dataFiltered.length == 0;
+
+  useEffect(() => { // Chamada para mostrar carregando enquanto o filtro é aplicado
+    if (debouncedGridFilter) {
+      calculandoTabela.onFalse(); 
+    } 
+  }, [debouncedGridFilter]);
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
@@ -691,19 +689,8 @@ export default function DashboardEscolaView() {
                   <Card sx={{ mt: 3, mb: 4 }}>
                     <CardHeader title="Turmas" />
                     <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-                    <TableContainer
-                      sx={{
-                        mt: 1,
-                        height:
-                          70 +
-                          (dataFiltered.length == 0
-                            ? 350
-                            : (dataFiltered.length < table.rowsPerPage
-                              ? dataFiltered.length
-                              : table.rowsPerPage) * 43),
-                      }}
-                    >
+                    {calculandoTabela.value && <LoadingBox />}
+                    <TableContainer>
                       <Scrollbar>
                         <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                           <TableHeadCustom
@@ -721,7 +708,7 @@ export default function DashboardEscolaView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre}/>
                             ))}
 
                             <TableEmptyRows
@@ -762,7 +749,7 @@ export default function DashboardEscolaView() {
 // ----------------------------------------------------------------------
 
 function applyTableFilter({ inputData, comparator, filters }) {
-  const { professor } = filters;
+  const { pesquisa } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -774,9 +761,12 @@ function applyTableFilter({ inputData, comparator, filters }) {
 
   inputData = stabilizedThis.map((el) => el[0]);
 
-  if (professor) {
+  if (pesquisa) {
     inputData = inputData.filter(
-      (row) => row.professor_nome.toLowerCase().indexOf(professor.toLowerCase()) !== -1
+      (row) => {
+        return  row.turma_nome.toLowerCase().indexOf(pesquisa.toLowerCase()) !== -1 ||
+                row.turma_ano_escolar.toString().indexOf(pesquisa) !== -1
+      }
     );
   }
 
@@ -786,7 +776,7 @@ function applyTableFilter({ inputData, comparator, filters }) {
 // ----------------------------------------------------------------------
 
 function Row(props) {
-  const { row } = props;
+  const { row, bimestreOrdinal } = props;
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -807,10 +797,26 @@ function Row(props) {
       <TableCell>{row.turma_turno}</TableCell>
       <TableCell>{(row.turma_professor ?? []).map((prof) => prof.nome).join(`, `)}</TableCell>
       <TableCell>{row.alunos ?? 0}</TableCell>
-      <TableCell>{row.avaliados ?? 0}</TableCell>
-      <TableCell>{row.alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_avaliados ?? 0}</TableCell>
+      <TableCell>{
+        bimestreOrdinal
+          ? row.qtd_avaliados[bimestreOrdinal - 1] ?? row.avaliados ?? 0
+          : row.avaliados ?? 0
+      }</TableCell>
+      <TableCell>{
+        bimestreOrdinal
+          ? row.qtd_alfabetizado[bimestreOrdinal - 1] ?? row.alfabetizados ?? 0
+          : row.alfabetizados ?? 0
+      }</TableCell>
+      <TableCell>{
+        bimestreOrdinal
+          ? row.qtd_nao_alfabetizado[bimestreOrdinal - 1] ?? row.nao_alfabetizados ?? 0
+          : row.nao_alfabetizados ?? 0
+      }</TableCell>
+      <TableCell>{
+        bimestreOrdinal
+          ? row.qtd_nao_avaliado[bimestreOrdinal - 1] ?? row.nao_avaliados ?? 0
+          : row.nao_avaliados ?? 0
+      }</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           color="primary"

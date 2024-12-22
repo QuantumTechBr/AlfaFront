@@ -30,6 +30,7 @@ export default function AlunoEscolaTableRow({
   onSelectRow,
   onAdicionarAluno,
   onRemoverAluno,
+  selectedAnoLetivoId,
 }) {
   
   const { id, nome, data_nascimento, matricula, created_at, updated_at, deleted_at } = row;
@@ -38,6 +39,9 @@ export default function AlunoEscolaTableRow({
 
   const confirmAdicionar = useBoolean();
   const confirmRemover = useBoolean();
+  const podeAdicionar = row?.alunoEscolas?.length == 0 || row?.alunoEscolas?.find((ae) => ae.ano?.id == selectedAnoLetivoId) == undefined;
+  const podeRemover = row?.alunoEscolas.find((ae) => ae.escola.id == currentEscola.id && ae.ano.id == selectedAnoLetivoId) != undefined;
+  const escolaAtual = row?.alunoEscolas?.find((ae) => ae.ano.id == selectedAnoLetivoId)?.escola ?? undefined;
 
   const adicionarAluno = () => {
     onAdicionarAluno();
@@ -49,57 +53,53 @@ export default function AlunoEscolaTableRow({
     confirmRemover.onFalse();
   };
 
-  // let _aluno = allAlunos.filter((aluno) => aluno.id == id);
-  // _aluno = _aluno.length > 0 ? _aluno[0] : null;
-  // const outrasEscolas =
-  //   _aluno == null ? [] : _aluno.alunoEscolas.filter((ae) => ae.escola != currentEscola.id);
-
-  // const emOutraEscola = outrasEscolas.length > 0;
-  // selected = emOutraEscola ? false : selected;
-
   return (
   <>
     <TableRow hover selected={selected}>
-        {/* <TableCell padding="checkbox">
-          <Checkbox
-            {...(emOutraEscola ? { disabled: 'disabled' } : null)}
-            checked={selected}
-            onClick={onSelectRow}
-          />
-        </TableCell> */}
 
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome}</TableCell>
+
+         
+
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {escolaAtual?.nome ? (
+            <Tooltip title={`Aluno na escola ${escolaAtual?.nome}`} placement="top" arrow>
+              {nome}
+            </Tooltip>
+          ) : (
+            nome
+          )}
+        </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{matricula}</TableCell>
         <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
           <Tooltip title="Adicionar aluno a escola" placement="top" arrow>
               <IconButton onClick={() => {
               confirmAdicionar.onTrue();
             }}
-            // disabled={row.alunoEscolas.length > 0 ? true : false}
+            disabled={!podeAdicionar}
             >
-                <Iconify icon="material-symbols:person-add" color={"green"} />
+                <Iconify icon="material-symbols:person-add" color={podeAdicionar ? "green" : "grey"} />
               </IconButton>
           </Tooltip>
         </TableCell>
         <TableCell align="center" sx={{ px: 1, whiteSpace: 'nowrap' }}>
-          <Tooltip title="Remover aluno a escola" placement="top" arrow>
+          <Tooltip title="Remover aluno da escola" placement="top" arrow>
               <IconButton onClick={() => {
               confirmRemover.onTrue();
             }}
-            disabled={row?.alunoEscolas[0]?.escola == currentEscola.id ? false : true}
+            disabled={!podeRemover}
             >
-                <Iconify icon="material-symbols:person-cancel" color={row?.alunoEscolas[0]?.escola == currentEscola.id ? "red" : "grey"} />
+                <Iconify icon="material-symbols:person-cancel" color={podeRemover ? "red" : "grey"} />
               </IconButton>
           </Tooltip>
         </TableCell>
       </TableRow>
 
-      
+
         <ConfirmDialog
         open={confirmAdicionar.value}
         onClose={confirmAdicionar.onFalse}
         title="Adicionar Estudante"
-        content={`Tem certeza que deseja adicionar ${nome} a ${currentEscola?.nome} ?`}
+        content={`Tem certeza que deseja adicionar ${nome} a ${currentEscola?.nome} no ano letivo selecionado?`}
         action={
           <Button variant="contained" color="success" onClick={adicionarAluno}>
             Adicionar
@@ -110,7 +110,7 @@ export default function AlunoEscolaTableRow({
         open={confirmRemover.value}
         onClose={confirmRemover.onFalse}
         title="Remover Estudante"
-        content={`Tem certeza que deseja excluir ${nome} da ${currentEscola?.nome} ?`}
+        content={`Tem certeza que deseja excluir ${nome} da ${currentEscola?.nome} no ano letivo selecionado?`}
         action={
           <Button variant="contained" color="error" onClick={removerAluno}>
             Remover

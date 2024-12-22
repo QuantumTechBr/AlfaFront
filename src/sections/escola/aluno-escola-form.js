@@ -50,6 +50,9 @@ import Label from 'src/components/label';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
 import { CollectionsBookmarkOutlined } from '@mui/icons-material';
+import { width } from '@mui/system';
+import { Grid } from '@mui/material';
+import { set, values } from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -75,42 +78,15 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
   const [searchAlunosInput, setSearchAlunosInput] = useState('');
   const [buscaAlu, setBuscaAlu] = useState('');
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
-
-  // const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
-
- 
-
-  const getAllAlunos = useCallback((pesquisa) => {
-    alunoMethods
-      .getAllAlunos({offset: 0, limit: 10, pesquisa: pesquisa})
-      .then((response) => {
-        const _allAlunos = response.data.results;
-        
-        // _allAlunos = sortBy(_allAlunos, (ae) => {
-        //   return ae.nome;
-        // });
-
-        setAllAlunos(_allAlunos);
-
-        const preSelectedList = _allAlunos
-          .filter((aluno) => {
-            const encontrados = aluno.alunoEscolas.filter((ae) => ae.escola == escola.id);
-            return encontrados.length > 0;
-          })
-          .map((a) => a.id);
-        table.setSelected(preSelectedList);
-      })
-      .catch((error) => {
-        setErrorMsg('Erro de comunicação com a API de estudantes');
-      });
-  }, [escola, table]);
+  const [anoLetivoId, setAnoLetivoId] = useState();
 
   const getAluno = (pesquisa = '') => {
+    setErrorMsg('');
     alunoMethods.getAlunoDiretor({ offset: 0, limit: 10, pesquisa: pesquisa }).then(response => {
       const auto_complete_aluno = []
       response.data.results.map((aluno) => {
         const al = {
-          label: aluno.nome,
+          label: aluno.nome + ' - ' + aluno.matricula,
           id: aluno.id,
         }
         auto_complete_aluno.push(al)
@@ -128,6 +104,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     reset,
     control,
     setValue,
+    getValues,
     handleSubmit,
     formState: { isSubmitting },
   } = methods;
@@ -136,7 +113,11 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     if (open) {
       setAllAlunos();
       // getAllAlunos(escola.id);
-      buscaAnosLetivos().catch((error) => {
+      buscaAnosLetivos().then(() => {
+        const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id;
+        setAnoLetivoId(idAnoLetivoAtual);
+        getAluno();
+      }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de anos letivos');
       });
     }
@@ -153,35 +134,7 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
     { id: 'remover', label: 'Remover', width: 2 },
   ];
 
-  // const dataFiltered = applyFilter({
-  //   inputData: allAlunos ?? [],
-  //   query: debouncedSearchFilter,
-  // });
-
-  // const onSubmit = handleSubmit(async (data) => {
-  //   try {
-  //     const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO").id
-  //     await escolaMethods
-  //       .updateEscolaById(escola.id, {
-  //         alunoEscolas: table.selected.map((id) => {
-  //           return {
-  //             aluno_id: id,
-  //             ano_id: idAnoLetivoAtual,
-  //           };
-  //         }),
-  //       })
-  //       .catch((error) => {
-  //         throw error;
-  //       });
-  //     reset();
-  //     onClose();
-  //     enqueueSnackbar('Atualizado com sucesso!');
-  //     // window.location.reload();
-  //   } catch (error) {
-  //     setErrorMsg('Tentativa de atualização da escola falhou');
-  //     console.error(error);
-  //   }
-  // });
+  
 
   const isLoading = allAlunos === undefined || allAlunos === null;
 
@@ -196,13 +149,34 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const handleAdicionarAluno = useCallback(
     (aluno) => {
-      const idAnoLetivoAtual = anosLetivos.find((ano) => ano.status === "NÃO FINALIZADO")?.id;
-      const alunoEscola = [{ aluno_id: aluno?.id, ano_id: idAnoLetivoAtual }];
+      setErrorMsg('');
+      const anoId = getValues('ano_letivo');
+      const alunoEscola = [{ aluno_id: aluno?.id, ano_id: anoId }];
       try {
-        escolaMethods.updateAlunoEscolaByEscolaId(escola?.id, alunoEscola);
-        enqueueSnackbar('Atualizado com sucesso!');
-        setAlunosSelecionados([]);
-        setAlunos([]);
+        escolaMethods.updateAlunoEscolaByEscolaId(escola?.id, alunoEscola)
+        .then((retorno) => {
+          enqueueSnackbar('Atualizado com sucesso!')
+          const alunosSelecionados2 = alunosSelecionados.map((aluSel) => {
+            if (aluSel?.id == aluno?.id) {
+              aluSel.alunoEscolas.push(retorno.data);
+            }
+            return aluSel;
+          });
+          const alunos2 = alunos.map((alu) => {
+            if (alu?.id == aluno?.id) {
+              alu.alunoEscolas.push(retorno.data);
+            }
+            return alu;
+          });
+          setAlunosSelecionados(alunosSelecionados2);
+          setAlunos(alunos2);
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas');
+          console.error(error);
+          
+        });
+        // setAlunosSelecionados([]);
+        // setAlunos([]);
       } catch (error) {
         setErrorMsg('Tentativa de atualização de alunos da escola falhou');
         console.error(error);
@@ -213,12 +187,32 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
 
   const handleRemoverAluno = useCallback(
     (aluno) => {
-      const alunoEscolaId = aluno?.alunoEscolas?.filter((ae) => ae?.escola == escola?.id)[0]?.id;
+      const anoId = getValues('ano_letivo');
+      const alunoEscolaId = aluno?.alunoEscolas?.filter((ae) => ae?.ano?.id == anoId && ae?.escola?.id == escola?.id)[0]?.id;
       try {
-        escolaMethods.deleteAlunosByEscolaId(escola?.id, alunoEscolaId);
-        enqueueSnackbar('Atualizado com sucesso!');
-        setAlunosSelecionados([]);
-        setAlunos([]);
+        escolaMethods.deleteAlunosByEscolaId(escola?.id, alunoEscolaId)
+        .then((retorno) => {
+          enqueueSnackbar('Atualizado com sucesso!')
+          const alunosSelecionados2 = alunosSelecionados.map((aluSel) => {
+            if (aluSel?.id == aluno?.id) { 
+              aluSel.alunoEscolas = aluSel.alunoEscolas.filter((ae) => ae?.id != alunoEscolaId);
+            }
+            return aluSel;
+          });
+          const alunos2 = alunos.map((alu) => {
+            if (alu?.id == aluno?.id) {
+              alu.alunoEscolas = alu.alunoEscolas.filter((ae) => ae?.id != alunoEscolaId);
+            }
+            return alu;
+          });
+          setAlunosSelecionados(alunosSelecionados2);
+          setAlunos(alunos2);
+          // setAlunosSelecionados([]);
+          // setAlunos([]);
+        }).catch((error) => {
+          setErrorMsg('Erro de comunicação com a API de escolas: ' + error.toString());
+        });
+        
       } catch (error) {
         setErrorMsg('Tentativa de atualização de alunos da escola falhou');
         console.error(error);
@@ -238,67 +232,99 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
       }}
     >
       <FormProvider methods={methods}>
-        {/* {isLoading ? (
+        {isLoading ? (
           <Box sx={{ pt: 2 }}>
               <LoadingBox />
             </Box>
-        ) : ( */}
+        ) : (
           <>
             <DialogTitle>Definir Estudantes da Escola: {escola?.nome}</DialogTitle>
             <DialogContent>
               {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
-              <Controller
-                name="alunos"
-                control={control}
-                render={({ field: { onChange, value } }) => (
-                  <Autocomplete
-                    onChange={(event, newInputValue) => {
-                      handleAlunos(newInputValue)}
-                    }
-                    value={buscaAlu}
-                    options={alunos}
-                    noOptionsText="Nenhum aluno encontrado"
-                    filterOptions={(x) => x}
-                    sx={{
-                      mt: 1, mb: 1
-                    }}
-                    onInputChange={(event, newInputValue) => {
-                        setBuscaAlu(newInputValue);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.code === "Enter") {
-                        e.preventDefault()
-                        getAluno(buscaAlu)
-                      }
-                    }}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Nome/Matrícula"
-                        InputProps={{
-                          ...params.InputProps,
-                          endAdornment: (
-                            <InputAdornment position="end">
-                              <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
-                                onClick={() => {
-                                  getAluno(buscaAlu)
-                                }
-                                }
-                              >
-                                <SearchIcon />
-                              </IconButton>
-                            </InputAdornment>
-                          ),
+              <Grid container spacing={2}>
+                <Grid item xs={3}>
+                  <Controller
+                    name="ano_letivo"
+                    control={control}
+                    defaultValue={anoLetivoId}
+                    render={({ field }) => (
+                      <RHFSelect
+                        name="ano_letivo"s
+                        label="Ano Letivo"
+                        sx = {{ mt: 1}}
+                        onChange={(e) => {
+                          field.onChange(e);
+                          setAnoLetivoId(e.target.value);
                         }}
-
-                      />
-
-                      
+                      >
+                        {anosLetivos 
+                        .map((ano) => (
+                          <MenuItem key={ano.id} value={ano.id}>
+                            {ano.ano}
+                          </MenuItem>
+                        ))}
+                      </RHFSelect>
                     )}
                   />
-                )}
-              />
+                </Grid>
+
+                <Grid item xs={9}>
+                  <Controller
+                    name="alunos"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <Autocomplete
+                        onChange={(event, newInputValue) => {
+                          handleAlunos(newInputValue)}
+                        }
+                        value={buscaAlu}
+                        options={alunos}
+                        noOptionsText="Nenhum aluno encontrado"
+                        filterOptions={(x) => x}
+                        sx={{
+                          mt: 1, mb: 1
+                        }}
+                        onInputChange={(event, newInputValue) => {
+                            setBuscaAlu(newInputValue);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.code === "Enter") {
+                            e.preventDefault()
+                            getAluno(buscaAlu)
+                          }
+                        }}
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Nome/Matrícula"
+                            InputProps={{
+                              ...params.InputProps,
+                              endAdornment: (
+                                <InputAdornment position="end">
+                                  <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
+                                    onClick={() => {
+                                      getAluno(buscaAlu)
+                                    }
+                                    }
+                                  >
+                                    <SearchIcon />
+                                  </IconButton>
+                                </InputAdornment>
+                              ),
+                            }}
+
+                          />
+
+                          
+                        )}
+                      />
+                    )}
+                  />
+                </Grid>
+              </Grid>
+
+
 
               <Scrollbar sx={{ width: '100%', height: 'calc(100vh - 320px)' }}>
                 <Table size="small" sx={{ width: '100%' }}>
@@ -321,33 +347,27 @@ export default function AlunoEscolaForm({ escola, open, onClose }) {
                         onSelectRow={() => table.onSelectRow(row.id)}
                         onAdicionarAluno={() => handleAdicionarAluno(row)}
                         onRemoverAluno={() => handleRemoverAluno(row)}
+                        selectedAnoLetivoId={anoLetivoId}
                       />
                     ))}
 
                     <TableNoData notFound={false} />
                   </TableBody>
                 </Table>
+                {!buscaAlu &&
+                  <Typography sx={{ mt: 2}} variant="subtitle2">Busque o aluno por nome ou matrícula</Typography>
+                }
               </Scrollbar>
-              {/* <Box sx={{ mt: 2 }}>
-                <Typography variant="subtitle2">{table.selected.length} selecionados</Typography>
-              </Box> */}
+
             </DialogContent>
           </>
-        {/* )} */}
+        )} 
 
         <DialogActions>
           <Button variant="outlined" onClick={onClose}>
             Cancelar
           </Button>
 
-          {/* <LoadingButton
-            disabled={isLoading}
-            type="submit"
-            variant="contained"
-            loading={isSubmitting}
-          >
-            Definir
-          </LoadingButton> */}
         </DialogActions>
       </FormProvider>
     </Dialog>
