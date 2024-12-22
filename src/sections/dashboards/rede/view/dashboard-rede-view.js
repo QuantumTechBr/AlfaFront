@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useContext } from 'react';
-import _ from 'lodash';
+import { useEffect, useState, useCallback, useContext, use } from 'react';
+import _, { set } from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -68,6 +68,7 @@ import { anos_metas, preDefinedZonaOrder } from 'src/_mock/assets';
 import InstructionButton from 'src/components/helpers/instruction-button';
 import zIndex from '@mui/material/styles/zIndex';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 import { escolas_piloto } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
@@ -79,10 +80,11 @@ export default function DashboardRedeView() {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
-
+  const calculandoTabela = useBoolean(false);
   const [filters, setFilters] = useState({
     anoLetivo: '',
     turma: [],
@@ -211,6 +213,9 @@ export default function DashboardRedeView() {
         ...prevState,
         [campo]: value,
       }));
+      if (campo == 'anoLetivo') {
+        buscaBimestres(value);
+      }
     },
     [setFilters]
   );
@@ -224,12 +229,17 @@ export default function DashboardRedeView() {
     }
   }, [preparacaoInicialRunned, buscaEscolas, buscaAnosLetivos, buscaTurmas, contextReady]);
 
+
   useEffect(() => {
     if (contextReady.value) {
+      const anoAtual = new Date().getFullYear();
       const _filters = {
         ...filters,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) } : {}),
       };
+      if (_filters.anoLetivo?.id) {
+        buscaBimestres(_filters.anoLetivo.id);
+      }
 
       setFilters(_filters);
       preencheGraficos(_filters);
@@ -253,7 +263,7 @@ export default function DashboardRedeView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = { zona: '' };
+  const defaultTableFilters = { zona: '', bimestre: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -261,20 +271,15 @@ export default function DashboardRedeView() {
 
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
-  const dataFiltered = applyTableFilter({
-    inputData: dados.grid_ddz,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: debouncedGridFilter,
-  });
-
-  const notFound = dataFiltered.length == 0;
 
   const handleTableFilters = useCallback(
-    (nome, value) => {
+    (campo, value) => {
+      calculandoTabela.onTrue();
       table.onResetPage();
+      const newFilters = { ...tableFilters, [campo]: value };
       setTableFilters((prevState) => ({
         ...prevState,
-        zona: value,
+        ...newFilters,
       }));
     },
     [table]
@@ -451,6 +456,49 @@ export default function DashboardRedeView() {
     )
   }
 
+  
+  // ----------------------------------------------------------------------
+
+  const applyTableFilter = ({ inputData, comparator, filters, bimestresOptions }) => {
+
+    const { pesquisa, bimestre } = filters;
+
+    const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+
+    let returnData = stabilizedThis.map((el) => el[0]);
+
+    if (pesquisa) {
+      returnData = returnData.filter(
+        (row) => row.zona_nome.toLowerCase().indexOf(pesquisa.toLowerCase()) !== -1
+      );
+    }
+
+    return returnData;
+  }
+
+  
+  const dataFiltered = applyTableFilter({
+    inputData: dados.grid_ddz,
+    comparator: getComparator(table.order, table.orderBy),
+    filters: debouncedGridFilter,
+    bimestresOptions: bimestres,
+  });
+
+  const notFound = dataFiltered.length == 0;
+
+  useEffect(() => { // Chamada para mostrar carregando enquanto o filtro é aplicado
+    if (debouncedGridFilter) {
+      calculandoTabela.onFalse(); 
+    } 
+  }, [debouncedGridFilter]);
+
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -614,6 +662,8 @@ export default function DashboardRedeView() {
                     <CardHeader title="DDZs" />
                     <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
 
+                    {calculandoTabela.value && <LoadingBox />}
+
                     <TableContainer
                       sx={{
                         mt: 1,
@@ -628,6 +678,7 @@ export default function DashboardRedeView() {
                     >
                       <Scrollbar>
                         <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
+                          
                           <TableHeadCustom
                             order={table.order}
                             orderBy={table.orderBy}
@@ -643,7 +694,7 @@ export default function DashboardRedeView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre}/>
                             ))}
 
                             <TableEmptyRows
@@ -683,32 +734,8 @@ export default function DashboardRedeView() {
 
 // ----------------------------------------------------------------------
 
-function applyTableFilter({ inputData, comparator, filters }) {
-  const { zona } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (zona) {
-    inputData = inputData.filter(
-      (row) => row.zona_nome.toLowerCase().indexOf(zona.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
-}
-
-// ----------------------------------------------------------------------
-
 function Row(props) {
-  const { row } = props;
+  const { row, bimestreOrdinal } = props;
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -728,10 +755,26 @@ function Row(props) {
       <TableCell>{row.qtd_escolas ?? 0}</TableCell>
       <TableCell>{row.qtd_turmas ?? 0}</TableCell>
       <TableCell>{row.alunos ?? 0}</TableCell>
-      <TableCell>{row.avaliados ?? 0}</TableCell>
-      <TableCell>{row.alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
-      <TableCell>{row.nao_avaliados ?? 0}</TableCell>
+      <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_avaliados[bimestreOrdinal - 1] ?? row.avaliados ?? 0
+            : row.avaliados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_alfabetizado[bimestreOrdinal - 1] ?? row.alfabetizados ?? 0
+            : row.alfabetizados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_nao_alfabetizado[bimestreOrdinal - 1] ?? row.nao_alfabetizados ?? 0
+            : row.nao_alfabetizados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_nao_avaliado[bimestreOrdinal - 1] ?? row.nao_avaliados ?? 0
+            : row.nao_avaliados ?? 0
+        }</TableCell>
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         <Button
           component={RouterLink}

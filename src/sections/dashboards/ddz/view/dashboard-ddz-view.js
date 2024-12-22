@@ -75,6 +75,7 @@ import { paths } from 'src/routes/paths';
 import { anos_metas } from 'src/_mock/assets';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { escolas_piloto } from 'src/_mock/assets';
+import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
 export default function DashboardDDZView() {
   const ICON_SIZE = 65;
@@ -90,10 +91,12 @@ export default function DashboardDDZView() {
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
+  const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
+  const [zonaFiltro, setZonaFiltro] = useState('');
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
-  const [zonaFiltro, setZonaFiltro] = useState('');
+  const calculandoTabela = useBoolean(false);
 
   const [filters, setFilters] = useState({
     anoLetivo: '',
@@ -114,7 +117,6 @@ export default function DashboardDDZView() {
   const handleChangeSeries = useCallback(
     (newValue) => {
       popover.onClose();
-      // setSeriesYearData(newValue);
     },
     [popover]
   );
@@ -171,6 +173,24 @@ export default function DashboardDDZView() {
               const _alfabetizados = _.sumBy(escolaTurmas, (s) => s.total_alfabetizados);
               const _nao_alfabetizados = _.sumBy(escolaTurmas, (s) => s.total_nao_alfabetizados);
               const _nao_avaliados = _.sumBy(escolaTurmas, (s) => s.total_nao_avaliados);
+              const qtd_alfabetizado = [0, 0, 0, 0];
+              const qtd_nao_alfabetizado = [0, 0, 0, 0];
+              const qtd_nao_avaliado = [0, 0, 0, 0];
+              const qtd_avaliados = [0, 0, 0, 0];
+              escolaTurmas.map((turma) => { // preenche os arrays de quantidade de alunos por bimestre
+                turma.qtd_alfabetizado.map((qtd, index) => {  // 0, 1, 2, 3
+                  qtd_alfabetizado[index] += qtd;
+                });
+                turma.qtd_nao_alfabetizado.map((qtd, index) => {
+                  qtd_nao_alfabetizado[index] += qtd;
+                });
+                turma.qtd_nao_avaliado.map((qtd, index) => {
+                  qtd_nao_avaliado[index] += qtd;
+                });
+                turma.qtd_avaliados.map((qtd, index) => {
+                  qtd_avaliados[index] += qtd;
+                });
+              });
 
               return {
                 escola_nome: key,
@@ -183,6 +203,14 @@ export default function DashboardDDZView() {
                 alfabetizados: _alfabetizados,
                 nao_alfabetizados: _nao_alfabetizados,
                 nao_avaliados: _nao_avaliados,
+                total_avaliados: _avaliados,
+                total_alfabetizados: _alfabetizados,
+                total_nao_alfabetizados: _nao_alfabetizados,
+                total_nao_avaliados: _nao_avaliados,
+                qtd_alfabetizado: qtd_alfabetizado,
+                qtd_nao_alfabetizado: qtd_nao_alfabetizado,
+                qtd_nao_avaliado: qtd_nao_avaliado,
+                qtd_avaliados: qtd_avaliados,
                 //
                 indice_alfabetizacao:
                   _avaliados > 0
@@ -222,6 +250,9 @@ export default function DashboardDDZView() {
         ...prevState,
         [campo]: value,
       }));
+      if (campo == 'anoLetivo') {
+        buscaBimestres(value);
+      }
     },
     [setFilters]
   );
@@ -256,13 +287,13 @@ export default function DashboardDDZView() {
       }
 
       setZonaFiltro(_zonaFiltro);
-
+      const anoAtual = new Date().getFullYear();
       const _filters = {
         ...filters,
         zona: _zonaFiltro,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: _.first(anosLetivos) } : {}),
+        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) } : {}),
       };
-
+      buscaBimestres(_filters.anoLetivo?.id);
       setFilters(_filters);
       preencheGraficos(_filters);
     }
@@ -285,7 +316,7 @@ export default function DashboardDDZView() {
     { id: '', width: 88, notsortable: true },
   ];
 
-  const defaultTableFilters = { escola: '' };
+  const defaultTableFilters = { escola: '', bimestre: '' };
 
   const table = useTable({ defaultRowsPerPage: 15 });
 
@@ -293,20 +324,14 @@ export default function DashboardDDZView() {
 
   const debouncedGridFilter = useDebounce(tableFilters, 380);
 
-  const dataFiltered = applyTableFilter({
-    inputData: dados.grid_escolas,
-    comparator: getComparator(table.order, table.orderBy),
-    filters: debouncedGridFilter,
-  });
-
-  const notFound = dataFiltered.length == 0;
-
   const handleTableFilters = useCallback(
-    (nome, value) => {
+    (campo, value) => {
+      calculandoTabela.onTrue();
       table.onResetPage();
+      const newFilters = { ...tableFilters, [campo]: value };
       setTableFilters((prevState) => ({
         ...prevState,
-        escola: value,
+        ...newFilters,
       }));
     },
     [table]
@@ -477,6 +502,47 @@ export default function DashboardDDZView() {
   const getTotalAlfabetizados = () => _.sumBy(dados.grid_escolas, (s) => s.alfabetizados);
   const getTotalEstudandesAvaliados = () => _.sumBy(dados.grid_escolas, (s) => s.avaliados);
 
+  // ----------------------------------------------------------------------
+
+  const applyTableFilter = ({ inputData, comparator, filters }) => {
+    const { pesquisa, bimestre } = filters;
+
+    const stabilizedThis = inputData.map((el, index) => [el, index]);
+
+    stabilizedThis.sort((a, b) => {
+      const order = comparator(a[0], b[0]);
+      if (order !== 0) return order;
+      return a[1] - b[1];
+    });
+
+    inputData = stabilizedThis.map((el) => el[0]);
+
+    if (pesquisa) {
+      inputData = inputData.filter(
+        (row) => row.escola_nome.toLowerCase().indexOf(pesquisa.toLowerCase()) !== -1
+      );
+    }
+
+    return inputData;
+  }
+
+  const dataFiltered = applyTableFilter({
+    inputData: dados.grid_escolas,
+    comparator: getComparator(table.order, table.orderBy),
+    filters: debouncedGridFilter,
+  });
+
+  const notFound = dataFiltered.length == 0;
+
+  useEffect(() => { // Chamada para mostrar carregando enquanto o filtro é aplicado
+    if (debouncedGridFilter) {
+      calculandoTabela.onFalse(); 
+    } 
+  }, [debouncedGridFilter]);
+
+  // ----------------------------------------------------------------------
+
+
   return (
     <Container maxWidth={settings.themeStretch ? false : 'xl'}>
       <Grid container spacing={3}>
@@ -626,19 +692,8 @@ export default function DashboardDDZView() {
                   <Card sx={{ mt: 3, mb: 4 }}>
                     <CardHeader title="Escolas" />
                     <DashboardGridFilters filters={tableFilters} onFilters={handleTableFilters} />
-
-                    <TableContainer
-                      sx={{
-                        mt: 1,
-                        height:
-                          70 +
-                          (dataFiltered.length == 0
-                            ? 350
-                            : (dataFiltered.length < table.rowsPerPage
-                              ? dataFiltered.length
-                              : table.rowsPerPage) * 43),
-                      }}
-                    >
+                    {calculandoTabela.value && <LoadingBox />}
+                    <TableContainer>
                       <Scrollbar>
                         <Table size="small" sx={{ minWidth: 960 }} aria-label="collapsible table">
                           <TableHeadCustom
@@ -656,7 +711,7 @@ export default function DashboardDDZView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} />
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre} />
                             ))}
 
                             <TableEmptyRows
@@ -694,34 +749,10 @@ export default function DashboardDDZView() {
   );
 }
 
-// ----------------------------------------------------------------------
 
-function applyTableFilter({ inputData, comparator, filters }) {
-  const { escola } = filters;
-
-  const stabilizedThis = inputData.map((el, index) => [el, index]);
-
-  stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0]);
-    if (order !== 0) return order;
-    return a[1] - b[1];
-  });
-
-  inputData = stabilizedThis.map((el) => el[0]);
-
-  if (escola) {
-    inputData = inputData.filter(
-      (row) => row.escola_nome.toLowerCase().indexOf(escola.toLowerCase()) !== -1
-    );
-  }
-
-  return inputData;
-}
-
-// ----------------------------------------------------------------------
 
 function Row(props) {
-  const { row } = props;
+  const { row, bimestreOrdinal } = props;
   const [open, setOpen] = useState(false);
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
@@ -733,6 +764,7 @@ function Row(props) {
       backgroundColor: theme.palette.action.focus,
     },
   }));
+
   return (
     <>
       <StyledTableRow
@@ -747,10 +779,26 @@ function Row(props) {
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.escola_nome}</TableCell>
         <TableCell>{row.turmas ?? 0}</TableCell>
         <TableCell>{row.alunos ?? 0}</TableCell>
-        <TableCell>{row.avaliados ?? 0}</TableCell>
-        <TableCell>{row.alfabetizados ?? 0}</TableCell>
-        <TableCell>{row.nao_alfabetizados ?? 0}</TableCell>
-        <TableCell>{row.nao_avaliados ?? 0}</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_avaliados[bimestreOrdinal - 1] ?? row.avaliados ?? 0
+            : row.avaliados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_alfabetizado[bimestreOrdinal - 1] ?? row.alfabetizados ?? 0
+            : row.alfabetizados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_nao_alfabetizado[bimestreOrdinal - 1] ?? row.nao_alfabetizados ?? 0
+            : row.nao_alfabetizados ?? 0
+        }</TableCell>
+        <TableCell>{
+          bimestreOrdinal
+            ? row.qtd_nao_avaliado[bimestreOrdinal - 1] ?? row.nao_avaliados ?? 0
+            : row.nao_avaliados ?? 0
+        }</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>
           <Button
             component={RouterLink}
@@ -792,10 +840,26 @@ function Row(props) {
                         {registro.turma_ano_escolar} {registro.turma_nome}
                       </TableCell>
                       <TableCell width="110">{registro.qtd_alunos}</TableCell>
-                      <TableCell width="110">{registro.total_avaliados}</TableCell>
-                      <TableCell width="110">{registro.total_alfabetizados}</TableCell>
-                      <TableCell width="160">{registro.total_nao_alfabetizados}</TableCell>
-                      <TableCell width="180">{registro.total_nao_avaliados}</TableCell>
+                      <TableCell width="110">{
+                        bimestreOrdinal
+                          ? registro.qtd_avaliados[bimestreOrdinal - 1] ?? registro.total_avaliados
+                          : registro.total_avaliados
+                      }</TableCell>
+                      <TableCell width="110">{
+                        bimestreOrdinal
+                          ? registro.qtd_alfabetizado[bimestreOrdinal - 1] ?? registro.total_alfabetizados
+                          : registro.total_alfabetizados
+                      }</TableCell>
+                      <TableCell width="160">{
+                        bimestreOrdinal
+                          ? registro.qtd_nao_alfabetizado[bimestreOrdinal - 1] ?? registro.total_nao_alfabetizados
+                          : registro.total_nao_alfabetizados
+                      }</TableCell>
+                      <TableCell width="180">{
+                        bimestreOrdinal
+                          ? registro.qtd_nao_avaliado[bimestreOrdinal - 1] ?? registro.total_nao_avaliados
+                          : registro.total_nao_avaliados
+                      }</TableCell>
                       <TableCell width="77"></TableCell>
                     </StyledTableRow>
                   ))}

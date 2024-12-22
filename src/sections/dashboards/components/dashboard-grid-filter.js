@@ -1,22 +1,36 @@
 import PropTypes from 'prop-types';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 
 // @mui
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
+import InputLabel from '@mui/material/InputLabel';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import FormControl from '@mui/material/FormControl';
 // components
 import Iconify from 'src/components/iconify';
-
 // ----------------------------------------------------------------------
 
 export default function DashboardGridFilters({ filters, onFilters }) {
   const handleFilterSearch = useCallback(
     (event) => {
-      onFilters('search', event.target.value);
+      onFilters('pesquisa', event.target.value);
     },
     [onFilters]
   );
+  const handleBimestreFilter = useCallback(
+    (event) => {
+      setBimestre(event.target.value);
+      onFilters('bimestre', event.target.value);
+    },
+    [onFilters]
+  );
+
+  const [bimestre, setBimestre] = useState('');
+
 
   return (
     <Stack
@@ -30,10 +44,10 @@ export default function DashboardGridFilters({ filters, onFilters }) {
         p: 2.5,
       }}
     >
-      <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
+      <Stack direction="row" alignItems="center" spacing={2} flexGrow={0} sx={{ width: "80%" }}>
         <TextField
           fullWidth
-          value={filters.nome}
+          value={filters.pesquisa}
           onChange={handleFilterSearch}
           placeholder="Pesquisar..."
           InputProps={{
@@ -44,6 +58,30 @@ export default function DashboardGridFilters({ filters, onFilters }) {
             ),
           }}
         />
+      </Stack>
+      <Stack flexGrow={1}>
+        <FormControl >
+          <InputLabel id="bimestre-filter-label">Bimestre</InputLabel>
+          <Select
+              sx={{}}
+              id="bimestres_filter"
+              name="bimestre"
+              label="Bimestre"
+              labelId="bimestre-filter-label"
+              value={bimestre}
+              onChange={(event) => handleBimestreFilter(event)}
+              input={<OutlinedInput label="Bimestre" />}
+            >
+              <MenuItem key='' value=''>
+                  Todos
+              </MenuItem>
+              {[1, 2, 3, 4].map((i) => (
+                <MenuItem key={i} value={i}>
+                  {i}º
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
       </Stack>
     </Stack>
   );

@@ -70,9 +70,9 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   const debouncedSearchFilter = useDebounce(searchAlunosInput, 600);
   
   // NÃO USAR HOOK CALLBACK
-  const getAlunosEscola = (id) => {
+  const getAlunosEscola = () => {
     escolaMethods
-      .getAlunosByEscolaId(id)
+      .getAlunosByEscolaId(turma.escola?.id, turma.ano?.id)
       .then((escola) => {
         const alunosEscola = escola.data;
         // alunosEscola = sortBy(alunosEscola, (ae) => {
@@ -102,7 +102,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
   useEffect(() => {
     if (open) {
       setCurrentAlunosEscola(null);
-      getAlunosEscola(turma.escola.id);
+      getAlunosEscola();
     }
   }, [open]);
 
