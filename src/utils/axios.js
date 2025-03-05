@@ -261,6 +261,24 @@ export const endpoints = {
     relatorioAvaliacaoFasePorTurma: '/api/v1/registros-aprendizagens/report-por-turma/',
     relatorioAvaliacaoFasePorEscola: '/api/v1/registros-aprendizagens/report-por-escola/',
   },
+  avaliacao: {
+    baseUrl: '/api/v1/avaliacao/avaliacao-aluno/',
+    idsTurmaList: '/api/v1/avaliacao/avaliacao-aluno/turmas-ids',
+    diagnostico: {
+      baseUrl: '/api/v1/avaliacao/avaliacao-aluno/diagnostica/',
+      import: '/api/v1/avaliacao/avaliacao-aluno/diagnostica/import/',
+    },
+    fase: {
+      baseUrl: '/api/v1/avaliacao/avaliacao-aluno/fase/',
+      import: '/api/v1/avaliacao/avaliacao-aluno/fase/import/',
+    },
+    relatorioAvaliacaoFasePorTurma: '/api/v1/avaliacao/avaliacao-aluno/report-por-turma/',
+    relatorioAvaliacaoFasePorEscola: '/api/v1/avaliacao/avaliacao-aluno/report-por-escola/',
+    versaoAvaliacao: '/api/v1/avaliacao/versao-avaliacao/',
+    questaoAvaliacao: '/api/v1/avaliacao/questao-avaliacao/',
+    alternativaQuestao: '/api/v1/avaliacao/alternativa-questao/',
+    respostaQuestaoAluno: '/api/v1/avaliacao/resposta-questao-aluno/',
+  },
   turma: {
     list: '/api/v1/turmas/',
     post: '/api/v1/turmas/',

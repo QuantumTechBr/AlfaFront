@@ -131,6 +131,23 @@ export function useNavData() {
           ],
         },
 
+        // NOVO AVALIAÇÕES
+        {
+          title: t('acompanhamentos2'),
+          path: paths.dashboard.avaliacao.root_diagnostico,
+          icon: ICONS.alfaBookAccount,
+          children: [
+            {
+              title: t('Diagnóstica'),
+              path: paths.dashboard.avaliacao.root_diagnostico,
+            },
+            {
+              title: t('Fase'),
+              path: paths.dashboard.avaliacao.root_fase,
+            },
+          ],
+        },
+
         // Redes de Ensino
         {
           title: 'Redes de Ensino',

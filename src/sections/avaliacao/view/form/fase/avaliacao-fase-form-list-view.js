@@ -13,7 +13,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Container from '@mui/material/Container';
 import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
-import '../../form/style.css';
+import '../style.css';
 
 // routes
 import { paths } from 'src/routes/paths';
@@ -48,9 +48,9 @@ import {
   TablePaginationCustom,
 } from 'src/components/table';
 //
-import RegistroAprendizagemFaseFormTableRow from './registro-aprendizagem-fase-form-table-row';
-import RegistroAprendizagemFaseFormTableToolbar from './registro-aprendizagem-fase-form-table-toolbar';
-import RegistroAprendizagemFaseFormTableFiltersResult from './registro-aprendizagem-fase-form-table-filters-result';
+import avaliacaoFaseFormTableRow from './avaliacao-fase-form-table-row';
+import AvaliacaoFaseFormTableToolbar from './avaliacao-fase-form-table-toolbar';
+import AvaliacaoFaseFormTableFiltersResult from './avaliacao-fase-form-table-filters-result';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import Alert from '@mui/material/Alert';
 import LoadingBox from 'src/components/helpers/loading-box';
@@ -73,7 +73,7 @@ const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pes
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bimestreInicial }) {
+export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicial }) {
   const { checkPermissaoModulo } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
@@ -398,7 +398,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
           {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
 
           <Card>
-            <RegistroAprendizagemFaseFormTableToolbar
+            <AvaliacaoFaseFormTableToolbar
               filters={filters}
               onFilters={handleFilters}
               anoLetivoOptions={anosLetivos}
@@ -412,7 +412,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             />
 
             {canReset && (
-              <RegistroAprendizagemFaseFormTableFiltersResult
+              <AvaliacaoFaseFormTableFiltersResult
                 filters={filters}
                 onFilters={handleResultFilters}
                 onResetFilters={handleResetResultFilters}
@@ -443,7 +443,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
                     <TableBody>
                       {dataFiltered.map((row, index) => {
                         return (
-                          <RegistroAprendizagemFaseFormTableRow
+                          <avaliacaoFaseFormTableRow
                             key={row.id}
                             row={row}
                             bimestres={bimestres}

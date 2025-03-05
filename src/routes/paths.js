@@ -79,6 +79,15 @@ export const paths = {
       new_fase: `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/new`,
       edit_fase: (turmaInicial, bimestreInicial) => `${ROOTS.DASHBOARD}/registro_aprendizagem/fase/${turmaInicial}/${bimestreInicial}`,
     },
+    avaliacao: {
+      root: `${ROOTS.DASHBOARD}/avaliacao`,
+      root_diagnostico: `${ROOTS.DASHBOARD}/avaliacao/diagnostico/list`,
+      new_diagnostico: `${ROOTS.DASHBOARD}/avaliacao/diagnostico/new`,
+      edit_diagnostico: (turmaInicial, periodoInicial) => `${ROOTS.DASHBOARD}/avaliacao/diagnostico/new`,
+      root_fase: `${ROOTS.DASHBOARD}/avaliacao/fase`,
+      new_fase: `${ROOTS.DASHBOARD}/avaliacao/fase/new`,
+      edit_fase: (turmaInicial, bimestreInicial) => `${ROOTS.DASHBOARD}/avaliacao/fase/${turmaInicial}/${bimestreInicial}`,
+    },
     zona: {
       root: `${ROOTS.DASHBOARD}/zona/list`,
       new: `${ROOTS.DASHBOARD}/zona/new`,
