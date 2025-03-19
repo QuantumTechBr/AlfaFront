@@ -15,7 +15,7 @@ export const deleteAvaliacaoAlunoByFilter = ({tipo='', bimestreId='', turmaId=''
 export const getListIdTurmaAvaliacaoAluno = (payload) => axios.post(endpoints.avaliacao.idsTurmaList.concat(`/?limit=${payload.limit}&offset=${payload.offset}`), payload);
 
 export const insertAvaliacaoDiagnostico = payload => axios.post(endpoints.avaliacao.diagnostico.baseUrl, payload);
-export const getAllAvaliacaoDiagnostico = ({turmaId='', nome='', periodo='', promoAnoAnterior='', alunoTurmaId=''}) => axios.get(endpoints.avaliacao.baseUrl.concat(`?tipo=${TipoVersaoAvaliacao.DIAGNOSTICA}&turma=${turmaId}&periodo=${periodo}&aluno_turma=${alunoTurmaId}`));
+export const getAllAvaliacaoDiagnostico = ({turmaId=[], nome='', periodo='', promoAnoAnterior='', alunoTurmaId=[]}) => axios.get(endpoints.avaliacao.baseUrl.concat(`?tipo=${TipoVersaoAvaliacao.DIAGNOSTICA}&turma_id=${turmaId}&periodo=${periodo}&aluno_turma=${alunoTurmaId}`));
 export const updateRegistroAprendizagemDiagnosticoById = (id, payload) => axios.patch(endpoints.avaliacao.diagnostico.update.concat(id), payload);
 export const exportFileDiagnosticoList = (query) => axios.get(endpoints.avaliacao.diagnostico.list.concat(`/?`).concat(query));
 export const importFileDiagnostico = (payload) => axios.post(endpoints.avaliacao.diagnostico.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });

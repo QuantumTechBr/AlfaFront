@@ -137,6 +137,9 @@ export const endpoints = {
     grid_escolas:  '/api/v1/dashboards/grid-escolas',
     grid_professores:  '/api/v1/dashboards/grid-professores',
     grid_turmas:  '/api/v1/dashboards/grid-turmas',
+    
+    avaliacao_diagnostico_rede2: '/api/v1/dashboards/avaliacao-diagnosticos-rede2',
+    avaliacao_diagnostico2: '/api/v1/dashboards/avaliacao-diagnosticos2',
   },
   disciplina: {
     list: '/api/v1/disciplinas/',

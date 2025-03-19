@@ -64,10 +64,16 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
   useEffect(() => {
     if (prep && alunosTurma.length) {
       const novosRegistros = [];
-      let r_vazio = [];
       const csv_header = ["Nome","Frequência"];
-      for (const questao of versaoAvaliacao.questoes) {
-        csv_header.push(questao.titulo);
+      let questoes;
+      if (versaoAvaliacao) {
+        questoes = versaoAvaliacao.questoes;
+        if (questoes) {
+          questoes = questoes.sort((a, b) => a.numero_questao - b.numero_questao);
+          for (const questao of questoes) {
+            csv_header.push(questao.titulo ?? 'R'+questao.numero_questao.toString());
+          }
+        }
       }
       csv_header.push("Média LP");
       csv_header.push("Média MAT");
@@ -77,8 +83,19 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
         let nova_linha_csv = [];
         alunoTurma.aluno.nome ? nova_linha_csv.push(alunoTurma.aluno.nome) : nova_linha_csv.push('');
         alunoTurma.frequencia ? nova_linha_csv.push(capitalize(alunoTurma.frequencia)) : nova_linha_csv.push('');
-        alunoTurma.r ? 
-        alunoTurma.r.map((r) => nova_linha_csv.push(r.toString())) : r_vazio.map((r) => nova_linha_csv.push(r));
+        if (alunoTurma.r) {
+          for (const questao of questoes) {
+            const alternativaId = alunoTurma.r[questao.numero_questao];
+            if (alternativaId) {
+              const alternativa = questao.alternativas.find((alternativa) => alternativa.id == alternativaId);
+              if (alternativa) {
+                nova_linha_csv.push(alternativa.resposta.toString());
+                continue;
+              }
+            }
+            nova_linha_csv.push('');
+          }
+        }
         alunoTurma.media_lingua_portuguesa ? nova_linha_csv.push(alunoTurma.media_lingua_portuguesa.toString()) : nova_linha_csv.push('');
         alunoTurma.media_matematica ? nova_linha_csv.push(alunoTurma.media_matematica.toString()) : nova_linha_csv.push('');
         alunoTurma.media_final ? nova_linha_csv.push(alunoTurma.media_final.toString()) : nova_linha_csv.push('');
@@ -141,8 +158,8 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
             }
             mediaFINAL += alternativa.valor_resposta;
             respostas_aluno.push({
-              questao: questao.id,
-              alternativa: alternativaId,
+              questao_id: questao.id,
+              alternativa_id: alternativaId,
             });
           } else if (questao.disciplina.nome == 'Língua Portuguesa') {
             ptMedBool = false;
@@ -153,13 +170,13 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
       }
 
       if (ptMedBool) {
-        mediaLP = mediaLP / somaPesosPt;
+        mediaLP = mediaLP *10 / somaPesosPt;
       }
       if (matMedBool) { 
-        mediaMAT = mediaMAT / somaPesosMat;
+        mediaMAT = mediaMAT *10/ somaPesosMat;
       }
       if (ptMedBool && matMedBool) {
-        mediaFINAL = mediaFINAL / somaPesosFinal;
+        mediaFINAL = mediaFINAL *10/ somaPesosFinal;
       }
 
       if (freqBool || pt || mat) {

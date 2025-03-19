@@ -77,6 +77,10 @@ export function useNavData() {
               title: t('Diagnóstica'),
               path: paths.dashboard.root_diagnostico,
             },
+            {
+              title: t('Diagnóstica2'),
+              path: paths.dashboard.root_diagnostico2,
+            },
           ]
         },
         // USER

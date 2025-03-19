@@ -13,7 +13,7 @@ import { RHFSelect } from 'src/components/hook-form';
 import TextField from '@mui/material/TextField';
 import { useFormContext, Controller } from 'react-hook-form';
 import { FormControl, Tooltip } from '@mui/material';
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { use, useCallback, useContext, useEffect, useState } from 'react';
 import { AuthContext } from 'src/auth/context/alfa';
 import Iconify from 'src/components/iconify';
 import { Box } from '@mui/material';
@@ -90,7 +90,7 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
               <MenuItem
                   key={id + '_r_' + questao.numero_questao + '_' + alternativa.numero_alternativa} value={alternativa.id} sx={{ height: '34px' }}>
                 <Tooltip placement="top" title={alternativa.resposta}>
-                  <span>{alternativa.resposta}</span>
+                  <span>{alternativa.observacao ?? alternativa.resposta}</span>
                 </Tooltip>
               </MenuItem>
             ))}
@@ -101,26 +101,6 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
     return retorno;
   }
 
-  const mediaLP = useCallback(() => {
-    let pt = true;
-    let media = 0;
-
-    for (const resposta of getValues('registros[' + id + '].r')) {
-      if (resposta?.questao?.disciplina?.nome == 'Língua Portuguesa') {
-        if (resposta.alternativa) {
-          media += resposta.alternativa.valor_resposta;
-        } else {
-          pt = false;
-        }
-      }
-    }
-
-    if (pt) {
-      setMedia_lp(media/somaPesosPt);
-    } else {
-      setMedia_lp('-');
-    }
-  }, [getValues])
 
   const nivelDisciplina = (disciplina) => {
     if (!getValues('registros[' + id + '].r') || !versaoAvaliacao?.questoes?.length) {
@@ -152,25 +132,6 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
     }
   }
 
-  const mediaMAT = useCallback(() => {
-    let mat = true;
-    let media = 0;
-    for (const resposta of getValues('registros[' + id + '].r')) {
-      if (resposta?.questao?.disciplina?.nome == 'Matemática') {
-        if (resposta.alternativa) {
-          media += resposta.alternativa.valor_resposta;
-        } else {
-          pt = false;
-        }
-      }
-    }
-
-    if (mat) {
-      setMedia_mat(media/somaPesosMat);
-    } else {
-      setMedia_mat('-');
-    }
-  }, [getValues])
 
   const nivelMAT = () => {
     if (media_mat <= 4) {
@@ -184,24 +145,6 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
     }
   }
 
-  const mediaFinal = useCallback(() => {
-    let pt_mat = true;
-    let media = 0;
-    for (const resposta of getValues('registros[' + id + '].r')) {
-      if (resposta.alternativa) {
-        media += resposta.alternativa.valor_resposta;
-      } else {
-        pt_mat = false;
-      }
-    }
-
-    if (pt_mat) {
-      setMedia_final(media/somaPesosFinal);
-    } else {
-      setMedia_final('-');
-    }
-
-  }, [getValues])
 
   const nivelFinal = () => {
     if (media_final <= 4) {
@@ -232,6 +175,65 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
       }
     })
   }, [user]);
+
+  useEffect(() => {
+    let pt = true;
+    let mat = true;
+    let pt_mat = true;
+    let mediaPt = 0;
+    let mediaMat = 0;
+    let mediaFinal = 0;
+    for (const index in getValues('registros[' + id + '].r')) {
+      const respostaId = getValues('registros[' + id + '].r[' + index + ']');
+      const questao = versaoAvaliacao?.questoes.find((questao) => questao.numero_questao == index);
+      if (!questao) {
+        console.log('Questão não encontrada: ', index);
+        continue;
+      }
+      if (!respostaId) {
+        if (questao.disciplina.nome == 'Língua Portuguesa') {
+          pt = false;
+        } else if (questao.disciplina.nome == 'Matemática') {
+          mat = false;
+        }
+        pt_mat = false;
+        continue;
+      }
+      const resposta = questao?.alternativas.find((resposta) => resposta.id == respostaId);
+      if (resposta?.valor_resposta != undefined) {
+        mediaFinal += resposta.valor_resposta;
+      }
+      if (questao?.disciplina?.nome == 'Matemática') {
+        if (resposta?.valor_resposta != undefined) {
+          mediaMat += resposta.valor_resposta;
+        } 
+      } else if (questao?.disciplina?.nome == 'Língua Portuguesa') {
+        if (resposta?.valor_resposta != undefined) {
+          mediaPt += resposta.valor_resposta;
+        } 
+      }
+    }
+
+    if (pt_mat) {
+      setMedia_final(mediaFinal*10/somaPesosFinal);
+      console.log('mediaFinal', mediaFinal/somaPesosFinal);
+      
+    } else {
+      setMedia_final('-');
+    }
+    if (mat) {
+      setMedia_mat(mediaMat*10/somaPesosMat);
+      console.log('mediaMat', mediaMat/somaPesosMat);
+    } else {
+      setMedia_mat('-');
+    }
+    if (pt) {
+      setMedia_lp(mediaPt*10/somaPesosPt);
+      console.log('mediaPt', mediaPt/somaPesosPt);
+    } else {
+      setMedia_lp('-');
+    }
+  },[watch()])
 
   return (
     <TableRow hover selected={selected}>

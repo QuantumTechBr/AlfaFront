@@ -118,7 +118,7 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
     });
-    await avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: turma?.ano?.data_inicio}).then((response) => {
+    await avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: novaTurma?.ano?.data_inicio}).then((response) => {
       if(response.data.length > 0){
         setVersaoAvaliacao(response.data[0]);
       } else {
