@@ -195,9 +195,6 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
             csv_dat.push([alunoTurmaItem.aluno.nome, registroEncontrado?.resultado ?? '', registroEncontrado?.observacao ?? '',])
             _newRegistros[alunoTurmaItem.id] = {
               aluno_nome: alunoTurmaItem.aluno.nome,
-              ...(registroEncontrado?.id !== undefined
-                ? { avalicao_id: registroEncontrado?.id }
-                : null),
               aluno_turma_id: alunoTurmaItem.id,
               resultado: registroEncontrado?.resultado ?? '',
               observacao: registroEncontrado?.observacao ?? '',
