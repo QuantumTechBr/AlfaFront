@@ -129,25 +129,12 @@ export function useNavData() {
               path: paths.dashboard.registro_aprendizagem.root_diagnostico,
             },
             {
-              title: t('Fase'),
-              path: paths.dashboard.registro_aprendizagem.root_fase,
-            },
-          ],
-        },
-
-        // NOVO AVALIAÇÕES
-        {
-          title: t('acompanhamentos2'),
-          path: paths.dashboard.avaliacao.root_diagnostico,
-          icon: ICONS.alfaBookAccount,
-          children: [
-            {
-              title: t('Diagnóstica'),
+              title: t('Diagnóstica2'),
               path: paths.dashboard.avaliacao.root_diagnostico,
             },
             {
               title: t('Fase'),
-              path: paths.dashboard.avaliacao.root_fase,
+              path: paths.dashboard.registro_aprendizagem.root_fase,
             },
           ],
         },
