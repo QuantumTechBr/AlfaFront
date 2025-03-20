@@ -126,7 +126,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
     try {
       await turmaMethods
         .updateTurmaById(turma.id, {
-          turmas_alunos: table.selected.map((id) => {
+          alunoturma_set: table.selected.map((id) => {
             return {
               aluno_id: id,
             };

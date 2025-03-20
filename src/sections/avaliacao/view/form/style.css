@@ -1,0 +1,15 @@
+.downloadCSVBtn {
+  /* background: black; */
+  color: black;
+  text-decoration: none;
+  padding: 5px 10px;
+  margin-left: 2px;
+  border-radius: 0.2;
+}
+
+.downloadCSVFilterBtn {
+  color: black;
+  text-decoration: none;
+  padding: 5px 0px;
+  margin-left: 0px;
+}
