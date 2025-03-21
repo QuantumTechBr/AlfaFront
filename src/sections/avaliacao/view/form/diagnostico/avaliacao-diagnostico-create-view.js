@@ -86,7 +86,7 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
         setErrorMsg('Erro de comunicação com a API de avaliação diagnostico');
       });
       promises.push(getAllAvaliacaoDiagnosticoPromise);
-      const getVersaoAvaliacaoPromise = avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: _turma.ano.data_inicio}).then((response) => {
+      const getVersaoAvaliacaoPromise = avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: _turma.ano.data_inicio, anoEscolar: _turma.ano_escolar}).then((response) => {
         if(response.data.length > 0){
           setVersaoAvaliacao(response.data[0]);
         } else {
@@ -118,9 +118,14 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
       setErrorMsg('Erro de comunicação com a API de habilidades');
       prep.onTrue();
     });
-    await avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: novaTurma?.ano?.data_inicio}).then((response) => {
+    await avaliacaoMethods.getVersaoAvaliacao({tipo: TipoVersaoAvaliacao.DIAGNOSTICA, dataAplicavel: novaTurma?.ano?.data_inicio, ano_escolar: novaTurma.ano_escolar}).then((response) => {
       if(response.data.length > 0){
-        setVersaoAvaliacao(response.data[0]);
+        response.data.filter((versao) => {
+          if (versao.status == 'ATIVO' && versao.tipo == TipoVersaoAvaliacao.DIAGNOSTICA && versao.ano_escolar == _turma.ano_escolar) {
+            setVersaoAvaliacao(versao);
+            return versao;
+          }
+        });
       } else {
         setErrorMsg('Versão de avaliação não encontrada');
         throw new Error('Versão de avaliação não encontrada');
