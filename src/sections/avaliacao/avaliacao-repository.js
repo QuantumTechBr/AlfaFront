@@ -3,7 +3,7 @@
 import axios, { endpoints } from 'src/utils/axios';
 import { TipoVersaoAvaliacao } from './enums';
 
-export const getVersaoAvaliacao = ({tipo='', anoLetivoId='', dataAplicavel='', status='ATIVO'}) => axios.get(endpoints.avaliacao.versaoAvaliacao.concat(`?tipo=${tipo}&ano_letivo_id=${anoLetivoId}&periodo_aplicavel=${dataAplicavel}&status=${status}`));
+export const getVersaoAvaliacao = ({tipo='', anoEscolar='', dataAplicavel='', status='ATIVO'}) => axios.get(endpoints.avaliacao.versaoAvaliacao.concat(`?tipo=${tipo}&ano_escolar=${anoEscolar}&periodo_aplicavel=${dataAplicavel}&status=${status}`));
 
 export const insertRegistroAprendizagem = payload => axios.post(endpoints.avaliacao.post, payload);
 export const getAllRegistrosAprendizagem = () => axios.get(endpoints.avaliacao.list);
