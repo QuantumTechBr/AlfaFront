@@ -315,9 +315,9 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
         }
       </TableCell>
 
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+      {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelFinal()}
-      </TableCell>
+      </TableCell> */}
 
     </TableRow>
   );

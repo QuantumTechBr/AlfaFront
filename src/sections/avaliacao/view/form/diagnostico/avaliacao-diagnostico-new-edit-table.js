@@ -145,7 +145,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     cabecalho.push({ id: 'nvResolucao', label: descritivoMAT, width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
-    cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
+    // cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
     setTableData((alunosTurma == undefined) ? [] : alunosTurma);
   }, [habilidades, alunosTurma, versaoAvaliacao]);
