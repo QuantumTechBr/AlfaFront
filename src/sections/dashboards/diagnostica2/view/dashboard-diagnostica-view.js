@@ -1728,7 +1728,7 @@ function RowTurma(props) {
           color="primary"
           variant="contained"
           size="small"
-          href={`${paths.dashboard.registro_aprendizagem.root_diagnostico}`}
+          href={`${paths.dashboard.avaliacao.root_diagnostico}`}
         >
           Ver avaliações
         </Button>
