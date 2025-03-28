@@ -121,12 +121,12 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
   }
 
   const nivelLP = () => {
-    if (media_lp <= 4) {
-      return 'N1';
-    } else if (media_lp <= 8) {
-      return 'N2';
-    } else if (media_lp > 8) {
-      return 'N3';
+    if (media_lp < 5) {
+      return 'FASE PRÉ-ALFABÉTICA';
+    } else if (media_lp < 10) {
+      return 'FASE ALFABÉTICA PARCIAL';
+    } else if (media_lp >= 10) {
+      return 'FASE ALFABÉTICA COMPLETA';
     } else {
       return '-';
     }
@@ -134,12 +134,12 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
 
 
   const nivelMAT = () => {
-    if (media_mat <= 4) {
-      return 'N1';
-    } else if (media_mat <= 8) {
-      return 'N2';
-    } else if (media_mat > 8) {
-      return 'N3';
+    if (media_mat < 5) {
+      return 'PRÉ-LETRAMENTO';
+    } else if (media_mat < 10) {
+      return 'LETRAMENTO PARCIAL';
+    } else if (media_mat >= 10) {
+      return 'LETRAMENTO COMPLETO';
     } else {
       return '-';
     }
