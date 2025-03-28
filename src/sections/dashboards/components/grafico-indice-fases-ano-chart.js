@@ -27,7 +27,7 @@ export default function GraficoIndiceFaseAnoColunasChart({
 
   const totalItems = series.reduce((total, item) => total + item.value, 0);
   series.forEach((element) => {
-    element.porcentagem = Math.round((element.value / totalItems) * 100);
+    element.porcentagem = element.value ? Math.round((element.value / totalItems) * 100) : 0;
   });
 
   const chartSeries = [
