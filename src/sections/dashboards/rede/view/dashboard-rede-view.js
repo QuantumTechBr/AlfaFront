@@ -694,7 +694,7 @@ export default function DashboardRedeView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre}/>
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre} anoLetivoId={filters.anoLetivo ? filters.anoLetivo.id : ''}/>
                             ))}
 
                             <TableEmptyRows
@@ -735,7 +735,7 @@ export default function DashboardRedeView() {
 // ----------------------------------------------------------------------
 
 function Row(props) {
-  const { row, bimestreOrdinal } = props;
+  const { row, bimestreOrdinal, anoLetivoId } = props;
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
   const StyledTableRow = styled(TableRow)(({ theme }) => ({
@@ -781,7 +781,7 @@ function Row(props) {
           color="primary"
           variant="contained"
           size="small"
-          href={`${paths.dashboard.root}/dash-ddz/?zona=${row.zona_id ?? ''}`}
+          href={`${paths.dashboard.root}/dash-ddz/?zona=${row.zona_id ?? ''}&ano_letivo=${anoLetivoId}`}
         >
           Ver mais
         </Button>
