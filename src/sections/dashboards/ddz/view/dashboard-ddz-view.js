@@ -85,6 +85,7 @@ export default function DashboardDDZView() {
 
   const searchParams = useSearchParams();
   const initialZona = searchParams.get('zona');
+  const initialAnoLetivoId = searchParams.get('ano_letivo');
 
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -99,7 +100,7 @@ export default function DashboardDDZView() {
   const calculandoTabela = useBoolean(false);
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
+    anoLetivo: initialAnoLetivoId ? {id: initialAnoLetivoId} : '',
     zona: zonaFiltro,
     anoEscolar: [],
     pne: '-',
@@ -287,11 +288,20 @@ export default function DashboardDDZView() {
       }
 
       setZonaFiltro(_zonaFiltro);
-      const anoAtual = new Date().getFullYear();
+      // let anoLetivoInicial = {}anosLetivos ? initialAnoLetivoId ? anosLetivos.find((a) => a.id == initialAnoLetivoId) : _.first(anosLetivos) ?? {} : {};
+      let anoLetivoInicial = anosLetivos ? initialAnoLetivoId ? anosLetivos.find((a) => a.id == initialAnoLetivoId) : _.first(anosLetivos) ?? {} : {};
+      if (anosLetivos) {
+        if (initialAnoLetivoId) {
+          anoLetivoInicial = anosLetivos.find((a) => a.id == initialAnoLetivoId);
+        } else {
+          const anoAtual = new Date().getFullYear();
+          anoLetivoInicial = anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) ?? {};
+        }
+      }
       const _filters = {
         ...filters,
         zona: _zonaFiltro,
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) } : {}),
+        anoLetivo: anoLetivoInicial,
       };
       buscaBimestres(_filters.anoLetivo?.id);
       setFilters(_filters);
@@ -711,7 +721,7 @@ export default function DashboardDDZView() {
                                 table.page * table.rowsPerPage + table.rowsPerPage
                               )
                             ).map(([key, row]) => (
-                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre} />
+                              <Row key={`tableRowDash_${key}`} row={{ ...row, key: key }} bimestreOrdinal={tableFilters.bimestre} anoLetivoId={filters.anoLetivo ? filters.anoLetivo.id : ''}/>
                             ))}
 
                             <TableEmptyRows
@@ -752,7 +762,7 @@ export default function DashboardDDZView() {
 
 
 function Row(props) {
-  const { row, bimestreOrdinal } = props;
+  const { row, bimestreOrdinal, anoLetivoId } = props;
   const [open, setOpen] = useState(false);
 
   // TODO REMOVER E MIGRAR PARA ACESSO UNICO
@@ -805,7 +815,7 @@ function Row(props) {
             color="primary"
             variant="contained"
             size="small"
-            href={`${paths.dashboard.root}/dash-escola/?escola=${row.escola_id ?? ''}`}
+            href={`${paths.dashboard.root}/dash-escola/?escola=${row.escola_id ?? ''}&ano_letivo=${anoLetivoId ?? ''}`}
           >
             Ver mais
           </Button>

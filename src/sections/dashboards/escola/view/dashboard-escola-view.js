@@ -77,6 +77,7 @@ export default function DashboardEscolaView() {
 
   const searchParams = useSearchParams();
   const initialEscola = searchParams.get('escola');
+  const initialAnoLetivoId = searchParams.get('ano_letivo');
 
   const { user } = useContext(AuthContext);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -93,7 +94,7 @@ export default function DashboardEscolaView() {
   const [escolaFiltro, setEscolaFiltro] = useState([]);
 
   const [filters, setFilters] = useState({
-    anoLetivo: '',
+    anoLetivo: initialAnoLetivoId ? {id: initialAnoLetivoId} : '',
     zona: [],
     escola: {},
     turma: [],
@@ -247,14 +248,22 @@ export default function DashboardEscolaView() {
   useEffect(() => {
     if (contextReady.value) {
       const _escola = escolas.filter((e) => e.id == initialEscola);
-      const anoAtual = new Date().getFullYear();
+      let anoLetivoInicial = anosLetivos ? initialAnoLetivoId ? anosLetivos.find((a) => a.id == initialAnoLetivoId) : _.first(anosLetivos) ?? {} : {};
+      if (anosLetivos) {
+        if (initialAnoLetivoId) {
+          anoLetivoInicial = anosLetivos.find((a) => a.id == initialAnoLetivoId);
+        } else {
+          const anoAtual = new Date().getFullYear();
+          anoLetivoInicial = anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) ?? {};
+        }
+      }
       const _filters = {
         ...filters,
         ...(_escola.length > 0 ? { escola: _escola[0] } : {}),
         ...(zonaFiltro.length > 0 && _escola.length == 0
           ? {}
           : { zona: zonas.filter((z) => z.id == _escola[0]?.zona.id) ?? filters.zona }),
-        ...(anosLetivos && anosLetivos.length > 0 ? { anoLetivo: anosLetivos.find((a) => a.ano == anoAtual) ?? _.first(anosLetivos) } : {}),
+        anoLetivo: anoLetivoInicial,
       };
       setFilters(_filters);
       preencheGraficos(_filters);

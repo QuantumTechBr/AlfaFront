@@ -151,12 +151,12 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
             let alternativa = questao.alternativas.find((alternativa) => alternativa.id == alternativaId);
             if (questao.disciplina.nome == 'Língua Portuguesa') {
               pt = true;
-              mediaLP += alternativa.valor_resposta;
+              mediaLP += alternativa?.valor_resposta ?? 0;
             } else if (questao.disciplina.nome == 'Matemática') {
               mat = true;
-              mediaMAT += alternativa.valor_resposta;
+              mediaMAT += alternativa?.valor_resposta ?? 0;
             }
-            mediaFINAL += alternativa.valor_resposta;
+            mediaFINAL += alternativa?.valor_resposta ?? 0;
             respostas_aluno.push({
               questao_id: questao.id,
               alternativa_id: alternativaId,
