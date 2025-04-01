@@ -89,8 +89,8 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
             {questao.alternativas.map((alternativa) => (
               <MenuItem
                   key={id + '_r_' + questao.numero_questao + '_' + alternativa.numero_alternativa} value={alternativa.id} sx={{ height: '34px' }}>
-                <Tooltip placement="top" title={alternativa.resposta}>
-                  <span>{alternativa.observacao ?? alternativa.resposta}</span>
+                <Tooltip placement="top" title={alternativa.observacao ?? alternativa.resposta}>
+                  <span>{alternativa.resposta}</span>
                 </Tooltip>
               </MenuItem>
             ))}
@@ -135,11 +135,11 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
 
   const nivelMAT = () => {
     if (media_mat < 5) {
-      return 'PRÉ-LETRAMENTO';
+      return 'FASE PRÉ-LETRAMENTO';
     } else if (media_mat < 10) {
-      return 'LETRAMENTO PARCIAL';
+      return 'FASE LETRAMENTO PARCIAL';
     } else if (media_mat >= 10) {
-      return 'LETRAMENTO COMPLETO';
+      return 'FASE LETRAMENTO COMPLETO';
     } else {
       return '-';
     }
@@ -216,20 +216,17 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
 
     if (pt_mat) {
       setMedia_final(mediaFinal*10/somaPesosFinal);
-      console.log('mediaFinal', mediaFinal/somaPesosFinal);
       
     } else {
       setMedia_final('-');
     }
     if (mat) {
       setMedia_mat(mediaMat*10/somaPesosMat);
-      console.log('mediaMat', mediaMat/somaPesosMat);
     } else {
       setMedia_mat('-');
     }
     if (pt) {
       setMedia_lp(mediaPt*10/somaPesosPt);
-      console.log('mediaPt', mediaPt/somaPesosPt);
     } else {
       setMedia_lp('-');
     }

@@ -88,6 +88,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
     data_nascimento: Yup.date().required('Data de Nascimento é obrigatório'),
   });
 
+  const anoAtual = new Date().getFullYear();
+
   const botaoLabel = () => {
     return (
       <Button
@@ -144,27 +146,27 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const anoLetivoAtual = anosLetivos.find((ano) => {
-        if (ano.status === "NÃO FINALIZADO") {
+        if (ano.ano == anoAtual) {
           return ano.id;
         }
       })
-      let aluno_escolas = []
-      let aluno_turmas = []
-      if (data.escola != '') {
-        aluno_escolas = [
-          {
-            escola_id: data.escola,
-            ano_id: anoLetivoAtual.id
-          }
-        ]
-      }
-      if (data.turma) {
-        aluno_turmas = [
-          {
-            turma_id: data.turma
-          }
-        ]
-      }
+      // let aluno_escolas = []
+      // let aluno_turmas = []
+      // if (!currentAluno && data.escola != '') {
+      //   aluno_escolas = [
+      //     {
+      //       escola_id: data.escola,
+      //       ano_id: anoLetivoAtual.id ?? anoLetivoAtual[0].id
+      //     }
+      //   ]
+      // }
+      // if (!currentAluno && data.turma) {
+      //   aluno_turmas = [
+      //     {
+      //       turma_id: data.turma
+      //     }
+      //   ]
+      // }
       const nascimento = new Date(data.data_nascimento)
       const necessidades_especiais_data = JSON.stringify(data.necessidades_especiais);
       const toSend = {
@@ -172,21 +174,39 @@ export default function AlunoNewEditForm({ currentAluno }) {
         matricula: data.matricula.toString(),
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth() + 1) + "-" + nascimento.getDate(),
         necessidades_especiais: necessidades_especiais_data,
-        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo
+        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo,
+        // alunoEscolas: aluno_escolas,
+        // alunos_turmas: aluno_turmas
       }
       if (currentAluno) {
-        await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({ force: true })).catch((error) => {
+        await alunoMethods.updateAlunoById(currentAluno.id, toSend).then((retorno) => {
+          buscaTurmas({ force: true });
+          const alunoNovo = retorno.data ?? {};
+          if (alunoNovo?.id) {
+            router.push(paths.dashboard.aluno.edit(alunoNovo ? alunoNovo.id : ''));
+          } else {
+            router.push(paths.dashboard.aluno.list);
+          }
+        }).catch((error) => {
           throw error;
         });
 
       } else {
-        await alunoMethods.insertAluno(toSend).then(buscaTurmas({ force: true })).catch((error) => {
+        await alunoMethods.insertAluno(toSend).then((retorno) => {
+          buscaTurmas({ force: true });
+          const alunoNovo = retorno.data ?? {};
+          if (alunoNovo?.id) {
+            router.push(paths.dashboard.aluno.edit(alunoNovo ? alunoNovo.id : ''));
+          } else {
+            router.push(paths.dashboard.aluno.list);
+          }
+        }).catch((error) => {
           throw error;
         });
       }
       reset();
       enqueueSnackbar(currentAluno ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
-      router.push(paths.dashboard.aluno.list);
+      // router.push(paths.dashboard.aluno.list);
     } catch (error) {
       currentAluno ? setErrorMsg('Tentativa de atualização do estudante falhou') : setErrorMsg('Tentativa de criação do estudante falhou');
       console.error(error);
@@ -382,6 +402,16 @@ export default function AlunoNewEditForm({ currentAluno }) {
     handleSaveRow(retorno);
     edit.onFalse();
   };
+
+  // const turmasEscolaAno = () => {
+  //   const anoLetivoAtual = anosLetivos.find((ano) => {
+  //     if (ano.ano == anoAtual) {
+  //       return ano.id;
+  //     }
+  //   })
+  //   return turmas.filter((te) => te.escola_id == getValues('escola') && te.ano_id == anoLetivoAtual.id)
+  // }
+
   return (
     <>
       <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -413,7 +443,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
                   />
                 </LocalizationProvider>
 
-                {!currentAluno &&
+                {/* {!currentAluno &&
                   <>
                     <RHFSelect sx={{
                     }} id={`escola_` + `${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
@@ -423,19 +453,25 @@ export default function AlunoNewEditForm({ currentAluno }) {
                         </MenuItem>
                       ))}
                     </RHFSelect>
-
-                    <RHFSelect sx={{
+                    <RHFSelect 
+                    emptyRows="teste"
+                    sx={{
                       display: getValues('escola') ? "inherit" : "none"
                     }} id={`turma_` + `${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                      {turmas.filter((te) => te.escola_id == getValues('escola'))
-                        .map((turma) => (
+                      {!!turmasEscolaAno() && turmasEscolaAno().length > 0 ? (
+                        turmasEscolaAno().map((turma) => (
                           <MenuItem key={turma.id} value={turma.id}>
                             {turma.ano_escolar}º {turma.nome} ({turma.turno})
                           </MenuItem>
-                        ))}
+                        ))
+                      ) : (
+                        <MenuItem disabled>
+                          Nenhuma turma disponível para a escola selecionada no ano letivo atual.
+                        </MenuItem>
+                      )}
                     </RHFSelect>
                   </>
-                }
+                } */}
 
                 <RHFMultiSelect
                   name="necessidades_especiais"

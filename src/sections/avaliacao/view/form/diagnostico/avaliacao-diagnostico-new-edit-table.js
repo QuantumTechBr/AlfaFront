@@ -140,10 +140,10 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     }
     cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
     cabecalho.push({ id: 'nvEscrita', label: descritivoLP, width: 200, minWidth: 200 });
-    cabecalho.push({ id: 'nvLP', label: 'NÍVEL_LP', width: 50 });
+    cabecalho.push({ id: 'nvLP', label: 'FASE ALFABÉTICA', width: 50 });
     cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
     cabecalho.push({ id: 'nvResolucao', label: descritivoMAT, width: 200, minWidth: 200 });
-    cabecalho.push({ id: 'nvMAT', label: 'NÍVEL_MAT', width: 50 });
+    cabecalho.push({ id: 'nvMAT', label: 'LETRAMENTO MATEMÁTICO', width: 50 });
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
     // cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);

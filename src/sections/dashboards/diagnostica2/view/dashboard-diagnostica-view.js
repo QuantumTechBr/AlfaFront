@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
-import _ from 'lodash';
+import _, { capitalize } from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -241,7 +241,7 @@ export default function DashboardDiagnosticaView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
-      let escola = filters.escola;
+      let escola = filters.escola.map((e) => e.id);
       let escFiltered = [];
       if (sessionStorage.getItem('escolasPiloto') == 'true') {
         escolas.map((esc) => {
@@ -1279,32 +1279,53 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
 
                 {/* Desempenho GERAL */}
-                <Grid xs={12} lg={4}>
+                {/* <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title={extraTitulo}
                     chartSeries={Object.values(desempenhoChartSeries('geral'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
+                    other={{
+                      categories: [
+                        'N1 - Não Aprendeu',
+                        'N2 - Aprendeu Parcialmente',
+                        'N3 - Aprendeu',
+                      ],
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
-                </Grid>
-                <Grid xs={12} lg={4}>
+                </Grid> */}
+                <Grid xs={12} lg={6}>
                   <DesempenhoComponent
                     title={`Língua Portuguesa - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('lingua_portuguesa'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
+                    other={{
+                      categories: [
+                        'FASE PRE-ALFABETICA',
+                        'FASE ALFABETICA PARCIAL',
+                        'FASE ALFABETICA COMPLETA',
+                      ],
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
                 </Grid>
-                <Grid xs={12} lg={4}>
+                <Grid xs={12} lg={6}>
                   <DesempenhoComponent
                     title={`Matemática - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('matematica'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
+                    }}
+                    other={{
+                      categories: [
+                        'FASE PRE-LETRAMENTO',
+                        'FASE LETRAMENTO PARCIAL',
+                        'FASE LETRAMENTO COMPLETO',
+                      ],
                     }}
                     sx={{ overflow: 'visible' }}
                   />
@@ -1507,6 +1528,7 @@ const getFrequenciasAssociative = (lista = {}) => {
   const totais = {};
 
   _.forEach(lista.frequencias, (frequencia, keyN) => {
+    frequencia = capitalize(frequencia);
     if (!_.has(totais, frequencia)) {
       Object.assign(totais, { [`${frequencia}`]: 0 });
     }
