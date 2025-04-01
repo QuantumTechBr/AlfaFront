@@ -88,6 +88,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
     data_nascimento: Yup.date().required('Data de Nascimento é obrigatório'),
   });
 
+  const anoAtual = new Date().getFullYear();
+
   const botaoLabel = () => {
     return (
       <Button
@@ -144,7 +146,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const onSubmit = handleSubmit(async (data) => {
     try {
       const anoLetivoAtual = anosLetivos.find((ano) => {
-        if (ano.status === "NÃO FINALIZADO") {
+        if (ano.ano == anoAtual) {
           return ano.id;
         }
       })
@@ -154,7 +156,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
         aluno_escolas = [
           {
             escola_id: data.escola,
-            ano_id: anoLetivoAtual.id
+            ano_id: anoLetivoAtual.id ?? anoLetivoAtual[0].id
           }
         ]
       }
@@ -172,7 +174,9 @@ export default function AlunoNewEditForm({ currentAluno }) {
         matricula: data.matricula.toString(),
         data_nascimento: nascimento.getFullYear() + "-" + (nascimento.getMonth() + 1) + "-" + nascimento.getDate(),
         necessidades_especiais: necessidades_especiais_data,
-        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo
+        laudo_necessidade: data.necessidades_especiais == [] ? 'false' : data.laudo,
+        alunoEscolas: aluno_escolas,
+        alunos_turmas: aluno_turmas
       }
       if (currentAluno) {
         await alunoMethods.updateAlunoById(currentAluno.id, toSend).then(buscaTurmas({ force: true })).catch((error) => {
@@ -382,6 +386,16 @@ export default function AlunoNewEditForm({ currentAluno }) {
     handleSaveRow(retorno);
     edit.onFalse();
   };
+
+  const turmasEscolaAno = () => {
+    const anoLetivoAtual = anosLetivos.find((ano) => {
+      if (ano.ano == anoAtual) {
+        return ano.id;
+      }
+    })
+    return turmas.filter((te) => te.escola_id == getValues('escola') && te.ano_id == anoLetivoAtual.id)
+  }
+
   return (
     <>
       <FormProvider methods={methods} onSubmit={onSubmit}>
@@ -423,16 +437,22 @@ export default function AlunoNewEditForm({ currentAluno }) {
                         </MenuItem>
                       ))}
                     </RHFSelect>
-
-                    <RHFSelect sx={{
+                    <RHFSelect 
+                    emptyRows="teste"
+                    sx={{
                       display: getValues('escola') ? "inherit" : "none"
                     }} id={`turma_` + `${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                      {turmas.filter((te) => te.escola_id == getValues('escola'))
-                        .map((turma) => (
+                      {!!turmasEscolaAno() && turmasEscolaAno().length > 0 ? (
+                        turmasEscolaAno().map((turma) => (
                           <MenuItem key={turma.id} value={turma.id}>
                             {turma.ano_escolar}º {turma.nome} ({turma.turno})
                           </MenuItem>
-                        ))}
+                        ))
+                      ) : (
+                        <MenuItem disabled>
+                          Nenhuma turma disponível para a escola selecionada no ano letivo atual.
+                        </MenuItem>
+                      )}
                     </RHFSelect>
                   </>
                 }
