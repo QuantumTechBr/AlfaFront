@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
-import _ from 'lodash';
+import _, { capitalize } from 'lodash';
 
 // @mui
 import { useTheme } from '@mui/material/styles';
@@ -241,7 +241,7 @@ export default function DashboardDiagnosticaView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
-      let escola = filters.escola;
+      let escola = filters.escola.map((e) => e.id);
       let escFiltered = [];
       if (sessionStorage.getItem('escolasPiloto') == 'true') {
         escolas.map((esc) => {
@@ -1507,6 +1507,7 @@ const getFrequenciasAssociative = (lista = {}) => {
   const totais = {};
 
   _.forEach(lista.frequencias, (frequencia, keyN) => {
+    frequencia = capitalize(frequencia);
     if (!_.has(totais, frequencia)) {
       Object.assign(totais, { [`${frequencia}`]: 0 });
     }
