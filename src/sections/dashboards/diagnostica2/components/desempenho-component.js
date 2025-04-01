@@ -1,7 +1,7 @@
 'use client';
 
 import PropTypes from 'prop-types';
-import _ from 'lodash';
+import _, { wrap } from 'lodash';
 
 // @mui
 import Card from '@mui/material/Card';
@@ -15,12 +15,15 @@ import '../../components/style.css';
 import { fNumber } from 'src/utils/format-number';
 
 import { niveis_desempenho } from 'src/_mock/assets';
+import { fontSize, maxWidth } from '@mui/system';
 
 // ----------------------------------------------------------------------
 
 export default function DesempenhoComponent({ title, chartSeries = [], options, ...other }) {
   const theme = useTheme();
   const colors = ['#134EB4', '#009a50', '#0DACEB'];
+
+  const categories = other.other?.categories || ['N1', 'N2', 'N3'];
 
   const chartOptions = useChart({
     colors: colors,
@@ -39,11 +42,16 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
     },
 
     xaxis: {
-      categories: ['N1', 'N2', 'N3'],
+      categories: categories,
+      labels: {
+        style: {
+          fontSize: '11px',
+        }
+      },
       tooltip: {
         enabled: true,
         formatter: (val, opts) => {
-          let description = niveis_desempenho[val].description;
+          let description = niveis_desempenho[val]?.description;
           return description;
         },
         offsetY: 0,

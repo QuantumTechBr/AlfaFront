@@ -1279,32 +1279,53 @@ export default function DashboardDiagnosticaView() {
                 </Grid>
 
                 {/* Desempenho GERAL */}
-                <Grid xs={12} lg={4}>
+                {/* <Grid xs={12} lg={4}>
                   <DesempenhoComponent
                     title={extraTitulo}
                     chartSeries={Object.values(desempenhoChartSeries('geral'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
+                    other={{
+                      categories: [
+                        'N1 - Não Aprendeu',
+                        'N2 - Aprendeu Parcialmente',
+                        'N3 - Aprendeu',
+                      ],
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
-                </Grid>
-                <Grid xs={12} lg={4}>
+                </Grid> */}
+                <Grid xs={12} lg={6}>
                   <DesempenhoComponent
                     title={`Língua Portuguesa - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('lingua_portuguesa'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
                     }}
+                    other={{
+                      categories: [
+                        'FASE PRE-ALFABETICA',
+                        'FASE ALFABETICA PARCIAL',
+                        'FASE ALFABETICA COMPLETA',
+                      ],
+                    }}
                     sx={{ overflow: 'visible' }}
                   />
                 </Grid>
-                <Grid xs={12} lg={4}>
+                <Grid xs={12} lg={6}>
                   <DesempenhoComponent
                     title={`Matemática - ${extraTitulo}`}
                     chartSeries={Object.values(desempenhoChartSeries('matematica'))}
                     options={{
                       legend: { show: true, showForSingleSeries: true, position: 'bottom' },
+                    }}
+                    other={{
+                      categories: [
+                        'FASE PRE-LETRAMENTO',
+                        'FASE LETRAMENTO PARCIAL',
+                        'FASE LETRAMENTO COMPLETO',
+                      ],
                     }}
                     sx={{ overflow: 'visible' }}
                   />
