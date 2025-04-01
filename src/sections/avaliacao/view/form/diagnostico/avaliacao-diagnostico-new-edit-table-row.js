@@ -89,8 +89,8 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
             {questao.alternativas.map((alternativa) => (
               <MenuItem
                   key={id + '_r_' + questao.numero_questao + '_' + alternativa.numero_alternativa} value={alternativa.id} sx={{ height: '34px' }}>
-                <Tooltip placement="top" title={alternativa.resposta}>
-                  <span>{alternativa.observacao ?? alternativa.resposta}</span>
+                <Tooltip placement="top" title={alternativa.observacao ?? alternativa.resposta}>
+                  <span>{alternativa.resposta}</span>
                 </Tooltip>
               </MenuItem>
             ))}
