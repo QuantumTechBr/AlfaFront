@@ -165,6 +165,10 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
     }
   }, [contextReady.value, escolas, setValue, user.funcao_usuario]);
 
+  const turmasEscolaAno = () => {
+    return turmas.filter((te) => te.escola_id == getValues('escola')?.id && te.ano_id == getValues('ano_letivo'));
+  }
+
   return (
     <Dialog
       fullWidth
@@ -232,14 +236,16 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 name="turma"
                 label="Turma"
               >
-                {turmas
-                  .filter((te) => te.escola_id == getValues('escola')?.id)
-                  .filter((te) => te.ano_id == getValues('ano_letivo'))
+                {!!turmasEscolaAno() ? turmasEscolaAno()
                   .map((turma) => (
                     <MenuItem key={turma.id} value={turma.id}>
                       {turma.ano_escolar}º {turma.nome} ({turma.turno})
                     </MenuItem>
-                  ))}
+                  )) : (
+                    <MenuItem disabled>
+                      Nenhuma turma disponível para a escola selecionada no ano letivo atual.
+                    </MenuItem>
+                  )}
               </RHFSelect>
 
 
