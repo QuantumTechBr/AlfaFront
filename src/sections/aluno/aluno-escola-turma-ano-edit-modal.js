@@ -189,6 +189,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
       {contextReady.value && (
         <FormProvider methods={methods}>
           <DialogTitle>Escola / Turma / Ano</DialogTitle>
+          {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
           <DialogContent>
             <br></br>
@@ -216,6 +217,11 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                     {ano.ano}
                   </MenuItem>
                 ))}
+                {anosLetivos.filter((ano) => !anosLetivosOptions.includes(ano.id)).length === 0 && (
+                  <MenuItem disabled>
+                    Nenhum ano letivo disponível. Aluno só pode estar em uma escola por ano letivo.
+                  </MenuItem>
+                )}
               </RHFSelect>
 
               <RHFAutocomplete
@@ -264,6 +270,10 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
 
             <LoadingButton variant="contained" loading={isSubmitting}
               onClick={() => {
+                if (!getValues('escola') || getValues('escola') == '' || !getValues('ano_letivo') || getValues('ano_letivo') == '') {
+                  setErrorMsg('Escola e ano letivo são obrigatórios!');
+                  return;
+                }
                 let _turma = turmas.filter(turma => turma.id == getValues('turma'));
                 let _escola = escolas.filter(escola => escola.id == getValues('escola').id);
                 let _ano = anosLetivos.filter(ano => ano.id == getValues('ano_letivo'));

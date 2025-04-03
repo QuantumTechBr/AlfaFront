@@ -123,9 +123,9 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
   const nivelLP = () => {
     if (media_lp < 5) {
       return 'FASE PRÉ-ALFABÉTICA';
-    } else if (media_lp < 10) {
+    } else if (media_lp < 8) {
       return 'FASE ALFABÉTICA PARCIAL';
-    } else if (media_lp >= 10) {
+    } else if (media_lp >= 8) {
       return 'FASE ALFABÉTICA COMPLETA';
     } else {
       return '-';
@@ -136,7 +136,7 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
   const nivelMAT = () => {
     if (media_mat < 5) {
       return 'FASE PRÉ-LETRAMENTO';
-    } else if (media_mat < 10) {
+    } else if (media_mat < 8) {
       return 'FASE LETRAMENTO PARCIAL';
     } else if (media_mat >= 10) {
       return 'FASE LETRAMENTO COMPLETO';

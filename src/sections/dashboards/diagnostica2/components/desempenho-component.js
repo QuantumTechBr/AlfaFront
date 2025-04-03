@@ -48,14 +48,6 @@ export default function DesempenhoComponent({ title, chartSeries = [], options, 
           fontSize: '11px',
         }
       },
-      tooltip: {
-        enabled: true,
-        formatter: (val, opts) => {
-          let description = niveis_desempenho[val]?.description;
-          return description;
-        },
-        offsetY: 0,
-      },
     },
 
     plotOptions: {
