@@ -18,15 +18,31 @@ import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import { ConfirmDialog } from 'src/components/custom-dialog';
+import { substr } from 'stylis';
 
 // ----------------------------------------------------------------------
 
 export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
-  const funcaoNome =
-    row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
-      ? row.funcao_usuario[0].nome_exibicao
-      : '';
+  let funcaoNome = '';
+  for (const funcao_usuario of row.funcao_usuario) {
+    if (funcao_usuario.funcao?.nome_exibicao && !funcaoNome.includes(funcao_usuario.funcao.nome_exibicao)) {
+      funcaoNome = funcaoNome + ', ' + funcao_usuario.nome_exibicao;
+    } else if (funcao_usuario.funcao?.nome && !funcaoNome.includes(funcao_usuario.funcao.nome)) {
+      funcaoNome = funcaoNome + ', ' + funcao_usuario.funcao.nome;
+    }
+    
+  }
+  for (const permissao_usuario of row.permissao_usuario) {
+    if (['ADMIN', 'SUPERADMIN'].includes(permissao_usuario?.nome) && !funcaoNome.includes(permissao_usuario.nome)) {
+      funcaoNome = funcaoNome + ', ' + (permissao_usuario.nome);
+    }
+  }
+
+  funcaoNome = funcaoNome.replace(/^, /, '');
+  funcaoNome = funcaoNome.replace(/, $/, '');
+
+
 
   const confirm = useBoolean();
   const popover = usePopover();
@@ -41,7 +57,11 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
       <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.nome}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{funcaoNome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Tooltip title={funcaoNome}>
+            {funcaoNome.length > 20 ? funcaoNome.substring(0, 30) + '...' :  funcaoNome}
+          </Tooltip>
+        </TableCell>
 
         <TableCell>
           <Label

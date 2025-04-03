@@ -163,6 +163,18 @@ export default function UserListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let { nome, escola, role, zona, status } = filtros;
+      // Separar permissões ADMIN e SUPERADMIN
+      // e filtrar as demais permissões
+      let permissao = [];
+      role = role.filter((item) => {
+        if (item == 'ADMIN') {
+          permissao.push('ADMIN');
+        } else if (item == 'SUPERADMIN') {
+          permissao.push('SUPERADMIN');
+        } else {
+          return item;
+        }
+      });
       let statusFilter = '';
       let escFiltered = [];
       if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
@@ -193,6 +205,7 @@ export default function UserListView() {
           funcao: role,
           zona: zona,
           status: '',
+          permissao: permissao,
         })
         .then(async (resultado) => {
           setCountAll(resultado.data.count);
@@ -207,6 +220,7 @@ export default function UserListView() {
           funcao: role,
           zona: zona,
           status: 'True',
+          permissao: permissao
         })
         .then(async (resultado) => {
           setCountAtivos(resultado.data.count);
@@ -221,6 +235,7 @@ export default function UserListView() {
           funcao: role,
           zona: zona,
           status: 'False',
+          permissao: permissao
         })
         .then(async (resultado) => {
           setCountInativos(resultado.data.count);
@@ -235,6 +250,7 @@ export default function UserListView() {
           funcao: role,
           zona: zona,
           status: statusFilter,
+          permissao: permissao
         })
         .then(async (usuarios) => {
           if (usuarios.data.count == 0) {
@@ -293,6 +309,16 @@ export default function UserListView() {
         })
       }
     });
+    funcoes_opts.push({
+      id: 'ADMIN',
+      nome: 'ADMIN',
+      nome_exibicao: 'ADMIN',
+    })
+    funcoes_opts.push({
+      id: 'SUPERADMIN',
+      nome: 'SUPERADMIN',
+      nome_exibicao: 'SUPERADMIN',
+    })
     setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 

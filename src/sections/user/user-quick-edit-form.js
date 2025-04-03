@@ -85,8 +85,13 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
 
   useEffect(() => {
     user.permissao_usuario.map((perm) => {
-      if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
+      if (perm.nome === "SUPERADMIN") {
         eAdmin.onTrue();
+        setValue('funcao', 'SUPERADMIN');
+      }
+      if (perm.nome === "ADMIN") {
+        eAdmin.onTrue();
+        setValue('funcao', 'ADMIN');
       }
     })
   }, [user]);
@@ -142,11 +147,7 @@ export default function UserQuickEditForm({ row, open, onClose, onSave }) {
     () => ({
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
-      funcao: currentUser
-        ? typeof currentUser?.funcao == 'object'
-          ? _.first(currentUser?.funcao)
-          : currentUser?.funcao
-        : '',
+      funcao: currentUser?.funcao || currentUser?.permissao_usuario ? currentUser.permissao_usuario[0].nome : '',
       status: (currentUser?.status && currentUser?.status === 'true' ? 'true' : 'false') || '',
       zona: zonaCtrl,
       escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
