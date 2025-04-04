@@ -52,7 +52,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     return {
       nome: '',
       frequencia: [],
-    }
+    };
   }, []);
 
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
@@ -65,7 +65,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
   const [csvData, setCsvData] = useState([]);
   const [csvFileName, setCsvFileName] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   const values = watch();
   const labelHabilidade = (hab, i) => {
     const list_retorno = [];
@@ -78,7 +78,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     // const nome_2 = habilidades[1].nome;
     // const descricao_2 = habilidades[1].descricao;
     // ''.concat(...list_retorno)]
-    <br></br>
+    <br></br>;
     return (
       <Box>
         {`R${i}`}
@@ -112,8 +112,8 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
 
   useEffect(() => {
     if (!prep.value) return;
-    let descritivoLP = "Nível escrita - LP"
-    let descritivoMAT = "Nível Resolução de problemas - MAT"
+    let descritivoLP = 'Nível escrita - LP';
+    let descritivoMAT = 'Nível Resolução de problemas - MAT';
     const cabecalho = [
       { id: 'matricula', label: 'Matrícula', width: 150 },
       { id: 'nome', label: 'Nome', width: 150 },
@@ -121,14 +121,24 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     ];
     if (versaoAvaliacao?.questoes) {
       const questoes = versaoAvaliacao.questoes;
-      let numUltimaQuestoesPt = 0
-      let numUltimaQuestoesMat = 0
+      let numUltimaQuestoesPt = 0;
+      let numUltimaQuestoesMat = 0;
       for (const questao of questoes) {
-        cabecalho.push({ id: `R${questao.numero_questao}`, label: `R${questao.numero_questao}`, width: 50 });
+        cabecalho.push({
+          id: `R${questao.numero_questao}`,
+          label: `R${questao.numero_questao}`,
+          width: 50,
+        });
         if (questao.disciplina.nome == 'Língua Portuguesa') {
-          numUltimaQuestoesPt = questao.numero_questao > numUltimaQuestoesPt ? questao.numero_questao : numUltimaQuestoesPt;
+          numUltimaQuestoesPt =
+            questao.numero_questao > numUltimaQuestoesPt
+              ? questao.numero_questao
+              : numUltimaQuestoesPt;
         } else if (questao.disciplina.nome == 'Matemática') {
-          numUltimaQuestoesMat = questao.numero_questao > numUltimaQuestoesMat ? questao.numero_questao : numUltimaQuestoesMat;
+          numUltimaQuestoesMat =
+            questao.numero_questao > numUltimaQuestoesMat
+              ? questao.numero_questao
+              : numUltimaQuestoesMat;
         }
       }
       if (numUltimaQuestoesPt > 0) {
@@ -147,7 +157,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
     // cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
-    setTableData((alunosTurma == undefined) ? [] : alunosTurma);
+    setTableData(alunosTurma == undefined ? [] : alunosTurma);
   }, [habilidades, alunosTurma, versaoAvaliacao]);
 
   useEffect(() => {
@@ -194,94 +204,105 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
   }, [defaultFilters]);
 
   return (
-      
-      <Card>
-        {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
-        <AvaliacaoDiagnosticoNewEditTableToolbar
-          filters={filters}
-          onFilters={handleFilters}
-          anoLetivoOptions={anosLetivos}
-          escolaOptions={escolas}
-          freqOptions={frequencia_options}
-          turma={turma}
-          handleTurma={handleTurma}
-          nomeArquivo={csvFileName}
-          dataArquivo={csvData}
+    <Card>
+      {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
+      <AvaliacaoDiagnosticoNewEditTableToolbar
+        filters={filters}
+        onFilters={handleFilters}
+        anoLetivoOptions={anosLetivos}
+        escolaOptions={escolas}
+        freqOptions={frequencia_options}
+        turma={turma}
+        handleTurma={handleTurma}
+        nomeArquivo={csvFileName}
+        dataArquivo={csvData}
         />
 
-        {canReset && (
-          <AvaliacaoDiagnosticoNewEditTableFiltersResult
-            filters={filters}
-            onFilters={handleFilters}
-            onResetFilters={handleResetFilters}
-            freqOptions={frequencia_options}
-            results={dataFiltered.length}
-            sx={{ p: 2.5, pt: 0 }}
-          />
-        )}
 
-        <TableContainer sx={{ position: 'relative', overflow: 'unset' }} >
-          <Scrollbar sx={{
-            "& .simplebar-scrollbar": {
-              "backgroundColor": "#D3D3D3",
-              'borderRadius': 10,
-            },
-            maxHeight: 800,
-          }}>
-            {!preparado.value ? (
-              <LoadingBox />
-            ) : (
-              <Table stickyHeader size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  numSelected={table.selected.length}
-                  onSort={table.onSort}
+          {canReset && (
+            <AvaliacaoDiagnosticoNewEditTableFiltersResult
+              filters={filters}
+              onFilters={handleFilters}
+              onResetFilters={handleResetFilters}
+              freqOptions={frequencia_options}
+              results={dataFiltered.length}
+              sx={{ p: 2.5, pt: 0 }}
+            />
+          )}
 
-                />
+          <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
+            <Scrollbar
+              sx={{
+                '& .simplebar-scrollbar': {
+                  backgroundColor: '#D3D3D3',
+                  borderRadius: 10,
+                },
+                maxHeight: 800,
+              }}
+            >
+              {!preparado.value ? (
+                <LoadingBox />
+              ) : (
+                <>
+                  {!versaoAvaliacao ? (
+                    <Container sx={{ py: 2 }}>
+                      <Typography variant="h5" gutterBottom>
+                        Não foi possível carregar a versão da avaliação para esta turma. Verifique com o suporte se a versão de avaliação foi criada corretamente.
+                      </Typography>
+                    </Container>
+                  ) : (
+                  <Table stickyHeader size={table.dense ? 'small' : 'medium'} sx={{ minWidth: 960 }}>
+                    <TableHeadCustom
+                      order={table.order}
+                      orderBy={table.orderBy}
+                      headLabel={TABLE_HEAD}
+                      rowCount={tableData.length}
+                      numSelected={table.selected.length}
+                      onSort={table.onSort}
+                    />
 
-                <TableBody sx={{ bgcolor: 'white' }}>
-                  {dataFiltered
-                    .slice(
-                      table.page * table.rowsPerPage,
-                      table.page * table.rowsPerPage + table.rowsPerPage
-                    )
-                    .map((row) => (
-                      <AvaliacaoDiagnosticoNewEditTableRow
-                        key={row.id}
-                        row={row}
-                        habilidades={habilidades}
-                        periodo={periodo}
-                        turma={turma}
-                        versaoAvaliacao={versaoAvaliacao}
+                    <TableBody sx={{ bgcolor: 'white' }}>
+                      {dataFiltered
+                        .slice(
+                          table.page * table.rowsPerPage,
+                          table.page * table.rowsPerPage + table.rowsPerPage
+                        )
+                        .map((row) => (
+                          <AvaliacaoDiagnosticoNewEditTableRow
+                            key={row.id}
+                            row={row}
+                            habilidades={habilidades}
+                            periodo={periodo}
+                            turma={turma}
+                            versaoAvaliacao={versaoAvaliacao}
+                          />
+                        ))}
+
+                      <TableEmptyRows
+                        height={denseHeight}
+                        emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
                       />
-                    ))}
 
-                  <TableEmptyRows
-                    height={denseHeight}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
-                  />
+                      <TableNoData notFound={notFound} />
+                    </TableBody>
+                  </Table>
+                  )}
+                </>
+              )}
+            </Scrollbar>
+          </TableContainer>
 
-                  <TableNoData notFound={notFound} />
-                </TableBody>
-              </Table>)}
-          </Scrollbar>
-        </TableContainer>
+          <TablePaginationCustom
+            count={dataFiltered.length}
+            page={table.page}
+            rowsPerPage={table.rowsPerPage}
+            rowsPerPageOptions={[5, 15, 25]}
+            onPageChange={table.onChangePage}
+            onRowsPerPageChange={table.onChangeRowsPerPage}
 
-        <TablePaginationCustom
-          count={dataFiltered.length}
-          page={table.page}
-          rowsPerPage={table.rowsPerPage}
-          rowsPerPageOptions={[5, 15, 25]}
-          onPageChange={table.onChangePage}
-          onRowsPerPageChange={table.onChangeRowsPerPage}
-        //
-        // dense={table.dense}
-        // onChangeDense={table.onChangeDense}
-        />
-      </Card>
+          />
+      
+    </Card>
   );
 }
 

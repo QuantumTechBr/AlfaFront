@@ -91,7 +91,8 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
           setVersaoAvaliacao(response.data[0]);
         } else {
           setErrorMsg('Versão de avaliação não encontrada');
-          throw new Error('Versão de avaliação não encontrada');
+          setVersaoAvaliacao(null);
+          return;
         }
       }).catch((error) => {
         setErrorMsg('Erro de comunicação com a API de versão de avaliação');
@@ -128,7 +129,8 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
         });
       } else {
         setErrorMsg('Versão de avaliação não encontrada');
-        throw new Error('Versão de avaliação não encontrada');
+        setVersaoAvaliacao(null);
+        return;
       }
     });
     const habilidade_turma = novaTodasHabilidades.data.filter((habilidade) => String(habilidade.ano_escolar) == String(novaTurma.ano_escolar));
