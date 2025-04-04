@@ -17,6 +17,7 @@ import TableBody from '@mui/material/TableBody';
 import TableContainer from '@mui/material/TableContainer';
 import Iconify from 'src/components/iconify';
 import Scrollbar from 'src/components/scrollbar';
+import Tooltip from '@mui/material/Tooltip';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -90,22 +91,51 @@ export default function AlunoNewEditForm({ currentAluno }) {
 
   const anoAtual = new Date().getFullYear();
 
+  const podeAdicionarEscola = () => {
+    return tableData?.length < anosLetivos.length
+  }
+
   const botaoLabel = () => {
     return (
-      <Button
-        variant="contained"
-        onClick={() => {
-          edit.onTrue();
-          setRowToEdit();
-        }}
-        startIcon={<Iconify icon="mingcute:add-line" />}
-        sx={{
-          bgcolor: '#00A5AD',
+      <Tooltip
+        title={podeAdicionarEscola() ? 'Adicionar Escola' : "Aluno só pode estar em uma escola e turma por ano letivo."}
+        arrow
+        placement="top"
+        componentsProps={{
+          tooltip: {
+            sx: {
+              bgcolor: '#d3d3d3', 
+              color: '#333',
+              boxShadow: 1,
+              fontSize: '0.875rem',
+              textAlign: 'center', 
+            },
+          },
+          arrow: {
+            sx: {
+              color: '#d3d3d3', 
+            },
+          },
         }}
       >
-        Turma
-      </Button>
-    )
+        <Box>
+          <Button
+            variant="contained"
+            disabled={!podeAdicionarEscola()}
+            onClick={() => {
+              edit.onTrue();
+              setRowToEdit();
+            }}
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#00A5AD',
+            }}
+          >
+            Escola
+          </Button>
+        </Box>
+      </Tooltip>
+    );
   }
 
   const TABLE_HEAD = [
@@ -299,27 +329,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
       }
 
       setTableData(deleteRow);
-      // alunoMethods
-      //   .deleteAlunoById(id)
-      //   .then((retorno) => {
-      //     // setTableData(deleteRow);
-      //     buscaTurmas({ force: true });
-      //     contextReady.onFalse();
-      //     // buscando.onFalse(),
-      //     // tabelaPreparada.onFalse(),
-      //     setTableData([]);
-      //     setTimeout(preparacaoInicial, 1000);
-      //   })
-      //   .catch((error) => {
-      //     setErrorMsg(
-      //       'Erro de comunicação com a API de estudantes no momento da exclusão do estudante'
-      //     );
-      //     console.log(error);
-      //   });
-
-      // table.onUpdatePageDeleteRow(dataInPage.length);
-      // setCountAlunos(countAlunos - 1)
-
     },
     [tableData]
   );

@@ -60,10 +60,18 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
 
   const turmaRender = (turma ?? []).length > 0 ? turma?.reduce((acc, item) => acc + " Turma " + item.nome) : '';
 
-  const funcaoNome =
-  row.funcao_usuario?.length > 0 && row.funcao_usuario[0].funcao
-    ? row.funcao_usuario[0].nome_exibicao
-    : '';
+  let funcaoNome = '';
+  for (const funcao_usuario of row.funcao_usuario) {
+    if (funcao_usuario.funcao?.nome_exibicao && !funcaoNome.includes(funcao_usuario.funcao.nome_exibicao)) {
+      funcaoNome = funcaoNome + ', ' + funcao_usuario.nome_exibicao;
+    } else if (funcao_usuario.funcao?.nome && !funcaoNome.includes(funcao_usuario.funcao.nome)) {
+      funcaoNome = funcaoNome + ', ' + funcao_usuario.funcao.nome;
+    }
+    
+  }
+
+  funcaoNome = funcaoNome.replace(/^, /, '');
+  funcaoNome = funcaoNome.replace(/, $/, '');
 
   const renderZona = () => {
     for (let index = 0; index < zonas.length; index++) {
@@ -99,7 +107,11 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{email}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap', textTransform: 'capitalize' }}>{funcaoNome}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          <Tooltip title={funcaoNome}>
+            {funcaoNome.length > 20 ? funcaoNome.substring(0, 30) + '...' :  funcaoNome}
+          </Tooltip>
+        </TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderEscola()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{renderZona()}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{row?.turma ? 'SIM' : 'NÃO'}</TableCell>

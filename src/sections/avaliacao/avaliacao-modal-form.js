@@ -32,19 +32,24 @@ import { CloseIcon } from 'yet-another-react-lightbox';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { first } from 'lodash';
 
 // ----------------------------------------------------------------------
 
 export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const router = useRouter();
+  const {anosLetivos, buscaAnosLetivos} = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
 
+  const anoAtual = new Date().getFullYear();
+
   const defaultValues = {
+    anoLetivo: '',
     escola: '',
     turma: '',
     bimestre: '',
@@ -61,6 +66,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
       buscaEscolas(),
       buscaTurmas(),
       buscaBimestres(),
+      buscaAnosLetivos(),
     ]).finally(() => {
       contextReady.onTrue();
     });
@@ -89,6 +95,10 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
         label: escolas[0].nome,
         id: escolas[0].id,
       });
+    if (anosLetivos.length) {
+      const anoAtualId = anosLetivos.find((ano) => ano.ano == anoAtual)?.id || first(anosLetivos)?.id || '';
+      setValue('anoLetivo', anoAtualId);
+    }
   }, [contextReady.value]);
 
   const {
@@ -108,7 +118,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
         if (values.periodo != '') setValue('periodo', '');
       }
 
-      if (type == 'change' && name == 'escola') setValue('turma', '');
+      if (type == 'change' && (name == 'anoLetivo' || name == 'escola')) setValue('turma', '');
     });
 
     return () => subscription.unsubscribe();
@@ -116,7 +126,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   const values = watch();
 
-  const { tipo, escola, turma, periodo, bimestre } = values;
+  const { tipo, anoLetivo, escola, turma, periodo, bimestre } = values;
 
   const isTipoFase = tipo == 'Acompanhamento de Fase';
   const isTipoDiagnostico = tipo == 'Acompanhamento Diagnóstico';
@@ -138,7 +148,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.filter((_turma) => _turma.escola_id == escola.id).map((_turma) => (
+        {turmas.filter((_turma) => _turma.escola_id == escola.id && _turma.ano_id == anoLetivo).map((_turma) => (
           <MenuItem key={_turma.id} value={_turma.id}>
             {_turma.ano_escolar}º {_turma.nome} ({_turma.turno})
           </MenuItem>
@@ -195,6 +205,13 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
         <DialogContent>
           <br></br>
           <Box rowGap={3} display="grid">
+            <RHFSelect name="anoLetivo" label="Ano Letivo">
+              {anosLetivos.map((ano_letivo) => (
+                <MenuItem key={ano_letivo.id} value={ano_letivo.id}>
+                  {ano_letivo.ano}
+                </MenuItem>
+              ))}
+            </RHFSelect>
             <RHFSelect name="tipo" label="Tipo">
               {_tiposAvaliacao.map((tipo_avaliacao) => (
                 <MenuItem key={tipo_avaliacao} value={tipo_avaliacao}>
@@ -206,7 +223,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
             {/* FASE */}
             {isTipoFase && selectEscola()}
 
-            {isTipoFase && escola && selectTurma()}
+            {isTipoFase && anoLetivo && escola && selectTurma()}
 
             {isTipoFase && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
@@ -222,7 +239,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
             {isTipoDiagnostico && selectEscola()}
 
-            {isTipoDiagnostico && escola && selectTurma()}
+            {isTipoDiagnostico && anoLetivo && escola && selectTurma()}
 
             {isTipoDiagnostico && escola && turma && (
               <RHFSelect name="periodo" label="Perfil">
