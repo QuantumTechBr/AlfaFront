@@ -197,6 +197,11 @@ export default function UserNewEditForm({ currentUser }) {
   }
 
   const onSubmit = handleSubmit(async (data) => {
+    if (currentUser?.login == 'admin') {
+      setErrorMsg('Não é permitido editar o usuário admin diretamente! Por favor, entre em contato com o suporte técnico.');
+      return;
+    }
+
     try {
       if (data.funcao == "ADMIN" || data.funcao == "SUPERADMIN") {
         console.log(data.funcao)
