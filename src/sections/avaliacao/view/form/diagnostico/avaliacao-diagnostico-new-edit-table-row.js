@@ -47,6 +47,8 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
     // throw new Error('Não foi possível carregar as questões da avaliação');
   }
 
+  const disableFreq = ['AUSENTE', 'TRANSFERIDO(A)', 'PRESENTE MAS NÃO RESPONDEU O TESTE'];
+
   const freqCheck = values.registros[id]?.frequencia;
 
   const anoEscolar = turma?.ano_escolar;
@@ -159,7 +161,7 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
   }
 
   useEffect(() => {
-    if (freqCheck == 'Ausente') {
+    if (disableFreq.includes(freqCheck?.toUpperCase())) {
         setValue('registros[' + id + '].r', new Map());
       desabilitaResposta.onTrue()
     }
