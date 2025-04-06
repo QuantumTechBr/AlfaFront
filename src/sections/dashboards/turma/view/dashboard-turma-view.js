@@ -359,7 +359,8 @@ export default function DashboardTurmaView() {
 
   useEffect(() => {
     if (contextReady.value) {
-      const _turma = turmas.find((t) => t.id == initialTurma);
+      const _turma = turmas.find((t) => t.id == initialTurma) || turmas[0];
+      if (!_turma) return;
       const _escola = escolas.find((e) => e.id == _turma?.escola_id);
       const _anoLetivo = anosLetivos.find((a) => a.id == _turma?.ano_id);
 
@@ -370,7 +371,7 @@ export default function DashboardTurmaView() {
         escola: _escola ? [_escola] : [],
         turma: _turma?.id ? _turma : turmas.length == 1 ? turmas[0] : {},
         ...(bimestres && bimestres.length > 0 ? { bimestre: bimestres.find(
-          (b) => b.ano.id == _anoLetivo.id
+          (b) => b.ano.id == _anoLetivo?.id
         ) } : {}),
       };
       setFilters((prevState) => ({ ...prevState, ..._filters }));
@@ -691,10 +692,10 @@ export default function DashboardTurmaView() {
                   anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
                     filters.escola.map((e) => e.id).includes(t.escola_id)
                   ).filter((t) => t.ano_id == filters.anoLetivo.id)}
-                  bimestreOptions={bimestres.filter((b) => b.ano.id == filters.anoLetivo.id)}
-                  disableAnoLetivo={true}
-                  disableDdz={true}
-                  disableEscola={true}
+                  bimestreOptions={bimestres.filter((b) => b.ano.id == filters.anoLetivo?.id)}
+                  disableAnoLetivo={false}
+                  disableDdz={false}
+                  disableEscola={false}
 
                 />
               </Grid>
