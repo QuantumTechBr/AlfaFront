@@ -141,7 +141,7 @@ export default function DashboardTurmaTableToolbar({
         <Select
           size="small"
           multiple
-          disabled={disableDdz | user?.funcao_usuario?.length > 0 ? true : false}
+          disabled={disableDdz}
           value={filters.zona}
           onChange={handleFilterZona}
           input={<OutlinedInput fullWidth label="DDZ" />}
