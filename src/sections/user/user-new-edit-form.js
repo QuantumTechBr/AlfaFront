@@ -2,25 +2,25 @@ import PropTypes from 'prop-types';
 import * as Yup from 'yup';
 import { useCallback, useMemo, useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 // @mui
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import Checkbox from '@mui/material/Checkbox';
 import LoadingButton from '@mui/lab/LoadingButton';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Unstable_Grid2';
+import Tooltip from '@mui/material/Tooltip';
+import Iconify from 'src/components/iconify';
+import Table from '@mui/material/Table';
+import TableContainer from '@mui/material/TableContainer';
+import TableBody from '@mui/material/TableBody';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
 // components
 import { useSnackbar } from 'src/components/snackbar';
+import LoadingBox from 'src/components/helpers/loading-box';
 import FormProvider, {
   RHFSelect,
   RHFTextField,
@@ -35,11 +35,21 @@ import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 import { useAuthContext } from 'src/auth/hooks';
-import { tr } from 'date-fns/locale';
-import { get, set } from 'lodash';
 import { Button, IconButton } from '@mui/material';
-import { margin, width } from '@mui/system';
 import { useBoolean } from 'src/hooks/use-boolean';
+import {
+  useTable,
+  TableRow,
+  emptyRows,
+  TableCell,
+  TableNoData,
+  TableEmptyRows,
+  TableHeadCustom,
+  TablePaginationCustom,
+} from 'src/components/table';
+import UserFuncaoEditModal from './user-funcao-edit-modal';
+import UserFuncaoTableRow from './user-funcao-table-row';
+import { id } from 'date-fns/locale';
 
 // ----------------------------------------------------------------------
 const filtros = {
@@ -60,39 +70,47 @@ export default function UserNewEditForm({ currentUser }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
-  const [idsAssessorCoordenador, setIdsAssessorCoordenador] = useState([]);
-  const [idAssessorGestao, setIdAssessorGestao] = useState([]);
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [zonaCtrl, setZonaCtrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [selectNewAvatar, setSelectNewAvatar] = useState(false);
   const [enviandoImagem, setEnviandoImagem] = useState(false);
   const eAdmin = useBoolean(false);
+  const table = useTable();
+  const edit = useBoolean(false);
+  const [tableData, setTableData] = useState([]);
+  const [rowToEdit, setRowToEdit] = useState();
+  const contextReady = useBoolean(false);
 
   useEffect(() => {
-    buscaFuncoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de funções');
-    });
-    buscaEscolas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de escolas');
-    });
-    buscaZonas().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de zonas');
-    });
-    buscaPermissoes().catch((error) => {
-      setErrorMsg('Erro de comunicação com a API de permissoes');
+    Promise.all([
+      buscaFuncoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de funções');
+      }),
+      buscaEscolas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de escolas');
+      }),
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
+      buscaPermissoes().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de permissoes');
+      }),
+    ]).then(() => {
+      contextReady.onTrue();
     });
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
-    user.permissao_usuario.map((perm) => {
+    currentUser?.permissao_usuario?.map((perm) => {
       if (perm.nome === "SUPERADMIN") {
         eAdmin.onTrue();
         setValue('funcao', 'SUPERADMIN');
-      }
-      if (perm.nome === "ADMIN") {
+      } else if (perm.nome === "ADMIN") {
         eAdmin.onTrue();
         setValue('funcao', 'ADMIN');
+      } else {
+        eAdmin.onFalse();
       }
     })
   }, [user]);
@@ -122,8 +140,6 @@ export default function UserNewEditForm({ currentUser }) {
         })
       }
     });
-    setIdsAssessorCoordenador(idsAC);
-    setIdAssessorGestao(idAG);
     setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 
@@ -141,7 +157,7 @@ export default function UserNewEditForm({ currentUser }) {
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
-      funcao: currentUser?.funcao || currentUser?.permissao_usuario ? currentUser.permissao_usuario[0].nome : '',
+      funcao: currentUser?.funcao || currentUser?.permissao_usuario?.length > 0 ? currentUser.permissao_usuario[0].nome : '',
       status: (currentUser?.status ? "true" : "false") || '',
       zona: zonaCtrl,
       escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
@@ -197,9 +213,25 @@ export default function UserNewEditForm({ currentUser }) {
   }
 
   const onSubmit = handleSubmit(async (data) => {
-    if (currentUser?.login == 'admin') {
+    if (currentUser?.login == 'admin') { // usuário admin não pode ser editado pelo frontend
       setErrorMsg('Não é permitido editar o usuário admin diretamente! Por favor, entre em contato com o suporte técnico.');
       return;
+    }
+
+    // se usuario selecionado for superadmin, só pode ser editar por superadmin
+    // se usuario selecionado for admin, só pode ser editado por admin ou superadmin
+    if (eAdmin) { 
+      if (user.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "SUPERADMIN").length > 0) {
+        // SUPERADMIN edita qualquer usuário
+      } else if (currentUser?.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "SUPERADMIN").length > 0) {
+        // somente SUPERADMIN pode editar SUPERADMIN
+        setErrorMsg('Somente superadmin pode editar este usuário!');
+        return;
+      } else if (user.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "ADMIN").length == 0) {
+        // somente ADMIN ou SUPERADMIN pode editar ADMIN
+        setErrorMsg('Somente usuário admin ou superadmin pode editar este usuário!');
+        return;
+      }
     }
 
     try {
@@ -239,7 +271,7 @@ export default function UserNewEditForm({ currentUser }) {
         router.push(paths.dashboard.user.list);
         return;
       }
-      const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
+      // const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
       var novoUsuario = {}
       if (data.senha) {
         novoUsuario = {
@@ -257,45 +289,8 @@ export default function UserNewEditForm({ currentUser }) {
           status: data.status,
         }
       }
-      if (idsAssessorCoordenador.includes(data.funcao)) {
-        if (zonaCtrl == '') {
-          setErrorMsg('Voce deve selecionar uma zona');
-          return
-        } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: funcaoEscolhida.id,
-            zona_id: zonaCtrl,
-            nome_exibicao: funcaoEscolhida.nome_exibicao,
-          }];
-        }
-      } else if (idAssessorGestao.includes(data.funcao)) {
-        if (filters.escolasAG.length == 0) {
-          setErrorMsg('Voce deve selecionar uma ou mais escolas');
-        } else {
-          novoUsuario.funcao_usuario = [];
-          filters.escolasAG.map((escolaId) => {
-            novoUsuario.funcao_usuario.push({
-              funcao_id: funcaoEscolhida.id,
-              escola_id: escolaId,
-              nome_exibicao: funcaoEscolhida.nome_exibicao,
-            });
-          })
-        }
-
-      } else {
-        if (data.escola == '') {
-          setErrorMsg('Voce deve selecionar uma escola');
-          return
-        } else {
-          novoUsuario.funcao_usuario = [{
-            funcao_id: funcaoEscolhida.id,
-            escola_id: data.escola,
-            nome_exibicao: funcaoEscolhida.nome_exibicao,
-          }];
-        }
-      }
-      const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
-      novoUsuario.permissao_usuario_id = [permissao.id]
+      // const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
+      // novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
           throw error;
@@ -316,21 +311,50 @@ export default function UserNewEditForm({ currentUser }) {
     }
   });
 
-  useEffect(() => {
-    reset(defaultValues)
-    const escIds = [];
-    setZonaCtrl(currentUser?.zona);
-    if (currentUser?.escola) {
-      if (currentUser.escola[0]) {
-        currentUser.escola.map((escolaId) => {
-          escIds.push(escolaId)
+  const atualizaTableData = useCallback((user) => {
+    const data = []
+    if (user?.funcao_usuario?.length > 0) {
+      for (const funcaoUsuario of user.funcao_usuario) {
+        data.push({
+          ...funcaoUsuario,
+          user_id: user.id,
         })
       }
     }
-    const novosFiltros = {
-      escolasAG: escIds
+    setTableData(data);
+  }, []);
+
+
+  useEffect(() => {
+    reset(defaultValues);
+    // const escIds = [];
+    // setZonaCtrl(currentUser?.zona);
+    // if (currentUser?.escola) {
+    //   if (currentUser.escola[0]) {
+    //     currentUser.escola.map((escolaId) => {
+    //       escIds.push(escolaId)
+    //     })
+    //   }
+    // }
+    // const novosFiltros = {
+    //   escolasAG: escIds
+    // }
+    // setFilters(novosFiltros);
+
+    const data = []
+    if (eAdmin.value) {
+      return;
     }
-    setFilters(novosFiltros);
+    // if (currentUser?.funcao_usuario?.length > 0) {
+    //   for (const funcaoUsuario of currentUser.funcao_usuario) {
+    //     data.push({
+    //       ...funcaoUsuario,
+    //       user_id: currentUser.id,
+    //     })
+    //   }
+    // }
+    // setTableData(data);
+    atualizaTableData(currentUser);
   }, [currentUser, defaultValues, reset]);
 
 
@@ -380,91 +404,202 @@ export default function UserNewEditForm({ currentUser }) {
     [setValue]
   );
 
-  const escolaOuZona = () => {
-    if (idsAssessorCoordenador.includes(getValues('funcao'))) {
-      return (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-          }}
-        >
-          <InputLabel>DDZ</InputLabel>
-          <Select
-            id={`zona_` + `${currentUser?.id}`}
-            name="zona"
-            disabled={getValues('funcao') == '' ? true : false}
-            value={zonaCtrl}
-            onChange={handleZona}
-            label="DDZ"
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {zonas.map((zona) => (
-              <MenuItem key={zona.id} value={zona.id}>
-                <Box sx={{ textTransform: 'capitalize' }}>{zona.nome}</Box>
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )
+  
+  const handleSaveRow = async (novosDadosFuncaoUsuario) => {
+      setErrorMsg('');
+      let permissoesObjects = permissoes ?? await buscaPermissoes();
+      if (!permissoesObjects || permissoesObjects.length == 0) {
+        setErrorMsg('Permissões não encontradas!');
+        return;
+      }
+      // const _tableData = tableData.map((item) => {
+      //   if (item.id === novosDados.id) {
+      //     return { ...item, ...novosDados };
+      //   }
+      //   return item;
+      // });
+      // let novaLinha = {
+      //   id: novosDados.id,
+      //   usuario_id: currentUser.id,
+      //   funcao_id: novosDados.funcao.id,
+      //   escola_id: novosDados.escola?.id ?? null,
+      //   zona_id: novosDados.zona?.id ?? null,
+      // }
+      try {
+        // let promises = [];
+        const funcaoUsuario = {
+          id: novosDadosFuncaoUsuario.id,
+          funcao_id: novosDadosFuncaoUsuario.funcao.id,
+          escola_id: novosDadosFuncaoUsuario.escola?.id ?? null,
+          zona_id: novosDadosFuncaoUsuario.zona?.id ?? null,
+          nome_exibicao: novosDadosFuncaoUsuario.nome_exibicao,
+        }
+
+        if (!novosDadosFuncaoUsuario.id || novosDadosFuncaoUsuario.id == 'novo' || novosDadosFuncaoUsuario.id == '') {
+
+          // primeiro verifica se o usuário já tem a função na escola/zona
+          const funcaoUsuarioOld = tableData.find((item) => item.funcao_id == novosDadosFuncaoUsuario.funcao?.id && item.zona_id == novosDadosFuncaoUsuario.zona?.id && item.escola_id == novosDadosFuncaoUsuario.escola?.id);
+          if (funcaoUsuarioOld) {
+            setErrorMsg('Usuário já possui esta função na escola/zona!');
+            return;
+          }
+          // se não tiver, insere a nova funcao na lista do currentUser
+          currentUser.funcao_usuario.push(funcaoUsuario);
+
+          // verifica se o usuario já possui a permissão necessária para a função
+          let permissao = currentUser.permissao_usuario.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
+          if (!permissao) {
+            permissao = permissoesObjects.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
+            if (!permissao) {
+              setErrorMsg('Permissão não encontrada!');
+              return;
+            }
+            currentUser.permissao_usuario.push(permissao);
+          } 
+
+        } else {
+          // verifica se o usuário já tem a função na escola/zona repetida
+          const funcaoUsuarioRepetida = tableData.find((item) => item.funcao_id == novosDadosFuncaoUsuario.funcao.id && item.zona_id == novosDadosFuncaoUsuario.zona?.id && item.escola_id == novosDadosFuncaoUsuario.escola?.id && item.id != novosDadosFuncaoUsuario.id);
+          if (funcaoUsuarioRepetida) {
+            setErrorMsg('Usuário já possui esta função na escola/zona!');
+            return;
+          }
+          // adicionar permissao ao currentUser 
+          const permissao = permissoesObjects.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
+          if (!permissao) {
+            setErrorMsg('Permissão não encontrada!');
+            return;
+          }
+          currentUser.permissao_usuario.push({id: permissao.id});
+
+          currentUser.funcao_usuario = currentUser.funcao_usuario.map((item) => {
+            if (item.id === novosDadosFuncaoUsuario.id) {
+              return { ...item, ...funcaoUsuario };
+            }
+            return item;
+          });
+
+        }
+        // copiando permissoes para parametro de updateUserById
+        currentUser['permissao_usuario_id'] = currentUser.permissao_usuario.map((permissao) => permissao.id);
+        // atualiza o currentUser 
+        await userMethods.updateUserById(currentUser.id, currentUser).then((response) => {
+          // const _tableData = [];
+          // if (response.data?.funcao_usuario?.length > 0) {
+          //   for (const funcaoUsuario of response.data.funcao_usuario) {
+          //     _tableData.push({
+          //       ...funcaoUsuario,
+          //       user_id: currentUser.id,
+          //     })
+          //   }
+          // }
+          // setTableData(_tableData);
+          currentUser.funcao_usuario = response.data.funcao_usuario.map((item) => {
+            item.funcao_id = item.funcao.id;
+            item.zona_id = item.zona?.id ?? null;
+            item.escola_id = item.escola?.id ?? null;
+            return item;  
+          })
+          atualizaTableData(response.data);
+          enqueueSnackbar('Atualizado com sucesso!');
+        }).catch((error) => {
+          setErrorMsg('Erro ao atualizar usuário', error);
+          console.error(error);
+        }).finally(() => {
+          edit.onFalse();
+          setRowToEdit(null);
+        });
+        
+        // window.location.reload();
+      } catch (error) {
+        setErrorMsg('Tentativa de atualização de função do usuário falhou', error);
+        console.error(error);
+        // window.location.reload();
+      }
     }
-    if (idAssessorGestao.includes(getValues('funcao'))) {
-      return (
-        <FormControl
-          sx={{
-            flexShrink: 0,
-          }}
-        >
-          <InputLabel>Escolas</InputLabel>
-          <Select
-            multiple
-            id={`escolas_` + `${currentUser?.id}`}
-            name="escolas"
-            disabled={getValues('funcao') == '' ? true : false}
-            value={filters.escolasAG}
-            onChange={handleEscolasAG}
-            input={<OutlinedInput label="Escolas" />}
-            renderValue={renderValueEscolasAG}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {escolas?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escolasAG.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      )
-    } else if (getValues('funcao') == "ADMIN" || getValues('funcao') == "SUPERADMIN") {
-      return (
-       <></>
-      )
-    } else {
-      return (
-        <RHFSelect
-          id={`escola_` + `${currentUser?.id}`} disabled={getValues('funcao') == '' ? true : false} name="escola" label="Escola">
-          {escolas.map((escola) => (
-            <MenuItem key={escola.id} value={escola.id}>
-              {escola.nome}
-            </MenuItem>
-          ))}
-        </RHFSelect>
-      )
+
+  const handleDeleteRow = async (row) => {
+    setErrorMsg('');
+    if (!row || !row.id) {
+      setErrorMsg('Nenhum dado encontrado!');
+      return;
+    }
+    try {
+      currentUser.funcao_usuario = currentUser.funcao_usuario.filter((item) => item.id !== row.id);
+      const nomesPermissoes = currentUser.funcao_usuario.map((item) => item.funcao.nome);
+      currentUser['permissao_usuario_id'] =  permissoes.filter((permissao) => nomesPermissoes.includes(permissao.nome)).map((permissao) => permissao.id);
+      await userMethods.updateUserById(currentUser.id, currentUser).then((response) => {
+        atualizaTableData(response.data);
+        enqueueSnackbar('Atualizado com sucesso!');
+      }).catch((error) => {
+        setErrorMsg('Erro ao atualizar usuário', error);
+        console.error(error);
+      }).finally(() => {
+        edit.onFalse();
+        setRowToEdit(null);
+      });
+
+    } catch (error) {
+      setErrorMsg('Tentativa de atualização de função do usuário falhou', error);
+      console.error(error);
     }
   }
 
+  
+  const botaoLabel = () => {
+    return (
+      <Tooltip
+        title={'Atributir Função em Escola/Zona'}
+        arrow
+        placement="top"
+        componentsProps={{
+          tooltip: {
+            sx: {
+              bgcolor: '#d3d3d3', 
+              color: '#333',
+              boxShadow: 1,
+              fontSize: '0.875rem',
+              textAlign: 'center', 
+            },
+          },
+          arrow: {
+            sx: {
+              color: '#d3d3d3', 
+            },
+          },
+        }}
+      >
+        <Box>
+          <Button
+            variant="contained"
+            onClick={() => {
+              edit.onTrue();
+              setRowToEdit();
+            }}
+            startIcon={<Iconify icon="mingcute:add-line" />}
+            sx={{
+              bgcolor: '#00A5AD',
+            }}
+          >
+            Função
+          </Button>
+        </Box>
+      </Tooltip>
+    );
+  }
 
+  const saveAndClose = (retorno = null) => {
+    handleSaveRow(retorno);
+    edit.onFalse();
+  };
+  
+  const TABLE_HEAD = [
+    { id: 'funcao', label: 'Função', width: 400, notsortable: true },
+    { id: 'escola/zona', label: 'Escola/DDZ', width: 100, notsortable: true },
+    { id: '', label: botaoLabel(), width: 88 },
+  ];
 
   return (
-
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
@@ -548,29 +683,6 @@ export default function UserNewEditForm({ currentUser }) {
               <RHFTextField name="email" label="Email" />
               <RHFTextField name="senha" label="Nova Senha" type="password" />
 
-              <RHFSelect name="funcao" label="Função">
-
-                {funcoesOptions.map((_funcao) => (
-                  <MenuItem key={_funcao.nome_exibicao} value={_funcao.nome_exibicao}>
-                    {_funcao.nome_exibicao}
-                  </MenuItem>
-                ))}
-                {eAdmin &&
-
-                  <MenuItem key={"ADMIN"} value={"ADMIN"}>
-                    {"ADMIN"}
-                  </MenuItem>
-
-                }
-                {eAdmin &&
-
-                  <MenuItem key={"SUPERADMIN"} value={"SUPERADMIN"}>
-                    {"SUPERADMIN"}
-                  </MenuItem>
-
-                }
-              </RHFSelect>
-
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
                   <MenuItem key={status.value} value={status.value}>
@@ -580,19 +692,61 @@ export default function UserNewEditForm({ currentUser }) {
               </RHFSelect>
 
 
-              {escolaOuZona()}
-
-
 
             </Box>
+            {currentUser &&
+            <TableContainer sx={{ pt: 2, position: 'relative', overflow: 'unset'}}>
+
+              <Table>
+                <TableHeadCustom
+                  order={table.order}
+                  orderBy={table.orderBy}
+                  headLabel={TABLE_HEAD}
+                  rowCount={tableData.length}
+                  onSort={table.onSort}
+                />
+
+                <TableBody>
+                  {!contextReady.value ? (
+                          <LoadingBox texto="Carregando dependências" mt={4} />
+                  ) : (
+                  tableData.map((row) => (
+                    <UserFuncaoTableRow
+                      key={row.id}
+                      row={row}
+                      onEditRow={() => {
+                        edit.onTrue();
+                        setRowToEdit(row);
+                      }}
+                      onDeleteRow={() => handleDeleteRow(row)}
+                    />
+                  )))}
+
+                  <TableEmptyRows
+                    height={49}
+                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                  />
+
+                </TableBody>
+              </Table>
+
+            </TableContainer>}
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+              <LoadingButton type="submit" variant="contained" loading={isSubmitting || !contextReady.value}>
                 {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
               </LoadingButton>
             </Stack>
           </Card>
         </Grid>
       </Grid>
+      
+      <UserFuncaoEditModal
+        row={rowToEdit}
+        open={edit.value}
+        onClose={edit.onFalse}
+        onSave={saveAndClose}
+        funcoesOptions={funcoesOptions}
+      />
     </FormProvider>
   );
 }

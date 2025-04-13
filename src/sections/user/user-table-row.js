@@ -26,7 +26,7 @@ export default function UserTableRow({ row, quickEdit, onEditRow, onDeleteRow })
   const { checkPermissaoModulo } = useAuthContext();
   let funcaoNome = '';
   for (const funcao_usuario of row.funcao_usuario) {
-    if (funcao_usuario.funcao?.nome_exibicao && !funcaoNome.includes(funcao_usuario.funcao.nome_exibicao)) {
+    if (funcao_usuario.nome_exibicao && !funcaoNome.includes(funcao_usuario.nome_exibicao)) {
       funcaoNome = funcaoNome + ', ' + funcao_usuario.nome_exibicao;
     } else if (funcao_usuario.funcao?.nome && !funcaoNome.includes(funcao_usuario.funcao.nome)) {
       funcaoNome = funcaoNome + ', ' + funcao_usuario.funcao.nome;
