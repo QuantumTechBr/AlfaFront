@@ -21,16 +21,20 @@ import { Box } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
-export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRow }) {
+export default function UserFuncaoTableRow({ row, onEditRow, onDeleteRow }) {
   const { checkPermissaoModulo } = useAuthContext();
   const {
-    id,
-    ano_letivo,
+    funcao_usuario_id,
+    funcao,
+    usuario_id,
+    permissao,
     escola,
-    turma,
+    zona,
+    nome_exibicao
   } = row;
 
-  let ano_escolar = '';
+  const escolaOuZona = escola ? escola?.nome : zona ? zona?.nome : '';
+
   const confirm = useBoolean();
   const popover = usePopover();
 
@@ -39,40 +43,21 @@ export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRo
     confirm.onFalse();
   };
 
-  const nomeAluno = () => {
-    return (
-      <Box>
-        {nome}
-        {!!necessidades_especiais && (
-          <Tooltip title={necessidades_especiais}>
-            <Iconify
-              icon="mdi:alphabet-n-circle-outline"
-              sx={{
-                ml: 1,
-              }}
-            />
-          </Tooltip>
-        )}
-      </Box>
-    );
-  };
-
   return (
     <>
       <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escola?.nome ?? ''}</TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{turma?.nome ? `${turma?.ano_escolar}º ${turma?.nome} (${turma?.turno})` : ''} </TableCell>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{ano_letivo?.ano ?? ''}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome_exibicao ?? funcao.nome ?? ''}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{escolaOuZona} </TableCell>
         
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
           <Tooltip title="Edição Rápida" placement="top" arrow>
-            {checkPermissaoModulo('aluno', 'editar') && (
+            {checkPermissaoModulo('usuario', 'editar') && (
               <IconButton onClick={onEditRow}>
                 <Iconify icon="solar:pen-bold" />
               </IconButton>
             )}
           </Tooltip>
-          {(checkPermissaoModulo('aluno', 'deletar') || checkPermissaoModulo('aluno', 'editar')) && (
+          {(checkPermissaoModulo('aluno', 'deletar') || checkPermissaoModulo('usuario', 'editar')) && (
           <IconButton color={popover.open ? 'inherit' : 'default'} onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />
           </IconButton>
@@ -103,8 +88,8 @@ export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRo
       <ConfirmDialog
         open={confirm.value}
         onClose={confirm.onFalse}
-        title="Remover estudante da escola"
-        content="Tem certeza que deseja excluir o registro?"
+        title="Excluir Função do Usuário"
+        content="Tem certeza que deseja essa função?"
         action={
           <Button variant="contained" color="error" onClick={deleteRow}>
             Deletar
@@ -115,7 +100,7 @@ export default function AlunoEscolaTurmaAnoTableRow({ row, onEditRow, onDeleteRo
   );
 }
 
-AlunoEscolaTurmaAnoTableRow.propTypes = {
+UserFuncaoTableRow.propTypes = {
   row: PropTypes.object,
   onEditRow: PropTypes.func,
   onDeleteRow: PropTypes.func,

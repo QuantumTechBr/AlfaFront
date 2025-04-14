@@ -62,7 +62,7 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
 
   let funcaoNome = '';
   for (const funcao_usuario of row.funcao_usuario) {
-    if (funcao_usuario.funcao?.nome_exibicao && !funcaoNome.includes(funcao_usuario.funcao.nome_exibicao)) {
+    if (funcao_usuario.nome_exibicao && !funcaoNome.includes(funcao_usuario.nome_exibicao)) {
       funcaoNome = funcaoNome + ', ' + funcao_usuario.nome_exibicao;
     } else if (funcao_usuario.funcao?.nome && !funcaoNome.includes(funcao_usuario.funcao.nome)) {
       funcaoNome = funcaoNome + ', ' + funcao_usuario.funcao.nome;
@@ -74,12 +74,19 @@ export default function ProfissionalTableRow({ row, onEditRow, onDeleteRow, quic
   funcaoNome = funcaoNome.replace(/, $/, '');
 
   const renderZona = () => {
-    for (let index = 0; index < zonas.length; index++) {
-      if (zonas[index]?.id == zona) {
-        return zonas[index].nome
+    const list_retorno = []
+    for (const funcao_usuario of row.funcao_usuario) {
+      if (funcao_usuario.zona?.nome && !list_retorno.includes(funcao_usuario.zona.nome)) {
+        list_retorno.push(`- ${funcao_usuario.zona.nome}`)
       }
     }
-    return ''
+    return (
+      <div>
+           {list_retorno.map((li, index) => (
+            <Typography key={index}>{li}<br></br></Typography>
+          ))}
+    </div>
+    )
   }
 
   const renderEscola = () => {

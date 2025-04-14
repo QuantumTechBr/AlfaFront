@@ -32,8 +32,18 @@ export default function UserEditView({ id }) {
           funcao.push(usuario.data.funcao_usuario[index]?.nome_exibicao);
           escola.push(usuario.data.funcao_usuario[index].escola?.id);
           zona.push(usuario.data.funcao_usuario[index].zona?.id);
+          usuario.data.funcao_usuario[index]['nome_exibicao'] = usuario.data.funcao_usuario[index]?.nome_exibicao ?? usuario.data.funcao_usuario[index].funcao?.nome;
+          usuario.data.funcao_usuario[index]['escola_id'] = usuario.data.funcao_usuario[index].escola?.id ?? null;
+          usuario.data.funcao_usuario[index]['zona_id'] = usuario.data.funcao_usuario[index].zona?.id ?? null;
+          usuario.data.funcao_usuario[index]['funcao_id'] = usuario.data.funcao_usuario[index].funcao?.id ?? null;
         }
         usuario.data.funcao = funcao[0] ? funcao[0] : '';
+        if (usuario.data.permissao_usuario.length > 0) {
+          const permissaoAdmin = usuario.data.permissao_usuario.find((permissao) => permissao.nome === 'ADMIN' || permissao.nome === 'SUPERADMIN');
+          if (permissaoAdmin) {
+            usuario.data.funcao = permissaoAdmin.nome;
+          }
+        }
         usuario.data.escola = escola ? escola : '';
         usuario.data.zona = zona[0] ? zona[0] : '';
       } else {
