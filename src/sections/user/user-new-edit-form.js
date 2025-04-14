@@ -15,6 +15,7 @@ import Iconify from 'src/components/iconify';
 import Table from '@mui/material/Table';
 import TableContainer from '@mui/material/TableContainer';
 import TableBody from '@mui/material/TableBody';
+import { Button, IconButton } from '@mui/material';
 // routes
 import { paths } from 'src/routes/paths';
 import { useRouter } from 'src/routes/hook';
@@ -25,7 +26,6 @@ import FormProvider, {
   RHFSelect,
   RHFTextField,
   RHFUploadAvatar,
-  RHFSwitch
 } from 'src/components/hook-form';
 import { fData } from 'src/utils/format-number';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
@@ -36,21 +36,15 @@ import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
 import Alert from '@mui/material/Alert';
 import { useAuthContext } from 'src/auth/hooks';
-import { Button, IconButton } from '@mui/material';
 import { useBoolean } from 'src/hooks/use-boolean';
 import {
   useTable,
-  TableRow,
   emptyRows,
-  TableCell,
-  TableNoData,
   TableEmptyRows,
   TableHeadCustom,
-  TablePaginationCustom,
 } from 'src/components/table';
 import UserFuncaoEditModal from './user-funcao-edit-modal';
 import UserFuncaoTableRow from './user-funcao-table-row';
-import { id } from 'date-fns/locale';
 
 // ----------------------------------------------------------------------
 const filtros = {
@@ -616,8 +610,8 @@ export default function UserNewEditForm({ currentUser }) {
               }}
             >
               <RHFTextField name="nome" label="Nome Completo" />
-              <RHFTextField name="email" label="Email" />
-              <RHFTextField name="senha" label="Nova Senha" type="password" />
+              <RHFTextField name="email" label="Email" autoComplete="new-item"/>
+              <RHFTextField name="senha" label="Nova Senha" type="password" autoComplete="new-password"/>
 
               <RHFSelect name="status" label="Status">
                 {USER_STATUS_OPTIONS.map((status) => (
