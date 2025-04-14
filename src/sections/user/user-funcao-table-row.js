@@ -46,7 +46,7 @@ export default function UserFuncaoTableRow({ row, onEditRow, onDeleteRow }) {
   return (
     <>
       <TableRow hover>
-        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome_exibicao ?? funcao.nome ?? ''}</TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>{nome_exibicao ?? funcao?.nome ?? ''}</TableCell>
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{escolaOuZona} </TableCell>
         
         <TableCell align="right" sx={{ px: 1, whiteSpace: 'nowrap' }}>
