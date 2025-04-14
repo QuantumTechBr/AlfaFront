@@ -25,6 +25,7 @@ import FormProvider, {
   RHFSelect,
   RHFTextField,
   RHFUploadAvatar,
+  RHFSwitch
 } from 'src/components/hook-form';
 import { fData } from 'src/utils/format-number';
 import { USER_STATUS_OPTIONS } from 'src/_mock';
@@ -102,6 +103,7 @@ export default function UserNewEditForm({ currentUser }) {
   }, [buscaFuncoes, buscaEscolas, buscaZonas, buscaPermissoes]);
 
   useEffect(() => {
+    eAdmin.onFalse();
     currentUser?.permissao_usuario?.map((perm) => {
       if (perm.nome === "SUPERADMIN") {
         eAdmin.onTrue();
@@ -109,11 +111,9 @@ export default function UserNewEditForm({ currentUser }) {
       } else if (perm.nome === "ADMIN") {
         eAdmin.onTrue();
         setValue('funcao', 'ADMIN');
-      } else {
-        eAdmin.onFalse();
-      }
+      } 
     })
-  }, [user]);
+  }, [currentUser]);
 
   useEffect(() => {
     const idsAC = [];
@@ -218,22 +218,6 @@ export default function UserNewEditForm({ currentUser }) {
       return;
     }
 
-    // se usuario selecionado for superadmin, só pode ser editar por superadmin
-    // se usuario selecionado for admin, só pode ser editado por admin ou superadmin
-    if (eAdmin) { 
-      if (user.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "SUPERADMIN").length > 0) {
-        // SUPERADMIN edita qualquer usuário
-      } else if (currentUser?.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "SUPERADMIN").length > 0) {
-        // somente SUPERADMIN pode editar SUPERADMIN
-        setErrorMsg('Somente superadmin pode editar este usuário!');
-        return;
-      } else if (user.permissao_usuario.filter((perm_user) => perm_user.permissao.nome == "ADMIN").length == 0) {
-        // somente ADMIN ou SUPERADMIN pode editar ADMIN
-        setErrorMsg('Somente usuário admin ou superadmin pode editar este usuário!');
-        return;
-      }
-    }
-
     try {
       if (data.funcao == "ADMIN" || data.funcao == "SUPERADMIN") {
         console.log(data.funcao)
@@ -245,7 +229,9 @@ export default function UserNewEditForm({ currentUser }) {
             senha: data.senha,
             login: data.email,
             status: data.status,
-            permissao_usuario_id: [permissao.id]
+            permissao_usuario_id: [permissao.id],
+            funcao_usuario: []
+
           }
         } else {
           novoUsuario = {
@@ -253,7 +239,8 @@ export default function UserNewEditForm({ currentUser }) {
             email: data.email,
             login: data.email,
             status: data.status,
-            permissao_usuario_id: [permissao.id]
+            permissao_usuario_id: [permissao.id],
+            funcao_usuario: []
           }
         }
         if (currentUser) {
@@ -271,8 +258,10 @@ export default function UserNewEditForm({ currentUser }) {
         router.push(paths.dashboard.user.list);
         return;
       }
-      // const funcaoEscolhida = funcoesOptions.filter((func) => func.nome_exibicao === data.funcao)[0];
+
       var novoUsuario = {}
+      // vamos reenviar as permissões excluindo permissao de admin/superadmin caso haja
+      const permissoesValidas = currentUser.permissao_usuario.filter((permissao) => permissao.nome != 'ADMIN' && permissao.nome != 'SUPERADMIN');
       if (data.senha) {
         novoUsuario = {
           nome: data.nome,
@@ -280,6 +269,7 @@ export default function UserNewEditForm({ currentUser }) {
           senha: data.senha,
           login: data.email,
           status: data.status,
+          permissao_usuario_id: permissoesValidas?.map((permissao) => permissao.id),
         }
       } else {
         novoUsuario = {
@@ -287,10 +277,9 @@ export default function UserNewEditForm({ currentUser }) {
           email: data.email,
           login: data.email,
           status: data.status,
+          permissao_usuario_id: permissoesValidas?.map((permissao) => permissao.id),
         }
       }
-      // const permissao = permissoes.find((permissao) => permissao.nome == funcaoEscolhida.nome)
-      // novoUsuario.permissao_usuario_id = [permissao.id]
       if (currentUser) {
         await userMethods.updateUserById(currentUser.id, novoUsuario).catch((error) => {
           throw error;
@@ -327,33 +316,11 @@ export default function UserNewEditForm({ currentUser }) {
 
   useEffect(() => {
     reset(defaultValues);
-    // const escIds = [];
-    // setZonaCtrl(currentUser?.zona);
-    // if (currentUser?.escola) {
-    //   if (currentUser.escola[0]) {
-    //     currentUser.escola.map((escolaId) => {
-    //       escIds.push(escolaId)
-    //     })
-    //   }
-    // }
-    // const novosFiltros = {
-    //   escolasAG: escIds
-    // }
-    // setFilters(novosFiltros);
 
     const data = []
     if (eAdmin.value) {
       return;
     }
-    // if (currentUser?.funcao_usuario?.length > 0) {
-    //   for (const funcaoUsuario of currentUser.funcao_usuario) {
-    //     data.push({
-    //       ...funcaoUsuario,
-    //       user_id: currentUser.id,
-    //     })
-    //   }
-    // }
-    // setTableData(data);
     atualizaTableData(currentUser);
   }, [currentUser, defaultValues, reset]);
 
@@ -412,24 +379,11 @@ export default function UserNewEditForm({ currentUser }) {
         setErrorMsg('Permissões não encontradas!');
         return;
       }
-      // const _tableData = tableData.map((item) => {
-      //   if (item.id === novosDados.id) {
-      //     return { ...item, ...novosDados };
-      //   }
-      //   return item;
-      // });
-      // let novaLinha = {
-      //   id: novosDados.id,
-      //   usuario_id: currentUser.id,
-      //   funcao_id: novosDados.funcao.id,
-      //   escola_id: novosDados.escola?.id ?? null,
-      //   zona_id: novosDados.zona?.id ?? null,
-      // }
       try {
-        // let promises = [];
         const funcaoUsuario = {
           id: novosDadosFuncaoUsuario.id,
           funcao_id: novosDadosFuncaoUsuario.funcao.id,
+          funcao: novosDadosFuncaoUsuario.funcao,
           escola_id: novosDadosFuncaoUsuario.escola?.id ?? null,
           zona_id: novosDadosFuncaoUsuario.zona?.id ?? null,
           nome_exibicao: novosDadosFuncaoUsuario.nome_exibicao,
@@ -446,17 +400,6 @@ export default function UserNewEditForm({ currentUser }) {
           // se não tiver, insere a nova funcao na lista do currentUser
           currentUser.funcao_usuario.push(funcaoUsuario);
 
-          // verifica se o usuario já possui a permissão necessária para a função
-          let permissao = currentUser.permissao_usuario.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
-          if (!permissao) {
-            permissao = permissoesObjects.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
-            if (!permissao) {
-              setErrorMsg('Permissão não encontrada!');
-              return;
-            }
-            currentUser.permissao_usuario.push(permissao);
-          } 
-
         } else {
           // verifica se o usuário já tem a função na escola/zona repetida
           const funcaoUsuarioRepetida = tableData.find((item) => item.funcao_id == novosDadosFuncaoUsuario.funcao.id && item.zona_id == novosDadosFuncaoUsuario.zona?.id && item.escola_id == novosDadosFuncaoUsuario.escola?.id && item.id != novosDadosFuncaoUsuario.id);
@@ -464,13 +407,6 @@ export default function UserNewEditForm({ currentUser }) {
             setErrorMsg('Usuário já possui esta função na escola/zona!');
             return;
           }
-          // adicionar permissao ao currentUser 
-          const permissao = permissoesObjects.find((permissao) => permissao.nome == novosDadosFuncaoUsuario.funcao.nome);
-          if (!permissao) {
-            setErrorMsg('Permissão não encontrada!');
-            return;
-          }
-          currentUser.permissao_usuario.push({id: permissao.id});
 
           currentUser.funcao_usuario = currentUser.funcao_usuario.map((item) => {
             if (item.id === novosDadosFuncaoUsuario.id) {
@@ -481,19 +417,17 @@ export default function UserNewEditForm({ currentUser }) {
 
         }
         // copiando permissoes para parametro de updateUserById
-        currentUser['permissao_usuario_id'] = currentUser.permissao_usuario.map((permissao) => permissao.id);
+        const permissoes = [];
+        currentUser.funcao_usuario.map((item) => {
+          const permissao = permissoesObjects.find((permissao) => permissao.nome == item.funcao?.nome);
+          if (permissao) {
+            permissoes.push(permissao);
+          }
+        });
+        // atualiza o currentUser com as permissoes
+        currentUser['permissao_usuario_id'] = permissoes.map((permissao) => permissao.id);
         // atualiza o currentUser 
         await userMethods.updateUserById(currentUser.id, currentUser).then((response) => {
-          // const _tableData = [];
-          // if (response.data?.funcao_usuario?.length > 0) {
-          //   for (const funcaoUsuario of response.data.funcao_usuario) {
-          //     _tableData.push({
-          //       ...funcaoUsuario,
-          //       user_id: currentUser.id,
-          //     })
-          //   }
-          // }
-          // setTableData(_tableData);
           currentUser.funcao_usuario = response.data.funcao_usuario.map((item) => {
             item.funcao_id = item.funcao.id;
             item.zona_id = item.zona?.id ?? null;
@@ -510,11 +444,9 @@ export default function UserNewEditForm({ currentUser }) {
           setRowToEdit(null);
         });
         
-        // window.location.reload();
       } catch (error) {
         setErrorMsg('Tentativa de atualização de função do usuário falhou', error);
         console.error(error);
-        // window.location.reload();
       }
     }
 
@@ -603,9 +535,9 @@ export default function UserNewEditForm({ currentUser }) {
     <FormProvider methods={methods} onSubmit={onSubmit}>
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       <Grid container spacing={3}>
-        <Grid xs={12} md={8}>
+        <Grid sx={{ width: '100%' }} xs={12} md={12}>
           <Card sx={{ p: 3 }}>
-            {user?.id == currentUser?.id ?
+            {user?.id == currentUser?.id ? (
               <Box sx={{ mb: 5 }}>
                 <RHFUploadAvatar
                   name="avatar"
@@ -613,29 +545,33 @@ export default function UserNewEditForm({ currentUser }) {
                   onDrop={handleDrop}
                   helperText={
                     <>
-                      {selectNewAvatar && <div style={{
-                        width: 'min-content',
-                        margin: 'auto',
-                      }}>
-                        <LoadingButton
-                          variant="contained"
-                          loading={enviandoImagem}
-                          style={uploadImagemButtonStyle}
-                          onClick={updateUserAvatar}
+                      {selectNewAvatar && (
+                        <div
+                          style={{
+                            width: 'min-content',
+                            margin: 'auto',
+                          }}
                         >
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              m: '0',
-                              display: 'block',
-                              textAlign: 'center',
-                              color: 'white',
-                            }}
+                          <LoadingButton
+                            variant="contained"
+                            loading={enviandoImagem}
+                            style={uploadImagemButtonStyle}
+                            onClick={updateUserAvatar}
                           >
-                            Enviar imagem
-                          </Typography>
-                        </LoadingButton>
-                      </div>}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                m: '0',
+                                display: 'block',
+                                textAlign: 'center',
+                                color: 'white',
+                              }}
+                            >
+                              Enviar imagem
+                            </Typography>
+                          </LoadingButton>
+                        </div>
+                      )}
                       <Typography
                         variant="caption"
                         sx={{
@@ -653,7 +589,7 @@ export default function UserNewEditForm({ currentUser }) {
                   }
                 />
               </Box>
-              :
+            ) : (
               <>
                 <Box
                   component="img"
@@ -669,7 +605,7 @@ export default function UserNewEditForm({ currentUser }) {
                   }}
                 />
               </>
-            }
+            )}
             <Box
               rowGap={3}
               columnGap={2}
@@ -691,55 +627,105 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-
-
-            </Box>
-            {currentUser &&
-            <TableContainer sx={{ pt: 2, position: 'relative', overflow: 'unset'}}>
-
-              <Table>
-                <TableHeadCustom
-                  order={table.order}
-                  orderBy={table.orderBy}
-                  headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
-                  onSort={table.onSort}
-                />
-
-                <TableBody>
-                  {!contextReady.value ? (
-                          <LoadingBox texto="Carregando dependências" mt={4} />
-                  ) : (
-                  tableData.map((row) => (
-                    <UserFuncaoTableRow
-                      key={row.id}
-                      row={row}
-                      onEditRow={() => {
-                        edit.onTrue();
-                        setRowToEdit(row);
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  mt: 2,
+                  gridColumn: 'span 2',
+                  borderBottom: '1px solid',
+                  borderTop: '1px solid',
+                  borderColor: 'divider',
+                  py: 2,
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ mr: 2 }}>
+                  Usuário Admin?
+                </Typography>
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    variant={values.funcao === 'ADMIN' ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      if (values.funcao === 'ADMIN') {
+                        setValue('funcao', '');
+                        eAdmin.onFalse();
+                      } else {
+                        setValue('funcao', 'ADMIN')
+                        eAdmin.onTrue();
+                      }
                       }}
-                      onDeleteRow={() => handleDeleteRow(row)}
-                    />
-                  )))}
-
-                  <TableEmptyRows
-                    height={49}
-                    emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                  >
+                    ADMIN
+                  </Button>
+                  <Button
+                    variant={values.funcao === 'SUPERADMIN' ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      if (values.funcao === 'SUPERADMIN') {
+                        setValue('funcao', '');
+                        eAdmin.onFalse();
+                      } else {
+                        setValue('funcao', 'SUPERADMIN')
+                        eAdmin.onTrue();
+                      }
+                    }}
+                  >
+                    SUPERADMIN
+                  </Button>
+                </Stack>
+              </Box>
+            </Box>
+          </Card>
+            {currentUser && !eAdmin.value && (
+              
+              <TableContainer sx={{ pt: 2, position: 'relative', }}>
+                <Table>
+                  <TableHeadCustom
+                    order={table.order}
+                    orderBy={table.orderBy}
+                    headLabel={TABLE_HEAD}
+                    rowCount={tableData.length}
+                    onSort={table.onSort}
                   />
 
-                </TableBody>
-              </Table>
+                  <TableBody>
+                    {!contextReady.value ? (
+                      <LoadingBox texto="Carregando dependências" mt={4} />
+                    ) : (
+                      tableData.map((row) => (
+                        <UserFuncaoTableRow
+                          key={row.id}
+                          row={row}
+                          onEditRow={() => {
+                            edit.onTrue();
+                            setRowToEdit(row);
+                          }}
+                          onDeleteRow={() => handleDeleteRow(row)}
+                        />
+                      ))
+                    )}
 
-            </TableContainer>}
+                    <TableEmptyRows
+                      height={49}
+                      emptyRows={emptyRows(table.page, table.rowsPerPage, tableData.length)}
+                    />
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
             <Stack alignItems="flex-end" sx={{ mt: 3 }}>
-              <LoadingButton type="submit" variant="contained" loading={isSubmitting || !contextReady.value}>
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                loading={isSubmitting || !contextReady.value}
+              >
                 {!currentUser ? 'Criar Usuário' : 'Atualizar Usuário'}
               </LoadingButton>
             </Stack>
-          </Card>
+          
         </Grid>
       </Grid>
-      
+
       <UserFuncaoEditModal
         row={rowToEdit}
         open={edit.value}

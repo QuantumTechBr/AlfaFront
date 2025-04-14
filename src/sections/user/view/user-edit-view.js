@@ -38,6 +38,12 @@ export default function UserEditView({ id }) {
           usuario.data.funcao_usuario[index]['funcao_id'] = usuario.data.funcao_usuario[index].funcao?.id ?? null;
         }
         usuario.data.funcao = funcao[0] ? funcao[0] : '';
+        if (usuario.data.permissao_usuario.length > 0) {
+          const permissaoAdmin = usuario.data.permissao_usuario.find((permissao) => permissao.nome === 'ADMIN' || permissao.nome === 'SUPERADMIN');
+          if (permissaoAdmin) {
+            usuario.data.funcao = permissaoAdmin.nome;
+          }
+        }
         usuario.data.escola = escola ? escola : '';
         usuario.data.zona = zona[0] ? zona[0] : '';
       } else {
