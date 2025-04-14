@@ -151,7 +151,7 @@ export default function UserNewEditForm({ currentUser }) {
       nome: currentUser?.nome || '',
       email: currentUser?.email || '',
       senha: currentUser?.senha || '',
-      funcao: currentUser?.funcao || currentUser?.permissao_usuario?.length > 0 ? currentUser.permissao_usuario[0].nome : '',
+      funcao: currentUser?.funcao || currentUser?.permissao_usuario?.length > 0 ? currentUser?.permissao_usuario[0].nome : '',
       status: (currentUser?.status ? "true" : "false") || '',
       zona: zonaCtrl,
       escola: currentUser?.escola?.length == 1 ? currentUser?.escola[0] : '',
@@ -255,7 +255,7 @@ export default function UserNewEditForm({ currentUser }) {
 
       var novoUsuario = {}
       // vamos reenviar as permissões excluindo permissao de admin/superadmin caso haja
-      const permissoesValidas = currentUser.permissao_usuario.filter((permissao) => permissao.nome != 'ADMIN' && permissao.nome != 'SUPERADMIN');
+      const permissoesValidas = currentUser?.permissao_usuario.filter((permissao) => permissao.nome != 'ADMIN' && permissao.nome != 'SUPERADMIN');
       if (data.senha) {
         novoUsuario = {
           nome: data.nome,

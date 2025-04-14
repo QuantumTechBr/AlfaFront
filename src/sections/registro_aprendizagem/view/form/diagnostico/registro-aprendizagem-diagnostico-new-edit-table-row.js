@@ -321,7 +321,7 @@ export default function RegistroAprendizagemDiagnosticoNewEditTableRow({ row, se
   }, [freqCheck]);
 
   useEffect(() => {
-    user.permissao_usuario.map((perm) => {
+    user?.permissao_usuario.map((perm) => {
       if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
         eAdmin.onTrue();
       }

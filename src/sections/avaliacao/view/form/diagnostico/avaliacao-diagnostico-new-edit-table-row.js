@@ -171,7 +171,7 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
   }, [freqCheck]);
 
   useEffect(() => {
-    user.permissao_usuario.map((perm) => {
+    user?.permissao_usuario.map((perm) => {
       if (perm.nome === "SUPERADMIN" || perm.nome === "ADMIN") {
         eAdmin.onTrue();
       }
@@ -278,41 +278,39 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
 
       {preenche_R()}
 
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+      {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
           media_lp == '-' ? media_lp : media_lp.toFixed(1)
         }
-      </TableCell>
+      </TableCell> */}
 
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+      {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelDisciplina('Língua Portuguesa')}
-      </TableCell>
+      </TableCell> */}
 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelLP()}
       </TableCell>
-
+{/* 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
           media_mat == '-' ? media_mat : media_mat.toFixed(1)
-          // Math.trunc(mediaMAT()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
         }
-      </TableCell>
-
+      </TableCell> */}
+{/* 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelDisciplina('Matemática')}
-      </TableCell>
+      </TableCell> */}
 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelMAT()}
       </TableCell>
-
+{/* 
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
           media_final == '-' ? media_final : media_final.toFixed(1)
-          // Math.trunc(mediaFinal()) / 10 // DIVIDIMOS POR 10 PARA CRIAR 1 CASA APÓS A VÍRGULA
         }
-      </TableCell>
+      </TableCell> */}
 
       {/* <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelFinal()}

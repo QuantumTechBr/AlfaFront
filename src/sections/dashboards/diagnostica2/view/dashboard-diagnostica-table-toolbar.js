@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useState, useEffect } from 'react';
 
 // @mui
 import MenuItem from '@mui/material/MenuItem';
@@ -10,6 +10,8 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import Select from '@mui/material/Select';
 import Grid from '@mui/material/Unstable_Grid2';
+import TextField from '@mui/material/TextField';
+import Autocomplete from '@mui/material/Autocomplete';
 
 // components
 import _ from 'lodash';
@@ -28,6 +30,19 @@ export default function DashboardDiagnosticaTableToolbar({
   anoEscolarOptions,
 }) {
   const { user } = useContext(AuthContext);
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
+
+  useEffect(() => {
+    const escolasAC = [];
+    escolaOptions.map((escola) => {
+      const ea = {
+        label: escola.nome,
+        id: escola.id,
+      }
+      escolasAC.push(ea)
+    })
+    setEscolasFiltered(escolasAC);
+  }, [escolaOptions]);
 
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('anoLetivo', event.target.value),
@@ -45,14 +60,15 @@ export default function DashboardDiagnosticaTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
-      onFilters(
-        'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-      );
-    },
-    [onFilters]
-  );
+      (event, newValue) => {
+        onFilters(
+          'escola',
+          newValue,
+        );
+      },
+      [onFilters]
+    );
+
 
   const handleFilterAnoEscolar = useCallback(
     (event) => onFilters('anoEscolar', event.target.value),
@@ -74,13 +90,13 @@ export default function DashboardDiagnosticaTableToolbar({
     selected.map((item) => escolaOptions.find((option) => option.id == item.id)?.nome).join(', ');
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} alignItems="center" justifyContent="flex-start">
       {anoLetivoOptions && anoLetivoOptions.length > 0 && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 120 } }}>
-            <InputLabel size="small">Ano Letivo</InputLabel>
+            <InputLabel size='small'>Ano Letivo</InputLabel>
             <Select
-              size="small"
+              size='small'
               value={filters.anoLetivo}
               onChange={handleFilterAnoLetivo}
               input={<OutlinedInput fullWidth label="Ano Letivo" />}
@@ -103,9 +119,9 @@ export default function DashboardDiagnosticaTableToolbar({
       {ddzOptions && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 140 } }}>
-            <InputLabel size="small">DDZ</InputLabel>
+            <InputLabel size='small'>DDZ</InputLabel>
             <Select
-              size="small"
+              size='small'
               disabled={user?.funcao_usuario?.length > 0 ? true : false}
               value={filters.zona}
               onChange={handleFilterDDZ}
@@ -130,29 +146,18 @@ export default function DashboardDiagnosticaTableToolbar({
       {escolaOptions && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 300 } }}>
-            <InputLabel size="small">Escolas</InputLabel>
-
-            <Select
-              size="small"
+            <Autocomplete
+              size='small'
               multiple
+              disablePortal
+              id="escola"
+              options={escolasFiltered}
+              renderInput={(params) => <TextField {...params} label="Escolas" />}
               value={filters.escola}
               onChange={handleFilterEscola}
               disabled={filters.zona === '' ? true : false}
-              input={<OutlinedInput fullWidth label="Escolas" />}
-              renderValue={renderValueEscola}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {escolaOptions?.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </Select>
+            />
+            
           </FormControl>
         </Grid>
       )}

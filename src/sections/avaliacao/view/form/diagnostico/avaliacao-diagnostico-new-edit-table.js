@@ -148,14 +148,8 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
         descritivoMAT += ` (resultado do item ${numUltimaQuestoesMat})`;
       }
     }
-    cabecalho.push({ id: 'mediaLP', label: 'MÉDIA LP', width: 70 });
-    cabecalho.push({ id: 'nvEscrita', label: descritivoLP, width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvLP', label: 'FASE ALFABÉTICA', width: 50 });
-    cabecalho.push({ id: 'mediaMAT', label: 'MÉDIA MAT', width: 70 });
-    cabecalho.push({ id: 'nvResolucao', label: descritivoMAT, width: 200, minWidth: 200 });
     cabecalho.push({ id: 'nvMAT', label: 'LETRAMENTO MATEMÁTICO', width: 50 });
-    cabecalho.push({ id: 'mediaFinal', label: 'Média Final', width: 50 });
-    // cabecalho.push({ id: 'nivelFinal', label: 'NÍVEL FINAL', width: 50 });
     setTableHead(cabecalho);
     setTableData(alunosTurma == undefined ? [] : alunosTurma);
   }, [habilidades, alunosTurma, versaoAvaliacao]);
