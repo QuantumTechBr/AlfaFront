@@ -60,15 +60,14 @@ export default function DashboardDiagnosticaTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-      (event, newValue) => {
-        onFilters(
-          'escola',
-          typeof newValue === 'string' ? newValue.split(',') : newValue
-        );
-      },
-      [onFilters]
-    );
-
+    (event) => {
+      onFilters(
+        'escola',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
 
   const handleFilterAnoEscolar = useCallback(
     (event) => onFilters('anoEscolar', event.target.value),
@@ -146,7 +145,7 @@ export default function DashboardDiagnosticaTableToolbar({
       {escolaOptions && (
         <Grid xs={6} md="auto">
           <FormControl sx={{ width: { xs: '100%', md: 300 } }}>
-            <Autocomplete
+            {/* <Autocomplete
               size='small'
               multiple
               disablePortal
@@ -156,7 +155,29 @@ export default function DashboardDiagnosticaTableToolbar({
               value={filters.escola}
               onChange={handleFilterEscola}
               disabled={filters.zona === '' ? true : false}
-            />
+            /> */}
+
+            <Select
+              size="small"
+              multiple
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              disabled={filters.zona === '' ? true : false}
+              input={<OutlinedInput fullWidth label="Escolas" />}
+              renderValue={renderValueEscola}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {escolaOptions?.map((option) => (
+                <MenuItem key={option.id} value={option}>
+                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                  {option.nome}
+                </MenuItem>
+              ))}
+            </Select>
             
           </FormControl>
         </Grid>
