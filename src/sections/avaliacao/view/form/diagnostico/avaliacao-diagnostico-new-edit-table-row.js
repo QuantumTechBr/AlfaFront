@@ -140,7 +140,7 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
       return 'FASE PRÉ-LETRAMENTO';
     } else if (media_mat < 8) {
       return 'FASE LETRAMENTO PARCIAL';
-    } else if (media_mat >= 10) {
+    } else if (media_mat >= 8) {
       return 'FASE LETRAMENTO COMPLETO';
     } else {
       return '-';
