@@ -1710,7 +1710,7 @@ function RowEscola(props) {
           color="primary"
           variant="contained"
           size="small"
-          onClick={() => filterOnClick(row.escola_id)}
+          onClick={() => filterOnClick([row])}
         >
           Ver turmas
         </Button>

@@ -63,7 +63,7 @@ export default function DashboardDiagnosticaTableToolbar({
       (event, newValue) => {
         onFilters(
           'escola',
-          newValue,
+          typeof newValue === 'string' ? newValue.split(',') : newValue
         );
       },
       [onFilters]
