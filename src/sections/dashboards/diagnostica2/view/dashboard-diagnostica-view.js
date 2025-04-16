@@ -1351,6 +1351,13 @@ export default function DashboardDiagnosticaView() {
                           title={`${_anoEscolar}º Ano`}
                           chartSeries={Object.values(_desempenhoGeralChartSeries)}
                           sx={{ overflow: 'visible' }}
+                          other={{
+                            categories: [
+                              'FASE PRE-ALFABETICA',
+                              'FASE ALFABETICA PARCIAL',
+                              'FASE ALFABETICA COMPLETA',
+                            ],
+                          }}
                         />
                       </Grid>
                       <Grid xs={12} lg={4}>
@@ -1360,6 +1367,13 @@ export default function DashboardDiagnosticaView() {
                             desempenhoChartSeries('lingua_portuguesa', _anoEscolar)
                           )}
                           sx={{ overflow: 'visible' }}
+                          other={{
+                            categories: [
+                              'FASE PRE-ALFABETICA',
+                              'FASE ALFABETICA PARCIAL',
+                              'FASE ALFABETICA COMPLETA',
+                            ],
+                          }}
                         />
                       </Grid>
                       <Grid xs={12} lg={4}>
@@ -1369,6 +1383,13 @@ export default function DashboardDiagnosticaView() {
                             desempenhoChartSeries('matematica', _anoEscolar)
                           )}
                           sx={{ overflow: 'visible' }}
+                          other={{
+                            categories: [
+                              'FASE PRE-LETRAMENTO',
+                              'FASE LETRAMENTO PARCIAL',
+                              'FASE LETRAMENTO COMPLETO',
+                            ],
+                          }}
                         />
                       </Grid>
                     </Grid>
