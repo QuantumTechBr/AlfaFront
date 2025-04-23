@@ -22,7 +22,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 // ----------------------------------------------------------------------
 
 export default function DashboardDiagnosticaTableToolbar({
-  filters,
+  filters = { escola: [] }, // Ensure filters.escola is initialized as an array
   onFilters,
   anoLetivoOptions,
   ddzOptions,
@@ -145,43 +145,6 @@ export default function DashboardDiagnosticaTableToolbar({
 
       {escolaOptions && (
         <Grid xs={6} md="auto">
-          <FormControl sx={{ width: { xs: '100%', md: 300 } }}>
-            {/* <Autocomplete
-              size='small'
-              multiple
-              disablePortal
-              id="escola"
-              options={escolasFiltered}
-              renderInput={(params) => <TextField {...params} label="Escolas" />}
-              value={filters.escola}
-              onChange={handleFilterEscola}
-              disabled={filters.zona === '' ? true : false}
-            /> */}
-            
-            <InputLabel size='small'>Escolas</InputLabel>
-            <Select
-              size="small"
-              multiple
-              value={filters.escola}
-              onChange={handleFilterEscola}
-              disabled={filters.zona === '' ? true : false}
-              input={<OutlinedInput fullWidth label="Escolas" />}
-              renderValue={renderValueEscola}
-              MenuProps={{
-                PaperProps: {
-                  sx: { maxHeight: 240 },
-                },
-              }}
-            >
-              {escolaOptions?.map((option) => (
-                <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters?.escola?.includes(option)} />
-                  {option.nome}
-                </MenuItem>
-              ))}
-            </Select>
-            
-          </FormControl>
           <FormControl sx={{ width: { xs: '100%', md: 300 } }}>
             <Autocomplete
               size='small'

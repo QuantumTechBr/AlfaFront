@@ -77,6 +77,7 @@ import { paths } from 'src/routes/paths';
 import { preDefinedZonaOrder } from 'src/_mock';
 import DesempenhoComponent from '../components/desempenho-component';
 import { escolas_piloto } from 'src/_mock';
+import { id } from 'date-fns/locale';
 
 export default function DashboardDiagnosticaView() {
   const ICON_SIZE = 65;
@@ -241,7 +242,7 @@ export default function DashboardDiagnosticaView() {
       table.onResetPage();
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
-      let escola = filters.escola.map((e) => e.id);
+      let escola = _filtersToSearch.escola.map((e) => e.id);
       let escFiltered = [];
       if (sessionStorage.getItem('escolasPiloto') == 'true') {
         escolas.map((esc) => {
@@ -1441,20 +1442,17 @@ export default function DashboardDiagnosticaView() {
                                 isZonaFiltered={isZonaFiltered}
                                 isEscolaFiltered={isEscolaFiltered}
                                 onSetOpen={(open) => onSetOpen(open)}
-                                filterOnClick={(id) => {
+                                filterOnClick={(object) => {
                                   if (isEscolaFiltered) {
                                     return false;
                                   } else if (isZonaFiltered) {
-                                    const _filters = handleFilters(
-                                      'escola',
-                                      _.filter(escolas, (_escola) => _escola.id == id)
-                                    );
+                                    const _filters = handleFilters('escola', [{label: object.escola_nome, id: object.escola_id}]);
                                     setFiltersApplied(_filters);
                                     preencheGraficos(_filters);
                                   } else {
                                     const _filters = handleFilters(
                                       'zona',
-                                      _.find(zonas, (_zona) => _zona.id == id)
+                                      _.find(zonas, (_zona) => _zona.id == object)
                                     );
                                     setFiltersApplied(_filters);
                                     preencheGraficos(_filters);
@@ -1731,7 +1729,7 @@ function RowEscola(props) {
           color="primary"
           variant="contained"
           size="small"
-          onClick={() => filterOnClick([row])}
+          onClick={() => filterOnClick(row)}
         >
           Ver turmas
         </Button>
