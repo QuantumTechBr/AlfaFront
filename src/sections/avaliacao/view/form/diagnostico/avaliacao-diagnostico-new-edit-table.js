@@ -68,35 +68,25 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
 
   const values = watch();
   const labelHabilidade = (hab, i) => {
-    const list_retorno = [];
-    list_retorno.push(`- ${hab[0].nome}: `);
-    list_retorno.push(` ${hab[0].descricao}\n`);
-    list_retorno.push(`- ${hab[1].nome}: `);
-    list_retorno.push(` ${hab[1].descricao} `);
-    // const nome_1 = habilidades[0].nome;
-    // const descricao_1 = habilidades[0].descricao;
-    // const nome_2 = habilidades[1].nome;
-    // const descricao_2 = habilidades[1].descricao;
-    // ''.concat(...list_retorno)]
-    <br></br>;
+    // <br></br>;
     return (
       <Box>
         {`R${i}`}
-        <Tooltip
-          title={
-            // ''.concat(...list_retorno)
-            <React.Fragment>
-              <Typography color="inherit">Tooltip with HTML</Typography>
-              "a1b2b3"
-            </React.Fragment>
-          }
-        >
-          <InfoIcon
-            sx={{
-              fontSize: 'large',
-            }}
-          />
-        </Tooltip>
+        {hab?.descricao && (
+          <Tooltip
+            title={
+              <React.Fragment>
+                <Typography color="inherit">{hab?.nome + ' - ' + hab?.descricao}</Typography>
+              </React.Fragment>
+            }
+          >
+            <InfoIcon
+              sx={{
+                fontSize: 'large',
+              }}
+            />
+          </Tooltip>
+        )}
       </Box>
     );
   };
@@ -126,7 +116,8 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
       for (const questao of questoes) {
         cabecalho.push({
           id: `R${questao.numero_questao}`,
-          label: `R${questao.numero_questao}`,
+          label: labelHabilidade(questao.habilidade, questao.numero_questao),
+          // label: `R${questao.numero_questao}`,
           width: 50,
         });
         if (questao.disciplina.nome == 'Língua Portuguesa') {
