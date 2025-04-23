@@ -24,7 +24,7 @@ import {
   LanguagePopover,
   NotificationsPopover,
 } from '../_common';
-import { Box, Typography } from '@mui/material';
+import { Box, Tooltip, Typography } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import { Controller, useFormContext } from 'react-hook-form';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -56,11 +56,54 @@ export default function Header({ onOpenNav }) {
 
   const offsetTop = offset && !isNavHorizontal;
 
-  const showEscolaInfo =
-    user?.permissao_usuario[0]?.nome == 'PROFESSOR' ||
-    user?.permissao_usuario[0]?.nome == 'DIRETOR';
-  const showDDZInfo = user?.permissao_usuario[0]?.nome == 'ASSESSOR DDZ';
-  const showFullInfo = showEscolaInfo || showDDZInfo;
+  // const showEscolaInfo =
+  //   user?.permissao_usuario[0]?.nome == 'PROFESSOR' ||
+  //   user?.permissao_usuario[0]?.nome == 'DIRETOR';
+  // const showDDZInfo = user?.permissao_usuario[0]?.nome == 'ASSESSOR DDZ';
+  // const showFullInfo = showEscolaInfo || showDDZInfo;
+
+  let funcaoPermissaoNome = '';
+  let funcaoPermissaoNomeTooltip = '';
+  let escolasNomes = '';
+  let escolaNomeAbreviado = '';
+  let ddzNomeAbreviado = '';
+  let ddzNomes = '';
+  if (user?.funcao_usuario?.length == 0) {
+    funcaoPermissaoNome = user?.permissao_usuario[0]?.nome;
+    funcaoPermissaoNomeTooltip = user?.permissao_usuario[0]?.nome;
+  } else if (user?.funcao_usuario?.length == 1) {
+    funcaoPermissaoNome = user?.funcao_usuario[0]?.nome_exibicao;
+    funcaoPermissaoNomeTooltip = user?.funcao_usuario[0]?.nome_exibicao;
+    escolasNomes = user?.funcao_usuario[0]?.escola?.nome;
+    escolaNomeAbreviado = user?.funcao_usuario[0]?.escola?.nome_abreviado;
+    ddzNomeAbreviado = user?.funcao_usuario[0]?.zona?.nome_abreviado;
+    ddzNomes = user?.funcao_usuario[0]?.zona?.nome;
+  } else if (user?.funcao_usuario?.length > 1) {
+    const nomesEscolas = []
+    const nomesDDZ = []
+    const nomesFuncoes = []
+    for (let i = 1; i < user?.funcao_usuario.length; i++) {
+      if (user?.funcao_usuario[i]?.escola && !nomesEscolas.includes(user?.funcao_usuario[i]?.escola?.nome)) {
+        nomesEscolas.push(user?.funcao_usuario[i]?.escola?.nome)
+      } else if (user?.funcao_usuario[i]?.zona && !nomesDDZ.includes(user?.funcao_usuario[i]?.zona?.nome)) {
+        nomesDDZ.push(user?.funcao_usuario[i]?.zona?.nome)
+      }
+      if (!nomesFuncoes.includes(user?.funcao_usuario[i]?.nome_exibicao)) {
+        nomesFuncoes.push(user?.funcao_usuario[i]?.nome_exibicao)
+      }
+    }
+    funcaoPermissaoNomeTooltip = nomesFuncoes.join(', ');
+    escolasNomes = nomesEscolas.join(', ')
+    ddzNomes = nomesDDZ.join(', ')
+    funcaoPermissaoNome = nomesFuncoes.length > 1 ? nomesFuncoes.length.toString() + ' funções' : nomesFuncoes[0];
+    escolaNomeAbreviado = nomesEscolas.length > 1 ? nomesEscolas.length.toString() + ' escolas' : nomesEscolas[0];
+    ddzNomeAbreviado = nomesDDZ.length > 1 ? nomesDDZ.length.toString() + ' DDZs' : nomesDDZ[0];
+  }
+
+
+  
+
+
 
 
   const onSelectEP = useCallback(() => {
@@ -111,28 +154,25 @@ export default function Header({ onOpenNav }) {
         </Box>
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
-            {user?.nome}
-            {showFullInfo ? ` - ${user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0].nome : user?.funcao_usuario[0]?.nome_exibicao}` : ''}
+            {user?.nome + ' - '}
+            <Tooltip title={funcaoPermissaoNomeTooltip} placement="top" arrow>
+              {funcaoPermissaoNome}
+            </Tooltip>
           </Typography>
 
           <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {showEscolaInfo
-              ? [
-                user?.funcao_usuario[0]?.escola?.nome,
-                user?.funcao_usuario[0]?.escola?.cidade?.nome,
-                user?.funcao_usuario[0]?.escola?.zona?.nome,
-              ].join(' - ')
-              : null}
+            {escolaNomeAbreviado ? 
+              <Tooltip title={escolasNomes} placement="top" arrow>
+                {escolaNomeAbreviado}
+              </Tooltip> : null}
+            {ddzNomeAbreviado && ddzNomeAbreviado ? 
+            ' e ' : null}
+            {ddzNomeAbreviado ?
+              <Tooltip title={ddzNomes} placement="top" arrow>
+                {ddzNomeAbreviado}
+              </Tooltip> : null}
 
-            {showDDZInfo
-              ? [
-                user?.funcao_usuario[0]?.zona?.cidade?.nome,
-                user?.funcao_usuario[0]?.zona?.nome,
-              ].join(' - ')
-              : null}
-
-            {!showFullInfo ? user?.funcao_usuario.length == 0 ? user?.permissao_usuario[0]?.nome : user?.funcao_usuario[0]?.nome_exibicao : null}
-          </Typography>
+            </Typography>
         </Box>
 
         <AccountPopover />

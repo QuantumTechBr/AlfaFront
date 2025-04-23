@@ -48,7 +48,6 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const [anosLetivosOptions, setAnosLetivosOptions] = useState([]);
 
   function removeItemOnce(arr, value) {
@@ -78,7 +77,6 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
     if (open) {
       Promise.all([
         buscaEscolas()
-          .then((_escolas) => setEscolasAssessor(_escolas))
           .catch((error) => {
             setErrorMsg('Erro de comunicação com a API de escolas');
           }),
@@ -155,13 +153,9 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
 
   useEffect(() => {
     if (contextReady.value) {
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
+      if (user?.funcao_usuario?.length == 1 && user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
         setValue('escola', user.funcao_usuario[0].escola.id);
-      } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        setEscolasAssessor(
-          escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
-        );
-      }
+      } 
     }
   }, [contextReady.value, escolas, setValue, user.funcao_usuario]);
 
@@ -206,7 +200,6 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
               <RHFSelect
                 sx={{}}
                 id={`ano_letivo` + `${currentAluno?.id}`}
-                disabled={user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR' ? true : false}
                 name="ano_letivo"
                 label="Ano Letivo"
               >

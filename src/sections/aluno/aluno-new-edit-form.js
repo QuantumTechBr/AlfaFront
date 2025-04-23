@@ -68,7 +68,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
   const { escolas, buscaEscolas, buscaEscola } = useContext(EscolasContext);
   const { turmas, buscaTurmas, buscaTurma } = useContext(TurmasContext);
   const { enqueueSnackbar } = useSnackbar();
-  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
   const table = useTable();
   const [tableData, setTableData] = useState([]);
   const [mapEscolaInicial, setMapEscolaInicial] = useState([]);
@@ -285,9 +284,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   }, [currentAluno]);
 
   useEffect(() => {
-    buscaEscolas().then(_escolas => {
-      setEscolasAssessor(_escolas)
-    }).catch((error) => {
+    buscaEscolas().catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {
@@ -297,14 +294,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
       setErrorMsg('Erro de comunicação com a API de anos letivos');
     });
   }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
-
-  useEffect(() => {
-    if (user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR") {
-      setValue('escola', user.funcao_usuario[0].escola.id)
-    } else if (user?.funcao_usuario[0]?.funcao?.nome == "ASSESSOR DDZ") {
-      setEscolasAssessor(escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id))
-    }
-  }, [escolas, setValue, user.funcao_usuario]);
 
   const handleDeleteRow = useCallback(
     (row) => {
@@ -451,36 +440,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
                     )}
                   />
                 </LocalizationProvider>
-
-                {/* {!currentAluno &&
-                  <>
-                    <RHFSelect sx={{
-                    }} id={`escola_` + `${currentAluno?.id}`} disabled={user?.funcao_usuario[0]?.funcao?.nome == "DIRETOR" ? true : false} name="escola" label="Escola">
-                      {escolasAssessor.map((escola) => (
-                        <MenuItem key={escola.id} value={escola.id}>
-                          {escola.nome}
-                        </MenuItem>
-                      ))}
-                    </RHFSelect>
-                    <RHFSelect 
-                    emptyRows="teste"
-                    sx={{
-                      display: getValues('escola') ? "inherit" : "none"
-                    }} id={`turma_` + `${currentAluno?.id}`} disabled={getValues('escola') == '' ? true : false} name="turma" label="Turma">
-                      {!!turmasEscolaAno() && turmasEscolaAno().length > 0 ? (
-                        turmasEscolaAno().map((turma) => (
-                          <MenuItem key={turma.id} value={turma.id}>
-                            {turma.ano_escolar}º {turma.nome} ({turma.turno})
-                          </MenuItem>
-                        ))
-                      ) : (
-                        <MenuItem disabled>
-                          Nenhuma turma disponível para a escola selecionada no ano letivo atual.
-                        </MenuItem>
-                      )}
-                    </RHFSelect>
-                  </>
-                } */}
 
                 <RHFMultiSelect
                   name="necessidades_especiais"

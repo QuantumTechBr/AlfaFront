@@ -48,7 +48,6 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
-  const [escolasAssessor, setEscolasAssessor] = useState(escolas);
 
   const NewTurmaSchema = Yup.object().shape({
     nome: Yup.string().required('Nome é obrigatório'),
@@ -62,7 +61,6 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
     if (open) {
       Promise.all([
         buscaEscolas()
-          .then((_escolas) => setEscolasAssessor(_escolas))
           .catch((error) => {
             setErrorMsg('Erro de comunicação com a API de escolas');
           }),
@@ -152,18 +150,6 @@ export default function AlunoQuickEditForm({ row, open, onClose, onSave }) {
       reset(defaultValues);
     }
   }, [currentAluno]);
-  
-  useEffect(() => {
-    if (contextReady.value) {
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
-        setValue('escola', user.funcao_usuario[0].escola.id);
-      } else if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        setEscolasAssessor(
-          escolas.filter((escola) => escola.zona.id == user.funcao_usuario[0].zona.id)
-        );
-      }
-    }
-  }, [contextReady.value, escolas, setValue, user.funcao_usuario]);
 
   return (
     <Dialog
