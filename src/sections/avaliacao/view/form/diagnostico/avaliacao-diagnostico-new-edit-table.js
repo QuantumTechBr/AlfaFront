@@ -76,7 +76,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
           <Tooltip
             title={
               <React.Fragment>
-                <Typography color="inherit">{hab?.nome - hab?.descricao}</Typography>
+                <Typography color="inherit">{hab?.nome + ' - ' + hab?.descricao}</Typography>
               </React.Fragment>
             }
           >
