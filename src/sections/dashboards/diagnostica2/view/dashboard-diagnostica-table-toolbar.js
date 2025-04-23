@@ -60,10 +60,11 @@ export default function DashboardDiagnosticaTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
+    (event, newValue) => {
       onFilters(
         'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        // typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        typeof newValue === 'string' ? newValue.split(',') : newValue
       );
     },
     [onFilters]
@@ -156,7 +157,8 @@ export default function DashboardDiagnosticaTableToolbar({
               onChange={handleFilterEscola}
               disabled={filters.zona === '' ? true : false}
             /> */}
-
+            
+            <InputLabel size='small'>Escolas</InputLabel>
             <Select
               size="small"
               multiple
@@ -173,12 +175,25 @@ export default function DashboardDiagnosticaTableToolbar({
             >
               {escolaOptions?.map((option) => (
                 <MenuItem key={option.id} value={option}>
-                  <Checkbox disableRipple size="small" checked={filters.escola.includes(option)} />
+                  <Checkbox disableRipple size="small" checked={filters?.escola?.includes(option)} />
                   {option.nome}
                 </MenuItem>
               ))}
             </Select>
             
+          </FormControl>
+          <FormControl sx={{ width: { xs: '100%', md: 300 } }}>
+            <Autocomplete
+              size='small'
+              multiple
+              disablePortal
+              id="escola"
+              options={escolasFiltered}
+              renderInput={(params) => <TextField {...params} label="Escolas" />}
+              value={filters.escola}
+              onChange={handleFilterEscola}
+              disabled={filters.zona === '' ? true : false}
+            />
           </FormControl>
         </Grid>
       )}
