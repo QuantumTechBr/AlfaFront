@@ -249,7 +249,7 @@ export default function AvaliacaoDiagnosticoListView() {
     if (anosLetivos.length && turmas.length) {
       setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
         'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email + 
+        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user?.email + 
         ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
       );	
       setErrorMsg('');
@@ -286,7 +286,7 @@ export default function AvaliacaoDiagnosticoListView() {
         await avaliacaoMethods
           .getRelatorioAvaliacaoPorTurma(_filtersToSend)
           .then((result) => {
-            setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
             buscandoCSV.onFalse();
           })
           .catch((error) => {
@@ -297,7 +297,7 @@ export default function AvaliacaoDiagnosticoListView() {
         await avaliacaoMethods
           .getRelatorioAvaliacaoPorEscola(_filtersToSend)
           .then((result) => {
-            setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
             buscandoCSV.onFalse();
           })
           .catch((error) => {

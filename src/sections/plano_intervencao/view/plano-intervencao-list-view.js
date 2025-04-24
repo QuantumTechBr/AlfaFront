@@ -490,7 +490,7 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (nome) {
     inputData = inputData.filter(
-      (user) => user.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (user) => user?.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
     );
   }
 
@@ -499,7 +499,7 @@ function applyFilter({ inputData, comparator, filters }) {
   }
 
   if (role.length) {
-    inputData = inputData.filter((user) => role.includes(user.funcao));
+    inputData = inputData.filter((user) => role.includes(user?.funcao));
   }
 
   if (escola.length) {

@@ -295,7 +295,7 @@ export default function TurmaTableToolbar({
             onClick={() => {
               setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
                 'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user.email +
+                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user?.email +
                 ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
               );
               setErrorMsg('');
@@ -320,7 +320,7 @@ export default function TurmaTableToolbar({
               }
               const query = new URLSearchParams(exportFilters).toString();
               turmaMethods.exportFile(query).then((csvFile) => {
-                setWarningMsg('Arquivo enviado com sucesso para o email ' + user.email);
+                setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
                 buscandoCSV.onFalse();
               });
             }}
