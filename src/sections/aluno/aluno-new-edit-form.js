@@ -233,7 +233,6 @@ export default function AlunoNewEditForm({ currentAluno }) {
           throw error;
         });
       }
-      reset();
       enqueueSnackbar(currentAluno ? 'Atualizado com sucesso!' : 'Criado com sucesso!');
       // router.push(paths.dashboard.aluno.list);
     } catch (error) {
@@ -318,6 +317,10 @@ export default function AlunoNewEditForm({ currentAluno }) {
       }
 
       setTableData(deleteRow);
+      const novoMapEscola = mapEscolaInicial.filter((map) => {
+        return map.escola_id != row.escola.id || map.ano_id != row.ano_letivo.id
+      })
+      setMapEscolaInicial(novoMapEscola);
     },
     [tableData]
   );
