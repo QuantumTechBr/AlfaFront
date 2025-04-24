@@ -176,9 +176,6 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
                   </TableBody>
                 </Table>
               </Scrollbar>
-              <Box  sx={{ mt: 2}}>
-                <Typography variant="subtitle2">{table.selected.length > 0 ? 1 : 0} selecionado</Typography>
-              </Box>
         </DialogContent>
         )}
 
