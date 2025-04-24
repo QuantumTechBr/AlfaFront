@@ -157,7 +157,7 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
         setValue('escola', user.funcao_usuario[0].escola.id);
       } 
     }
-  }, [contextReady.value, escolas, setValue, user.funcao_usuario]);
+  }, [contextReady.value, escolas, setValue, user?.funcao_usuario]);
 
   const turmasEscolaAno = () => {
     return turmas.filter((te) => te.escola_id == getValues('escola')?.id && te.ano_id == getValues('ano_letivo'));
