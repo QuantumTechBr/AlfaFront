@@ -459,7 +459,7 @@ export default function AvaliacaoDiagnosticoListView() {
           }}
         />
 
-        {/* {permissaoSuperAdmin && (
+        {permissaoSuperAdmin && (
           <Box display="flex" alignItems="center" gap={1}>
             <Button
               onClick={() => setOpenUploadModal(true)}
@@ -479,7 +479,7 @@ export default function AvaliacaoDiagnosticoListView() {
             />
           </Box>
 
-        )} */}
+        )}
         <NovaAvaliacaoForm
           open={novaAvaliacao.value}
           onClose={closeNovaAvaliacao}
