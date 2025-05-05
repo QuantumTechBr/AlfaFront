@@ -35,11 +35,12 @@ export default function VisualizaImportacao({ open, onClose, importacao }) {
 
   const [nomeCriadoPor, setNomeCriadoPor] = useState('');
 
-  useEffect( async () => {
-    await userMethods.getUserById(criadoPor).then((resultado) => {
-      setNomeCriadoPor(resultado.data.nome)
-    })
-      
+  useEffect(() => {
+    const fetchUser = async () => {
+      const resultado = await userMethods.getUserById(criadoPor);
+      setNomeCriadoPor(resultado.data.nome);
+    };
+    fetchUser();
   }, []);
 
   function formatarData(dataString) {

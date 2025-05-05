@@ -89,8 +89,8 @@ export default function ImportHelperButton({ ordemImportacao, nomeTela, linkDown
                             4- Certifique-se que o as linhas são referentes SOMENTE aos dados de 1º a 3º ano do fundamental. TODAS as linhas serão importadas. Dados sobressalentes podem interferir nas estatíscas e até mesmo causar lentidão dependendo do volume de dados.<br></br>
                             5- O arquivo deve ser em formato .csv ou .xlsx.<br></br>
                             6- Antes de importar dados deste módulo, certifique-se que os seguintes módulos já foram devidamente importados: {ordemImportacao ?? ''}<br></br>
-                            7- Após iniciar a importação, acompanhe seu processo através do Django Admin. Evite iniciar processos de importação simultâneos.<br></br>
-                            8- Lembre-se que caso um processo de importação retorne erro, por QUALQUER motivo, nenhum dado será atualizado.<br></br>
+                            7- Após iniciar a importação, acompanhe seu processo através da tela de importação. Evite iniciar processos de importação simultâneos.<br></br>
+                            8- Lembre-se que caso um processo de importação retorne erro, por QUALQUER motivo, NENHUM dado será atualizado.<br></br>
 
                         </Box>
 

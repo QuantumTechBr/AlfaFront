@@ -40,7 +40,7 @@ export default function ImportacaoTableRow({ row }) {
   const data_criacao = created_at ? formatarData(created_at) : '';
   const data_atualizacao = updated_at ? formatarData(updated_at) : '';
 
-  const visualizaImportacao = useBoolean();
+  const visualizaImportacao = useBoolean(false);
 
   const closeVisualizaImportacao = (retorno = null) => {
     visualizaImportacao.onFalse();
