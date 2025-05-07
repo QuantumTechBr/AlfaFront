@@ -275,7 +275,7 @@ export default function AvaliacaoDiagnosticoListView() {
       }
 
       const _filtersToSend = {
-        tipo: "Diagnóstico",
+        tipo: TipoVersaoAvaliacao.DIAGNOSTICA,
         turma: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
         ano: filtros.ano,
