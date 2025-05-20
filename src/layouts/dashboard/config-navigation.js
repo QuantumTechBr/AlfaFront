@@ -197,6 +197,10 @@ export function useNavData() {
               title: t('Diagnóstica'),
               path: paths.dashboard.root_diagnostico,
             },
+            {
+              title: t('Diagnóstica2'),
+              path: paths.dashboard.root_diagnostico2,
+            },
           ]
         });}
         if (user?.permissao_usuario[0]?.nome == 'ADMIN') {
@@ -255,6 +259,10 @@ export function useNavData() {
               {
                 title: t('Diagnóstica'),
                 path: paths.dashboard.registro_aprendizagem.root_diagnostico,
+              },
+              {
+                title: t('Diagnóstica2'),
+                path: paths.dashboard.avaliacao.root_diagnostico,
               },
               {
                 title: t('Fase'),
