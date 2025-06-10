@@ -383,8 +383,20 @@ function applyFilter({ inputData, comparator, filters }) {
   inputData = stabilizedThis.map((el) => el[0]);
 
   if (nome) {
+    // Função para remover pontuação e normalizar texto
+    function normalize(str) {
+      return str
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // remove acentos
+      .replace(/[^\w\s]|_/g, '') // remove pontuação
+      .replace(/\s+/g, ' ') // normaliza espaços
+      .toLowerCase();
+    }
+
+    const nomeNormalizado = normalize(nome);
+
     inputData = inputData.filter(
-      (escola) => escola.nome.toLowerCase().indexOf(nome.toLowerCase()) !== -1
+      (escola) => normalize(escola.nome).indexOf(nomeNormalizado) !== -1
     );
   }
 

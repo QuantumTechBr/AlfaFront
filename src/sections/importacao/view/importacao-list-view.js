@@ -86,7 +86,7 @@ export default function ZonaListView() {
           heading="Importações"
           links={[
             { name: 'Dashboard', href: paths.dashboard.root },
-            { name: 'Importações', href: paths.dashboard.zona.list },
+            { name: 'Importações', href: paths.dashboard.importacao.list },
             { name: 'Listar' },
           ]}
           sx={{
