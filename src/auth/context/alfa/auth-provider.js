@@ -113,7 +113,6 @@ export function AuthProvider({ children }) {
     const expirationDate = new Date(Date.now() + expiresIn_milliseconds);
 
     setSession(accessToken, expirationDate);
-    sessionStorage.setItem('escolasPiloto', true);
     dispatch({
       type: 'LOGIN',
       payload: {

@@ -55,7 +55,6 @@ import turmaMethods from 'src/sections/turma/turma-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import TurmaQuickEditForm from '../turma-quick-edit-form';
-import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const STATUS_OPTIONS = [{ value: 'all', label: 'Todos' }, ...USER_STATUS_OPTIONS];
@@ -183,17 +182,6 @@ export default function TurmaListView() {
       let { ano, nome, ddz, status } = filtros;
       let statusFilter = '';
 
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
 
       switch (status) {
         case 'false':

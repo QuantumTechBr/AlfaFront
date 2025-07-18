@@ -51,7 +51,6 @@ import RegistroAprendizagemTableToolbar from '../registro-aprendizagem-table-too
 import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-aprendizagem-modal-form';
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
-import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
 import { CSVLink } from "react-csv";
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -194,18 +193,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         })
       }
 
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
-
       const _filtersToSend = {
         turmas: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
         periodo: filters.periodo.length ? filters.periodo : _periodos,
@@ -264,18 +251,6 @@ export default function RegistroAprendizagemDiagnosticoListView() {
         filtros.escola.map((esc) => {
           escola.push(esc.id)
         })
-      }
-
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
       }
 
       const _filtersToSend = {

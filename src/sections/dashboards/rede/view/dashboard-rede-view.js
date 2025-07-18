@@ -69,7 +69,6 @@ import InstructionButton from 'src/components/helpers/instruction-button';
 import zIndex from '@mui/material/styles/zIndex';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
-import { escolas_piloto } from 'src/_mock/assets';
 
 export default function DashboardRedeView() {
   const ICON_SIZE = 65;
@@ -125,17 +124,6 @@ export default function DashboardRedeView() {
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       let escola = [];
-      let escFiltered = [];
-      if (sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
 
       isGettingGraphics.onTrue();
       const fullFilters = {
@@ -155,7 +143,6 @@ export default function DashboardRedeView() {
             : [`["${_filtersToSearch.pneItem}"]`],
         escola: escola,
       };
-      const filtroPiloto = {...fullFilters, escola:[]}
       await Promise.all([
         dashboardsMethods.getDashboardGridRede(fullFilters).then((response) => {
           // adequação dos dados

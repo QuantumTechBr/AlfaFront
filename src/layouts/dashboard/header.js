@@ -41,9 +41,7 @@ export default function Header({ onOpenNav }) {
   const { buscaEscolas } = useContext(EscolasContext);
   const settings = useSettingsContext();
   let ep = true;
-  if (sessionStorage.getItem('escolasPiloto') == 'false') {
-    ep = false
-  }
+
   const [checkEP, setCheckEP] = useState(ep); 
 
   const isNavHorizontal = settings.themeLayout === 'horizontal';
@@ -101,23 +99,6 @@ export default function Header({ onOpenNav }) {
   }
 
 
-  
-
-
-
-
-  const onSelectEP = useCallback(() => {
-    if (checkEP) {
-      sessionStorage.setItem('escolasPiloto', false);
-      setCheckEP(false);
-    } else {
-      sessionStorage.setItem('escolasPiloto', true);
-      setCheckEP(true);
-    }
-    buscaEscolas({force:true})
-    .then(window.location.reload());
-  }, [checkEP, setCheckEP])
-
   const renderContent = (
     <>
       {lgUp && isNavHorizontal && <Logo sx={{ mr: 2.5 }} />}
@@ -143,18 +124,9 @@ export default function Header({ onOpenNav }) {
 
         {/* <SettingsButton /> */}
 
-        <Checkbox
-          checked={checkEP} onClick={onSelectEP} />
-        <Box
-          sx={{
-            pr: 5,
-          }}
-        >
-          <Label>Escolas Piloto</Label>
-        </Box>
         <Box>
           <Typography align="right" variant="subtitle2" noWrap>
-            {user?.nome + ' - '}
+            {(user?.nome ?? '') + ' - '}
             <Tooltip title={funcaoPermissaoNomeTooltip} placement="top" arrow>
               {funcaoPermissaoNome}
             </Tooltip>

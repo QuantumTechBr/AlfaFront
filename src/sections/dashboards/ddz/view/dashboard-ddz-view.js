@@ -74,7 +74,6 @@ import Scrollbar from 'src/components/scrollbar';
 import { paths } from 'src/routes/paths';
 import { anos_metas } from 'src/_mock/assets';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
-import { escolas_piloto } from 'src/_mock/assets';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
 export default function DashboardDDZView() {
@@ -135,17 +134,7 @@ export default function DashboardDDZView() {
       console.log('preencheGraficos');
       const _filtersToSearch = _filters ?? filters;
       let escola = [];
-      let escFiltered = [];
-      if (sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
+
       isGettingGraphics.onTrue();
       const fullFilters = {
         ano_letivo: [

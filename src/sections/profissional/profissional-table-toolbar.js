@@ -19,7 +19,6 @@ import { saveCSVFile } from 'src/utils/functions';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
-import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function ProfissionalTableToolbar({
@@ -211,23 +210,6 @@ export default function ProfissionalTableToolbar({
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
-              let escFiltered = [];
-              const exportFilters = { 
-                escola_id: filters.escola.join(','),
-                funcao_usuario_nome_exibicao: filters.role.join(','),
-                nome: filters.nome,
-                export: 'csv' 
-              };
-              if (exportFilters.escola_id?.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-                escolaOptions.map((esc) => {
-                  if (escolas_piloto.includes(esc.nome)) {
-                    escFiltered.push(esc.id);
-                  }
-                })
-              }
-              if (escFiltered.length > 0) {
-                exportFilters.escola_id = escFiltered;
-              }
               
               const query = new URLSearchParams(exportFilters).toString();
               profissionalMethods.exportFile(query).then((csvFile) => {

@@ -49,7 +49,6 @@ import AvaliacaoDiagnosticoTableRow from './avaliacao-diagnostico-table-row';
 import AvaliacaoTableToolbar from '../avaliacao-table-toolbar';
 import NovaAvaliacaoForm from 'src/sections/avaliacao/avaliacao-modal-form';
 import LoadingBox from 'src/components/helpers/loading-box';
-import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import avaliacaoMethods from 'src/sections/avaliacao/avaliacao-repository';
@@ -189,18 +188,6 @@ export default function AvaliacaoDiagnosticoListView() {
         })
       }
 
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
-
       const _filtersToSend = {
         tipo: TipoVersaoAvaliacao.DIAGNOSTICA,
         turmas: (filters.turma.length ? filters.turma : turmasFiltered).map((turma) => turma.id),
@@ -260,18 +247,6 @@ export default function AvaliacaoDiagnosticoListView() {
         filtros.escola.map((esc) => {
           escola.push(esc.id)
         })
-      }
-
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
       }
 
       const _filtersToSend = {

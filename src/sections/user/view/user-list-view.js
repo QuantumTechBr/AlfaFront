@@ -50,7 +50,6 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import UserQuickEditForm from '../user-quick-edit-form';
-import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
@@ -176,17 +175,6 @@ export default function UserListView() {
         }
       });
       let statusFilter = '';
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
 
       switch (status) {
         case 'false':
@@ -322,68 +310,7 @@ export default function UserListView() {
     setFuncoesOptions(funcoes_opts);
   }, [funcoes]);
 
-  // const contarUsuarios = useCallback(
-  //   async (filtros = filters) => {
-  //     const offset = 0;
-  //     const limit = 1;
-  //     let { nome, escola, role, zona, status } = filtros;
-  //     let escFiltered = [];
-  //     if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-  //       escolas.map((esc) => {
-  //         if (escolas_piloto.includes(esc.nome)) {
-  //           escFiltered.push(esc.id);
-  //         }
-  //       })
-  //     }
-  //     if (escFiltered.length > 0) {
-  //       escola = escFiltered;
-  //     }
-  //     console.log('oooorra', escolas)
-
-  //     await userMethods
-  //       .getAllUsersPaginado({
-  //         offset,
-  //         limit,
-  //         nome: nome,
-  //         escolas: escola,
-  //         funcao: role,
-  //         zona: zona,
-  //         status: '',
-  //       })
-  //       .then(async (resultado) => {
-  //         setCountAll(resultado.data.count);
-  //       });
-
-  //     await userMethods
-  //       .getAllUsersPaginado({
-  //         offset,
-  //         limit,
-  //         nome: nome,
-  //         escolas: escola,
-  //         funcao: role,
-  //         zona: zona,
-  //         status: 'True',
-  //       })
-  //       .then(async (resultado) => {
-  //         setCountAtivos(resultado.data.count);
-  //       });
-
-  //     await userMethods
-  //       .getAllUsersPaginado({
-  //         offset,
-  //         limit,
-  //         nome: nome,
-  //         escolas: escola,
-  //         funcao: role,
-  //         zona: zona,
-  //         status: 'False',
-  //       })
-  //       .then(async (resultado) => {
-  //         setCountInativos(resultado.data.count);
-  //       });
-  //   },
-  //   [filters]
-  // );
+ 
 
   const preparacaoInicial = useCallback(async () => {
     await Promise.all([

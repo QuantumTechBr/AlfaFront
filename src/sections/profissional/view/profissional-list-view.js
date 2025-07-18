@@ -43,7 +43,6 @@ import LoadingBox from 'src/components/helpers/loading-box';
 // auth
 import { useAuthContext } from 'src/auth/hooks';
 import ProfissionalQuickEditForm from '../profissional-quick-edit-form';
-import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -96,17 +95,6 @@ export default function ProfissionalListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let { nome, escola, role } = filtros;
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
 
       await profissionalMethods
         .getAllProfissionaisPaginado({ offset, limit, nome: nome, escolas: escola, funcao: role })

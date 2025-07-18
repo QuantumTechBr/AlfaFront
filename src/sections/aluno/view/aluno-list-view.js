@@ -50,7 +50,6 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import LoadingBox from 'src/components/helpers/loading-box';
 import { useAuthContext } from 'src/auth/hooks';
 import AlunoQuickEditForm from '../aluno-quick-edit-form';
-import { escolas_piloto } from 'src/_mock';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
 // ----------------------------------------------------------------------
 
@@ -136,17 +135,6 @@ export default function AlunoListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let { ano, ddz, sem_escola, nome, matricula, escola, turma, fase } = filtros;
-      let escFiltered = [];
-      if (escola.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-        escolas.map((esc) => {
-          if (escolas_piloto.includes(esc.nome)) {
-            escFiltered.push(esc.id);
-          }
-        })
-      }
-      if (escFiltered.length > 0) {
-        escola = escFiltered;
-      }
 
       if (ano == '') {
         anosLetivos.map((ano_letivo) => {

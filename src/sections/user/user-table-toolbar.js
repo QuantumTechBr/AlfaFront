@@ -19,7 +19,6 @@ import { saveCSVFile } from 'src/utils/functions';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
-import { escolas_piloto } from 'src/_mock';
 // ----------------------------------------------------------------------
 
 export default function UserTableToolbar({
@@ -248,16 +247,6 @@ export default function UserTableToolbar({
                 status: filters.status,
                 export: 'csv' 
               };
-              if (exportFilters.escola_id.length == 0 && sessionStorage.getItem('escolasPiloto') == 'true') {
-                escolaOptions.map((esc) => {
-                  if (escolas_piloto.includes(esc.nome)) {
-                    escFiltered.push(esc.id);
-                  }
-                })
-              }
-              if (escFiltered.length > 0) {
-                exportFilters.escola_id = escFiltered;
-              }
               
               const query = new URLSearchParams(exportFilters).toString();
               userMethods.exportFile(query).then((csvFile) => {
