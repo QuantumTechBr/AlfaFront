@@ -94,7 +94,7 @@ export default function UserListView() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [openUploadModal, setOpenUploadModal] = useState(false);
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});
 
   const settings = useSettingsContext();
 
@@ -541,6 +541,7 @@ export default function UserListView() {
               escolaOptions={escolas}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
+              enterAction={buscaUsuarios}
             />
             <Button
               variant="contained"

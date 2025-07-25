@@ -28,7 +28,8 @@ export default function ProfissionalTableToolbar({
   ddzOptions,
   escolaOptions,
   setErrorMsg,
-  setWarningMsg
+  setWarningMsg,
+  enterAction = () => {}, // Function to call on enter key press
 }) {
   const { user } = useContext(AuthContext);
   const popover = usePopover();
@@ -164,6 +165,12 @@ export default function ProfissionalTableToolbar({
             value={filters.nome}
             onChange={handleFilterPesquisa}
             placeholder="Pesquisar nome do profissional..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

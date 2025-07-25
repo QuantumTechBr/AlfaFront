@@ -78,7 +78,7 @@ export default function ZonaListView() {
     preparacaoInicial();
   }, []); // CHAMADA UNICA AO ABRIR
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 10});
 
   const settings = useSettingsContext();
 

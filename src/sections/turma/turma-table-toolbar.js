@@ -30,6 +30,7 @@ export default function TurmaTableToolbar({
   anoOptions,
   setErrorMsg,
   setWarningMsg,
+  enterAction = () => {}, // Function to call on enter key press
 }) {
   const { user } = useContext(AuthContext);
   const popover = usePopover();
@@ -55,32 +56,6 @@ export default function TurmaTableToolbar({
     })
 
   }, []);
-
-  // useEffect(() => {
-  //   const escolasAC = [];
-  //   escolaOptions.map((escola) => {
-  //     const ea = {
-  //       label: escola.nome,
-  //       id: escola.id,
-  //     }
-  //     escolasAC.push(ea)
-  //   })
-  //   setEscolasFiltered(escolasAC);
-  //   setEscolasACTotal(escolasAC);
-  // }, [escolaOptions]);
-
-  // useEffect(() => {
-  //   const escolasAC = [];
-  //   escolaOptions.map((escola) => {
-  //     const ea = {
-  //       label: escola.nome,
-  //       id: escola.id,
-  //     }
-  //     escolasAC.push(ea)
-  //   })
-  //   setEscolasFiltered(escolasAC);
-  //   setEscolasACTotal(escolasAC);
-  // }, []);
 
   const handleFilterAno = useCallback(
     (event) => {
@@ -223,53 +198,16 @@ export default function TurmaTableToolbar({
             renderInput={(params) => <TextField {...params} label="Escola" />}
             value={filters.escola}
             onChange={handleFilterEscola}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
+            }}
           />
         </FormControl>
 
-        {/* <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 300 },
-          }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-           {escolasFiltered
-           .map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl> */}
-
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
-          {/* <TextField
-            fullWidth
-            value={filters.nome}
-            onChange={handleFilterNome}
-            placeholder="Pesquisar por nome da escola..."
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Iconify icon="eva:search-fill" sx={{ color: 'text.disabled' }} />
-                </InputAdornment>
-              ),
-            }}
-          /> */}
 
           <IconButton onClick={popover.onOpen}>
             <Iconify icon="eva:more-vertical-fill" />

@@ -76,7 +76,7 @@ export default function EscolaListView() {
   const [tableData, setTableData] = useState([]);
   const [filters, setFilters] = useState(defaultFilters);
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});;
   const settings = useSettingsContext();
   const router = useRouter();
 
@@ -292,9 +292,11 @@ export default function EscolaListView() {
         )}
 
         <Card>
-          <EscolaTableToolbar filters={filters} onFilters={handleFilters} ddzOptions={zonas} />
-
-          
+          <EscolaTableToolbar 
+            filters={filters} 
+            onFilters={handleFilters} 
+            ddzOptions={zonas}
+          />
 
           <TableContainer sx={{ position: 'relative', overflow: 'unset' }}>
             <Scrollbar>

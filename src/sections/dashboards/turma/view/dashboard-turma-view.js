@@ -154,7 +154,7 @@ export default function DashboardTurmaView() {
               : null,
         })
         .then((response) => {
-          if (response.data.chart?.series && response.data.chart?.series.length > 0) {
+          if (response?.data.chart?.series && response?.data.chart?.series.length > 0) {
             response.data.chart.series = getFormattedSeries(response.data.chart.series);
           }
 
@@ -275,7 +275,7 @@ export default function DashboardTurmaView() {
           .then((response) => {
             setDados((prevState) => ({
               ...prevState,
-              desempenho_alunos: response.data,
+              desempenho_alunos: response?.data,
             }));
           }),
       ]);
@@ -545,8 +545,8 @@ export default function DashboardTurmaView() {
         };
         serie[s].year = series[s].year;
         let data = [];
-        for (let d = 0; d < series[s].data.length; d++) {
-          if (series[s].data[d]?.data[b]) {
+        for (let d = 0; d < series[s]?.data.length; d++) {
+          if (series[s]?.data[d]?.data[b]) {
             data.push({
               data: [series[s].data[d]?.data[b]],
               name: series[s].data[d]?.name,
@@ -824,7 +824,7 @@ export default function DashboardTurmaView() {
                     variant="contained"
                     color="info"
                     component={RouterLink}
-                    href={paths.dashboard.registro_aprendizagem.root_fase}
+                    href={paths.dashboard.registro_aprendizagem.edit_fase(initialTurma, filters.bimestre?.id)}
                     sx={{ mr: 3, marginTop: 2 }}
                   >
                     Ir para Acompanhamento Fase

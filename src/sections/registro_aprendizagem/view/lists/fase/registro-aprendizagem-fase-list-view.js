@@ -80,7 +80,7 @@ export default function RegistroAprendizagemFaseListView() {
   const { user, checkPermissaoModulo } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});
   const popover = usePopover();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');
@@ -411,11 +411,11 @@ export default function RegistroAprendizagemFaseListView() {
           turmaId: turmaId,
           bimestreId: bimestreId,
         }).then(
-          contextReady.onFalse(),
+          contextReady.onTrue(),
           buscando.onFalse(),
           tabelaPreparada.onFalse(),
           setTableData([]),
-          setTimeout(preparacaoInicial, 1000),
+          setTimeout(buscarAvaliacoes, 1000),
         )
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API no momento de deletar o registro');

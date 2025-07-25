@@ -128,20 +128,20 @@ export default function Header({ onOpenNav }) {
           <Typography align="right" variant="subtitle2" noWrap>
             {(user?.nome ?? '') + ' - '}
             <Tooltip title={funcaoPermissaoNomeTooltip} placement="top" arrow>
-              {funcaoPermissaoNome}
+              <span>{funcaoPermissaoNome}</span>
             </Tooltip>
           </Typography>
 
           <Typography align="right" variant="body2" sx={{ color: 'text.secondary' }} noWrap>
             {escolaNomeAbreviado ? 
               <Tooltip title={escolasNomes} placement="top" arrow>
-                {escolaNomeAbreviado}
+                <span>{escolaNomeAbreviado}</span>
               </Tooltip> : null}
             {ddzNomeAbreviado && ddzNomeAbreviado ? 
             ' e ' : null}
             {ddzNomeAbreviado ?
               <Tooltip title={ddzNomes} placement="top" arrow>
-                {ddzNomeAbreviado}
+                <span>{ddzNomeAbreviado}</span>
               </Tooltip> : null}
 
             </Typography>

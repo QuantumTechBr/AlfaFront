@@ -80,7 +80,7 @@ export default function AvaliacaoFaseListView() {
   const { user, checkPermissaoModulo } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});;
   const popover = usePopover();
   const [errorMsg, setErrorMsg] = useState('');
   const [warningMsg, setWarningMsg] = useState('');

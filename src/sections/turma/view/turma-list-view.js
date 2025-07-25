@@ -93,7 +93,7 @@ export default function TurmaListView() {
   const permissaoCadastrar = checkPermissaoModulo('turma', 'cadastrar');
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});
 
   const settings = useSettingsContext();
 
@@ -516,6 +516,7 @@ export default function TurmaListView() {
               anoOptions={anosLetivos}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
+              enterAction={buscarTurmas}
             />
 
             <Button

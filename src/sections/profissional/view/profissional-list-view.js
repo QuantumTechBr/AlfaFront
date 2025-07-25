@@ -76,7 +76,7 @@ export default function ProfissionalListView() {
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const permissaoCadastrar = checkPermissaoModulo('profissionais', 'cadastrar');
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});
 
   const settings = useSettingsContext();
 
@@ -328,6 +328,7 @@ export default function ProfissionalListView() {
               escolaOptions={escolas}
               setErrorMsg={setErrorMsg}
               setWarningMsg={setWarningMsg}
+              enterAction={buscaProfissionais}
             />
 
             <Button

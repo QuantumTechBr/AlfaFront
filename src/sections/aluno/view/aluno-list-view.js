@@ -96,7 +96,7 @@ export default function AlunoListView() {
   const permissaoCadastrar = checkPermissaoModulo('aluno', 'cadastrar');
   const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
-  const table = useTable();
+  const table = useTable({defaultRowsPerPage: 25});
 
   const router = useRouter();
   const dataAtual = new Date();
@@ -402,6 +402,7 @@ export default function AlunoListView() {
               setWarningMsg={setWarningMsg}
               ddzOptions={zonas}
               anoOptions={anosLetivos}
+              enterAction={buscaAlunos}
             />
             <Button
               variant="contained"

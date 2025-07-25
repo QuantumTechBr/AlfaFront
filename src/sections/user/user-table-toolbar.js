@@ -30,6 +30,7 @@ export default function UserTableToolbar({
   escolaOptions,
   setErrorMsg,
   setWarningMsg,
+  enterAction = () => {}, // Function to call on enter key press
 }) {
   const { user } = useContext(AuthContext);
   const popover = usePopover();
@@ -129,35 +130,6 @@ export default function UserTableToolbar({
           </Select>
         </FormControl>
 
-        {/* <FormControl
-          sx={{
-            flexShrink: 0,
-            width: { xs: 1, md: 100 },
-          }}
-        >
-          <InputLabel>DDZ</InputLabel>
-
-          <Select
-            multiple
-            value={filters.ddz}
-            onChange={handleFilterDdz}
-            input={<OutlinedInput label="DDZ" />}
-            renderValue={(selected) => selected.map((value) => value).join(', ')}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {ddzOptions.map((option) => (
-              <MenuItem key={option} value={option}>
-                <Checkbox disableRipple size="small" checked={filters.ddz.includes(option)} />
-                {option}
-              </MenuItem>
-            ))}
-          </Select>
-            </FormControl>*/}
-
         <FormControl
           sx={{
             flexShrink: 0,
@@ -193,6 +165,12 @@ export default function UserTableToolbar({
             value={filters.nome}
             onChange={handleFilterPesquisa}
             placeholder="Pesquisar nome do usuário..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">

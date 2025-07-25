@@ -38,6 +38,7 @@ export default function AlunoTableToolbar({
   faseOptions,
   setWarningMsg,
   setErrorMsg,
+  enterAction = () => {}, // Function to call on enter key press
 }) {
 
   const [openError, setOpenError] = useState(false);
@@ -361,6 +362,12 @@ export default function AlunoTableToolbar({
             value={filters.nome}
             onChange={handleFilterNome}
             placeholder="Nome..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -373,6 +380,12 @@ export default function AlunoTableToolbar({
             value={filters.matricula}
             onChange={handleFilterMatricula}
             placeholder="Matrícula..."
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
