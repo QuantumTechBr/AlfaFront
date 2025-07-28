@@ -26,6 +26,7 @@ import { useRouter } from 'src/routes/hook';
 import { useBoolean } from 'src/hooks/use-boolean';
 import { useContext } from 'react';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
@@ -69,6 +70,7 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   ano: '',
+  zona: [],
   escola: [],
   turma: [],
   bimestre: [],
@@ -90,6 +92,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
@@ -102,6 +105,7 @@ export default function RegistroAprendizagemFaseListView() {
   const anoAtual = dataAtual.getFullYear();
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
@@ -168,8 +172,11 @@ export default function RegistroAprendizagemFaseListView() {
       buscaTurmas().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de turmas');
       }),
+      buscaZonas().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de zonas');
+      }),
     ]);
-  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas]);
+  }, [buscaAnosLetivos, buscaEscolas, buscaTurmas, buscaZonas]);
 
   useEffect(() => {
     preparacaoInicial();
@@ -216,6 +223,13 @@ export default function RegistroAprendizagemFaseListView() {
         })
       }
 
+      if (zonas.length && zonas.length == 1) {
+        _filters.zonas = zonas.length ? [{
+          label: zonas[0].nome,
+          id: zonas[0].id,
+        }] : [] ?? []; 
+      }
+
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
           label: escolas[0].nome,
@@ -244,6 +258,15 @@ export default function RegistroAprendizagemFaseListView() {
 
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
+
+      let zona = [];
+
+      if ( filtros.zona.length > 0) {
+        filtros.zona.map((z) => {
+          zona.push(z.id)
+        })
+      }
+
       let escola = [];
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
@@ -260,6 +283,7 @@ export default function RegistroAprendizagemFaseListView() {
         limit: limit,
         ano: filtros.ano ? filtros.ano : '',
         escolas: escola,
+        zonas: zona
       };
       const _newList = [];
 
@@ -278,6 +302,7 @@ export default function RegistroAprendizagemFaseListView() {
                 turno: _turma.turno,
                 alunos: registro.qtd_aluno_turma,
                 bimestre: _bimestre,
+                zona: zonas.find((z) => z.id == _turma.zona_id)?.nome || '',
                 escola: escolas.find((e) => e.id == _turma.escola_id).nome,
                 atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
               });
@@ -307,6 +332,13 @@ export default function RegistroAprendizagemFaseListView() {
       setErrorMsg('');
       buscandoCSV.onTrue();
 
+      let zonas = [];
+      if (filtros.zona.length > 0) {
+        filtros.zona.map((z) => {
+          zonas.push(z.id)
+        })
+      }
+
       let escolas = [];
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
@@ -322,6 +354,7 @@ export default function RegistroAprendizagemFaseListView() {
         ),
         ano: filtros.ano,
         escola: escolas,
+        zona: zonas
       };
 
       if (por == 'turma') {
@@ -353,6 +386,12 @@ export default function RegistroAprendizagemFaseListView() {
   }, [anosLetivos, turmas, bimestres, filters]);
 
   useEffect(() => {
+    const idsZonas = filters.zona.map(zona => zona.id);
+    const _escolasFiltered = escolas.filter((escola) => idsZonas.includes(escola.zona?.id));
+    setEscolasFiltered(_escolasFiltered);
+  }, [filters.zona]);
+
+  useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
     const _turmasFiltered = turmas.filter((turma) => idsEscolas.includes(turma.escola_id)).filter((_turma) => filters?.ano == _turma.ano_id);
     setTurmasFiltered(_turmasFiltered);
@@ -368,6 +407,14 @@ export default function RegistroAprendizagemFaseListView() {
   const handleFilters = useCallback(
     (campo, value) => {
       let _filters = {};
+      
+      // if (campo == 'zona') {
+      //   const idsZonas = value.map(zona => zona.id);
+      //   const _escolasFiltered = escolas.filter((escola) => idsZonas.includes(escola.zona?.id));
+      //   setEscolasFiltered(_escolasFiltered);
+      //   _filters.escola = filters.escola.length ? filters.escola.filter((escola) => _escolasFiltered.some((e) => e.id === escola.id)) : [];
+      //   _filters.turma = filters.turma.length ? filters.turma.filter((turma) => _escolasFiltered.some((e) => e.id === turma.escola_id)) : [];
+      // }
       if (campo == 'escola') {
         _filters.turma = [];
       }
@@ -523,7 +570,8 @@ export default function RegistroAprendizagemFaseListView() {
             filters={filters}
             onFilters={handleFilters}
             anoLetivoOptions={anosLetivos}
-            escolaOptions={escolas}
+            zonaOptions={zonas}
+            escolaOptions={escolasFiltered.length ? escolasFiltered : escolas}
             turmaOptions={turmasFiltered.length ? turmasFiltered : null}
             bimestreOptions={bimestres}
             export_type="fase"

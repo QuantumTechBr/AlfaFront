@@ -19,18 +19,14 @@ export default function PlanoIntervencaoTableFiltersResult({
   roleOptions,
   escolaOptions,
   zonaOptions,
+  anoLetivoOptions,
   ...other
 }) {
 
   const funcoesSelecionadas = [];
   const escolasSelecionadas = [];
   const zonasSelecionadas = [];
-
-  // roleOptions.map((funcao) => {
-  //   if(filters.role?.includes(funcao.id)) {
-  //     funcoesSelecionadas.push(funcao)
-  //   }
-  // })
+  let anoSelecionado = null;
 
   escolaOptions.map((escola) => {
     if(filters.escola?.includes(escola.id)) {
@@ -44,6 +40,11 @@ export default function PlanoIntervencaoTableFiltersResult({
     }
   })
 
+  anoLetivoOptions.map((ano) => {
+    if(filters.anoLetivo === (ano.id)) {
+      anoSelecionado = ano;
+    }
+  });
 
   const handleRemoveStatus = () => {
     onFilters('status', 'all');
@@ -51,11 +52,6 @@ export default function PlanoIntervencaoTableFiltersResult({
 
   const handleRemoveNome = (inputValue) => {
     onFilters('nome', '');
-  };
-
-  const handleRemoveRole = (inputValue) => {
-    const newValue = filters.role.filter((item) => item !== inputValue);
-    onFilters('role', newValue);
   };
 
   const handleRemoveZona = (inputValue) => {
@@ -66,6 +62,10 @@ export default function PlanoIntervencaoTableFiltersResult({
   const handleRemoveEscola = (inputValue) => {
     const newValue = filters.escola.filter((item) => item !== inputValue);
     onFilters('escola', newValue);
+  };
+
+  const handleRemoveAnoLetivo = (inputValue) => {
+    onFilters('anoLetivo', '');
   };
 
 
@@ -115,6 +115,7 @@ export default function PlanoIntervencaoTableFiltersResult({
             ))}
           </Block>
         )}
+        
 
         <Button
           color="error"

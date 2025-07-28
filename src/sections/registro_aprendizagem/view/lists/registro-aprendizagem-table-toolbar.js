@@ -29,6 +29,7 @@ export default function RegistroAprendizagemTableToolbar({
   bimestreOptions,
   periodoOptions,
   disciplinaOptions,
+  zonaOptions,
   export_type,
 }) {
 
@@ -101,6 +102,16 @@ export default function RegistroAprendizagemTableToolbar({
     [onFilters]
   );
 
+  const handleFilterZona = useCallback(
+    (event) => {
+      onFilters(
+        'zona',
+        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+      );
+    },
+    [onFilters]
+  );
+
   return (
     <>
       <Stack
@@ -134,6 +145,42 @@ export default function RegistroAprendizagemTableToolbar({
                   {option.ano}
                 </MenuItem>
               ))}
+            </Select>
+          </FormControl>
+        )}
+
+        {zonaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 120 },
+            }}
+          >
+            <InputLabel>DDZ</InputLabel>
+            <Select
+              multiple
+              value={filters.zona}
+              onChange={handleFilterZona}
+              input={<OutlinedInput label="DDZ" />}
+              renderValue={(selected) => selected.map((item) => `${item.nome}`).join(', ')}
+              MenuProps={{
+                PaperProps: {
+                  sx: { maxHeight: 240 },
+                },
+              }}
+            >
+              {zonaOptions.map((option) => {
+                return (
+                  <MenuItem key={option.id} value={option}>
+                    <Checkbox
+                      disableRipple
+                      size="small"
+                      checked={filters.zona.includes(option)}
+                    />
+                    {option.nome}
+                  </MenuItem>
+                );
+              })}
             </Select>
           </FormControl>
         )}
@@ -307,50 +354,9 @@ export default function RegistroAprendizagemTableToolbar({
           </FormControl>
         )}
 
-        {/* <IconButton onClick={popover.onOpen}>
-          <Iconify icon="eva:more-vertical-fill" />
-        </IconButton> */}
       </Stack>
 
-      {/* <CustomPopover
-        open={popover.open}
-        onClose={popover.onClose}
-        arrow="right-top"
-        sx={{ width: 140 }}
-      >
-        <MenuItem
-          onClick={() => {
-            let exportFilters = Object.assign({}, filters);
-            exportFilters.anoLetivo = exportFilters.anoLetivo.id;
-            exportFilters.escola = exportFilters.escola.id;
-            exportFilters.turma = exportFilters.turma.map((item) => item.id);
-
-            if (exportFilters.bimestre) {
-              exportFilters.bimestre = exportFilters.bimestre.map((item) => item.id);
-            }
-
-            exportFilters = { ...exportFilters, export: 'csv' };
-            const query = new URLSearchParams(exportFilters).toString();
-
-            if (export_type == `fase`) {
-              registroAprendizagemMethods.exportFileFaseList(query).then((csvFile) => {
-                saveCSVFile(
-                  'Acompanhamento de Fases do Desenvolvimento da Leitura e da Escrita',
-                  csvFile.data
-                );
-              });
-            } else if (export_type == `diagnostico`) {
-              registroAprendizagemMethods.exportFileDiagnosticoList(query).then((csvFile) => {
-                saveCSVFile('Acompanhamento Diagnóstico', csvFile.data);
-              });
-            }
-            popover.onClose();
-          }}
-        >
-          <Iconify icon="solar:export-bold" />
-          Exportar
-        </MenuItem>
-      </CustomPopover> */}
+     
     </>
   );
 }

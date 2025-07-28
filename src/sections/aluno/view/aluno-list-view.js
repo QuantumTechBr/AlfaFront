@@ -136,6 +136,8 @@ export default function AlunoListView() {
       const limit = linhasPorPagina;
       let { ano, ddz, sem_escola, nome, matricula, escola, turma, fase } = filtros;
 
+      const escolasIds = escola?.map((escola) => escola.id);
+
       if (ano == '') {
         anosLetivos.map((ano_letivo) => {
           if (ano_letivo.ano == anoAtual) {
@@ -149,7 +151,7 @@ export default function AlunoListView() {
         setFilters(novosFiltros);
       }
       await alunoMethods
-        .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escola, matricula, fase, zonas: ddz, ano_letivo: ano, sem_escola })
+        .getAllAlunos({ offset, limit, nome, turmas: turma, escolas: escolasIds, matricula, fase, zonas: ddz, ano_letivo: ano, sem_escola })
         .then(async (alunos) => {
           if (alunos.data.count == 0) {
             setWarningMsg('A API retornou uma lista vazia de estudantes');
@@ -394,7 +396,10 @@ export default function AlunoListView() {
               escolaOptions={escolas}
               turmaOptions={
                 filters.escola.length > 0
-                  ? turmas.filter((_turma) => filters.escola.includes(_turma.escola_id))
+                  ? turmas.filter((_turma) => {
+                    const escolasIds = filters.escola.map((escola) => escola.id);
+                    return escolasIds.includes(_turma.escola_id) && (_turma.ano_id == filters.ano || filters.ano == ''); 
+                  })
                   : null
               }
               faseOptions={fases}

@@ -19,6 +19,7 @@ export default function AvaliacaoTableToolbar({
   filters,
   onFilters,
   anoLetivoOptions,
+  zonaOptions,
   escolaOptions,
   turmaOptions,
   bimestreOptions,
@@ -46,6 +47,16 @@ export default function AvaliacaoTableToolbar({
 
   const handleFilterAnoLetivo = useCallback(
     (event) => onFilters('ano', event.target.value),
+    [onFilters]
+  );
+
+  const handleFilterDdz = useCallback(
+    (event, newValue) => {
+      onFilters(
+        'zona',
+        newValue,
+      );
+    },
     [onFilters]
   );
 
@@ -120,6 +131,26 @@ export default function AvaliacaoTableToolbar({
                 </MenuItem>
               ))}
             </Select>
+          </FormControl>
+        )}
+
+        {zonaOptions && (
+          <FormControl
+            sx={{
+              flexShrink: 0,
+              width: { xs: 1, md: 300 },
+            }}
+          >
+            <Autocomplete
+              multiple
+              disablePortal
+              id="zona"
+              options={zonaOptions}
+              sx={{ width: 300 }}
+              renderInput={(params) => <TextField {...params} label="DDZ" />}
+              value={filters.zona}
+              onChange={handleFilterDdz}
+            />
           </FormControl>
         )}
 

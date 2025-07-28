@@ -94,6 +94,12 @@ export default function DashboardTurmaView() {
     grid_turmas: {},
   };
 
+  
+  let bimestreAtual = bimestres?.find((b) => new Date(b.data_inicio) <= new Date() && new Date(b.data_fim) >= new Date());
+  if (!bimestreAtual) {
+    bimestreAtual = bimestres?.filter((b) => new Date(b.data_inicio) <= new Date()).sort((a, b) => new Date(a.data_inicio) - new Date(b.data_inicio))[0];
+  }
+
   (anos_options ?? []).forEach((option) => {
     Object.assign(_objDados, { [`indice_fases_${option}_ano`]: {} });
     Object.assign(_objDados, { [`indice_aprovacao_${option}_ano`]: {} });
@@ -238,6 +244,7 @@ export default function DashboardTurmaView() {
     [getTurmasPorAnoEscolar]
   );
 
+
   const preencheGraficos = useCallback(
     async (_filters) => {
       console.log('preencheGraficos');
@@ -370,9 +377,11 @@ export default function DashboardTurmaView() {
         zona: _escola ? zonas.filter((z) => z.id == _escola?.zona.id) : filters.zona,
         escola: _escola ? [_escola] : [],
         turma: _turma?.id ? _turma : turmas.length == 1 ? turmas[0] : {},
-        ...(bimestres && bimestres.length > 0 ? { bimestre: bimestres.find(
-          (b) => b.ano.id == _anoLetivo?.id
-        ) } : {}),
+        ...(bimestres && bimestres.length > 0 ? { 
+          bimestre: bimestreAtual ?? bimestres.find(
+            (b) => b.ano.id == _anoLetivo?.id
+          )
+        } : {}),
       };
       setFilters((prevState) => ({ ...prevState, ..._filters }));
       preencheGraficos(_filters);

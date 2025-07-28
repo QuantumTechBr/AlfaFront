@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, use } from 'react';
 import { first } from 'lodash';
 
 // @mui
@@ -29,6 +29,7 @@ import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-c
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
+import { ZonasContext } from 'src/sections/zona/context/zona-context';
 import { useAuthContext } from 'src/auth/hooks';
 
 // components
@@ -69,6 +70,7 @@ const TABLE_HEAD = [
 
 const defaultFilters = {
   ano: '',
+  zona: [],
   escola: [],
   turma: [],
   bimestre: [],
@@ -90,6 +92,7 @@ export default function AvaliacaoFaseListView() {
   const [csvEscolaFileName, setCsvEscolaFileName] = useState('');
   const [countAcompanhamentos, setCountAcompanhamentos] = useState(0);
   const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
+  const { zonas, buscaZonas } = useContext(ZonasContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
@@ -101,6 +104,7 @@ export default function AvaliacaoFaseListView() {
   const dataAtual = new Date();
   const anoAtual = dataAtual.getFullYear();
   const [filters, setFilters] = useState(defaultFilters);
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
@@ -216,6 +220,13 @@ export default function AvaliacaoFaseListView() {
         })
       }
 
+      if (_zonas.length && _zonas.length == 1) {
+        _filters.zona = _zonas.length ? [{
+          label: _zonas[0].nome,
+          id: _zonas[0].id,
+        }] : [];
+      }
+
       if (escolas.length && escolas.length == 1) {
         _filters.escola = escolas.length ? [{
           label: escolas[0].nome,
@@ -245,6 +256,14 @@ export default function AvaliacaoFaseListView() {
       const offset = pagina * linhasPorPagina;
       const limit = linhasPorPagina;
       let escola = [];
+      let zona = [];
+
+      if (filtros.zona.length > 0) {
+        filtros.zona.map((d) => {
+          zona.push(d.id);
+        })
+      }
+
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
           escola.push(esc.id)
@@ -260,6 +279,7 @@ export default function AvaliacaoFaseListView() {
         limit: limit,
         ano: filtros.ano ? filtros.ano : '',
         escolas: escola,
+        zonas: zona,
       };
       const _newList = [];
 
@@ -307,6 +327,14 @@ export default function AvaliacaoFaseListView() {
       setErrorMsg('');
       buscandoCSV.onTrue();
 
+      let zonas = [];
+      if (filtros.zona.length > 0) {
+        filtros.zona.map((d) => {
+          zonas.push(d.id);
+        })
+      }
+      
+
       let escolas = [];
       if (filtros.escola.length > 0) {
         filtros.escola.map((esc) => {
@@ -322,6 +350,7 @@ export default function AvaliacaoFaseListView() {
         ),
         ano: filtros.ano,
         escola: escolas,
+        zonas: filtros.zona.map((zona) => zona.id),
       };
 
       if (por == 'turma') {
@@ -351,6 +380,12 @@ export default function AvaliacaoFaseListView() {
 
     }
   }, [anosLetivos, turmas, bimestres, filters]);
+
+  useEffect(() => {
+    const idsZonas = filters.zona.map(zona => zona.id);
+    const _escolasFiltered = escolas.filter((escola) => idsZonas.includes(escola.zona_id));
+    setEscolasFiltered(_escolasFiltered);
+  }, [filters.zona]);
 
   useEffect(() => {
     const idsEscolas = filters.escola.map(escola => escola.id);
@@ -523,7 +558,8 @@ export default function AvaliacaoFaseListView() {
             filters={filters}
             onFilters={handleFilters}
             anoLetivoOptions={anosLetivos}
-            escolaOptions={escolas}
+            zonaOptions={zonas}
+            escolaOptions={escolasFiltered.length ? escolasFiltered : escolas}
             turmaOptions={turmasFiltered.length ? turmasFiltered : null}
             bimestreOptions={bimestres}
             export_type="fase"

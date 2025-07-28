@@ -46,6 +46,7 @@ import PlanoIntervencaoTableFiltersResult from '../plano-intervencao-table-filte
 import planoIntervencaoMethods from '../plano-intervencao-repository';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from 'src/sections/zona/context/zona-context';
+import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import LoadingBox from 'src/components/helpers/loading-box';
 import NovoPlanoIntervencaoForm from '../plano-intervencao-modal-form';
 import parse from 'date-fns/parse';
@@ -69,6 +70,7 @@ const TABLE_HEAD = [
 ];
 
 const defaultFilters = {
+  anoLetivo: '',
   nome: '',
   role: [],
   zona: [],
@@ -86,12 +88,26 @@ export default function PlanoIntervencaoListView() {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { checkPermissaoModulo } = useAuthContext();
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const preparado = useBoolean(false);
 
   const permissaoCadastrar = checkPermissaoModulo("plano_intervencao","cadastrar");
 
+  const table = useTable();
+
+  const settings = useSettingsContext();
+
+  const router = useRouter();
+
+  const confirm = useBoolean();
+
+  const [tableData, setTableData] = useState([]);
+
+  const [filters, setFilters] = useState(defaultFilters);
+
 
   useEffect(() => {
+
     planoIntervencaoMethods.getAllPlanosIntervencao({fase: '', habilidades: ''}).then(planos => {
       setTableData(planos.data);
       preparado.onTrue();
@@ -107,19 +123,18 @@ export default function PlanoIntervencaoListView() {
       setErrorMsg('Erro de comunicação com a API de zonas');
       preparado.onTrue();
     });
+    buscaAnosLetivos().then(anos => {
+      if (!filters.anoLetivo) {
+        setFilters((prevState) => ({
+          ...prevState,
+          anoLetivo: anos[0]?.ano || '',
+        }));
+      }
+    }).catch((error) => {
+      setErrorMsg('Erro de comunicação com a API de anos letivos');
+      preparado.onTrue();
+    });
   }, []);
-
-  const table = useTable();
-
-  const settings = useSettingsContext();
-
-  const router = useRouter();
-
-  const confirm = useBoolean();
-
-  const [tableData, setTableData] = useState([]);
-
-  const [filters, setFilters] = useState(defaultFilters);
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -306,6 +321,7 @@ export default function PlanoIntervencaoListView() {
             onFilters={handleFilters}
             zonaOptions={zonas}
             escolaOptions={escolas}
+            anoLetivoOptions={anosLetivos}
           />
 
           {canReset && (
@@ -316,6 +332,7 @@ export default function PlanoIntervencaoListView() {
               results={dataFiltered.length}
               zonaOptions={zonas}
               escolaOptions={escolas}
+              anoLetivoOptions={anosLetivos}
               sx={{ p: 2.5, pt: 0 }}
             />
           )}
@@ -454,7 +471,7 @@ const filtraStatus = (plano) => {
 }
 
 function applyFilter({ inputData, comparator, filters }) {
-  const { nome, status, role, zona, escola } = filters;
+  const { nome, status, role, zona, escola, anoLetivo } = filters;
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
@@ -508,6 +525,14 @@ function applyFilter({ inputData, comparator, filters }) {
 
   if (zona.length) {
     inputData = inputData.filter((plano) => filtraZona(plano));
+  }
+  if (anoLetivo) {
+    inputData = inputData.filter((plano) => {
+      if (!plano?.inicio_previsto && !plano?.termino_previsto) return false;
+      const anoInicio = new Date(plano.inicio_previsto).getFullYear();
+      const anoTermino = new Date(plano.termino_previsto).getFullYear();
+      return String(anoInicio) === String(anoLetivo) || String(anoTermino) === String(anoLetivo);
+    });
   }
 
   return inputData;

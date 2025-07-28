@@ -15,6 +15,7 @@ import OutlinedInput from '@mui/material/OutlinedInput';
 import Checkbox from '@mui/material/Checkbox';
 import Label from 'src/components/label';
 import CloseIcon from '@mui/icons-material/Close';
+import Autocomplete from '@mui/material/Autocomplete';
 import { Box } from '@mui/material';
 // components
 import Iconify from 'src/components/iconify';
@@ -45,6 +46,11 @@ export default function AlunoTableToolbar({
   const [errorMessage, setErrorMessage] = useState('');
 
   const getEscola = useCallback((escolaId) => escolaOptions.find((e) => e.id == escolaId), [escolaOptions])
+  const escolaAutocompleteOptions = escolaOptions.map((escola) => ({
+    label: escola.nome,
+    id: escola.id,
+    zona: escola.zona,
+  }));
   const { user } = useContext(AuthContext);
   const buscandoCSV = useBoolean(false);
   const popover = usePopover();
@@ -64,14 +70,24 @@ export default function AlunoTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
+    (event, newValue) => {
       onFilters(
         'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        newValue,
       );
     },
     [onFilters]
   );
+  
+  // const handleFilterEscola = useCallback(
+  //   (event) => {
+  //     onFilters(
+  //       'escola',
+  //       typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+  //     );
+  //   },
+  //   [onFilters]
+  // );
 
   const handleFilterTurma = useCallback(
     (event) => {
@@ -115,12 +131,12 @@ export default function AlunoTableToolbar({
       return ddzOptions.find((option) => option.id == zonaId)?.nome;
     }).join(', ');
 
-  const renderValueEscola = (selected) =>
-    selected
-      .map((escolaId) => {
-        return escolaOptions.find((option) => option.id == escolaId)?.nome;
-      })
-      .join(', ');
+  // const renderValueEscola = (selected) =>
+  //   selected
+  //     .map((escolaId) => {
+  //       return escolaOptions.find((option) => option.id == escolaId)?.nome;
+  //     })
+  //     .join(', ');
 
   const renderValueTurma = (selected) =>
     selected
@@ -268,7 +284,25 @@ export default function AlunoTableToolbar({
             >
               <InputLabel>Escola</InputLabel>
 
-              <Select
+    
+              <Autocomplete
+                multiple
+                disablePortal
+                id="escola"
+                options={escolaAutocompleteOptions}
+                sx={{ width: 300 }}
+                renderInput={(params) => <TextField {...params} label="Escola" />}
+                value={filters.escola}
+                onChange={handleFilterEscola}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    enterAction(); // Call the function passed as prop on Enter key press
+                  }
+                }}
+              />
+
+              {/* <Select
                 multiple
                 value={filters.escola}
                 onChange={handleFilterEscola}
@@ -290,7 +324,7 @@ export default function AlunoTableToolbar({
                     {escola.nome}
                   </MenuItem>
                 ))}
-              </Select>
+              </Select> */}
             </FormControl>}
 
           {filters.escola.length > 0 && (

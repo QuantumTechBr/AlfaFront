@@ -24,6 +24,7 @@ export default function PlanoIntervencaoTableToolbar({
   roleOptions,
   zonaOptions,
   escolaOptions,
+  anoLetivoOptions
 }) {
   const popover = usePopover();
 
@@ -64,6 +65,16 @@ export default function PlanoIntervencaoTableToolbar({
     [onFilters]
   );
 
+  const handleFilterAnoLetivo = useCallback(
+    (event) => {
+      onFilters(
+        'anoLetivo',
+        event.target.value
+      );
+    },
+    [onFilters]
+  );
+
   const renderValueFuncao = (selected) =>
     selected.map((funcaoId) => {
       return roleOptions.find((option) => option.id == funcaoId)?.nome;
@@ -79,6 +90,11 @@ export default function PlanoIntervencaoTableToolbar({
     selected.map((zonaId) => {
       return zonaOptions.find((option) => option.id == zonaId)?.nome;
     }).join(', ');
+
+
+  // const renderValueAnoLetivo = (selected) =>
+  //   anoLetivoOptions.find((option) => selected.ano === option.ano)?.ano;
+
   return (
     <>
       <Stack
@@ -93,6 +109,33 @@ export default function PlanoIntervencaoTableToolbar({
           pr: { xs: 2.5, md: 1 },
         }}
       >
+
+        <FormControl
+          sx={{
+            flexShrink: 0,
+            width: { xs: 1, md: 100 },
+          }}
+        >
+          <InputLabel>ANO</InputLabel>
+
+          <Select
+            value={filters.anoLetivo}
+            onChange={handleFilterAnoLetivo}
+            input={<OutlinedInput label="ANO" />}
+            // renderValue={renderValueAnoLetivo}
+            MenuProps={{
+              PaperProps: {
+                sx: { maxHeight: 240 }, 
+              },
+            }}
+          >
+            {anoLetivoOptions.map((option) => (
+              <MenuItem key={option.ano} value={option.ano}>
+                {option?.ano}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
        <FormControl
           sx={{
@@ -121,7 +164,7 @@ export default function PlanoIntervencaoTableToolbar({
               </MenuItem>
             ))}
           </Select>
-            </FormControl>
+        </FormControl>
 
         <FormControl
           sx={{

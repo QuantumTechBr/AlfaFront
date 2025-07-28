@@ -73,12 +73,12 @@ export function useNavData() {
               title: t('Fase'),
               path: paths.dashboard.root,
             },
+            // {
+            //   title: t('Diagnóstica'),
+            //   path: paths.dashboard.root_diagnostico,
+            // },
             {
               title: t('Diagnóstica'),
-              path: paths.dashboard.root_diagnostico,
-            },
-            {
-              title: t('Diagnóstica2'),
               path: paths.dashboard.root_diagnostico2,
             },
           ]
@@ -124,12 +124,12 @@ export function useNavData() {
           path: paths.dashboard.registro_aprendizagem.root_diagnostico,
           icon: ICONS.alfaBookAccount,
           children: [
+            // {
+            //   title: t('Diagnóstica'),
+            //   path: paths.dashboard.registro_aprendizagem.root_diagnostico,
+            // },
             {
               title: t('Diagnóstica'),
-              path: paths.dashboard.registro_aprendizagem.root_diagnostico,
-            },
-            {
-              title: t('Diagnóstica2'),
               path: paths.dashboard.avaliacao.root_diagnostico,
             },
             {
@@ -193,12 +193,12 @@ export function useNavData() {
               title: t('Fase'),
               path: paths.dashboard.root,
             },
+            // {
+            //   title: t('Diagnóstica'),
+            //   path: paths.dashboard.root_diagnostico,
+            // },
             {
               title: t('Diagnóstica'),
-              path: paths.dashboard.root_diagnostico,
-            },
-            {
-              title: t('Diagnóstica2'),
               path: paths.dashboard.root_diagnostico2,
             },
           ]
@@ -256,12 +256,12 @@ export function useNavData() {
             path: paths.dashboard.registro_aprendizagem.root,
             icon: ICONS.alfaBookAccount,
             children: [
+              // {
+              //   title: t('Diagnóstica'),
+              //   path: paths.dashboard.registro_aprendizagem.root_diagnostico,
+              // },
               {
                 title: t('Diagnóstica'),
-                path: paths.dashboard.registro_aprendizagem.root_diagnostico,
-              },
-              {
-                title: t('Diagnóstica2'),
                 path: paths.dashboard.avaliacao.root_diagnostico,
               },
               {
