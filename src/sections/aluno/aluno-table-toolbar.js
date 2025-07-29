@@ -477,7 +477,7 @@ export default function AlunoTableToolbar({
               buscandoCSV.onTrue();
               const exportFilters = {
                 turmas: filters.turma,
-                escolas: filters.escola,
+                escolas: filters.escola?.length ? filters.escola.map((escola) => escola.id) : [],
                 matricula: filters.matricula,
                 nome: filters.nome,
                 fase: filters.fase,
@@ -486,7 +486,7 @@ export default function AlunoTableToolbar({
               };
 
               const query = new URLSearchParams(exportFilters).toString();
-              alunoMethods.exportFile(query).then((csvFile) => {
+              alunoMethods.exportFile(query).then(() => {
                 setWarningMsg('Arquivo enviado com sucesso para o email ' + (user?.email ?? ''));
                 buscandoCSV.onFalse();
               });
