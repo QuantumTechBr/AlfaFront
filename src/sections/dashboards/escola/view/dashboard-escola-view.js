@@ -440,6 +440,14 @@ export default function DashboardEscolaView() {
           }
         }
         if (data.length > 0) {
+          let avaliadosCount = 0;
+          data.map((item) => {
+            if (item.name === 'Não Avaliado'){
+              item.data[0] = getTotalEstudandes() - avaliadosCount;
+            } else {
+              avaliadosCount += item.data[0];
+            }
+          });
           serie[s].data = data;
           chartBimestres[b].series.push(serie[s]);
         }
