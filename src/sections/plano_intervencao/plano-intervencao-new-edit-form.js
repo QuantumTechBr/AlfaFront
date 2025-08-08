@@ -64,7 +64,7 @@ import { AuthContext } from 'src/auth/context/alfa';
 
 import documentoIntervencaoMethods from './documento_plano_intervencao/documento-intervencao-repository';
 import { getValue } from '@mui/system';
-import { set } from 'lodash';
+import { over, set } from 'lodash';
 // ----------------------------------------------------------------------
 const filtros = {
   ano: '',
@@ -103,6 +103,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
   const [escolaTurma, setEscolaTurma] = useState({});
   const [aplicacaoDefault, setAplicacaoDefault] = useState(filtros);
+  const [timerBuscaProfissionais, setTimerBuscaProfissionais] = useState(null);
+  const [timerBuscaAlunos, setTimerBuscaAlunos] = useState(null);
+  const [escolasACTotal, setEscolasACTotal] = useState([]);
+  const [escolasFiltered, setEscolasFiltered] = useState([]);
 
   let aplicarInicial = '';
   const colunasDocumentosAntigos = [
@@ -178,23 +182,33 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     formState: { isSubmitting },
   } = methods;
 
+  const handleBuscaProfissionais = (nome = '') => {
+    setErrorMsg('');
+    // lógica para impedir que várias buscas sejam feitas em sequência.
+    // Se já houver um timer em andamento, ele é cancelado
+    if (timerBuscaProfissionais) {
+      clearTimeout(timerBuscaProfissionais);
+    }
+    // Inicia um novo timer de 500ms. Após esse tempo, a função de busca é chamada.
+    setTimerBuscaProfissionais(setTimeout(() => {
+      getAllProfissionais(nome);
+    }, 500));
+  }
+
   const getAllProfissionais = (nome = '') => {
     profissionalMethods
-      .getAllProfissionaisPaginado({ offset: 0, limit: 5, nome: nome })
+      .getAllProfissionaisPaginado({ offset: 0, limit: 10, nome: nome })
       .then(profissionais => {
         const lp = []
         if (profissionais.data.results.length == 0) {
-          setWarningMsg('A API retornou uma lista vazia de profissionais');
           preparado.onTrue();
         }
         profissionais.data.results.map((profissional) => {
-          // if (profissional.funcao.nome == "PROFESSOR") {
           const pro = {
             label: profissional.profissional,
             id: profissional.id,
           }
           lp.push(pro)
-          // }
         });
         setListaProfissionais(lp);
       }).catch((error) => {
@@ -211,6 +225,19 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
       }
       return al
     })
+  }
+
+  const handleBuscaAlunos = (nome = '') => {
+    setErrorMsg('');
+    // lógica para impedir que várias buscas sejam feitas em sequência.
+    // Se já houver um timer em andamento, ele é cancelado
+    if (timerBuscaAlunos) {
+      clearTimeout(timerBuscaAlunos);
+    }
+    // Inicia um novo timer de 500ms. Após esse tempo, a função de busca é chamada.
+    setTimerBuscaAlunos(setTimeout(() => {
+      getAluno(nome)
+    }, 500));
   }
 
   const getAluno = (pesquisa = '') => {
@@ -258,7 +285,18 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de habilidades');
     });
-    buscaEscolas().catch((error) => {
+    buscaEscolas().then(retorno => {
+      const escolasAC = [];
+      retorno.map((escola) => {
+        const ea = {
+          label: escola.nome,
+          id: escola.id,
+        }
+        escolasAC.push(ea)
+      })
+      setEscolasFiltered(escolasAC);
+      setEscolasACTotal(escolasAC);
+    }).catch((error) => {
       setErrorMsg('Erro de comunicação com a API de escolas');
     });
     buscaTurmas().catch((error) => {
@@ -515,10 +553,10 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
-      handleFilters(
+    (event, newValue) => {
+      onFilters(
         'escolas',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        newValue,
       );
     },
     [handleFilters]
@@ -655,28 +693,22 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             flexShrink: 0,
           }}
         >
-          <InputLabel>Escolas</InputLabel>
 
-          <Select
+          <Autocomplete
             multiple
-            name="escolas"
-            value={filters.escolas}
+            disablePortal
+            id="escola"
+            options={escolasFiltered}
+            renderInput={(params) => <TextField {...params} label="Escola" />}
+            value={filters.escola}
             onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                enterAction(); // Call the function passed as prop on Enter key press
+              }
             }}
-          >
-            {escolas?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escolas.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
+          />
         </FormControl>
       )
     }
@@ -750,6 +782,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             control={control}
             render={({ field: { onChange, value } }) => (
               <Autocomplete
+                sx={{
+                  '&.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root': {
+                    paddingRight: '9px', // Alterando padding para ajustar ícones
+                  },
+                }}
                 onChange={(event, newInputValue) => handleAlunos(newInputValue)}
                 value={buscaAlu}
                 options={alunos}
@@ -759,10 +796,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                   setBuscaAlu(newInputValue);
                 }}
                 onKeyDown={(e) => {
-                  if (e.code === "Enter") {
-                    e.preventDefault()
-                    getAluno(buscaAlu)
-                  }
+                  handleBuscaAlunos(buscaAlu)
                 }}
                 renderInput={(params) => (
                   <TextField
@@ -804,13 +838,13 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   return (
     <>
-      <FormProvider methods={methods} onSubmit={onSubmit}>
+      <FormProvider methods={methods} onSubmit={onSubmit} >
         {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
         {!preparado.value ? (
           <LoadingBox />) : (
           <Grid container spacing={3}>
             <Grid xs={12} md={12}>
-              <Card sx={{ p: 3 }}>
+              <Card sx={{ p: 3, overflow: 'visible' }}>
                 <Box
                   rowGap={3}
                   columnGap={2}
@@ -901,6 +935,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                     control={control}
                     render={({ field: { onChange, value } }) => (
                       <Autocomplete
+                        sx={{
+                          '&.MuiAutocomplete-hasPopupIcon.MuiAutocomplete-hasClearIcon .MuiOutlinedInput-root': {
+                            paddingRight: '9px', // Alterando padding para ajustar ícones
+                          },
+                        }}
                         onChange={(event, newInputValue) => setValue("responsavel", newInputValue)}
                         value={buscaPro}
                         options={listaProfissionais}
@@ -910,10 +949,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                           setBuscaPro(newInputValue);
                         }}
                         onKeyDown={(e) => {
-                          if (e.code === "Enter") {
-                            e.preventDefault()
-                            getAllProfissionais(buscaPro)
-                          }
+                          handleBuscaProfissionais(buscaPro)
                         }}
                         renderInput={(params) => (
                           <TextField
@@ -922,8 +958,8 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
                             InputProps={{
                               ...params.InputProps,
                               endAdornment: (
-                                <InputAdornment position="start">
-                                  <IconButton type="button" sx={{ p: '10px' }} aria-label="search"
+                                <InputAdornment >
+                                  <IconButton type="button" aria-label="search"
                                     onClick={() => {
                                       getAllProfissionais(buscaPro)
                                     }
