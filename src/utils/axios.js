@@ -263,6 +263,7 @@ export const endpoints = {
     },
     relatorioAvaliacaoFasePorTurma: '/api/v1/registros-aprendizagens/report-por-turma/',
     relatorioAvaliacaoFasePorEscola: '/api/v1/registros-aprendizagens/report-por-escola/',
+    relatorioAvaliacaoFasePorAluno: '/api/v1/registros-aprendizagens/report-por-aluno/',
   },
   avaliacao: {
     baseUrl: '/api/v1/avaliacao/avaliacao-aluno/',

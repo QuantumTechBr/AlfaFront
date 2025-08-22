@@ -26,6 +26,7 @@ export const importFileFase = (payload) => axios.post(endpoints.registro_aprendi
 
 export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorTurma, payload);
 export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorEscola, payload);
+export const getRelatorioAvaliacaoPorAluno = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorAluno, payload);
 
 const registroAprendizagemMethods = {
     insertRegistroAprendizagem,
@@ -48,7 +49,8 @@ const registroAprendizagemMethods = {
     importFileDiagnostico,
     importFileFase,
     getRelatorioAvaliacaoPorTurma,
-    getRelatorioAvaliacaoPorEscola
+    getRelatorioAvaliacaoPorEscola,
+    getRelatorioAvaliacaoPorAluno
 };
 
 export default registroAprendizagemMethods;

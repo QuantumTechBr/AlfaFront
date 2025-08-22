@@ -379,9 +379,18 @@ export default function RegistroAprendizagemFaseListView() {
             setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
             buscandoCSV.onFalse();
           });
+      } else if (por == 'aluno') {
+        await registroAprendizagemMethods
+          .getRelatorioAvaliacaoPorAluno(_filtersToSend)
+          .then((result) => {
+            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
+            buscandoCSV.onFalse();
+          })
+          .catch((error) => {
+            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+            buscandoCSV.onFalse();
+          });
       }
-
-
     }
   }, [anosLetivos, turmas, bimestres, filters]);
 
@@ -630,6 +639,17 @@ export default function RegistroAprendizagemFaseListView() {
                     Relatório por escolas
                   </Button>
                 </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    buscarAvaliacoesCSV('aluno');
+                  }}
+                >
+                  <Iconify icon="material-symbols:download" />
+                  <Button className='downloadCSVFilterBtn'>
+                    Relatório por alunos
+                  </Button>
+                </MenuItem>
+
               </>
             }
 
