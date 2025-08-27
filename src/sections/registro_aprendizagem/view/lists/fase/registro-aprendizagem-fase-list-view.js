@@ -106,6 +106,7 @@ export default function RegistroAprendizagemFaseListView() {
   const [filters, setFilters] = useState(defaultFilters);
   const [turmasFiltered, setTurmasFiltered] = useState([]);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
+  const [bimestresFiltered, setBimestresFiltered] = useState([]);
   const [tableData, setTableData] = useState([]);
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
@@ -406,6 +407,17 @@ export default function RegistroAprendizagemFaseListView() {
     setTurmasFiltered(_turmasFiltered);
   }, [filters.escola]);
 
+  useEffect(() => {
+    const idsEscolas = filters.escola.map(escola => escola.id);
+    if (idsEscolas.length) {
+      let _turmasFiltered = turmas;
+      _turmasFiltered = _turmasFiltered.filter((turma) => idsEscolas.includes(turma.escola_id) && turma.ano_id == filters.ano);
+      setTurmasFiltered(_turmasFiltered);
+    }
+    const _bimestresFiltered = bimestres.filter((bimestre) => filters.ano == bimestre.ano_id);
+    setBimestresFiltered(_bimestresFiltered);
+  }, [filters.ano]);
+
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
     table.page * table.rowsPerPage + table.rowsPerPage
@@ -582,7 +594,7 @@ export default function RegistroAprendizagemFaseListView() {
             zonaOptions={zonas}
             escolaOptions={escolasFiltered.length ? escolasFiltered : escolas}
             turmaOptions={turmasFiltered.length ? turmasFiltered : null}
-            bimestreOptions={bimestres}
+            bimestreOptions={bimestresFiltered.length ? bimestresFiltered : bimestres}
             export_type="fase"
           />
           <Button
