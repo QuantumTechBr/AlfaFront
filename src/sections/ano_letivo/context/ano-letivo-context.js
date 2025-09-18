@@ -13,7 +13,7 @@ export const AnosLetivosProvider = ({ children }) => {
       if (!_consultaAtual || force) {
         _consultaAtual = anoLetivoMethods.getAllAnosLetivos().then((response) => {
           if (response.data == '' || response.data === undefined) response.data = [];
-          returnData = response.data.sort((a, b) => b.ano - a.ano);
+          returnData = response.data.sort((a, b) => a.ano - b.ano);
           setAnosLetivos(returnData);
           return returnData;
         });

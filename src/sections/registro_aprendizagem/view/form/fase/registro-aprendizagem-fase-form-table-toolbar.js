@@ -191,7 +191,7 @@ export default function RegistroAprendizagemFaseFormTableToolbar({
                 },
               }}
             >
-              {bimestreOptions.map((option) => {
+              {bimestreOptions.filter((option) => option.ano.id == filters.anoLetivo.id).map((option) => {
                 return (
                   <MenuItem key={option.id} value={option}>
                     {`${option.ordinal}º`}

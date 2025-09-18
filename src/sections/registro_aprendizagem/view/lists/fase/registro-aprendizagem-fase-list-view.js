@@ -65,6 +65,8 @@ const TABLE_HEAD = [
   { id: 'bimestre', label: 'Bimestre', width: 80 },
   { id: 'escola', label: 'Escola' },
   { id: 'atualizado_por', label: 'Atualizado Por' },
+  { id: 'data_criacao', label: 'Data de Criação' },
+  { id: 'data_atualizacao', label: 'Data de Atualização' },
   { id: '', width: 72 },
 ];
 
@@ -306,6 +308,8 @@ export default function RegistroAprendizagemFaseListView() {
                 zona: zonas.find((z) => z.id == _turma.zona_id)?.nome || '',
                 escola: escolas.find((e) => e.id == _turma.escola_id).nome,
                 atualizado_por: registro.atualizado_por != 'None' ? registro.atualizado_por : '',
+                updated_at: registro.updated_at,
+                created_at: registro.created_at
               });
             }
           });

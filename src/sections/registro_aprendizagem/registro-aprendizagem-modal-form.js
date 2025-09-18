@@ -32,7 +32,8 @@ import { CloseIcon } from 'yet-another-react-lightbox';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { TurmasContext } from 'src/sections/turma/context/turma-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
-import { first } from 'lodash';
+import { AnosLetivosContext } from '../ano_letivo/context/ano-letivo-context';
+import { last } from 'lodash';
 
 // ----------------------------------------------------------------------
 
@@ -41,10 +42,12 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { turmas, buscaTurmas } = useContext(TurmasContext);
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const contextReady = useBoolean(false);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
 
   const defaultValues = {
+    ano_letivo: '',
     escola: '',
     turma: '',
     bimestre: '',
@@ -61,10 +64,11 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
       buscaEscolas(),
       buscaTurmas(),
       buscaBimestres(),
+      buscaAnosLetivos(),
     ]).finally(() => {
       contextReady.onTrue();
     });
-  }, [buscaEscolas, buscaTurmas, buscaBimestres]);
+  }, [buscaEscolas, buscaTurmas, buscaBimestres, buscaAnosLetivos]);
 
   useEffect(() => {
     preparacaoInicial();
@@ -89,6 +93,9 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
         label: escolas[0].nome,
         id: escolas[0].id,
       });
+    if (anosLetivos.length) {
+      setValue('ano_letivo', last(anosLetivos).id);
+    } 
   }, [contextReady.value]);
 
   const {
@@ -109,6 +116,10 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
       }
 
       if (type == 'change' && name == 'escola') setValue('turma', '');
+      if (type == 'change' && name == 'ano_letivo') {
+        setValue('turma', '');
+        setValue('bimestre', '');
+      } 
     });
 
     return () => subscription.unsubscribe();
@@ -116,7 +127,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
   const values = watch();
 
-  const { tipo, escola, turma, periodo, bimestre } = values;
+  const { ano_letivo, tipo, escola, turma, periodo, bimestre } = values;
 
   const isTipoFase = tipo == 'Acompanhamento de Fase';
   const isTipoDiagnostico = tipo == 'Acompanhamento Diagnóstico';
@@ -138,7 +149,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
   const selectTurma = () => {
     return (
       <RHFSelect name="turma" label="Turma">
-        {turmas.filter((_turma) => _turma.escola_id == escola.id).map((_turma) => (
+        {turmas.filter((_turma) => _turma.escola_id == escola.id && _turma.ano_id == ano_letivo).map((_turma) => (
           <MenuItem key={_turma.id} value={_turma.id}>
             {_turma.ano_escolar}º {_turma.nome} ({_turma.turno})
           </MenuItem>
@@ -195,6 +206,13 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
         <DialogContent>
           <br></br>
           <Box rowGap={3} display="grid">
+            <RHFSelect name="ano_letivo" label="Ano Letivo" >
+              {anosLetivos.map((ano) => (
+                <MenuItem key={ano.id} value={ano.id}>
+                  {ano.ano}
+                </MenuItem>
+              ))}
+            </RHFSelect>
             <RHFSelect name="tipo" label="Tipo">
               {_tiposAvaliacao.map((tipo_avaliacao) => (
                 <MenuItem key={tipo_avaliacao} value={tipo_avaliacao}>
@@ -210,7 +228,7 @@ export default function NovaAvaliacaoForm({ open, onClose, initialTipo }) {
 
             {isTipoFase && turma && (
               <RHFSelect name="bimestre" label="Bimestre">
-                {bimestres.map((_bimestre) => (
+                {bimestres.filter((_bimestre) => _bimestre.ano.id == ano_letivo).map((_bimestre) => (
                   <MenuItem key={_bimestre.id} value={_bimestre.id}>
                     {`${_bimestre.ordinal}º Bimestre`}
                   </MenuItem>

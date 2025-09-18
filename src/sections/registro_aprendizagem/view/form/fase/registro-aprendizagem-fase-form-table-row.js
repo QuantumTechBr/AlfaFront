@@ -139,6 +139,18 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     );
   };
 
+  const tooltipTitle = (tipoFaseValue) => {
+    if (desabilita.value) {
+      return 'Registros já salvos não podem ser alterados'
+    }
+    if (tipoFaseValue == 'Não Avaliado' || resultadoPrevio == '') {
+      return ''
+    }
+    if (desabilitaBimestre(tipoFaseValue)) {
+      return 'Este valor não pode ser selecionado pois o aluno tem uma avaliação superior em um bimestre anterior'
+    }
+  };
+
   return (
     <TableRow hover>
         <TableCell sx={{ whiteSpace: 'nowrap', textAlign: 'left' }}>
@@ -149,26 +161,28 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
         </TableCell>
         {Object.values(RegistroAprendizagemFasesCRUD).map((tipoFaseValue) => {
           return (
-            <TableCell
-              key={`resultado_${slugify(tipoFaseValue)}_{${aluno_turma_id}`}
-              sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
-            >
-              <Controller
-                name={'registros[' + aluno_turma_id + '].resultado'}
-                control={control}
-                render={({ field, fieldState: { error } }) => (
-                  <Checkbox
-                    disabled={desabilita.value || desabilitaBimestre(tipoFaseValue)}
-                    checked={field.value === tipoFaseValue}
-                    onChange={(event) => {
-                      field.onChange(event.target.value);
-                    }}
-                    value={tipoFaseValue}
-                    sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                  />
-                )}
-              />
-            </TableCell>
+            <Tooltip key={tipoFaseValue} title={tooltipTitle(tipoFaseValue)} placement="top" arrow>
+              <TableCell
+                key={`resultado_${slugify(tipoFaseValue)}_{${aluno_turma_id}`}
+                sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}
+              >
+                <Controller
+                  name={'registros[' + aluno_turma_id + '].resultado'}
+                  control={control}
+                  render={({ field, fieldState: { error } }) => (
+                    <Checkbox
+                      disabled={desabilita.value || desabilitaBimestre(tipoFaseValue)}
+                      checked={field.value === tipoFaseValue}
+                      onChange={(event) => {
+                        field.onChange(event.target.value);
+                      }}
+                      value={tipoFaseValue}
+                      sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+                    />
+                  )}
+                />
+              </TableCell>
+            </Tooltip>
           );
         })}
         <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 250 }}>
