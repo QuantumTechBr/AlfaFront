@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
 import Select from '@mui/material/Select';
+import Autocomplete from '@mui/material/Autocomplete';
 // components
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
@@ -63,10 +64,10 @@ export default function ProfissionalTableToolbar({
   );
 
   const handleFilterEscola = useCallback(
-    (event) => {
+    (_, newValue) => {
       onFilters(
         'escola',
-        typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
+        newValue.map((escola) => escola.id)
       );
     },
     [onFilters]
@@ -76,13 +77,6 @@ export default function ProfissionalTableToolbar({
     selected
       .map((funcao_nome_exibicao) => {
         return roleOptions.find((option) => option.nome_exibicao == funcao_nome_exibicao)?.nome_exibicao;
-      })
-      .join(', ');
-
-  const renderValueEscola = (selected) =>
-    selected
-      .map((escolaId) => {
-        return escolaOptions.find((option) => option.id == escolaId)?.nome;
       })
       .join(', ');
 
@@ -130,34 +124,32 @@ export default function ProfissionalTableToolbar({
           </Select>
         </FormControl>
 
-        <FormControl
+        <Autocomplete
+          multiple
+          disablePortal
+          options={escolaOptions ?? []}
+          value={(escolaOptions ?? []).filter((escola) => (filters.escola ?? []).includes(escola.id))}
+          onChange={handleFilterEscola}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          getOptionLabel={(option) => option?.nome ?? ''}
           sx={{
             flexShrink: 0,
-            width: { xs: 1, md: 300 },
+            width: { xs: '100%', md: 300 },
           }}
-        >
-          <InputLabel>Escola</InputLabel>
-
-          <Select
-            multiple
-            value={filters.escola}
-            onChange={handleFilterEscola}
-            input={<OutlinedInput label="Escola" />}
-            renderValue={renderValueEscola}
-            MenuProps={{
-              PaperProps: {
-                sx: { maxHeight: 240 },
-              },
-            }}
-          >
-            {escolaOptions?.map((escola) => (
-              <MenuItem key={escola.id} value={escola.id}>
-                <Checkbox disableRipple size="small" checked={filters.escola.includes(escola.id)} />
-                {escola.nome}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Escola"
+              placeholder="Selecionar escola..."
+            />
+          )}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              enterAction();
+            }
+          }}
+        />
 
         <Stack direction="row" alignItems="center" spacing={2} flexGrow={1} sx={{ width: 1 }}>
           <TextField
