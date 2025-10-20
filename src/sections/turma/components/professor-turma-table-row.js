@@ -31,11 +31,14 @@ export default function ProfessorTurmaTableRow({ row, selected, currentTurma, on
   // selected = emOutraTurma ? false : selected;
  
   return (
-    <TableRow hover selected={selected}>
+    <TableRow hover selected={selected} onClick={onSelectRow}>
         <TableCell padding="checkbox">
           <Checkbox 
           //disabled={row?.turma ? true : false} 
-          checked={selected} onClick={onSelectRow} />
+          checked={selected} onClick={(event) => {
+            event.stopPropagation();
+            onSelectRow();
+          }} />
         </TableCell>
 
         <TableCell sx={{ whiteSpace: 'nowrap' }}>{profissional}</TableCell>
