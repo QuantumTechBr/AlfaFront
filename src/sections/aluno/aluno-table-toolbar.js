@@ -78,16 +78,7 @@ export default function AlunoTableToolbar({
     },
     [onFilters]
   );
-  
-  // const handleFilterEscola = useCallback(
-  //   (event) => {
-  //     onFilters(
-  //       'escola',
-  //       typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value
-  //     );
-  //   },
-  //   [onFilters]
-  // );
+
 
   const handleFilterTurma = useCallback(
     (event) => {
@@ -130,13 +121,6 @@ export default function AlunoTableToolbar({
     selected.map((zonaId) => {
       return ddzOptions.find((option) => option.id == zonaId)?.nome;
     }).join(', ');
-
-  // const renderValueEscola = (selected) =>
-  //   selected
-  //     .map((escolaId) => {
-  //       return escolaOptions.find((option) => option.id == escolaId)?.nome;
-  //     })
-  //     .join(', ');
 
   const renderValueTurma = (selected) =>
     selected
@@ -302,29 +286,6 @@ export default function AlunoTableToolbar({
                 }}
               />
 
-              {/* <Select
-                multiple
-                value={filters.escola}
-                onChange={handleFilterEscola}
-                input={<OutlinedInput label="Escola" />}
-                renderValue={renderValueEscola}
-                MenuProps={{
-                  PaperProps: {
-                    sx: { maxHeight: 240 },
-                  },
-                }}
-              >
-                {escolaOptions?.filter((_escola) => filters.ddz.includes(_escola.zona.id)).map((escola) => (
-                  <MenuItem key={escola.id} value={escola.id}>
-                    <Checkbox
-                      disableRipple
-                      size="small"
-                      checked={filters.escola.includes(escola.id)}
-                    />
-                    {escola.nome}
-                  </MenuItem>
-                ))}
-              </Select> */}
             </FormControl>}
 
           {filters.escola.length > 0 && (

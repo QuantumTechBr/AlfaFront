@@ -78,8 +78,16 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
     if (open) {
       setCurrentProfessoresEscola(null);
       getProfessoresEscola(turma.escola.id);
-      if (turma?.professor_turma.length > 0) {
-        table.setSelected(turma?.professor_turma[0]?.usuario?.id)
+      if (turma?.professor_turma?.length > 0) {
+        const professoresOrdenados = [...turma.professor_turma].sort(
+          (a, b) => (b?.responsavel === true) - (a?.responsavel === true)
+        );
+        const selecionados = professoresOrdenados
+          .map((professorTurma) => professorTurma?.usuario?.id)
+          .filter(Boolean);
+        table.setSelected(selecionados);
+      } else {
+        table.setSelected([]);
       }
     }
   }, [open]);
@@ -90,7 +98,6 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      console.log(table.selected)
       if (table.selected.length < 1) {
         await turmaMethods
         .updateTurmaById(turma.id, {
@@ -99,9 +106,14 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
           throw error;
         });
       } else {
+        const professoresParaSalvar = table.selected.map((usuarioId, index) => ({
+          usuario_id: usuarioId,
+          responsavel: index === 0,
+        }));
+
         await turmaMethods
         .updateTurmaById(turma.id, {
-          professor_turma: [{usuario_id: table.selected, responsavel: true}]
+          professor_turma: professoresParaSalvar
         }).catch((error) => {
           throw error;
         });
@@ -115,18 +127,6 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
       console.error(error);
     }
   });
-
-  const onSelectRowCustom = useCallback(
-    (inputValue) => {
-      if (table.selected.includes(inputValue)) {
-        table.setSelected([])
-      } else {
-        table.setSelected(inputValue);
-      }
-    },
-    [table]
-  );
-
   const isLoading = currentProfessoresEscola === undefined || currentProfessoresEscola === null;
 
   return (
@@ -166,7 +166,7 @@ export default function ProfessorTurmaForm({ turma, open, onClose }) {
                         row={row}
                         currentTurma={turma}
                         selected={table.selected.includes(row.id)}
-                        onSelectRow={() => onSelectRowCustom(row.id)}
+                        onSelectRow={() => table.onSelectRow(row.id)}
                       />
                     )})}
 
