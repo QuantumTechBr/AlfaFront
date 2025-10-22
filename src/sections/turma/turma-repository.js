@@ -13,6 +13,10 @@ export const importFileTurmas = payload => axios.post(endpoints.turma.import, pa
 export const updateAlunoTurmaById = (alunoTurmaId, payload) => axios.patch(endpoints.turma.aluno_turma.concat(alunoTurmaId), payload);
 export const deleteAlunoTurmaById = alunoTurmaId => axios.delete(endpoints.turma.aluno_turma.concat(alunoTurmaId));
 export const insertAlunoTurma = payload => axios.post(endpoints.turma.aluno_turma, payload);
+export const insertProfessorTurma = payload => axios.post(endpoints.turma.professor_turma, payload);
+export const deleteProfessorTurma = professorTurmaId => axios.delete(endpoints.turma.professor_turma.concat(professorTurmaId));
+export const getProfessorTurmaByUsuarioId = usuarioId => axios.get(endpoints.turma.professor_turma.concat(`?usuario_id=${usuarioId}`));
+
 
 const turmaMethods = {
     insertTurma,
@@ -26,6 +30,9 @@ const turmaMethods = {
     updateAlunoTurmaById,
     deleteAlunoTurmaById,
     insertAlunoTurma,
+    insertProfessorTurma,
+    deleteProfessorTurma,
+    getProfessorTurmaByUsuarioId,
 };
 
 export default turmaMethods;

@@ -1,4 +1,5 @@
 import { createContext, useState } from 'react';
+import axios from 'src/utils/axios';
 import turmaMethods from '../turma-repository';
 
 export const TurmasContext = createContext();
@@ -72,8 +73,23 @@ export const TurmasProvider = ({ children }) => {
     return returnData;
   }
 
+  const deleteProfessorTurma = async (professorTurmaId) => {
+    let returnData = await turmaMethods.deleteProfessorTurma(professorTurmaId).then((response) => {
+      return response.data;
+    });
+    return returnData;
+  };
+
+  const getProfessorTurmaByUsuario = async (usuarioId) => {
+    return turmaMethods.getProfessorTurmaByUsuarioId(usuarioId).then((response) => response.data);
+  };
+
+  const postProfessorTurma = async (payload) => {
+    return turmaMethods.insertProfessorTurma(payload).then((response) => response.data);
+  };
+
   return (
-    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId, buscaTurmasPaginado, buscaTurma }}>
+    <TurmasContext.Provider value={{ turmas, buscaTurmas, buscaTurmaPorId, buscaTurmasPaginado, buscaTurma, deleteProfessorTurma, getProfessorTurmaByUsuario, postProfessorTurma }}>
       {children}
     </TurmasContext.Provider>
   );

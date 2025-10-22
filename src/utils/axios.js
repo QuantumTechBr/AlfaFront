@@ -290,6 +290,8 @@ export const endpoints = {
     delete: '/api/v1/turmas/',
     import: '/api/v1/turmas/importar-turmas/',
     aluno_turma: '/api/v1/turmas/aluno-turma/',
+    professor_turma: '/api/v1/turmas/professor-turma/',
+
   },
   user: {
     list: '/api/v1/usuarios/',

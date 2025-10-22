@@ -34,6 +34,8 @@ import { FuncoesContext } from 'src/sections/funcao/context/funcao-context';
 import { EscolasContext } from 'src/sections/escola/context/escola-context';
 import { ZonasContext } from '../zona/context/zona-context';
 import { PermissoesContext } from '../permissao/context/permissao-context';
+import { TurmasContext } from 'src/sections/turma/context/turma-context';
+import { AnosLetivosContext } from '../ano_letivo/context/ano-letivo-context';
 import Alert from '@mui/material/Alert';
 import { useAuthContext } from 'src/auth/hooks';
 import { useBoolean } from 'src/hooks/use-boolean';
@@ -65,6 +67,8 @@ export default function UserNewEditForm({ currentUser }) {
   const { escolas, buscaEscolas } = useContext(EscolasContext);
   const { zonas, buscaZonas } = useContext(ZonasContext);
   const { permissoes, buscaPermissoes } = useContext(PermissoesContext);
+  const { getProfessorTurmaByUsuario } = useContext(TurmasContext);
+  const { anosLetivos, buscaAnosLetivos } = useContext(AnosLetivosContext);
   const [funcoesOptions, setFuncoesOptions] = useState([]);
   const [zonaCtrl, setZonaCtrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -75,6 +79,7 @@ export default function UserNewEditForm({ currentUser }) {
   const edit = useBoolean(false);
   const [tableData, setTableData] = useState([]);
   const [rowToEdit, setRowToEdit] = useState();
+  const [professorTurmas, setProfessorTurmas] = useState([]);
   const contextReady = useBoolean(false);
 
   useEffect(() => {
@@ -90,6 +95,9 @@ export default function UserNewEditForm({ currentUser }) {
       }),
       buscaPermissoes().catch((error) => {
         setErrorMsg('Erro de comunicação com a API de permissoes');
+      }),
+      buscaAnosLetivos().catch((error) => {
+        setErrorMsg('Erro de comunicação com a API de anos letivos');
       }),
     ]).then(() => {
       contextReady.onTrue();
@@ -316,7 +324,14 @@ export default function UserNewEditForm({ currentUser }) {
       return;
     }
     atualizaTableData(currentUser);
-  }, [currentUser, defaultValues, reset]);
+    
+    // Fetch professor turmas if user exists
+    if (currentUser?.id) {
+      getProfessorTurmaByUsuario(currentUser.id)
+        .then((turmas) => setProfessorTurmas(Array.isArray(turmas) ? turmas : []))
+        .catch(() => setProfessorTurmas([]));
+    }
+  }, [currentUser, defaultValues, reset, getProfessorTurmaByUsuario]);
 
 
   const handleFilters = useCallback(
@@ -520,8 +535,9 @@ export default function UserNewEditForm({ currentUser }) {
   };
   
   const TABLE_HEAD = [
-    { id: 'funcao', label: 'Função', width: 400, notsortable: true },
-    { id: 'escola/zona', label: 'Escola/DDZ', width: 100, notsortable: true },
+    { id: 'funcao', label: 'Função', width: 200, notsortable: true },
+    { id: 'escola/zona', label: 'Escola/DDZ', width: 200, notsortable: true },
+    { id: 'turmas', label: 'Turmas', width: 400, notsortable: true },
     { id: '', label: botaoLabel(), width: 88 },
   ];
 
@@ -690,9 +706,11 @@ export default function UserNewEditForm({ currentUser }) {
                         <UserFuncaoTableRow
                           key={row.id}
                           row={row}
+                          professorTurmas={professorTurmas}
+                          anosLetivos={anosLetivos}
                           onEditRow={() => {
                             edit.onTrue();
-                            setRowToEdit(row);
+                            setRowToEdit({ ...row, professorTurmas });
                           }}
                           onDeleteRow={() => handleDeleteRow(row)}
                         />
