@@ -9,6 +9,7 @@ import { paths } from 'src/routes/paths';
 import { useSettingsContext } from 'src/components/settings';
 import CustomBreadcrumbs from 'src/components/custom-breadcrumbs';
 
+import { useAuthContext } from 'src/auth/hooks';
 import { AnosLetivosContext } from 'src/sections/ano_letivo/context/ano-letivo-context';
 import { BimestresContext } from 'src/sections/bimestre/context/bimestre-context';
 
@@ -18,6 +19,8 @@ import AnoLetivoNewEditForm from '../ano-letivo-new-edit-form';
 
 export default function AnoLetivoEditView({ id }) {
   const settings = useSettingsContext();
+  const { checkPermissaoModulo } = useAuthContext();
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
 
   const [errorMsg, setErrorMsg] = useState('');
   const [currentAnoLetivo, setCurrentAnoLetivo] = useState(null);
@@ -27,6 +30,7 @@ export default function AnoLetivoEditView({ id }) {
   const { buscaBimestres } = useContext(BimestresContext);
 
   useEffect(() => {
+    if (!permissaoSuperAdmin) return;
     Promise.all([
       buscaAnoLetivo(id),
       buscaBimestres(id, true),
@@ -39,14 +43,22 @@ export default function AnoLetivoEditView({ id }) {
     });
   }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const afterSave = useCallback(() => {
-    buscaAnosLetivos({ force: true });
+  const afterSave = useCallback(async () => {
+    await buscaAnosLetivos({ force: true });
     buscaBimestres(id, true).then((bimestres) => {
       setCurrentBimestres([...bimestres].sort((a, b) => a.ordinal - b.ordinal));
     });
   }, [id, buscaAnosLetivos, buscaBimestres]);
 
   const nomeBreadcrumb = currentAnoLetivo?.ano ?? '...';
+
+  if (!permissaoSuperAdmin) {
+    return (
+      <Container maxWidth={settings.themeStretch ? false : 'lg'}>
+        <Alert severity="error">Acesso restrito a Super Administradores.</Alert>
+      </Container>
+    );
+  }
 
   return (
     <Container maxWidth={settings.themeStretch ? false : 'lg'}>

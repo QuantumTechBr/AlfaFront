@@ -113,11 +113,16 @@ export default function AnoLetivoListView() {
           : null,
       };
       const response = await anoLetivoMethods.insertAnoLetivo(payload);
+      const newId = response?.data?.id;
+      if (!newId) {
+        setErrorMsg('Ano letivo criado, mas não foi possível redirecionar para a edição.');
+        return;
+      }
       await buscaAnosLetivos({ force: true });
       enqueueSnackbar('Ano letivo criado com sucesso!');
       criarDialog.onFalse();
       createReset(defaultCreateValues);
-      router.push(paths.dashboard.ano_letivo.edit(response.data.id));
+      router.push(paths.dashboard.ano_letivo.edit(newId));
     } catch (error) {
       setErrorMsg(typeof error === 'string' ? error : 'Erro ao criar ano letivo');
       console.error(error);
