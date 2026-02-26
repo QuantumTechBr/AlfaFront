@@ -118,6 +118,13 @@ export function useNavData() {
           icon: ICONS.alfaBookAccount,
         },
 
+        // ANOS LETIVOS
+        {
+          title: 'Anos Letivos',
+          path: paths.dashboard.ano_letivo.list,
+          icon: ICONS.alfaCalendar,
+        },
+
         // AVALIAÇÕES
         {
           title: t('acompanhamentos'),

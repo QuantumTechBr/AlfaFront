@@ -57,6 +57,11 @@ export const paths = {
       list: `${ROOTS.DASHBOARD}/turma/list`,
       edit: (id) => `${ROOTS.DASHBOARD}/turma/${id}/edit`,
     },
+    ano_letivo: {
+      root: `${ROOTS.DASHBOARD}/ano_letivo/list`,
+      list: `${ROOTS.DASHBOARD}/ano_letivo/list`,
+      edit: (id) => `${ROOTS.DASHBOARD}/ano_letivo/${id}/edit`,
+    },
     profissional: {
       root: `${ROOTS.DASHBOARD}/profissional/list`,
       new: `${ROOTS.DASHBOARD}/profissional/new`,

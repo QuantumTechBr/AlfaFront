@@ -74,11 +74,14 @@ export const endpoints = {
     import: '/api/v1/alunos/importar-alunos/',
   },
   ano_letivo: {
-    list: '/api/v1/anos-letivos/',
-    post: '/api/v1/anos-letivos',
+    // Base: /api/v1/anos-letivos — IDs concatenados pelo repositório (ex: endpoints.ano_letivo.update.concat(id))
+    // PUT/PATCH aceitam campo "bimestres: BimestreInput[]" para atualizar bimestres do ano letivo
+    // Campos: id (uuid), ano (integer), status ("ativo"|"inativo"), data_inicio (YYYY-MM-DD), data_fim (YYYY-MM-DD)
+    list:      '/api/v1/anos-letivos/',
+    post:      '/api/v1/anos-letivos/',
     get_by_id: '/api/v1/anos-letivos/',
-    update: '/api/v1/anos-letivos/',
-    delete: '/api/v1/anos-letivos/',
+    update:    '/api/v1/anos-letivos/',
+    delete:    '/api/v1/anos-letivos/',
   },
   arquivo_atividade: {
     list: '/api/v1/arquivos-atividades/',

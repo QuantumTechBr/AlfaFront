@@ -34,3 +34,6 @@ yarn-debug.log*
 yarn-error.log*
 .vscode/launch.json
 .amazonq/*
+CLAUDE.md
+.claude/
+docs/
