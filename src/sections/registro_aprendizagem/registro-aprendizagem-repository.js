@@ -23,6 +23,7 @@ export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.registr
 export const getListIdTurmaRegistroAprendizagemFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.idsTurmaList.concat(`/?limit=${payload.limit}&offset=${payload.offset}`), payload);
 export const exportFileFaseList = (query) => axios.get(endpoints.registro_aprendizagem.fase.list.concat(`/?`).concat(query));
 export const importFileFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const getMelhorResultadoHistorico = ({ turmaId, bimestreId }) => axios.get(endpoints.registro_aprendizagem.fase.melhor_resultado_historico.concat(`?turma_id=${turmaId}&bimestre_id=${bimestreId}`));
 
 export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorTurma, payload);
 export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorEscola, payload);
@@ -48,6 +49,7 @@ const registroAprendizagemMethods = {
     exportFileFaseList,
     importFileDiagnostico,
     importFileFase,
+    getMelhorResultadoHistorico,
     getRelatorioAvaliacaoPorTurma,
     getRelatorioAvaliacaoPorEscola,
     getRelatorioAvaliacaoPorAluno

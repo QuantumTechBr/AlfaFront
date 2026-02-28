@@ -262,6 +262,7 @@ export const endpoints = {
       update: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       delete: '/api/v1/registros-aprendizagens/avaliacao-fase/',
       import: '/api/v1/registros-aprendizagens/avaliacao-fase/import/',
+      melhor_resultado_historico: '/api/v1/registros-aprendizagens/avaliacao-fase/melhor-resultado-historico/',
     },
     relatorioAvaliacaoFasePorTurma: '/api/v1/registros-aprendizagens/report-por-turma/',
     relatorioAvaliacaoFasePorEscola: '/api/v1/registros-aprendizagens/report-por-escola/',

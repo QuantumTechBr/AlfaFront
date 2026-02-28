@@ -8,6 +8,7 @@ export const RegistroAprendizagemProvider = ({ children }) => {
   const [registroAprendizagemFase, setRegistroAprendizagemFase] = useState([]);
   const [registroAprendizagemFaseAlunoTurma, setRegistroAprendizagemFaseAlunoTurma] = useState([]);
   const [registroAprendizagemDiagnosticoAlunoTurma, setRegistroAprendizagemDiagnosticoAlunoTurma] = useState([]);
+  const [melhorResultadoHistoricoPorAluno, setMelhorResultadoHistoricoPorAluno] = useState({});
 
   let mapsBusca = new Map();
 
@@ -86,6 +87,13 @@ export const RegistroAprendizagemProvider = ({ children }) => {
     return consulta;
   };
 
+  const buscaMelhorResultadoHistoricoPorTurma = async ({ turmaId, bimestreId }) => {
+    const response = await registroAprendizagemMethods.getMelhorResultadoHistorico({ turmaId, bimestreId });
+    const resultados = response?.data?.resultados || {};
+    setMelhorResultadoHistoricoPorAluno(resultados);
+    return resultados;
+  };
+
   const melhorResultadoAlunoTurma = async ({ alunoTurmaId, bimestreId }) => {
     const mapResultados = {
       'Não Avaliado' : 1,
@@ -123,7 +131,9 @@ export const RegistroAprendizagemProvider = ({ children }) => {
       buscaRegistroAprendizagemFaseByTurmaIdBimestreId, 
       buscaRegistroAprendizagemFaseByAlunoTurmaId, 
       buscaRegistroAprendizagemDiagnosticoByAlunoTurmaIdByPeriodo, 
-      melhorResultadoAlunoTurma, 
+      melhorResultadoAlunoTurma,
+      melhorResultadoHistoricoPorAluno,
+      buscaMelhorResultadoHistoricoPorTurma,
       mapResultadosAlunoTurmaInicial,
       limparMapCache,
       }}>

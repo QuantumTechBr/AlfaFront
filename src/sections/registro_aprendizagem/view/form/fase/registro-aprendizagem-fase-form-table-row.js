@@ -28,7 +28,7 @@ import Iconify from 'src/components/iconify';
 
 export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres }) {
   
-  const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, melhorResultadoAlunoTurma } = useContext(RegistroAprendizagemContext);
+  const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, melhorResultadoAlunoTurma, melhorResultadoHistoricoPorAluno } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
   const desabilita = useBoolean(false);
   const { id: aluno_turma_id, aluno } = row;
@@ -43,6 +43,15 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     bimestreAnterior = bimestres.find((bimestre) => (bimestre?.ordinal + 1 == bimestreAtual?.ordinal));
   }
   const [resultadoPrevio, setResultadoPrevio] = useState("")
+  const resultadoPrevioGlobal = melhorResultadoHistoricoPorAluno?.[String(row.aluno.id)] || 'Não Avaliado';
+
+  const mapRankingComparacao = {
+    'Não Avaliado': 0,
+    'Pré-Alfabética': 2,
+    'Alfabética Parcial': 3,
+    'Alfabética Completa': 4,
+    'Alfabética Consolidada': 5,
+  };
 
   const disableCheckbox = useCallback(() => {
     if (getValues('registros[' + aluno_turma_id + '].resultado') == '' || getValues('registros[' + aluno_turma_id + '].resultado') == 'Não Avaliado') {
@@ -72,28 +81,36 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
       alunoTurmaId: alunoTurmaId,
       bimestreId: bimestreId,
     });
-    setResultadoPrevio(rp)
-  }, [melhorResultadoAlunoTurma, setResultadoPrevio]);
+    const maior = (mapRankingComparacao[rp] || 0) >= (mapRankingComparacao[resultadoPrevioGlobal] || 0)
+      ? rp : resultadoPrevioGlobal;
+    setResultadoPrevio(maior)
+  }, [melhorResultadoAlunoTurma, setResultadoPrevio, resultadoPrevioGlobal]);
 
   useEffect(() => {
-    preparacaoInicial() 
+    preparacaoInicial()
   }, []);
 
   useEffect(() => {
-      if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR"  & bimestreAnterior != undefined) {
+    if (user?.permissao_usuario[0]?.nome == "PROFESSOR" || user?.permissao_usuario[0]?.nome == "DIRETOR") {
+      if (bimestreAnterior != undefined) {
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
             ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
           } else {
-            setResultadoPrevio(registro?.resultado)
-          }      
+            const maior = (mapRankingComparacao[registro?.resultado] || 0) >= (mapRankingComparacao[resultadoPrevioGlobal] || 0)
+              ? registro?.resultado : resultadoPrevioGlobal;
+            setResultadoPrevio(maior);
+          }
         } else {
           ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
         }
-      }    
-      
-  }, [bimestreAnterior]);
+      } else {
+        setResultadoPrevio(resultadoPrevioGlobal);
+      }
+    }
+
+  }, [bimestreAnterior, resultadoPrevioGlobal]);
   
   const mapDesabilitarCheckbox = {
     'Não Avaliado' : 6,
