@@ -210,8 +210,8 @@ export default function AvaliacaoDiagnosticoListView(filtersInicial = defaultFil
               if (turma?.id) {
                 const retorno = { ...turma };
                 retorno.periodo = registro.periodo;
-                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id).nome;
-                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id).ano;
+                retorno.escola_nome = escolas.find((escola) => escola.id == turma.escola_id)?.nome ?? '';
+                retorno.ano_letivo = anosLetivos.find((ano) => ano.id == turma.ano_id)?.ano ?? '';
                 retorno.atualizado_por = registro.atualizado_por;
 
                 _newList.push(retorno);
@@ -637,7 +637,7 @@ function applyFilter({ inputData, comparator, filters }) {
         // ) !== -1 ||
         // item.turno.toLowerCase().indexOf(_pesquisa) !== -1 ||
         // item.periodo.toLowerCase().indexOf(_pesquisa) !== -1 ||
-        item.escola.nome.toLowerCase().indexOf(_pesquisa) >= 0
+        item.escola_nome.toLowerCase().indexOf(_pesquisa) >= 0
       );
     });
   }

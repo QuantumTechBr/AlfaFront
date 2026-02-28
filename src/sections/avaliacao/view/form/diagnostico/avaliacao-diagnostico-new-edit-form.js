@@ -83,7 +83,7 @@ export default function AvaliacaoDiagnosticoNewEditForm({ turma, periodo, handle
         let nova_linha_csv = [];
         alunoTurma.aluno.nome ? nova_linha_csv.push(alunoTurma.aluno.nome) : nova_linha_csv.push('');
         alunoTurma.frequencia ? nova_linha_csv.push(capitalize(alunoTurma.frequencia)) : nova_linha_csv.push('');
-        if (alunoTurma.r) {
+        if (alunoTurma.r && questoes) {
           for (const questao of questoes) {
             const alternativaId = alunoTurma.r[questao.numero_questao];
             if (alternativaId) {
