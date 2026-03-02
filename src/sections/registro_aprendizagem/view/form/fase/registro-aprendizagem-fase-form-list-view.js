@@ -178,15 +178,15 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       const [registrosDaTurmaBimestre] = await Promise.all([
         registroAprendizagemMethods
           .getAllRegistrosAprendizagemFase({
-            turmaId: _turma.id,
-            bimestreId: _bimestre.id,
+            turmaId: _turma?.id,
+            bimestreId: _bimestre?.id,
           })
           .catch((error) => {
             setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
           }),
-        buscaMelhorResultadoHistoricoPorTurma({ turmaId: _turma.id, bimestreId: _bimestre.id }),
+        buscaMelhorResultadoHistoricoPorTurma({ turmaId: _turma?.id, bimestreId: _bimestre?.id }),
       ]);
-      await buscaTurmaPorId({ id: _turma.id })
+      await buscaTurmaPorId({ id: _turma?.id })
         .then((__turma) => {
           const _newRegistros = [];
           let csv_dat = [["Nome", "Resultado", "Observação"]];

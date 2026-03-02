@@ -177,8 +177,8 @@ export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicia
 
       const registrosDaTurmaBimestre = await registroAprendizagemMethods
         .getAllRegistrosAprendizagemFase({
-          turmaId: _turma.id,
-          bimestreId: _bimestre.id,
+          turmaId: _turma?.id,
+          bimestreId: _bimestre?.id,
         })
         .catch((error) => {
           setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');

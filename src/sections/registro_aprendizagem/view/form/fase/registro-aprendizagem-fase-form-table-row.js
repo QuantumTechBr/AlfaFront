@@ -71,7 +71,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
     if (bimestreAnterior != undefined) {
       await buscaRegistroAprendizagemFaseByTurmaIdBimestreId({
         turmaId: turmaId,
-        bimestreId: bimestreAnterior.id,
+        bimestreId: bimestreAnterior?.id,
       });
     }
   }, [disableCheckbox, desabilita, bimestreAnterior, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, turmaId]);
@@ -96,14 +96,14 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
         const registro = registroAprendizagemFase.find((registro) => registro?.aluno_turma?.aluno?.id == row.aluno.id);
         if (registro){
           if (registro?.resultado == "Não Avaliado" || registro?.resultado == "") {
-            ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
+            ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior?.id});
           } else {
             const maior = (mapRankingComparacao[registro?.resultado] || 0) >= (mapRankingComparacao[resultadoPrevioGlobal] || 0)
               ? registro?.resultado : resultadoPrevioGlobal;
             setResultadoPrevio(maior);
           }
         } else {
-          ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior.id});
+          ResultadoPrevio({alunoTurmaId: aluno_turma_id, bimestreId: bimestreAnterior?.id});
         }
       } else {
         setResultadoPrevio(resultadoPrevioGlobal);
