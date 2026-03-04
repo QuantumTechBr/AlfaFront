@@ -436,26 +436,32 @@ export default function UserNewEditForm({ currentUser }) {
         // atualiza o currentUser com as permissoes
         currentUser['permissao_usuario_id'] = permissoes.map((permissao) => permissao.id);
         // atualiza o currentUser 
-        await userMethods.updateUserById(currentUser.id, currentUser).then((response) => {
+        let success = false;
+      await userMethods.updateUserById(currentUser.id, currentUser).then((response) => {
           currentUser.funcao_usuario = response.data.funcao_usuario.map((item) => {
             item.funcao_id = item.funcao.id;
             item.zona_id = item.zona?.id ?? null;
             item.escola_id = item.escola?.id ?? null;
-            return item;  
+            return item;
           })
           atualizaTableData(response.data);
+          getProfessorTurmaByUsuario(currentUser.id)
+            .then((turmas) => setProfessorTurmas(Array.isArray(turmas) ? turmas : []))
+            .catch(() => {});
           enqueueSnackbar('Atualizado com sucesso!');
+          success = true;
         }).catch((error) => {
-          setErrorMsg('Erro ao atualizar usuário', error);
+          setErrorMsg('Erro ao atualizar usuário: ' + error);
           console.error(error);
         }).finally(() => {
-          edit.onFalse();
-          setRowToEdit(null);
+          if (success) setRowToEdit(null);
         });
-        
+      return success;
+
       } catch (error) {
-        setErrorMsg('Tentativa de atualização de função do usuário falhou', error);
+        setErrorMsg('Tentativa de atualização de função do usuário falhou: ' + error);
         console.error(error);
+        return false;
       }
     }
 
@@ -515,7 +521,7 @@ export default function UserNewEditForm({ currentUser }) {
             variant="contained"
             onClick={() => {
               edit.onTrue();
-              setRowToEdit();
+              setRowToEdit({ id: '', user_id: currentUser?.id });
             }}
             startIcon={<Iconify icon="mingcute:add-line" />}
             sx={{
@@ -529,9 +535,12 @@ export default function UserNewEditForm({ currentUser }) {
     );
   }
 
-  const saveAndClose = (retorno = null) => {
-    handleSaveRow(retorno);
-    edit.onFalse();
+  const saveAndClose = async (retorno = null) => {
+    const success = await handleSaveRow(retorno);
+    if (success) {
+      edit.onFalse();
+    }
+    return success;
   };
   
   const TABLE_HEAD = [

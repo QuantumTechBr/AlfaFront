@@ -246,13 +246,13 @@ export default function UserFuncaoEditModal({ row, open, onClose, onSave, funcoe
         return;
       }
 
-      const usuarioId = resolveUsuarioId(funcaoUsuario ?? row);
-      if (!usuarioId) {
-        setErrorMsg('Usuario invalido para atualizar turmas.');
-        return;
-      }
-
       if (_funcao.nome === 'PROFESSOR') {
+        const usuarioId = resolveUsuarioId(funcaoUsuario ?? row);
+        if (!usuarioId) {
+          setErrorMsg('Usuario invalido para atualizar turmas.');
+          return;
+        }
+
         const selectedTurmaIds = (formData.turmas || [])
           .map((turma) => turma?.id)
           .filter(Boolean);
@@ -323,11 +323,13 @@ export default function UserFuncaoEditModal({ row, open, onClose, onSave, funcoe
       nome_exibicao: valorFuncao,
     };
 
-    setValue('escola', '');
-    setValue('zona', '');
-    setValue('funcao', '');
-    setValue('turmas', []);
-    onSave(_funcaoUsuario);
+    const success = await onSave(_funcaoUsuario);
+    if (success) {
+      setValue('escola', '');
+      setValue('zona', '');
+      setValue('funcao', '');
+      setValue('turmas', []);
+    }
   };
 
   return (
@@ -349,7 +351,7 @@ export default function UserFuncaoEditModal({ row, open, onClose, onSave, funcoe
       {!contextReady.value && <LoadingBox texto="Carregando dependências" mt={4} />}
 
       {contextReady.value && (
-        <FormProvider methods={methods} onSubmit={handleSubmit(handleUpdate)}>
+        <FormProvider methods={methods} onSubmit={(e) => { e.stopPropagation(); handleSubmit(handleUpdate)(e); }}>
           <DialogTitle>Função Usuário</DialogTitle>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
 
