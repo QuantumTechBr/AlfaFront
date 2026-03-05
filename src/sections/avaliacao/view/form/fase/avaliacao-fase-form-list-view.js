@@ -74,7 +74,7 @@ const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pes
 // ----------------------------------------------------------------------
 
 export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicial }) {
-  const { checkPermissaoModulo } = useAuthContext();
+  const { checkPermissaoModulo, checkFuncao } = useAuthContext();
   const settings = useSettingsContext();
   const router = useRouter();
   const table = useTable();
@@ -120,6 +120,16 @@ export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicia
 
   // watch(): checkbox da tabela acionam atualização de tela
   watch();
+
+  const _bimestreSelecionado = getValues('bimestre');
+  const bimestreNaoIniciado = (() => {
+    if (!checkFuncao('PROFESSOR') || !_bimestreSelecionado?.data_inicio) return false;
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    const [ano, mes, dia] = _bimestreSelecionado.data_inicio.split('-').map(Number);
+    const dataInicio = new Date(ano, mes - 1, dia);
+    return dataInicio > hoje;
+  })();
 
   const dataFiltered = applyFilter({
     inputData: tableData,
@@ -396,6 +406,12 @@ export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicia
         <FormProvider methods={methods} onSubmit={onSubmit}>
           {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+          {bimestreNaoIniciado && (
+            <Alert severity="warning" sx={{ mb: 2 }}>
+              Este bimestre ainda não foi iniciado. O preenchimento só estará disponível a partir de{' '}
+              {(() => { const [a, m, d] = _bimestreSelecionado.data_inicio.split('-').map(Number); return new Date(a, m - 1, d).toLocaleDateString('pt-BR'); })()}.
+            </Alert>
+          )}
 
           <Card>
             <AvaliacaoFaseFormTableToolbar
@@ -447,6 +463,7 @@ export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicia
                             key={row.id}
                             row={row}
                             bimestres={bimestres}
+                            bimestreNaoIniciado={bimestreNaoIniciado}
                           />
                         );
                       })}
@@ -477,7 +494,7 @@ export default function AvaliacaoFaseFormListView({ turmaInicial, bimestreInicia
           <Stack sx={{ mt: 3 }} direction="row" spacing={0.5} justifyContent="flex-end">
             <Grid alignItems="center" xs={3}>
               {permissaoCadastrar &&
-                <LoadingButton type="submit" variant="contained" loading={isSubmitting}>
+                <LoadingButton type="submit" variant="contained" loading={isSubmitting} disabled={bimestreNaoIniciado}>
                   Salvar informações
                 </LoadingButton>
               }

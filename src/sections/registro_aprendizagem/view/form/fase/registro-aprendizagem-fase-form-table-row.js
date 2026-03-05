@@ -26,7 +26,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres }) {
+export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres, bimestreNaoIniciado }) {
   
   const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, melhorResultadoAlunoTurma, melhorResultadoHistoricoPorAluno } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
@@ -188,7 +188,7 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
                   control={control}
                   render={({ field, fieldState: { error } }) => (
                     <Checkbox
-                      disabled={desabilita.value || desabilitaBimestre(tipoFaseValue)}
+                      disabled={desabilita.value || desabilitaBimestre(tipoFaseValue) || bimestreNaoIniciado}
                       checked={field.value === tipoFaseValue}
                       onChange={(event) => {
                         field.onChange(event.target.value);
@@ -228,4 +228,5 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres })
 RegistroAprendizagemFaseFormTableRow.propTypes = {
   row: PropTypes.object,
   bimestres: PropTypes.array,
+  bimestreNaoIniciado: PropTypes.bool,
 };

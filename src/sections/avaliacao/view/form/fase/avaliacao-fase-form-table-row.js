@@ -26,7 +26,7 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function avaliacaoFaseFormTableRow({ row, bimestres }) {
+export default function avaliacaoFaseFormTableRow({ row, bimestres, bimestreNaoIniciado }) {
   
   const { registroAprendizagemFase, buscaRegistroAprendizagemFaseByTurmaIdBimestreId, melhorResultadoAlunoTurma } = useContext(RegistroAprendizagemContext);
   const { user } = useContext(AuthContext);
@@ -158,7 +158,7 @@ export default function avaliacaoFaseFormTableRow({ row, bimestres }) {
                 control={control}
                 render={({ field, fieldState: { error } }) => (
                   <Checkbox
-                    disabled={desabilita.value || desabilitaBimestre(tipoFaseValue)}
+                    disabled={desabilita.value || desabilitaBimestre(tipoFaseValue) || bimestreNaoIniciado}
                     checked={field.value === tipoFaseValue}
                     onChange={(event) => {
                       field.onChange(event.target.value);
@@ -197,4 +197,5 @@ export default function avaliacaoFaseFormTableRow({ row, bimestres }) {
 avaliacaoFaseFormTableRow.propTypes = {
   row: PropTypes.object,
   bimestres: PropTypes.array,
+  bimestreNaoIniciado: PropTypes.bool,
 };
