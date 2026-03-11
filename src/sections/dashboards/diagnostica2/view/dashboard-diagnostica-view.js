@@ -1485,7 +1485,8 @@ export default function DashboardDiagnosticaView() {
 // ----------------------------------------------------------------------
 
 function applyTableFilter({ isZonaFiltered, isEscolaFiltered, inputData, comparator, filters }) {
-  const { campo } = filters;
+  const { campo: _campo } = filters;
+  const campo = typeof _campo === 'string' ? _campo : '';
 
   const stabilizedThis = inputData.map((el, index) => [el, index]);
 
