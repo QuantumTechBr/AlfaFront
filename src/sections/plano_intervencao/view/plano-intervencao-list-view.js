@@ -125,9 +125,14 @@ export default function PlanoIntervencaoListView() {
     });
     buscaAnosLetivos().then(anos => {
       if (!filters.anoLetivo) {
+        const anoAtual = new Date().getFullYear();
+        const anoLetivoAtual = anos.find((a) => a.ano === anoAtual);
+        const anoLetivoDefault = anoLetivoAtual
+          ? anoLetivoAtual.ano
+          : anos[anos.length - 1]?.ano || '';
         setFilters((prevState) => ({
           ...prevState,
-          anoLetivo: anos[0]?.ano || '',
+          anoLetivo: anoLetivoDefault,
         }));
       }
     }).catch((error) => {

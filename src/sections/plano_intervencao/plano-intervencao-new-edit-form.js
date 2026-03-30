@@ -357,11 +357,11 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }
 
   const handleEscolasEdit = (escolasAplicacao) => {
-    let escolasId = [];
+    let escolasAC = [];
     escolasAplicacao?.map((esc) => {
-      escolasId.push(esc?.id);
+      escolasAC.push({ id: esc?.id, label: esc?.nome });
     })
-    return escolasId;
+    return escolasAC;
   }
 
   const handleTurmasEdit = (turmasAplicacao) => {
@@ -373,7 +373,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }
 
   useEffect(() => {
-    if (currentPlano?.aplicacao) {
+    if (currentPlano?.aplicacao && escolas?.length > 0) {
       const novoFiltros = {
         ano: '',
         fase: '',
@@ -459,7 +459,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         listaIdsAplicacao.zonas = filters.zonas;
       }
       if (aplicar == 'Escolas') {
-        listaIdsAplicacao.escolas = filters.escolas;
+        listaIdsAplicacao.escolas = filters.escolas.map((esc) => esc.id);
       }
       if (aplicar == 'Turmas') {
         listaIdsAplicacao.turmas = filters.turmas;
@@ -554,7 +554,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const handleFilterEscola = useCallback(
     (event, newValue) => {
-      onFilters(
+      handleFilters(
         'escolas',
         newValue,
       );
@@ -699,8 +699,9 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
             disablePortal
             id="escola"
             options={escolasFiltered}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             renderInput={(params) => <TextField {...params} label="Escola" />}
-            value={filters.escola}
+            value={filters.escolas}
             onChange={handleFilterEscola}
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
