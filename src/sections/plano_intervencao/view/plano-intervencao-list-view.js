@@ -346,11 +346,11 @@ export default function PlanoIntervencaoListView() {
             <TableSelectedAction
               dense={table.dense}
               numSelected={table.selected.length}
-              rowCount={tableData.length}
+              rowCount={dataFiltered.length}
               onSelectAllRows={(checked) =>
                 table.onSelectAllRows(
                   checked,
-                  tableData.map((row) => row.id)
+                  dataFiltered.map((row) => row.id)
                 )
               }
               action={
@@ -371,7 +371,7 @@ export default function PlanoIntervencaoListView() {
                   order={table.order}
                   orderBy={table.orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={tableData.length}
+                  rowCount={dataFiltered.length}
                   numSelected={table.selected.length}
                   onSort={table.onSort}
                   onSelectAllRows={
@@ -379,7 +379,7 @@ export default function PlanoIntervencaoListView() {
                     (checked) =>
                     table.onSelectAllRows(
                       checked,
-                      tableData.map((row) => row.id)
+                      dataFiltered.map((row) => row.id)
                     )) : (
                       permissaoCadastrar
                     )
