@@ -333,7 +333,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }, [allHab])
 
   const handleAlunosEdit = async (alunosAplicacao) => {
-    let alunosEdit = [];
+    const alunosEdit = [];
     alunosAplicacao.map((estudante) => {
       const r = getAlunoById(estudante?.id);
       alunosEdit.push(r);
@@ -349,7 +349,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const handleZonasEdit = (zonasAplicacao) => {
-    let zonasId = [];
+    const zonasId = [];
     zonasAplicacao?.map((zona) => {
       zonasId.push(zona?.id);
     })
@@ -357,7 +357,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }
 
   const handleEscolasEdit = (escolasAplicacao) => {
-    let escolasAC = [];
+    const escolasAC = [];
     escolasAplicacao?.map((esc) => {
       escolasAC.push({ id: esc?.id, label: esc?.nome });
     })
@@ -365,7 +365,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   }
 
   const handleTurmasEdit = (turmasAplicacao) => {
-    let turmasId = [];
+    const turmasId = [];
     turmasAplicacao?.map((tur) => {
       turmasId.push(tur?.id);
     })
@@ -384,7 +384,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         alunos: currentPlano.aplicacao?.alunos ? handleAlunosEdit(currentPlano.aplicacao?.alunos) : [],
       };
       if (currentPlano.aplicacao.turmas) {
-        let etInicial = escolas?.filter((escola) => escola?.id == currentPlano?.aplicacao?.turmas[0]?.escola_id)
+        const etInicial = escolas?.filter((escola) => escola?.id == currentPlano?.aplicacao?.turmas[0]?.escola_id)
         setEscolaTurma(etInicial[0]?.id)
       }
       setAplicacaoDefault(novoFiltros);
@@ -446,6 +446,27 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
 
   const { ano_escolar, fase, habilidades, aplicar } = values;
 
+  const validarAplicacao = (listaIds, maxPU) => {
+    const nivel = permissao_values[maxPU];
+    if (nivel >= 4) {
+      const temSelecao = listaIds.zonas.length > 0 ||
+                         listaIds.escolas.length > 0 ||
+                         listaIds.turmas.length > 0 ||
+                         listaIds.alunos.length > 0;
+      if (!temSelecao) {
+        return 'É obrigatório selecionar ao menos uma zona, escola, turma ou aluno para aplicar o plano.';
+      }
+    } else if (nivel >= 2) {
+      const temSelecao = listaIds.escolas.length > 0 ||
+                         listaIds.turmas.length > 0 ||
+                         listaIds.alunos.length > 0;
+      if (!temSelecao) {
+        return 'É obrigatório selecionar ao menos uma escola, turma ou aluno para aplicar o plano.';
+      }
+    }
+    return '';
+  };
+
   const onSubmit = handleSubmit(async (data) => {
     setErrorMsg('');
     try {
@@ -468,6 +489,12 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
         alunosSelecionados.map((aluno) => {
           listaIdsAplicacao.alunos.push(aluno.id)
         })
+      }
+      // Validação de aplicação obrigatória por perfil
+      const erroAplicacao = validarAplicacao(listaIdsAplicacao, maxPermissaoUsuario);
+      if (erroAplicacao) {
+        setErrorMsg(erroAplicacao);
+        return;
       }
       const inicioPrev = new Date(data.inicio_previsto);
       const terminoPrev = new Date(data.termino_previsto);
@@ -573,7 +600,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
   );
 
   const handleAlunos = (newInputValue) => {
-    let novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
+    const novoAlunos = alunosSelecionados.filter((alu) => alu?.id != newInputValue?.id);
     if (novoAlunos.length == alunosSelecionados.length) {
       novoAlunos.push(newInputValue);
     }
@@ -629,7 +656,7 @@ export default function PlanoIntervencaoNewEditForm({ currentPlano, newFrom = fa
     if (ano_escolar == '3') {
       setHab(habilidades_3ano);
     }
-    let novoFiltro = filtros;
+    const novoFiltro = filtros;
     novoFiltro.ano = ano_escolar;
     setFilters(novoFiltro);
   }, [ano_escolar]);
