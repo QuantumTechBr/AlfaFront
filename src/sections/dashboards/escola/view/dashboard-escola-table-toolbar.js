@@ -100,7 +100,12 @@ export default function DashboardEscolaTableToolbar({
             <Select
               size="small"
               multiple
-              disabled={user?.funcao_usuario?.length > 0 ? true : false}
+              // O DDZ select é livremente toggleável entre as zonas acessíveis
+              // ao usuário (passadas via ddzOptions). Para usuários multi-zona,
+              // o ddzOptions já vem restrito ao conjunto acessível pela view.
+              // (Anteriormente: disabled={user?.funcao_usuario?.length > 0 ? true : false}
+              // que travava o filtro para qualquer usuário com função, impedindo
+              // seleção de zonas em cenários multi-funcao.)
               value={filters.zona}
               onChange={handleFilterZona}
               input={<OutlinedInput fullWidth label="DDZ" />}

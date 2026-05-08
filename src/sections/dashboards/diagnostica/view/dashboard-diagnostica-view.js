@@ -93,6 +93,28 @@ export default function DashboardDiagnosticaView() {
   const isGettingGraphics = useBoolean(true);
   const [zonaFiltro, setZonaFiltro] = useState('');
 
+  // Zonas acessíveis ao usuário (união de todas as funcao_usuario): zona direta
+  // + zona via escola. Usado como ddzOptions para que o usuário com múltiplas
+  // funções possa alternar entre suas zonas. Para SUPERADMIN/sem-funcao,
+  // mostra todas as zonas do sistema.
+  const zonasAcessiveis = useMemo(() => {
+    if (!user?.funcao_usuario?.length || !zonas?.length) return zonas ?? [];
+    const _zonasMap = new Map();
+    for (const fu of user.funcao_usuario) {
+      const zonaDireta = fu?.zona;
+      const zonaViaEscola = fu?.escola?.zona;
+      if (zonaDireta?.id) {
+        const z = zonas.find((z2) => z2.id == zonaDireta.id);
+        if (z) _zonasMap.set(z.id, z);
+      }
+      if (zonaViaEscola?.id) {
+        const z = zonas.find((z2) => z2.id == zonaViaEscola.id);
+        if (z) _zonasMap.set(z.id, z);
+      }
+    }
+    return Array.from(_zonasMap.values());
+  }, [user?.funcao_usuario, zonas]);
+
   const [filters, setFilters] = useState({
     anoLetivo: '',
     zona: zonaFiltro,
@@ -325,12 +347,27 @@ export default function DashboardDiagnosticaView() {
     if (user && contextReady.value) {
 
       let _zonaFiltro = '';
-      console.log(user)
       if (user?.funcao_usuario?.length > 0) {
-        if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ' || user?.funcao_usuario[0]?.funcao?.nome == 'COORDENADOR DE GESTAO') {
-          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
-        } else {
-          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
+        // Default: primeira zona acessível ao usuário (entre TODAS as
+        // funcao_usuario, não apenas funcao_usuario[0]). Inclui zona direta
+        // (ASSESSOR DDZ, COORDENADOR DE GESTAO) e zona via escola
+        // (DIRETOR/PROFESSOR/etc).
+        const _zonasMap = new Map();
+        for (const fu of user.funcao_usuario) {
+          const zonaDireta = fu?.zona;
+          const zonaViaEscola = fu?.escola?.zona;
+          if (zonaDireta?.id) {
+            const z = zonas.find((z2) => z2.id == zonaDireta.id);
+            if (z) _zonasMap.set(z.id, z);
+          }
+          if (zonaViaEscola?.id) {
+            const z = zonas.find((z2) => z2.id == zonaViaEscola.id);
+            if (z) _zonasMap.set(z.id, z);
+          }
+        }
+        const _zonasAcessiveis = Array.from(_zonasMap.values());
+        if (_zonasAcessiveis.length > 0) {
+          _zonaFiltro = _zonasAcessiveis[0];
         }
       }
 
@@ -1114,7 +1151,7 @@ export default function DashboardDiagnosticaView() {
                   filters={filters}
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
-                  ddzOptions={zonas}
+                  ddzOptions={zonasAcessiveis}
                   escolaOptions={_escolasFiltered || escolas}
                   anoEscolarOptions={[1, 2, 3]}
                 />

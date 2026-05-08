@@ -86,7 +86,10 @@ export default function DashboardDDZTableToolbar({
             <InputLabel size="small">DDZ</InputLabel>
             <Select
               size="small"
-              disabled={user?.funcao_usuario?.length > 0 ? true : false}
+              // ddzOptions já vem restrito às zonas acessíveis ao usuário
+              // (computado via useMemo zonasAcessiveis no view). O usuário
+              // alterna livremente entre elas.
+              // (Anteriormente: disabled={user?.funcao_usuario?.length > 0 ? true : false})
               value={filters.zona}
               onChange={handleFilterZona}
               input={<OutlinedInput fullWidth label="DDZ" />}

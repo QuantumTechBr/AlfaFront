@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useContext } from 'react';
+import { useEffect, useState, useCallback, useContext, useMemo } from 'react';
 import _ from 'lodash';
 
 // @mui
@@ -94,6 +94,28 @@ export default function DashboardDDZView() {
   const { bimestres, buscaBimestres } = useContext(BimestresContext);
   const contextReady = useBoolean(false);
   const [zonaFiltro, setZonaFiltro] = useState('');
+
+  // Conjunto de zonas acessíveis ao usuário com base em TODAS as funcao_usuario
+  // dele: zona direta (ASSESSOR DDZ etc) + zona via escola (DIRETOR/PROFESSOR/etc).
+  // Usado como ddzOptions para que o usuário possa alternar entre suas zonas.
+  // Para SUPERADMIN/sem-funcao_usuario, mostra todas as zonas do sistema.
+  const zonasAcessiveis = useMemo(() => {
+    if (!user?.funcao_usuario?.length || !zonas?.length) return zonas ?? [];
+    const _zonasMap = new Map();
+    for (const fu of user.funcao_usuario) {
+      const zonaDireta = fu?.zona;
+      const zonaViaEscola = fu?.escola?.zona;
+      if (zonaDireta?.id) {
+        const z = zonas.find((z2) => z2.id == zonaDireta.id);
+        if (z) _zonasMap.set(z.id, z);
+      }
+      if (zonaViaEscola?.id) {
+        const z = zonas.find((z2) => z2.id == zonaViaEscola.id);
+        if (z) _zonasMap.set(z.id, z);
+      }
+    }
+    return Array.from(_zonasMap.values());
+  }, [user?.funcao_usuario, zonas]);
   const preparacaoInicialRunned = useBoolean(false);
   const isGettingGraphics = useBoolean(true);
   const calculandoTabela = useBoolean(false);
@@ -255,10 +277,25 @@ export default function DashboardDDZView() {
       let _zonaFiltro = undefined;
 
       if (user?.funcao_usuario?.length > 0) {
-        if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.zona.id);
-        } else {
-          _zonaFiltro = zonas.find((z) => z.id == user?.funcao_usuario[0]?.escola?.zona.id);
+        // Default selection: primeira zona acessível ao usuário (entre TODAS
+        // as funcao_usuario, não apenas funcao_usuario[0]). Inclui zona direta
+        // (ASSESSOR DDZ) e zona via escola (DIRETOR/PROFESSOR/etc).
+        const _zonasMap = new Map();
+        for (const fu of user.funcao_usuario) {
+          const zonaDireta = fu?.zona;
+          const zonaViaEscola = fu?.escola?.zona;
+          if (zonaDireta?.id) {
+            const z = zonas.find((z2) => z2.id == zonaDireta.id);
+            if (z) _zonasMap.set(z.id, z);
+          }
+          if (zonaViaEscola?.id) {
+            const z = zonas.find((z2) => z2.id == zonaViaEscola.id);
+            if (z) _zonasMap.set(z.id, z);
+          }
+        }
+        const _zonasAcessiveis = Array.from(_zonasMap.values());
+        if (_zonasAcessiveis.length > 0) {
+          _zonaFiltro = _zonasAcessiveis[0];
         }
       }
 
@@ -462,7 +499,7 @@ export default function DashboardDDZView() {
                   filters={filters}
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
-                  ddzOptions={zonas}
+                  ddzOptions={zonasAcessiveis}
                   anoEscolarOptions={[1, 2, 3]}
                 />
               </Grid>

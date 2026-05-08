@@ -265,23 +265,34 @@ export default function DashboardEscolaView() {
 
   useEffect(() => {
     if (user?.funcao_usuario?.length > 0) {
-      let _zonaFiltro = [];
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        _zonaFiltro = [user?.funcao_usuario[0]?.zona];
-      } else {
-        _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
+      // Computa o conjunto de zonas acessíveis ao usuário a partir de TODAS
+      // as funcao_usuario dele — não apenas a primeira. Inclui:
+      //   (a) zona direta da funcao_usuario (caso ASSESSOR DDZ ou similar)
+      //   (b) zona indireta via funcao_usuario.escola.zona (caso DIRETOR/PROFESSOR/etc)
+      // Deduplica por zona.id.
+      const _zonasMap = new Map();
+      const _escolasMap = new Map();
+      for (const fu of user.funcao_usuario) {
+        const zonaDireta = fu?.zona;
+        const zonaViaEscola = fu?.escola?.zona;
+        if (zonaDireta?.id) _zonasMap.set(zonaDireta.id, zonaDireta);
+        if (zonaViaEscola?.id) _zonasMap.set(zonaViaEscola.id, zonaViaEscola);
+        // Escolas acessíveis: aquelas vinculadas diretamente pelas funcao_usuario
+        // (DIRETOR, PROFESSOR, etc — para uso no filtro de escola e cascata zona→escola)
+        if (fu?.escola?.id) _escolasMap.set(fu.escola.id, fu.escola);
       }
+      const _zonaFiltro = Array.from(_zonasMap.values());
+      const _escolaFiltro = Array.from(_escolasMap.values());
 
-      let _escolaFiltro = [];
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'DIRETOR') {
-        _escolaFiltro = [user?.funcao_usuario[0]?.escola];
-      }
       setZonaFiltro(_zonaFiltro);
       setEscolaFiltro(_escolaFiltro);
       setFilters((prevState) => ({
         ...prevState,
+        // Inicia com TODAS as zonas acessíveis selecionadas (visão completa por padrão);
+        // o usuário pode estreitar selecionando/deselecionando individualmente.
         zona: _zonaFiltro,
-        escola: _escolaFiltro,
+        // Escola começa vazia: usuário escolhe se quiser narrow por escola específica.
+        escola: [],
       }));
     }
   }, [user?.funcao_usuario]);
@@ -443,7 +454,11 @@ export default function DashboardEscolaView() {
                   filters={filters}
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
-                  ddzOptions={zonas}
+                  // Para usuários com funcao_usuario, restringe o DDZ select às
+                  // zonas que eles podem acessar (união de zonas diretas e
+                  // zonas das escolas vinculadas). Para SUPERADMIN/sem funcoes,
+                  // mostra todas as zonas do sistema.
+                  ddzOptions={user?.funcao_usuario?.length > 0 ? zonaFiltro : zonas}
                   escolaOptions={_escolasFiltered ||
                     escolas.filter((esc)=>{
                       for (let index = 0; index < filters.zona.length; index++) {

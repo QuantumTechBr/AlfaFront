@@ -382,14 +382,19 @@ export default function DashboardTurmaView() {
   }, [contextReady.value]); // CHAMADA SEMPRE QUE ESTES MUDAREM
 
   useEffect(() => {
-    let _zonaFiltro = [];
+    // União de zonas acessíveis a partir de TODAS as funcao_usuario do usuário
+    // (não apenas a primeira). Inclui zona direta (ASSESSOR DDZ) e zona via
+    // escola (DIRETOR/PROFESSOR/etc). Deduplica por zona.id.
+    const _zonasMap = new Map();
     if (user?.funcao_usuario?.length > 0) {
-      if (user?.funcao_usuario[0]?.funcao?.nome == 'ASSESSOR DDZ') {
-        _zonaFiltro = [user?.funcao_usuario[0]?.zona];
-      } else {
-        _zonaFiltro = [user?.funcao_usuario[0]?.escola?.zona];
+      for (const fu of user.funcao_usuario) {
+        const zonaDireta = fu?.zona;
+        const zonaViaEscola = fu?.escola?.zona;
+        if (zonaDireta?.id) _zonasMap.set(zonaDireta.id, zonaDireta);
+        if (zonaViaEscola?.id) _zonasMap.set(zonaViaEscola.id, zonaViaEscola);
       }
     }
+    const _zonaFiltro = Array.from(_zonasMap.values());
     setZonaFiltro(_zonaFiltro);
     setFilters({
       anoLetivo: '',
@@ -565,7 +570,7 @@ export default function DashboardTurmaView() {
                   filters={filters}
                   onFilters={handleFilters}
                   anoLetivoOptions={anosLetivos}
-                  ddzOptions={zonas}
+                  ddzOptions={user?.funcao_usuario?.length > 0 ? zonaFiltro : zonas}
                   escolaOptions={_escolasFiltered || escolas}
                   anoTurmaOptions={(_turmasFiltered || turmas).filter((t) =>
                     filters.escola.map((e) => e.id).includes(t.escola_id)
