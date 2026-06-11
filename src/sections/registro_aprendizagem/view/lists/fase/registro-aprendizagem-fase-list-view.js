@@ -54,7 +54,7 @@ import NovaAvaliacaoForm from 'src/sections/registro_aprendizagem/registro-apren
 import registroAprendizagemMethods from 'src/sections/registro_aprendizagem/registro-aprendizagem-repository';
 import LoadingBox from 'src/components/helpers/loading-box';
 import ImportHelperButton from 'src/components/helpers/import-helper-button';
-import { CSVLink } from "react-csv";
+import { parseBlobError } from 'src/utils/axios';
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
@@ -113,6 +113,8 @@ export default function RegistroAprendizagemFaseListView() {
   const tabelaPreparada = useBoolean(false);
   const buscando = useBoolean(false);
   const buscandoCSV = useBoolean(false);
+  const [csvBlob, setCsvBlob] = useState(null);
+  const [csvFilename, setCsvFilename] = useState('');
   const [openUploadModal, setOpenUploadModal] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
@@ -329,10 +331,10 @@ export default function RegistroAprendizagemFaseListView() {
 
   const buscarAvaliacoesCSV = useCallback(async (por, filtros = filters) => {
     if (anosLetivos.length && turmas.length && bimestres.length) {
-      setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+      setWarningMsg('O arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
         'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-        'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + user?.email +
-        ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+        'O arquivo ficará disponível para download nesta tela. ' +
+        'ATENÇÃO: se você sair desta tela antes de concluir, o download será perdido e será necessário solicitar novamente.'
       );
       setErrorMsg('');
       buscandoCSV.onTrue();
@@ -366,33 +368,48 @@ export default function RegistroAprendizagemFaseListView() {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorTurma(_filtersToSend)
           .then((result) => {
-            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
+            const filename = result.headers['content-disposition']
+              ?.split('filename=')[1]?.replace(/"/g, '') ?? 'relatorio.csv';
+            setCsvBlob(result.data);
+            setCsvFilename(filename);
+            setWarningMsg('');
             buscandoCSV.onFalse();
           })
-          .catch((error) => {
-            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          .catch(async (error) => {
+            const msg = error instanceof Blob ? await parseBlobError(error) : String(error);
+            setErrorMsg(msg || 'Erro de comunicação com a API de registro aprendizagem fase');
             buscandoCSV.onFalse();
           });
       } else if (por == 'escola') {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorEscola(_filtersToSend)
           .then((result) => {
-            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
+            const filename = result.headers['content-disposition']
+              ?.split('filename=')[1]?.replace(/"/g, '') ?? 'relatorio.csv';
+            setCsvBlob(result.data);
+            setCsvFilename(filename);
+            setWarningMsg('');
             buscandoCSV.onFalse();
           })
-          .catch((error) => {
-            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          .catch(async (error) => {
+            const msg = error instanceof Blob ? await parseBlobError(error) : String(error);
+            setErrorMsg(msg || 'Erro de comunicação com a API de registro aprendizagem fase');
             buscandoCSV.onFalse();
           });
       } else if (por == 'aluno') {
         await registroAprendizagemMethods
           .getRelatorioAvaliacaoPorAluno(_filtersToSend)
           .then((result) => {
-            setWarningMsg('Arquivo enviado com sucesso para o email ' + user?.email);
+            const filename = result.headers['content-disposition']
+              ?.split('filename=')[1]?.replace(/"/g, '') ?? 'relatorio.csv';
+            setCsvBlob(result.data);
+            setCsvFilename(filename);
+            setWarningMsg('');
             buscandoCSV.onFalse();
           })
-          .catch((error) => {
-            setErrorMsg('Erro de comunicação com a API de registro aprendizagem fase');
+          .catch(async (error) => {
+            const msg = error instanceof Blob ? await parseBlobError(error) : String(error);
+            setErrorMsg(msg || 'Erro de comunicação com a API de registro aprendizagem fase');
             buscandoCSV.onFalse();
           });
       }
@@ -421,6 +438,15 @@ export default function RegistroAprendizagemFaseListView() {
     const _bimestresFiltered = bimestres.filter((bimestre) => filters.ano == bimestre.ano_id);
     setBimestresFiltered(_bimestresFiltered);
   }, [filters.ano]);
+
+  useEffect(() => {
+    return () => {
+      if (csvBlob) {
+        setCsvBlob(null);
+        setCsvFilename('');
+      }
+    };
+  }, [csvBlob]);
 
   const dataInPage = tableData.slice(
     table.page * table.rowsPerPage,
@@ -578,6 +604,31 @@ export default function RegistroAprendizagemFaseListView() {
       )}
       {!!errorMsg && <Alert severity="error">{errorMsg}</Alert>}
       {!!warningMsg && <Alert severity="warning">{warningMsg}</Alert>}
+      {(!buscandoCSV.value && csvBlob) && (
+        <Alert
+          severity="success"
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              startIcon={<Iconify icon="material-symbols:download" />}
+              onClick={() => {
+                const url = URL.createObjectURL(csvBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = csvFilename || 'relatorio.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Baixar relatório
+            </Button>
+          }
+        >
+          Relatório pronto para download.
+        </Alert>
+      )}
 
       <Card>
         <Stack
@@ -630,7 +681,7 @@ export default function RegistroAprendizagemFaseListView() {
             {(buscandoCSV.value) &&
               <LoadingBox
                 sx={{ pt: 0.3, pl: 2.5 }}
-                texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+                texto="Gerando arquivo CSV... Aguarde. Não saia desta tela."
               />
             }
             {(!buscandoCSV.value) &&
@@ -668,8 +719,6 @@ export default function RegistroAprendizagemFaseListView() {
 
               </>
             }
-
-
           </CustomPopover>
 
         </Stack>

@@ -27,8 +27,8 @@ export const getRegistroAprendizagemFaseById = id => axios.get(endpoints.avaliac
 export const exportFileFaseList = (query) => axios.get(endpoints.avaliacao.fase.list.concat(`/?`).concat(query));
 export const importFileFase = (payload) => axios.post(endpoints.avaliacao.fase.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 
-export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.avaliacao.relatorioAvaliacaoFasePorTurma, payload);
-export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.avaliacao.relatorioAvaliacaoFasePorEscola, payload);
+export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.avaliacao.relatorioAvaliacaoFasePorTurma, payload, { responseType: 'blob' });
+export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.avaliacao.relatorioAvaliacaoFasePorEscola, payload, { responseType: 'blob' });
 
 const avaliacaoMethods = {
     getVersaoAvaliacao,

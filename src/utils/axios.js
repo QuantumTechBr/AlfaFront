@@ -45,6 +45,28 @@ export default axiosInstance;
 
 // ----------------------------------------------------------------------
 
+export const parseBlobError = async (blob) => {
+  try {
+    const text = await blob.text();
+    const json = JSON.parse(text);
+    let arrayMsg = [];
+    for (const [key, value] of Object.entries(json)) {
+      if (key === 'non_field_errors') {
+        arrayMsg.push(`${value}`);
+      } else if (Array.isArray(value)) {
+        arrayMsg.push(`${key}: ${value.join(', ')}`);
+      } else {
+        arrayMsg.push(`${key}: ${value}`);
+      }
+    }
+    return arrayMsg.join(' ') || 'Erro desconhecido';
+  } catch (_) {
+    return 'Erro ao processar resposta do servidor';
+  }
+};
+
+// ----------------------------------------------------------------------
+
 export const fetcher = async (args) => {
   const [url, config] = Array.isArray(args) ? args : [args];
 

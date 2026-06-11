@@ -1,7 +1,8 @@
 import PropTypes from 'prop-types';
-import { useCallback, useState, Fragment, useContext } from 'react';
+import { useCallback, useState, useEffect, Fragment, useContext } from 'react';
 // @mui
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import MenuItem from '@mui/material/MenuItem';
@@ -21,7 +22,7 @@ import { Box } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import CustomPopover, { usePopover } from 'src/components/custom-popover';
 import alunoMethods from './aluno-repository';
-import { saveCSVFile } from 'src/utils/functions';
+import { parseBlobError } from 'src/utils/axios';
 import { useBoolean } from 'src/hooks/use-boolean';
 import LoadingBox from 'src/components/helpers/loading-box';
 import { AuthContext } from 'src/auth/context/alfa';
@@ -54,6 +55,8 @@ export default function AlunoTableToolbar({
   const { user } = useContext(AuthContext);
   const buscandoCSV = useBoolean(false);
   const popover = usePopover();
+  const [csvBlob, setCsvBlob] = useState(null);
+  const [csvFilename, setCsvFilename] = useState('');
 
   const handleFilterNome = useCallback(
     (event) => {
@@ -170,6 +173,15 @@ export default function AlunoTableToolbar({
     }
 
   }, [filters, onFilters])
+
+  useEffect(() => {
+    return () => {
+      if (csvBlob) {
+        setCsvBlob(null);
+        setCsvFilename('');
+      }
+    };
+  }, [csvBlob]);
 
   return (
     <>
@@ -405,6 +417,33 @@ export default function AlunoTableToolbar({
 
       </Stack>
 
+      {(!buscandoCSV.value && csvBlob) && (
+        <Alert
+          severity="success"
+          sx={{ mx: 2.5, mb: 2 }}
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              startIcon={<Iconify icon="material-symbols:download" />}
+              onClick={() => {
+                const url = URL.createObjectURL(csvBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = csvFilename || 'exportacao_alunos.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              Baixar relatório
+            </Button>
+          }
+        >
+          Relatório pronto para download.
+        </Alert>
+      )}
+
       <CustomPopover
         open={popover.open}
         onClose={popover.onClose}
@@ -423,16 +462,16 @@ export default function AlunoTableToolbar({
         {(buscandoCSV.value) &&
           <LoadingBox
             sx={{ pt: 0.3, pl: 2.5 }}
-            texto="Gerando CSV... Você receberá um email com o arquivo em anexo."
+            texto="Gerando arquivo CSV... Aguarde. Não saia desta tela."
           />
         }
         {(!buscandoCSV.value) &&
           <MenuItem
             onClick={() => {
-              setWarningMsg('O seu arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
+              setWarningMsg('O arquivo está sendo gerado. Dependendo do número de registros, isso pode levar alguns minutos. ' +
                 'Para uma resposta mais rápida, tente filtrar menos registros. ' +
-                'Quando o processo for concluído, um email será enviado com o arquivo em anexo para ' + (user?.email ?? '') +
-                ' e essa mensagem irá sumir. Enquanto isso, você pode continuar utilizando o sistema normalmente.'
+                'O arquivo ficará disponível para download nesta tela. ' +
+                'ATENÇÃO: se você sair desta tela antes de concluir, o download será perdido e será necessário solicitar novamente.'
               );
               setErrorMsg('');
               buscandoCSV.onTrue();
@@ -447,8 +486,17 @@ export default function AlunoTableToolbar({
               };
 
               const query = new URLSearchParams(exportFilters).toString();
-              alunoMethods.exportFile(query).then(() => {
-                setWarningMsg('Arquivo enviado com sucesso para o email ' + (user?.email ?? ''));
+              alunoMethods.exportFile(query).then((result) => {
+                const filename = result.headers['content-disposition']
+                  ?.split('filename=')[1]?.replace(/"/g, '') ?? 'exportacao_alunos.csv';
+                setCsvBlob(result.data);
+                setCsvFilename(filename);
+                setWarningMsg('');
+                buscandoCSV.onFalse();
+              })
+              .catch(async (error) => {
+                const msg = error instanceof Blob ? await parseBlobError(error) : String(error);
+                setErrorMsg(msg || 'Erro de comunicação com a API.');
                 buscandoCSV.onFalse();
               });
             }}

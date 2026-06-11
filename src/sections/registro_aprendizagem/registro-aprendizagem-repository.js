@@ -25,9 +25,9 @@ export const exportFileFaseList = (query) => axios.get(endpoints.registro_aprend
 export const importFileFase = (payload) => axios.post(endpoints.registro_aprendizagem.fase.import, payload, { headers: { 'Content-Type': 'multipart/form-data' } });
 export const getMelhorResultadoHistorico = ({ turmaId, bimestreId }) => axios.get(endpoints.registro_aprendizagem.fase.melhor_resultado_historico.concat(`?turma_id=${turmaId}&bimestre_id=${bimestreId}`));
 
-export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorTurma, payload);
-export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorEscola, payload);
-export const getRelatorioAvaliacaoPorAluno = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorAluno, payload);
+export const getRelatorioAvaliacaoPorTurma = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorTurma, payload, { responseType: 'blob' });
+export const getRelatorioAvaliacaoPorEscola = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorEscola, payload, { responseType: 'blob' });
+export const getRelatorioAvaliacaoPorAluno = (payload) => axios.post(endpoints.registro_aprendizagem.relatorioAvaliacaoFasePorAluno, payload, { responseType: 'blob' });
 
 const registroAprendizagemMethods = {
     insertRegistroAprendizagem,
