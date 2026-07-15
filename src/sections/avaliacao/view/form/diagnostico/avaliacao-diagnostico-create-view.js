@@ -55,8 +55,9 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
               _alunosTurma[searchIndex].r = r;
               _alunosTurma[searchIndex].media_lingua_portuguesa = avaliacao.media_lingua_portuguesa ?? '';
               _alunosTurma[searchIndex].media_matematica = avaliacao.media_matematica ?? '';
-              _alunosTurma[searchIndex].media_final = avaliacao.media_final ?? '';  
+              _alunosTurma[searchIndex].media_final = avaliacao.media_final ?? '';
               _alunosTurma[searchIndex].avaliacao = avaliacao ?? '';
+              _alunosTurma[searchIndex].atualizado_por = avaliacao.atualizado_por?.nome ?? '';
             }
           });
           setAlunosTurma(_alunosTurma);
@@ -160,6 +161,7 @@ export default function AvaliacaoDiagnosticoCreateView({ turma, periodo }) {
               _alunosTurma[searchIndex].media_lingua_portuguesa = registro.media_lingua_portuguesa ?? '';
               _alunosTurma[searchIndex].media_matematica = registro.media_matematica ?? '';
               _alunosTurma[searchIndex].media_final = registro.media_final ?? '';
+              _alunosTurma[searchIndex].atualizado_por = registro.atualizado_por?.nome ?? '';
             }
           });
           setAlunosTurma(_alunosTurma);

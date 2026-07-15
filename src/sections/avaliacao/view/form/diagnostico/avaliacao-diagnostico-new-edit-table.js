@@ -141,6 +141,7 @@ export default function AvaliacaoDiagnosticoNewEditTable({ turma, periodo, aluno
     }
     cabecalho.push({ id: 'nvLP', label: 'FASE ALFABÉTICA', width: 50 });
     cabecalho.push({ id: 'nvMAT', label: 'LETRAMENTO MATEMÁTICO', width: 50 });
+    cabecalho.push({ id: 'atualizado_por', label: 'Atualizado por', width: 150 });
     setTableHead(cabecalho);
     setTableData(alunosTurma == undefined ? [] : alunosTurma);
   }, [habilidades, alunosTurma, versaoAvaliacao]);

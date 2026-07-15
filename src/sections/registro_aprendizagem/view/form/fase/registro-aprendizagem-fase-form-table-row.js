@@ -221,6 +221,9 @@ export default function RegistroAprendizagemFaseFormTableRow({ row, bimestres, b
         <TableCell sx={{ whiteSpace: 'nowrap', minWidth: 150 }}>
           <RHFTextField disabled={desabilita.value} name={`registros[` + aluno_turma_id + `].observacao`} label="" />
         </TableCell>
+        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+          {getValues('registros[' + aluno_turma_id + '].atualizado_por') || ''}
+        </TableCell>
       </TableRow>
   );
 }

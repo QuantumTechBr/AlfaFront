@@ -66,6 +66,7 @@ const TABLE_HEAD = [
   { id: 'leitura', label: 'Leitura', width: 250 },
   { id: 'escrita', label: 'Escrita', width: 110 },
   { id: 'observacao', label: 'Observação' },
+  { id: 'atualizado_por', label: 'Atualizado por', width: 150 },
 ];
 
 const defaultFilters = { anoLetivo: '', escola: '', turma: '', bimestre: '', pesquisa: '' };
@@ -211,6 +212,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
               aluno_turma_id: alunoTurmaItem.id,
               resultado: registroEncontrado?.resultado ?? '',
               observacao: registroEncontrado?.observacao ?? '',
+              atualizado_por: registroEncontrado?.atualizado_por?.nome ?? '',
             };
           });
 
@@ -254,6 +256,7 @@ export default function RegistroAprendizagemFaseFormListView({ turmaInicial, bim
       const item = { ...retornoPadrao, ...formItem };
       item.nome = `${item.nome} - ${item.aluno_nome}`;
       delete item.aluno_nome;
+      delete item.atualizado_por;
       return item;
     });
     const toSend = mapaResultados.filter(Boolean);

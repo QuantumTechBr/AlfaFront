@@ -305,7 +305,11 @@ export default function AvaliacaoDiagnosticoNewEditTableRow({ row, selected, hab
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {nivelMAT()}
       </TableCell>
-{/* 
+
+      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+        {row.atualizado_por || ''}
+      </TableCell>
+{/*
       <TableCell sx={{ whiteSpace: 'nowrap' }}>
         {
           media_final == '-' ? media_final : media_final.toFixed(1)
