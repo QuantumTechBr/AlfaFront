@@ -190,9 +190,9 @@ export default function DashboardTurmaView() {
                 {
                   label: anoEscolar?.toString(), 
                   series: [
-                    { name: 'Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_alfabetizado[bimestreOrdinal-1] : response.data[0].total_alfabetizados },
-                    { name: 'Não Alfabetizado', amount: bimestreOrdinal ? response.data[0].qtd_nao_alfabetizado[bimestreOrdinal-1] : response.data[0].total_nao_alfabetizados },
-                    { name: 'Não Avaliado', amount: bimestreOrdinal ? response.data[0].qtd_nao_avaliado[bimestreOrdinal-1] : response.data[0].total_nao_avaliados },
+                    { name: 'Alfabetizado', amount: (bimestreOrdinal ? response.data[0].qtd_alfabetizado[bimestreOrdinal-1] : response.data[0].total_alfabetizados) ?? 0 },
+                    { name: 'Não Alfabetizado', amount: (bimestreOrdinal ? response.data[0].qtd_nao_alfabetizado[bimestreOrdinal-1] : response.data[0].total_nao_alfabetizados) ?? 0 },
+                    { name: 'Não Avaliado', amount: (bimestreOrdinal ? response.data[0].qtd_nao_avaliado[bimestreOrdinal-1] : response.data[0].total_nao_avaliados) ?? 0 },
                   ]
                 },
               ],

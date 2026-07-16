@@ -61,7 +61,9 @@ const uploadImagemButtonStyle = {
 }
 export default function UserNewEditForm({ currentUser }) {
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, checkPermissaoModulo } = useAuthContext();
+  const permissaoEditar = checkPermissaoModulo('usuario', 'editar');
+  const permissaoSuperAdmin = checkPermissaoModulo('superadmin', 'upload');
   const [filters, setFilters] = useState(filtros);
   const { funcoes, buscaFuncoes } = useContext(FuncoesContext);
   const { escolas, buscaEscolas } = useContext(EscolasContext);
@@ -547,7 +549,7 @@ export default function UserNewEditForm({ currentUser }) {
     { id: 'funcao', label: 'Função', width: 200, notsortable: true },
     { id: 'escola/zona', label: 'Escola/DDZ', width: 200, notsortable: true },
     { id: 'turmas', label: 'Turmas', width: 400, notsortable: true },
-    { id: '', label: botaoLabel(), width: 88 },
+    { id: '', label: permissaoEditar ? botaoLabel() : '', width: 88 },
   ];
 
   return (
@@ -646,53 +648,55 @@ export default function UserNewEditForm({ currentUser }) {
                 ))}
               </RHFSelect>
 
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  mt: 2,
-                  gridColumn: 'span 2',
-                  borderBottom: '1px solid',
-                  borderTop: '1px solid',
-                  borderColor: 'divider',
-                  py: 2,
-                }}
-              >
-                <Typography variant="subtitle2" sx={{ mr: 2 }}>
-                  Usuário Admin?
-                </Typography>
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    variant={values.funcao === 'ADMIN' ? 'contained' : 'outlined'}
-                    onClick={() => {
-                      if (values.funcao === 'ADMIN') {
-                        setValue('funcao', '');
-                        eAdmin.onFalse();
-                      } else {
-                        setValue('funcao', 'ADMIN')
-                        eAdmin.onTrue();
-                      }
+              {permissaoSuperAdmin && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    mt: 2,
+                    gridColumn: 'span 2',
+                    borderBottom: '1px solid',
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    py: 2,
+                  }}
+                >
+                  <Typography variant="subtitle2" sx={{ mr: 2 }}>
+                    Usuário Admin?
+                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant={values.funcao === 'ADMIN' ? 'contained' : 'outlined'}
+                      onClick={() => {
+                        if (values.funcao === 'ADMIN') {
+                          setValue('funcao', '');
+                          eAdmin.onFalse();
+                        } else {
+                          setValue('funcao', 'ADMIN')
+                          eAdmin.onTrue();
+                        }
+                        }}
+                    >
+                      ADMIN
+                    </Button>
+                    <Button
+                      variant={values.funcao === 'SUPERADMIN' ? 'contained' : 'outlined'}
+                      onClick={() => {
+                        if (values.funcao === 'SUPERADMIN') {
+                          setValue('funcao', '');
+                          eAdmin.onFalse();
+                        } else {
+                          setValue('funcao', 'SUPERADMIN')
+                          eAdmin.onTrue();
+                        }
                       }}
-                  >
-                    ADMIN
-                  </Button>
-                  <Button
-                    variant={values.funcao === 'SUPERADMIN' ? 'contained' : 'outlined'}
-                    onClick={() => {
-                      if (values.funcao === 'SUPERADMIN') {
-                        setValue('funcao', '');
-                        eAdmin.onFalse();
-                      } else {
-                        setValue('funcao', 'SUPERADMIN')
-                        eAdmin.onTrue();
-                      }
-                    }}
-                  >
-                    SUPERADMIN
-                  </Button>
-                </Stack>
-              </Box>
+                    >
+                      SUPERADMIN
+                    </Button>
+                  </Stack>
+                </Box>
+              )}
             </Box>
           </Card>
             {currentUser && !eAdmin.value && (

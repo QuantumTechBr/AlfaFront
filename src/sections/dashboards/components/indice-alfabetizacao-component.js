@@ -27,7 +27,7 @@ export default function IndiceAlfabetizacaoComponent({
 
   const colors = ['#009a50', '#d11400', '#006abc'];
 
-  const chartSeries = indice_alfabetizacao.map((element) => element.amount);
+  const chartSeries = indice_alfabetizacao.map((element) => element.amount ?? 0);
 
   const getLegend = () => {
     return Object.entries(colors).map(([key, value]) => {
