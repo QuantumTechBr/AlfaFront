@@ -326,13 +326,7 @@ export default function AlunoNewEditForm({ currentAluno }) {
   );
 
   const handleSaveRow = useCallback(
-    (novosDados) => {
-      const _tableData = tableData.map((item) => {
-        if (item.id === novosDados.id || item.id_aluno_escola === novosDados.id_aluno_escola) {
-          return { ...item, ...novosDados };
-        }
-        return item;
-      });
+    async (novosDados) => {
       let novaLinha = {
         id: novosDados.id,
         id_aluno_escola: novosDados.id_aluno_escola,
@@ -353,8 +347,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
           });
           if (escolaMudou) {
             promises.push(
-              escolaMethods.updateAlunoEscolaByEscolaId(novosDados.escola.id, alunoEscola).then((alunoEscola) => {
-                novaLinha.id_aluno_escola = alunoEscola.data[0]?.id;
+              escolaMethods.updateAlunoEscolaByEscolaId(novosDados.escola.id, alunoEscola).then((escolaRes) => {
+                novaLinha.id_aluno_escola = escolaRes.data[0]?.id;
                 const novoMapEscola = [...mapEscolaInicial, {escola_id: novosDados.escola.id, ano_id: novosDados.ano_letivo?.id}];
                 setMapEscolaInicial(novoMapEscola);
               }).catch((error) => {
@@ -366,8 +360,8 @@ export default function AlunoNewEditForm({ currentAluno }) {
         if (novosDados.id == 'novo' || novosDados.id == '') {
           if (alunoTurma.aluno_id) {
             promises.push(
-              turmaMethods.insertAlunoTurma(alunoTurma).then((alunoTurma) => {
-                novaLinha.id = alunoTurma.data.id;
+              turmaMethods.insertAlunoTurma(alunoTurma).then((res) => {
+                novaLinha.id = res.data.id;
               }).catch((error) => {
                 setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
               })
@@ -382,25 +376,34 @@ export default function AlunoNewEditForm({ currentAluno }) {
             );
           }
         }
-        Promise.all(promises).then(() => {
-          if ((novosDados.id == 'novo' || !novosDados.id) && (novosDados.id_aluno_escola == 'novo' || !novosDados.id_aluno_escola)) {
-            _tableData.push(novaLinha)
-          }
-          setTableData(_tableData);
-          enqueueSnackbar('Atualizado com sucesso!');
-        });
-        // window.location.reload();
+        // Aguardar a persistência antes de atualizar a tela (nao disparar-e-esquecer).
+        await Promise.all(promises);
+        // Propagar os ids reais (novaLinha.id / id_aluno_escola) para a linha —
+        // inclusive quando id_aluno_escola ja existia. Sem isso a linha ficava com
+        // id: 'novo' e a proxima edicao re-postava (insertAlunoTurma) em vez de PATCH.
+        const idx = tableData.findIndex(
+          (item) =>
+            (!!novosDados.id && novosDados.id !== 'novo' && item.id === novosDados.id) ||
+            (!!novosDados.id_aluno_escola &&
+              novosDados.id_aluno_escola !== 'novo' &&
+              item.id_aluno_escola === novosDados.id_aluno_escola)
+        );
+        const _tableData =
+          idx >= 0
+            ? tableData.map((item, i) => (i === idx ? { ...item, ...novaLinha } : item))
+            : [...tableData, novaLinha];
+        setTableData(_tableData);
+        enqueueSnackbar('Atualizado com sucesso!');
       } catch (error) {
         setErrorMsg('Tentativa de atualização de escola/turma/ano falhou', error);
         console.error(error);
-        // window.location.reload();
       }
     },
     [tableData]
   );
 
-  const saveAndClose = (retorno = null) => {
-    handleSaveRow(retorno);
+  const saveAndClose = async (retorno = null) => {
+    await handleSaveRow(retorno);
     edit.onFalse();
   };
 

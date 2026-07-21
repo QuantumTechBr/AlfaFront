@@ -41,6 +41,7 @@ import _ from 'lodash';
 export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSave, mapEscolaInicial }) {
   const [currentAluno, setCurrentAluno] = useState();
   const contextReady = useBoolean(false);
+  const submitting = useBoolean(false);
   const [escolasFiltered, setEscolasFiltered] = useState([]);
   const { enqueueSnackbar } = useSnackbar();
   const [errorMsg, setErrorMsg] = useState('');
@@ -261,8 +262,9 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
               Cancelar
             </Button>
 
-            <LoadingButton variant="contained" loading={isSubmitting}
-              onClick={() => {
+            <LoadingButton variant="contained" loading={submitting.value} disabled={submitting.value}
+              onClick={async () => {
+                if (submitting.value) return;
                 if (!getValues('escola') || getValues('escola') == '' || !getValues('ano_letivo') || getValues('ano_letivo') == '') {
                   setErrorMsg('Escola e ano letivo são obrigatórios!');
                   return;
@@ -273,13 +275,18 @@ export default function AlunoEscolaTurmaAnoEditModal({ row, open, onClose, onSav
                 setValue('escola', '');
                 setValue('turma', '');
                 setValue('ano_letivo', '');
-                onSave({
-                  id: row ? getValues('id') : 'novo',
-                  id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
-                  turma: _turma[0],
-                  escola: _escola[0],
-                  ano_letivo: _ano[0],
-                })
+                submitting.onTrue();
+                try {
+                  await onSave({
+                    id: row ? getValues('id') : 'novo',
+                    id_aluno_escola: row ? getValues('id_aluno_escola') : 'novo',
+                    turma: _turma[0],
+                    escola: _escola[0],
+                    ano_letivo: _ano[0],
+                  })
+                } finally {
+                  submitting.onFalse();
+                }
               }}
             >
               Atualizar

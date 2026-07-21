@@ -225,7 +225,7 @@ export default function AlunoTurmaForm({ turma, open, onClose }) {
           </Button>
 
           <LoadingButton
-            disabled={isLoading}
+            disabled={isSubmitting || isLoading}
             type="submit"
             variant="contained"
             loading={isSubmitting}
