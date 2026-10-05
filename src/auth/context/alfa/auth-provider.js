@@ -6,6 +6,7 @@ import { useEffect, useReducer, useCallback, useMemo } from 'react';
 import axios, { endpoints } from 'src/utils/axios';
 //
 import { AuthContext } from './auth-context';
+import { temPermissaoModulo } from './permissao';
 import { clearSession, isValidToken, setHeaderSession, setSession } from './utils';
 
 // ----------------------------------------------------------------------
@@ -156,24 +157,10 @@ export function AuthProvider({ children }) {
 
   const status = state.loading ? 'loading' : checkAuthenticated;
 
-  const checkPermissaoModulo = useCallback((nomeModulo, permissao) => {
-    if (!state.user || !state.user.permissao_usuario) {
-      return null;
-    }
-    for (let index = 0; index < state.user.permissao_usuario.length; index++) {
-      if (state.user.permissao_usuario[index].nome == 'SUPERADMIN') { return true }
-      const modulosPermitidos = state.user.permissao_usuario[index].permissao_modulo;
-      if (!modulosPermitidos) { return false; }
-      const moduloPermissao = modulosPermitidos.find(moduloPermissao => 
-        moduloPermissao.modulo.namespace == nomeModulo
-      );
-      if (!moduloPermissao) {
-        return false;
-      }
-      return moduloPermissao[permissao];
-    }
-    return false;
-  }, [state.user]);
+  const checkPermissaoModulo = useCallback(
+    (nomeModulo, permissao) => temPermissaoModulo(state.user, nomeModulo, permissao),
+    [state.user]
+  );
 
   const checkFuncao = useCallback((funcao) => {
     if (!state.user || !state.user.permissao_usuario) { return null}
